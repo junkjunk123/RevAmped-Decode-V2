@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.revamped.utils.FollowParameters;
 import org.firstinspires.ftc.teamcode.revamped.utils.PathSupplier;
 
@@ -16,7 +16,6 @@ import dev.frozenmilk.dairy.mercurial.continuations.Continuations;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
