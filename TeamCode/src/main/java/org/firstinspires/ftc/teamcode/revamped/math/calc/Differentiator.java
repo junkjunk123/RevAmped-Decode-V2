@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.revamped.math.calc;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.revAmped.components.hardware.Encoder;
-
 import java.util.function.Supplier;
 
 public class Differentiator {
@@ -19,10 +16,6 @@ public class Differentiator {
         this.timer.reset();
         this.previousValue = null;
         this.optional = optional;
-    }
-
-    public Differentiator(Encoder encoder) {
-        this(encoder::getVelocity,() -> (double) encoder.getPosition());
     }
 
     public double calculate() {

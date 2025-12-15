@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.revamped.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.revamped.math.calc.Angle;
 import org.firstinspires.ftc.teamcode.revamped.math.calc.PoseDifferentiator;
 import org.firstinspires.ftc.teamcode.revamped.math.calc.Vector3D;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.HoodServo;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.TurretMotor;
+import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.revamped.utils.AllianceColor;
 
 public class ShooterMath {
@@ -99,7 +99,7 @@ public class ShooterMath {
                 });
                 double targetAngle = flywheelDirectionVector.transform(inverseRotMatrix).getTheta() + Math.PI;
                 deltaAngle = normalizeAnglePi(targetAngle - projectedRobotPose.getHeading());
-                deltaAngle = Range.clip(deltaAngle, -TurretMotor.RAD_LIMIT, TurretMotor.RAD_LIMIT);
+                deltaAngle = Range.clip(deltaAngle, -Turret.RAD_LIMIT, Turret.RAD_LIMIT);
                 turretPos = deltaAngle;
             }
         }
@@ -128,10 +128,10 @@ public class ShooterMath {
             if (!Double.isNaN(theta) && confidence > 0.5) {
                 hoodPos = servoPosFromRad(
                         theta,
-                        HoodServo.HOOD_MIN_RAD,
-                        HoodServo.HOOD_MAX_RAD,
-                        HoodServo.HOOD_MIN_POS,
-                        HoodServo.HOOD_MAX_POS
+                        Hood.HOOD_MIN_RAD,
+                        Hood.HOOD_MAX_RAD,
+                        Hood.HOOD_MIN_POS,
+                        Hood.HOOD_MAX_POS
                 );
             }
         }
@@ -143,7 +143,7 @@ public class ShooterMath {
         double targetAngle = offset.getTheta() + Math.PI;
         double currentAngle = follower.getPose().getHeading();
         double deltaAngle = Angle.normalizeAnglePi(targetAngle - currentAngle);
-        return Range.clip(deltaAngle, -TurretMotor.RAD_LIMIT, TurretMotor.RAD_LIMIT);
+        return Range.clip(deltaAngle, -Turret.RAD_LIMIT, Turret.RAD_LIMIT);
     }
 
     private double calcInitialLaunchVelocity(Vector robotVelocity, double flywheelVelocity, double turretAngleOffset) {
