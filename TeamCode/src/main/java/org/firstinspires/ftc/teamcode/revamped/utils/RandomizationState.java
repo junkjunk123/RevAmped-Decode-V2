@@ -24,4 +24,8 @@ public enum RandomizationState {
             }
         }
     }
+
+    public int getID() {
+        return ID;
+    }
 }

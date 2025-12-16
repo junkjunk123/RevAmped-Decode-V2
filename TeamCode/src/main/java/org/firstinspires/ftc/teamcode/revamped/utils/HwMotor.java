@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.revamped.math.calc.Differentiator;
-import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HardwareDevice;
+import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwDevice;
 
-public class Motor implements HardwareDevice {
+public class HwMotor implements HwDevice {
     private double lastPower = 0;
     public final DcMotorEx hardware;
     private double powerThreshold = 0.01;
@@ -19,8 +19,8 @@ public class Motor implements HardwareDevice {
     private final Differentiator velocityCalculator;
     private final String id;
 
-    public Motor(HardwareMap hardwareMap, String id) {
-        this.hardware = HardwareDevice.init(hardwareMap, DcMotorEx.class, id);
+    public HwMotor(HardwareMap hardwareMap, String id) {
+        this.hardware = HwDevice.init(hardwareMap, DcMotorEx.class, id);
         this.id = id;
         velocityCalculator = new Differentiator(() -> 0.0, () -> (double) getPosition());
     }
