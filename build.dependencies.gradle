@@ -26,6 +26,6 @@ dependencies {
     implementation 'com.bylazar:fullpanels:1.0.9'
     implementation "dev.frozenmilk.dairy:Util:1.2.0"
     implementation "dev.frozenmilk.dairy:Core:2.2.4"
-    implementation("dev.frozenmilk.dairy:MercurialFTC:2.0.0-beta4")
+    implementation("dev.frozenmilk.dairy:MercurialFTC:2.0.0-beta9")
 }
 

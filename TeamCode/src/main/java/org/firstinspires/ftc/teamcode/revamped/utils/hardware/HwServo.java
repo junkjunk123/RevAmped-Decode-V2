@@ -37,6 +37,10 @@ public class HwServo implements HwDevice {
         return false;
     }
 
+    protected boolean evaluateCache(double pos) {
+        return Double.isNaN(lastPos) || Math.abs(pos - lastPos) >= cachingTolerance;
+    }
+
     /**
      * @return the raw position of the servo between 0 and 1
      */
