@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.intake;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.match;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.matchType;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.scope;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.sequence;
@@ -78,7 +77,6 @@ public class Table extends HwServo {
 
     private RelativeState initialShootState = RelativeState.BALL2;
     private final EncoderImpl encoder;
-    private boolean hasReached;
     private final Actors.Actor<MoveState, MoveState> movementActor;
 
     /**
@@ -121,10 +119,6 @@ public class Table extends HwServo {
                                         )
                                         .assertExhaustive()
                 );
-    }
-
-    public boolean reached() {
-        return hasReached;
     }
 
     public void one() {

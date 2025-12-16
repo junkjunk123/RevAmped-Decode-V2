@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.revamped.utils;
+package org.firstinspires.ftc.teamcode.revamped.utils.Continuations;
 
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.loop;
