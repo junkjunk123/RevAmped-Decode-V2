@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.revamped.utils;
+package org.firstinspires.ftc.teamcode.revamped.utils.hardware;
 
 import androidx.annotation.NonNull;
 
@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-
-import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwDevice;
 
 public class HwServo implements HwDevice {
     public final ServoImplEx servo;
@@ -29,11 +27,14 @@ public class HwServo implements HwDevice {
      * Method for wrapping all writes to setPositions to the servo to check for caching tolerance
      * @param pos position requested to be written to the servo
      */
-    public void setPosition(double pos) {
+    public boolean setPosition(double pos) {
         if (Double.isNaN(lastPos) || Math.abs(pos - lastPos) >= cachingTolerance) {
             servo.setPosition(pos);
             lastPos = pos;
+            return true;
         }
+
+        return false;
     }
 
     /**

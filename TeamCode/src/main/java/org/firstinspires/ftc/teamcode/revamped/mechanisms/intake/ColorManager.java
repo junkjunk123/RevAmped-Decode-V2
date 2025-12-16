@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.revamped.mechanisms.intake;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.revamped.utils.ArtifactColor;
-import org.firstinspires.ftc.teamcode.revamped.utils.HwColorSensor;
+import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwColorSensor;
 
 public class ColorManager {
     public static float minPurpleHueZero = 270;

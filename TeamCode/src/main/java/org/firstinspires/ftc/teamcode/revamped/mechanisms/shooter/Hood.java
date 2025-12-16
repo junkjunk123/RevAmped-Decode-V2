@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.revamped.utils.HwServo;
+import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwServo;
 
 public class Hood extends HwServo {
     public static float HOOD_MIN_RAD;

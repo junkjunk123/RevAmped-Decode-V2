@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.intake;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.revamped.utils.HwServo;
+import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwServo;
 
 public class Popper extends HwServo {
     public static float NEUTRAL;

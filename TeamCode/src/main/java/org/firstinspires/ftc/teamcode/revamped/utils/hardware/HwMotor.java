@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.revamped.utils;
+package org.firstinspires.ftc.teamcode.revamped.utils.hardware;
 
 import androidx.annotation.NonNull;
 
@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.revamped.math.calc.Differentiator;
-import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwDevice;
 
 public class HwMotor implements HwDevice {
     private double lastPower = 0;
@@ -25,11 +24,14 @@ public class HwMotor implements HwDevice {
         velocityCalculator = new Differentiator(() -> 0.0, () -> (double) getPosition());
     }
 
-    public void setPower(double power) {
+    public boolean setPower(double power) {
         if ((Math.abs(this.lastPower - power) > this.powerThreshold) || (power == 0 && lastPower != 0)) {
             lastPower = power;
             hardware.setPower(power);
+            return true;
         }
+
+        return false;
     }
 
     public double getVelocity() {

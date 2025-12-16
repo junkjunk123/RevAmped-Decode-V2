@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.revamped.utils;
+package org.firstinspires.ftc.teamcode.revamped.utils.hardware;
 
 import androidx.annotation.NonNull;
 
@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.revamped.math.calc.HSVValue;
 import org.firstinspires.ftc.teamcode.revamped.math.calc.RGBValue;
-import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwDevice;
+import org.firstinspires.ftc.teamcode.revamped.utils.ArtifactColor;
 
 public abstract class HwColorSensor implements HwDevice {
     private ArtifactColor color;

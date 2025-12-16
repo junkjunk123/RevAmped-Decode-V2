@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.intake;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.revamped.utils.HwMotor;
+import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwMotor;
 
 public class IntakeMotor extends HwMotor {
     public IntakeMotor(HardwareMap hardwareMap) {
