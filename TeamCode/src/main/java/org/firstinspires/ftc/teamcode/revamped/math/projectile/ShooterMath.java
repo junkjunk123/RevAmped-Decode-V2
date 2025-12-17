@@ -39,7 +39,7 @@ public class ShooterMath {
 
     public static boolean velocityCompensation;
 
-    private PoseDifferentiator accelerationCalculator;
+    private final PoseDifferentiator accelerationCalculator;
 
     public double turretPos;
     public double hoodPos;

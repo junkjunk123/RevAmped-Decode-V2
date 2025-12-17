@@ -9,37 +9,45 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.revamped.math.calc.Differentiator;
 
+import java.util.Arrays;
+
 public class HwMotor implements HwDevice {
     private double lastPower = 0;
-    public final DcMotorEx hardware;
+    public final DcMotorEx[] hardware;
     private double powerThreshold = 0.01;
     private Integer currentPos;
     private int encoderBase;
-    private final Differentiator velocityCalculator;
     private final String id;
 
     public HwMotor(HardwareMap hardwareMap, String id) {
-        this.hardware = HwDevice.init(hardwareMap, DcMotorEx.class, id);
+        this.hardware = new DcMotorEx[] {HwDevice.init(hardwareMap, DcMotorEx.class, id)};
         this.id = id;
-        velocityCalculator = new Differentiator(() -> 0.0, () -> (double) getPosition());
     }
 
-    public boolean setPower(double power) {
-        if ((Math.abs(this.lastPower - power) > this.powerThreshold) || (power == 0 && lastPower != 0)) {
-            lastPower = power;
-            hardware.setPower(power);
-            return true;
-        }
+    public HwMotor(HardwareMap hardwareMap, String... ids) {
+        this.hardware = Arrays.stream(ids).map(s -> HwDevice.init(hardwareMap, DcMotorEx.class, s)).toArray(DcMotorEx[]::new);
+        this.id = Arrays.toString(ids);
+    }
 
-        return false;
+    public void setPower(double power) {
+        if ((Math.abs(lastPower - power) > powerThreshold) || (power == 0 && lastPower != 0)) {
+            lastPower = power;
+
+            for (DcMotorEx motor : hardware)
+                motor.setPower(power);
+        }
+    }
+
+    public DcMotorEx get() {
+        return hardware[0];
     }
 
     public double getVelocity() {
-        return velocityCalculator.calculate();
+        return hardware[0].getVelocity();
     }
 
     private int getPosRaw() {
-        return currentPos - encoderBase;
+        return hardware[0].getCurrentPosition() - encoderBase;
     }
 
     public int getPosition() {
@@ -48,7 +56,6 @@ public class HwMotor implements HwDevice {
 
     public void update() {
         currentPos = null;
-        velocityCalculator.update();
     }
 
     public void resetPosition() {
@@ -60,7 +67,8 @@ public class HwMotor implements HwDevice {
     }
 
     public void setDirection(DcMotorSimple.Direction direction) {
-        this.hardware.setDirection(direction);
+        for (DcMotorEx motor : hardware)
+            motor.setDirection(direction);
     }
 
     public void setCachingThreshold(double powerThreshold) {
@@ -72,11 +80,17 @@ public class HwMotor implements HwDevice {
     }
 
     public void setMode(DcMotor.RunMode runMode) {
-        this.hardware.setMode(runMode);
+        for (DcMotorEx motor : hardware)
+            motor.setMode(runMode);
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
-        this.hardware.setZeroPowerBehavior(zeroPowerBehavior);
+        for (DcMotorEx motor : hardware)
+            motor.setZeroPowerBehavior(zeroPowerBehavior);
+    }
+
+    public int getEncoderBase() {
+        return encoderBase;
     }
 
     @NonNull

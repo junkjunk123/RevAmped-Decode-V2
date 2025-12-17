@@ -97,7 +97,8 @@ public class Table extends HwServo {
                                                 MoveTo.class,
                                                 (move) ->
                                                         scope(dist -> {
-                                                            VarRegister<Double> distRegister = dist.variable(() -> Math.abs(getPosition() - move.get().target()));
+                                                            VarRegister<Double> distRegister =
+                                                                    dist.variable(() -> Math.abs(getPosition() - move.get().target()));
                                                                     return sequence(
                                                                             exec(
                                                                                     () -> setPosition(move.get().target())

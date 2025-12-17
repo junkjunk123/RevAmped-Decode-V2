@@ -15,18 +15,8 @@ public class Hood extends HwServo {
     public static float FAR_PRESET;
     public static float MEDIUM_PRESET;
 
-    private boolean locked = false;
-
     public Hood(HardwareMap hwMap) {
         super(hwMap, "hood");
-    }
-
-    public void setLocked(boolean locked) {
-        this.locked = locked;
-    }
-
-    public boolean isLocked() {
-        return locked;
     }
 
     public void rest() {
