@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.revamped.math.projectile;
 import static org.firstinspires.ftc.teamcode.revamped.math.calc.Angle.normalizeAnglePi;
 import static org.firstinspires.ftc.teamcode.revamped.math.calc.Angle.servoPosFromRad;
+import static org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret.RAD_LIMIT;
+import static org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret.TICKS_LIMIT;
 import static org.firstinspires.ftc.teamcode.revamped.utils.Globals.allianceColor;
 
 import com.pedropathing.follower.Follower;
@@ -41,7 +43,7 @@ public class ShooterMath {
 
     private final PoseDifferentiator accelerationCalculator;
 
-    private double turretPos;
+    private int turretPos;
     private double hoodPos;
     private double confidence;
 
@@ -54,16 +56,15 @@ public class ShooterMath {
         APRIL_TAG_POSE_RED_NEGATIVE = new Pose(redNegativeX, redNegativeY);
     }
 
-    public void update(double millisToLaunch, boolean trackTurret, boolean trackHood, double flywheelVelocity) {
+    public void update(boolean trackTurret, boolean trackHood, double flywheelVelocity) {
         Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
         Pose currentPos = follower.getPose();
         Pose robotVelPose = follower.poseTracker.getLocalizer().getVelocity();
         Vector robotVelocity = robotVelPose.getAsVector();
         Pose robotAcceleration = accelerationCalculator.calculate(robotVelPose);
-        millisToLaunch += BALL_LAUNCH_MS;
         Pose projectedRobotPose = RobotKinematicsCalculator.getProjectedPoseWithConstantLinearAcceleration(
                 currentPos,
-                millisToLaunch / 1000.0,
+                BALL_LAUNCH_MS / 1000.0,
                 robotVelPose,
                 robotAcceleration
         );
@@ -80,7 +81,7 @@ public class ShooterMath {
                     deltaAngle = angleTurretTo(currentPos, targetCorrectedPose);
                 }
 
-                turretPos = deltaAngle;
+                turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);;
             } else if (velocityCompensation) {
                 Vector offset = targetPos.minus(projectedRobotPose).getAsVector();
                 Vector iHat = offset.normalize();
@@ -100,8 +101,8 @@ public class ShooterMath {
                 });
                 double targetAngle = flywheelDirectionVector.transform(inverseRotMatrix).getTheta() + Math.PI;
                 deltaAngle = normalizeAnglePi(targetAngle - projectedRobotPose.getHeading());
-                deltaAngle = Range.clip(deltaAngle, -Turret.RAD_LIMIT, Turret.RAD_LIMIT);
-                turretPos = deltaAngle;
+                deltaAngle = Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
+                turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
             }
         }
 
@@ -144,7 +145,7 @@ public class ShooterMath {
         double targetAngle = offset.getTheta() + Math.PI;
         double currentAngle = follower.getPose().getHeading();
         double deltaAngle = Angle.normalizeAnglePi(targetAngle - currentAngle);
-        return Range.clip(deltaAngle, -Turret.RAD_LIMIT, Turret.RAD_LIMIT);
+        return Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
     }
 
     private double calcInitialLaunchVelocity(Vector robotVelocity, double flywheelVelocity, double turretAngleOffset) {
@@ -152,7 +153,7 @@ public class ShooterMath {
         return robotSpeed + flywheelVelocity;
     }
 
-    public double getTurretPos() {
+    public int getTurretPos() {
         return turretPos;
     }
 

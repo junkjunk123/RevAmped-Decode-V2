@@ -23,6 +23,10 @@ public class Hood extends HwServo {
         setPosition(REST);
     }
 
+    public void setPositionRad(double rad) {
+
+    }
+
     public void near() {
         setPosition(NEAR_PRESET);
     }
