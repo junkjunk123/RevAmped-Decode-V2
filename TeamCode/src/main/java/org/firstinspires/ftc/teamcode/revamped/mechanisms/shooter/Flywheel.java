@@ -1,57 +1,64 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter;
-import com.pedropathing.control.KalmanFilter;
 import com.pedropathing.control.KalmanFilterParameters;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.teamcode.revamped.math.calc.Extrapolator;
+import com.qualcomm.robotcore.util.Range;
+import org.firstinspires.ftc.teamcode.revamped.math.calc.SingleStateKalman;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwMotor;
 
 public class Flywheel extends HwMotor {
     public static double P;
-    public static double K_static;
-    public static double K_V;
-    public static double STATE_STDDEV = 3;
-    public static double MEASUREMENT_STDDEV = 0.4;
-    public static double FLYWHEEL_FAR_VELOCITY;
-    public static double FLYWHEEL_NEAR_VELOCITY;
-    public static double FLYWHEEL_MEDIUM_VELOCITY;
-    public static double RADIUS; //Inches
+    public static double kStatic;
+    public static double kV;
+    public static double kA;
+
+    public static double STATE_STDDEV;
+    public static double MEASUREMENT_STDDEV;
+
+    public static double RADIUS;
     public static int COUNTS_PER_REVOLUTION;
 
+    private static double MAX_ACCELERATION;
+
     private double targetVelocity;
+    private double targetAcceleration;
     private boolean running;
-    private final Extrapolator velocityProjector;
-    private final KalmanFilter filter;
+
+    private final SingleStateKalman filter;
+
+    private long lastUpdateTime = 0;
 
     public Flywheel(HardwareMap hardwareMap) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
-        filter = new KalmanFilter(new KalmanFilterParameters(STATE_STDDEV, MEASUREMENT_STDDEV));
-        velocityProjector = new Extrapolator(2);
+        filter = new SingleStateKalman(new KalmanFilterParameters(STATE_STDDEV, MEASUREMENT_STDDEV));
     }
 
     public void update() {
+        long now = System.nanoTime();
+        double dt;
+        if (lastUpdateTime == 0) {
+            dt = 0.02; // assume 20ms for the first loop
+        } else {
+            dt = (now - lastUpdateTime) * 1e-9;
+        }
+        lastUpdateTime = now;
+
         super.update();
 
-        if (running) {
-            double velocity = getVelocity();
-            double velTarget = targetVelocity * ticksPerInch();
-            filter.update(velocity, velocityProjector.extrapolate().orElse(velocity));
-            velocityProjector.update(velocity);
-            velocity = filter.getState();
-            double error = velTarget - velocity;
-            double controlOutput = P * error + K_V * velTarget + K_static * Math.signum(error);
-            setPower(controlOutput);
-        }
+        if (!running)
+            return;
+
+        double measuredVelocity = getVelocity();
+        updateKalman(measuredVelocity);
+        updateMotionProfile(dt);
+        double control = computeControl(getFilteredVelocity());
+        setPower(control);
     }
 
     public void setTargetVelocity(double target) {
-        if (Math.abs(targetVelocity - target) > 1)
+        if (Math.abs(targetVelocity - target) > 1.0)
             resetController();
-
         targetVelocity = target;
-
-        if (targetVelocity != 0)
-            running = true;
+        running = target != 0;
     }
 
     public void stop() {
@@ -60,16 +67,25 @@ public class Flywheel extends HwMotor {
     }
 
     private void resetController() {
-        filter.reset(getVelocity(), 1,1);
-        velocityProjector.reset();
+        filter.reset(getVelocity(), 1.0);
+        lastUpdateTime = 0;
     }
 
-    public static double ticksPerInch() {
-        return (double) COUNTS_PER_REVOLUTION / 2 / Math.PI / RADIUS;
+    private void updateKalman(double measuredVelocity) {
+        filter.update(measuredVelocity);
     }
 
-    public double getVelocityImperial() {
-        return getVelocity() / ticksPerInch();
+    private void updateMotionProfile(double dt) {
+        double filteredVelocity = filter.getState();
+        double error = targetVelocity - filteredVelocity;
+        targetAcceleration = Range.clip(error / dt, -MAX_ACCELERATION, MAX_ACCELERATION);
+        targetVelocity = filteredVelocity + targetAcceleration * dt;
+    }
+
+    private double computeControl(double filteredVelocity) {
+        double error = targetVelocity - filteredVelocity;
+        double ff = kStatic * Math.signum(error) + kV * targetVelocity + kA * targetAcceleration;
+        return ff + P * error;
     }
 
     public boolean isRunning() {
@@ -78,5 +94,21 @@ public class Flywheel extends HwMotor {
 
     public double getTargetVelocity() {
         return targetVelocity;
+    }
+
+    public double getFilteredVelocity() {
+        return filter.getState();
+    }
+
+    public static double ticksPerInch() {
+        return (double) COUNTS_PER_REVOLUTION / (2 * Math.PI * RADIUS);
+    }
+
+    public double getVelocityImperial() {
+        return getVelocity() / ticksPerInch();
+    }
+
+    public boolean canShoot() {
+        return Math.abs(targetVelocity - getVelocityImperial()) < targetVelocity / 40;
     }
 }

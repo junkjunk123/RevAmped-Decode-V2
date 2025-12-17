@@ -9,7 +9,7 @@ import java.util.Optional;
  * Time-invariant, zero-tuning extrapolator using finite differences.
  * Stores the last `order` values in a circular buffer and predicts the next value.
  */
-public class Extrapolator {
+public class PolynomialExtrapolator {
     private final double[] buffer;      // circular buffer of previous values
     private int head = 0;               // index of newest value
     private final double[] coefficients;
@@ -26,7 +26,7 @@ public class Extrapolator {
         coefficientsCache.put(5, new double[]{6.0, -15.0, 20.0, -15.0, 6.0, -1.0});
     }
 
-    public Extrapolator(int order) {
+    public PolynomialExtrapolator(int order) {
         if (order < 1) throw new IllegalArgumentException("Order must be >= 1");
         this.order = order;
         buffer = new double[order];
