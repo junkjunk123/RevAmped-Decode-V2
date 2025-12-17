@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.geometry.Pose;
@@ -16,6 +17,8 @@ import org.firstinspires.ftc.teamcode.revamped.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwDevice;
 
 import java.util.List;
+
+import dev.frozenmilk.dairy.mercurial.continuations.Continuation;
 
 public class DecodeLimelight implements HwDevice {
     public final Limelight3A limelight;
@@ -72,50 +75,63 @@ public class DecodeLimelight implements HwDevice {
         }
     }
 
-    public void update() {
-        if (currentPipeline == Pipeline.NONE) return;
-        computeLatestResult();
-        if (latestResult == null) return;
-
-        switch (currentPipeline) {
-            case OBELISK -> {
-                if (latestResult.getFiducialResults() == null || latestResult.getFiducialResults().isEmpty())
-                    return;
-                LLResultTypes.FiducialResult result = latestResult.getFiducialResults().get(0);
-                int id = result.getFiducialId();
-                for (RandomizationState state : RandomizationState.values()) {
-                    if (id == state.getID()) {
-                        Globals.randomizationState = state;
-                        setCurrentPipeline(Pipeline.NONE);
-                        return;
-                    }
-                }
+    public Continuation update = new Continuation() {
+            @NonNull
+            @Override
+            public StackTraceElement[] getStackTrace() {
+                return new StackTraceElement[] {new StackTraceElement(
+                        "DecodeLimelight", "update", "DecodeLimelight.java", 89)};
             }
 
-            case SHOOTING_ALIGNMENT -> {
-                double tagID = Globals.allianceColor.getTagID();
-                List<LLResultTypes.FiducialResult> r = latestResult.getFiducialResults();
-                LLResultTypes.FiducialResult target = null;
-                for (LLResultTypes.FiducialResult i: r) {
-                    if (i != null && i.getFiducialId() == tagID) {
-                        target = i;
-                        break;
+            @NonNull
+            @Override
+            public Continuation apply() {
+                if (currentPipeline == Pipeline.NONE) return update;
+                computeLatestResult();
+                if (latestResult == null) return update;
+
+                switch (currentPipeline) {
+                    case OBELISK -> {
+                        if (latestResult.getFiducialResults() == null || latestResult.getFiducialResults().isEmpty())
+                            return update;
+                        LLResultTypes.FiducialResult result = latestResult.getFiducialResults().get(0);
+                        int id = result.getFiducialId();
+                        for (RandomizationState state : RandomizationState.values()) {
+                            if (id == state.getID()) {
+                                Globals.randomizationState = state;
+                                setCurrentPipeline(Pipeline.NONE);
+                                return update;
+                            }
+                        }
+                    }
+
+                    case SHOOTING_ALIGNMENT -> {
+                        double tagID = Globals.allianceColor.getTagID();
+                        List<LLResultTypes.FiducialResult> r = latestResult.getFiducialResults();
+                        LLResultTypes.FiducialResult target = null;
+                        for (LLResultTypes.FiducialResult i : r) {
+                            if (i != null && i.getFiducialId() == tagID) {
+                                target = i;
+                                break;
+                            }
+                        }
+
+                        if (target != null) {
+                            double x = target.getCameraPoseTargetSpace().getPosition().toUnit(DistanceUnit.INCH).x; // right/left from tag
+                            double z = target.getCameraPoseTargetSpace().getPosition().toUnit(DistanceUnit.INCH).z; // forward/back from tag
+                            double h = target.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.RADIANS); // heading from tag
+
+                            detectionResult = new Pose(x, z, h, FTCCoordinates.INSTANCE);
+                            return update;
+                        }
+
+                        detectionResult = new Pose();
                     }
                 }
 
-                if (target != null) {
-                    double x = target.getCameraPoseTargetSpace().getPosition().toUnit(DistanceUnit.INCH).x; // right/left from tag
-                    double z = target.getCameraPoseTargetSpace().getPosition().toUnit(DistanceUnit.INCH).z; // forward/back from tag
-                    double h = target.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.RADIANS); // heading from tag
-
-                    detectionResult = new Pose(x, z, h, FTCCoordinates.INSTANCE);
-                    return;
-                }
-
-                detectionResult = new Pose();
+                return update;
             }
-        }
-    }
+    };
 
     public Pose getDetectionResult() {
         return detectionResult;

@@ -29,9 +29,11 @@ public final class Globals {
      *
      * @param telemetry the Telemetry instance to use for logging
      */
-    public static void init(Telemetry telemetry) {
+    public static void init(Telemetry telemetry, AllianceColor allianceColor) {
         constants.build();
+        randomizationState = null;
         Globals.telemetry = telemetry;
+        Globals.allianceColor = allianceColor;
     }
 
     public static RandomizationState randomizationState;

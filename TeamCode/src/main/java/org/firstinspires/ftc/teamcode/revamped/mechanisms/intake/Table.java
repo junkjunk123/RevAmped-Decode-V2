@@ -79,12 +79,8 @@ public class Table extends HwServo {
     private final EncoderImpl encoder;
     private final Actors.Actor<MoveState, MoveState> movementActor;
 
-    /**
-     * @param hwMap hardwareMap
-     * @param id    the ID of the servo as configured
-     */
-    public Table(HardwareMap hwMap, String id, Encoder rawEncoder) {
-        super(hwMap, id);
+    public Table(HardwareMap hwMap, Encoder rawEncoder) {
+        super(hwMap, "tableServo");
         this.encoder = new EncoderImpl(rawEncoder);
         movementActor = Actors.actor(
                         () -> new MoveState.Hold(BALL1),

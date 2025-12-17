@@ -7,8 +7,8 @@ public class Popper extends HwServo {
     public static float NEUTRAL;
     public static float POP;
 
-    public Popper(HardwareMap hwMap, String id) {
-        super(hwMap, id);
+    public Popper(HardwareMap hwMap) {
+        super(hwMap, "popper");
     }
 
     public void pop() {

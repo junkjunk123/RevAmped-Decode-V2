@@ -10,4 +10,6 @@ public interface HwDevice {
             throw new IllegalArgumentException("motor " + id + " not found");
         }
     }
+
+    default void update() {}
 }

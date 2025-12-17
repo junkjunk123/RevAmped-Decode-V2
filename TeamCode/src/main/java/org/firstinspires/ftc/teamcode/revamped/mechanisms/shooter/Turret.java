@@ -4,6 +4,9 @@ import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.matchType;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.noop;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,6 +15,8 @@ import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwMotor;
 
 import dev.frozenmilk.dairy.mercurial.continuations.Actors;
+import dev.frozenmilk.dairy.mercurial.continuations.Closure;
+import dev.frozenmilk.dairy.mercurial.continuations.Continuation;
 import dev.frozenmilk.dairy.mercurial.continuations.channels.Channels;
 
 public class Turret extends HwMotor {
@@ -109,32 +114,47 @@ public class Turret extends HwMotor {
         return (int) controller.getTargetPosition() - getEncoderBase();
     }
 
-    public void preset(MoveState.PresetState presetState) {
+    public Closure preset(MoveState.PresetState presetState) {
         controller.reset();
-        Channels.send(() -> presetState, moveStateActor::tx);
+        return Channels.send(() -> presetState, moveStateActor::tx);
     }
 
-    public void moveTo(int pos) {
+    public Closure moveTo(int pos) {
         if (Math.abs(pos - getTargetPosition()) > 0.5)
             controller.reset();
-        Channels.send(() -> new MoveState.MoveTo(pos), moveStateActor::tx);
+        return Channels.send(() -> new MoveState.MoveTo(pos), moveStateActor::tx);
     }
 
-    public void nextPreset() {
+    public Closure nextPreset() {
         controller.reset();
-        Channels.send(() -> MoveState.Next.INSTANCE, moveStateActor::tx);
+        return Channels.send(() -> MoveState.Next.INSTANCE, moveStateActor::tx);
     }
 
-    public void previousPreset() {
+    public Closure previousPreset() {
         controller.reset();
-        Channels.send(() -> MoveState.Previous.INSTANCE, moveStateActor::tx);
+        return Channels.send(() -> MoveState.Previous.INSTANCE, moveStateActor::tx);
     }
 
+    public Continuation PID = new Continuation() {
+        @NonNull
+        @Override
+        public Continuation apply() {
+            controller.updatePosition(getPosition());
+            controller.updateFeedForwardInput(Math.signum(getTargetPosition() - getPosition()));
+            setPower(controller.run());
+            return PID;
+        }
+
+        @NonNull
+        @Override
+        public StackTraceElement[] getStackTrace() {
+            return new StackTraceElement[] {new StackTraceElement("Turret", "periodic", "TurretMotor.java", 141)};
+        }
+    };
+
+    @Override
     public void update() {
         super.update();
         limitSwitch.update();
-        controller.updatePosition(getPosition());
-        controller.updateFeedForwardInput(Math.signum(getTargetPosition() - getPosition()));
-        setPower(controller.run());
     }
 }
