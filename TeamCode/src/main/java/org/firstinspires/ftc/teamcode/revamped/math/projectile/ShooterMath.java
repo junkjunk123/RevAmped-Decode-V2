@@ -34,16 +34,16 @@ public class ShooterMath {
     public static double redNegativeX = 151;
     public static double redNegativeY = 180;
 
-    public static double BALL_LAUNCH_MS = 400;
+    public static double BALL_LAUNCH_MS = 100; //time through flywheel
     public static double LAUNCH_ETA = 0.9;
 
     public static boolean velocityCompensation;
 
     private final PoseDifferentiator accelerationCalculator;
 
-    public double turretPos;
-    public double hoodPos;
-    public double confidence;
+    private double turretPos;
+    private double hoodPos;
+    private double confidence;
 
     public ShooterMath(Follower follower) {
         this.follower = follower;
@@ -54,15 +54,16 @@ public class ShooterMath {
         APRIL_TAG_POSE_RED_NEGATIVE = new Pose(redNegativeX, redNegativeY);
     }
 
-    public void update(boolean trackTurret, boolean trackHood, double flywheelVelocity) {
+    public void update(double millisToLaunch, boolean trackTurret, boolean trackHood, double flywheelVelocity) {
         Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
         Pose currentPos = follower.getPose();
         Pose robotVelPose = follower.poseTracker.getLocalizer().getVelocity();
         Vector robotVelocity = robotVelPose.getAsVector();
         Pose robotAcceleration = accelerationCalculator.calculate(robotVelPose);
+        millisToLaunch += BALL_LAUNCH_MS;
         Pose projectedRobotPose = RobotKinematicsCalculator.getProjectedPoseWithConstantLinearAcceleration(
                 currentPos,
-                BALL_LAUNCH_MS / 1000.0,
+                millisToLaunch / 1000.0,
                 robotVelPose,
                 robotAcceleration
         );
@@ -149,5 +150,17 @@ public class ShooterMath {
     private double calcInitialLaunchVelocity(Vector robotVelocity, double flywheelVelocity, double turretAngleOffset) {
         double robotSpeed = robotVelocity.getMagnitude() * Math.cos(turretAngleOffset);
         return robotSpeed + flywheelVelocity;
+    }
+
+    public double getTurretPos() {
+        return turretPos;
+    }
+
+    public double getHoodPos() {
+        return hoodPos;
+    }
+
+    public double getConfidence() {
+        return confidence;
     }
 }
