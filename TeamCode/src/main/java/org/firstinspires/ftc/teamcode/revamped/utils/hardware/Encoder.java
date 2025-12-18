@@ -22,20 +22,6 @@ public interface Encoder {
         };
     }
 
-    static Encoder external(HwMotor2<?> otherMotor) {
-        return new Encoder() {
-            @Override
-            public int getPosition() {
-                return otherMotor.motor.getCurrentPosition();
-            }
-
-            @Override
-            public double getVelocity() {
-                return otherMotor.motor.getVelocity();
-            }
-        };
-    }
-
     static Encoder external(DcMotorEx otherMotor) {
         return new Encoder() {
             @Override

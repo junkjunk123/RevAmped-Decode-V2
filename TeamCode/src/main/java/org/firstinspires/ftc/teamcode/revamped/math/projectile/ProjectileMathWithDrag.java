@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.revamped.math.projectile;
 
 import com.pedropathing.geometry.Pose;
-
 import com.qualcomm.robotcore.util.Range;
 
 public class ProjectileMathWithDrag {

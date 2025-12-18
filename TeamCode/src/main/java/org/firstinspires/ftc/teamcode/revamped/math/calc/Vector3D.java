@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.revamped.math.calc;
 
 import com.pedropathing.geometry.Pose;
 
-import dev.frozenmilk.util.units.position.Vector2D;
-
 /**
  * A class representing a three-dimensional vector with additional operations
  */

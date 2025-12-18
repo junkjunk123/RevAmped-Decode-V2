@@ -1,18 +1,13 @@
 package org.firstinspires.ftc.teamcode.revamped.utils.hardware;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.revamped.math.calc.Differentiator;
-
 import java.util.Arrays;
-
-import dev.frozenmilk.dairy.mercurial.continuations.Continuation;
 
 public class HwMotor implements HwDevice {
     private double lastPower = 0;

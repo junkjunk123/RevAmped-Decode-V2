@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.pedropathing.control.KalmanFilterParameters;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.teamcode.revamped.math.calc.SingleStateKalman;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwMotor;
-
-import dev.frozenmilk.dairy.mercurial.continuations.Continuation;
 
 public class Flywheel extends HwMotor {
     public static double P;
@@ -29,41 +26,33 @@ public class Flywheel extends HwMotor {
     private boolean running;
 
     private final SingleStateKalman filter;
+    private double lastTime;
 
     public Flywheel(HardwareMap hardwareMap) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
         filter = new SingleStateKalman(new KalmanFilterParameters(STATE_STDDEV, MEASUREMENT_STDDEV));
     }
 
-    public Continuation periodic(double lastTime) {
-        return new Continuation() {
-            @Nullable
-            @Override
-            public StackTraceElement[] getStackTrace() {
-                return null;
-            }
+    public void update() {
+        super.update();
 
-            @NonNull
-            @Override
-            public Continuation apply() {
-                long now = System.nanoTime();
-                double dt;
-                if (lastTime == 0) {
-                    dt = 0.02; // assume 20ms for the first loop
-                } else {
-                    dt = (now - lastTime) * 1e-9;
-                }
+        long now = System.nanoTime();
+        double dt;
+        if (lastTime == 0) {
+            dt = 0.02; // assume 20ms for the first loop
+        } else {
+            dt = (now - lastTime) * 1e-9;
+        }
 
-                if (!running) return periodic(now);
+        lastTime = now;
 
-                double measuredVelocity = getVelocity();
-                updateKalman(measuredVelocity);
-                updateMotionProfile(dt);
-                double control = computeControl(getFilteredVelocity());
-                setPower(control);
-                return periodic(now);
-            }
-        };
+        if (!running) return;
+
+        double measuredVelocity = getVelocity();
+        updateKalman(measuredVelocity);
+        updateMotionProfile(dt);
+        double control = computeControl(getFilteredVelocity());
+        setPower(control);
     };
 
     public void setTargetVelocity(double target) {

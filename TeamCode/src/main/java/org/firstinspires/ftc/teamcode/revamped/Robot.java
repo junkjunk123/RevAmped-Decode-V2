@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.revamped;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.scope;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.sequence;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.waitSeconds;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.waitUntil;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -24,19 +22,10 @@ import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret;
-import org.firstinspires.ftc.teamcode.revamped.utils.Continuations.SimpleContinuation;
 import org.firstinspires.ftc.teamcode.revamped.utils.PathSupplier;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.Encoder;
 
 import java.util.List;
-
-import dev.frozenmilk.dairy.mercurial.continuations.Actors;
-import dev.frozenmilk.dairy.mercurial.continuations.Closure;
-import dev.frozenmilk.dairy.mercurial.continuations.Continuation;
-import dev.frozenmilk.dairy.mercurial.continuations.channels.Channel;
-import dev.frozenmilk.dairy.mercurial.continuations.channels.Channels;
-import dev.frozenmilk.dairy.mercurial.continuations.channels.Sender;
-import dev.frozenmilk.dairy.mercurial.continuations.registers.VarRegister;
 
 public class Robot {
     public static Robot INSTANCE;
@@ -52,7 +41,7 @@ public class Robot {
     public final TableCompartmentManager tableCompartments;
     private final boolean teleop;
     private final List<LynxModule> hubs;
-    private final Actors.Actor<RobotState, Message> actor;
+    private RobotState robotState;
 
     public interface Message {
         RobotState robotState();
@@ -84,7 +73,9 @@ public class Robot {
         }
     }
 
-    public interface RobotState extends SimpleContinuation { }
+    public interface RobotState {
+        void update();
+    }
 
     public interface CycleState extends RobotState {
         DriveToShoot DRIVE_TO_SHOOT = new DriveToShoot();
@@ -95,12 +86,9 @@ public class Robot {
             IntakeState INSTANCE = IntakeState.INTAKING;
             IntakeThread intakeThread = new IntakeThread();
 
-            @NonNull
             @Override
-            public Continuation apply() {
-                if (INSTANCE == IntakeState.INTAKING)
-                    intakeThread.apply();
-                return this;
+            public void update() {
+                if (INSTANCE == IntakeState.INTAKING) {}
             }
         }
 
@@ -108,24 +96,20 @@ public class Robot {
             DriveState INSTANCE = DriveState.PASSIVE;
             TrackingThread autoTracker;
 
-            @Override
-            public Continuation apply() {
-                if (INSTANCE == DriveState.AUTO_TRACKING)
-                    autoTracker.apply();
-                return this;
-            }
-
             public void init(Follower follower, Turret turret, Hood hood, Flywheel flywheel, boolean isTeleOp) {
                 autoTracker = new TrackingThread(follower, turret, flywheel, hood, isTeleOp);
+            }
+
+            @Override
+            public void update() {
+                if (INSTANCE == DriveState.AUTO_TRACKING)
+                    autoTracker.update();
             }
         }
 
         class Shoot implements CycleState {
-            @NonNull
             @Override
-            public Continuation apply() {
-                return Continuation.halt();
-            }
+            public void update() {}
         }
     }
 
@@ -160,7 +144,7 @@ public class Robot {
         INSTANCE = this;
         CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, teleop);
         tableCompartments = new TableCompartmentManager();
-        actor = null;
+        if (!teleop) init();
     }
 
     public void init() {
@@ -169,28 +153,18 @@ public class Robot {
         table.reset();
     }
 
-    public Continuation update = new Continuation() {
-        @NonNull
-        @Override
-        public Continuation apply() {
-            clearBulkCache();
-            intakeColor.update();
-            flywheel.update();
-            turret.update();
-            intakeMotor.update();
-            table.update();
-            popper.update();
-            intakeDistance.update();
-            hood.update();
-            return update;
-        }
-
-        @Nullable
-        @Override
-        public StackTraceElement[] getStackTrace() {
-            return null;
-        }
-    };
+    public void update() {
+        clearBulkCache();
+        intakeColor.update();
+        flywheel.update();
+        turret.update();
+        intakeMotor.update();
+        table.update();
+        popper.update();
+        intakeDistance.update();
+        hood.update();
+        robotState.update();
+    }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {
         for (LynxModule module : hubs) {
@@ -208,58 +182,52 @@ public class Robot {
         return teleop;
     }
 
-    public Closure shootAll() {
-        return scope(env -> {
-                    VarRegister<Channel<Boolean>> turntableReached = env.variable(Channels::oneshot);
-
-                    return sequence(
-                            exec(() -> {
-                                intakeMotor.intake();
-                                table.fullRotation(turntableReached.get().tx());
-                            }),
-                            waitUntil(() -> !turntableReached.get().rx().getEmpty())
-                    );
-                }
-        );
+    public RobotState getRobotState() {
+        return robotState;
     }
 
-    private Closure shootOne(float tablePos, double flywheelDelay, Channel<Boolean> reached) {
-        return sequence(
-                waitUntil(() -> !reached.rx().getEmpty()),
-                exec(() -> {
-                    intakeMotor.stop();
-                    reached.rx().take();
+    public void setRobotState(Message message) {
+        if (message instanceof Message.DriveMessage driveState)
+            CycleState.DRIVE_TO_SHOOT.INSTANCE = driveState.driveState;
+        else if (message instanceof Message.IntakeMessage intakeMessage)
+            CycleState.INTAKE.INSTANCE = intakeMessage.intakeState;
+        robotState = message.robotState();
+    }
+
+    public void sort() {
+        table.setState(tableCompartments.sort(table.getState().ordinal()));
+    }
+
+    public ICommand shootAll() {
+        return new Sequential(
+                new Instant(() -> {
+                    intakeMotor.intake();
+                    table.fullRotation();
                 }),
-                waitSeconds(flywheelDelay),
-                exec(() -> {
-                    table.sendToPosition(tablePos);
-                    intakeMotor.intakeSlow();
-                })
+                new WaitUntil(table::reached)
         );
     }
 
-    public Closure shootAll(double flywheelDelay) {
-        return scope( env -> {
-            VarRegister<float[]> shootSequence = env.variable(table.getState()::getShootStates);
-            VarRegister<Channel<Boolean>> tableReached = env.variable(Channels::single);
-
-            return sequence(
-                    exec(() -> {
-                        intakeMotor.shooting();
-                        table.sendToPosition(shootSequence.get()[0], tableReached.get().tx());
-                    }),
-                    shootOne(shootSequence.get()[1], flywheelDelay, tableReached.get()),
-                    shootOne(shootSequence.get()[2], flywheelDelay, tableReached.get()),
-                    waitUntil(() -> !tableReached.get().rx().getEmpty())
-            );
-        });
-    }
-
-    public Closure sort(Sender<Boolean> reached) {
-        return table.setState(tableCompartments.sort(table.getState().ordinal()), reached);
-    }
-
-    public Closure sort() {
-        return table.setState(tableCompartments.sort(table.getState().ordinal()));
+    public ICommand shootAll(double delay) {
+        float[] shootSequence = table.getState().getShootStates();
+        assert shootSequence != null && shootSequence.length > 2;
+        return new Sequential(
+                new Instant(() -> {
+                    intakeMotor.intakeSlow();
+                    table.setPosition(shootSequence[0]);
+                }),
+                new WaitUntil(table::reached),
+                new Instant(intakeMotor::stop),
+                new Wait(delay),
+                new Instant(() -> {
+                    table.setPosition(shootSequence[1]);
+                    intakeMotor.intakeSlow();
+                }),
+                new WaitUntil(table::reached),
+                new Instant(intakeMotor::shooting),
+                new Wait(delay),
+                new Instant(() -> table.setPosition(shootSequence[2] + Table.FULL_REVOLUTION / 3)),
+                new WaitUntil(table::reached)
+        );
     }
 }

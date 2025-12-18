@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.revamped.utils;
 
 import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.revamped.RobotConstants;
 
@@ -29,11 +30,10 @@ public final class Globals {
      *
      * @param telemetry the Telemetry instance to use for logging
      */
-    public static void init(Telemetry telemetry, AllianceColor allianceColor) {
+    public static void init(Telemetry telemetry) {
         constants.build();
         randomizationState = null;
         Globals.telemetry = telemetry;
-        Globals.allianceColor = allianceColor;
     }
 
     public static RandomizationState randomizationState;

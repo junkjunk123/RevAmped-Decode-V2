@@ -1,23 +1,12 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.intake;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.matchType;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.scope;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.sequence;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.waitSeconds;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.waitUntil;
-
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwServo;
 
-import dev.frozenmilk.dairy.mercurial.continuations.Actors;
-import dev.frozenmilk.dairy.mercurial.continuations.Closure;
-import dev.frozenmilk.dairy.mercurial.continuations.Continuations;
-import dev.frozenmilk.dairy.mercurial.continuations.channels.Channels;
-import dev.frozenmilk.dairy.mercurial.continuations.channels.Sender;
-import dev.frozenmilk.dairy.mercurial.continuations.registers.VarRegister;
 
 public class Table extends HwServo {
     public enum RelativeState {
@@ -64,14 +53,6 @@ public class Table extends HwServo {
         }
     }
 
-    public sealed interface MoveState permits MoveState.Hold, MoveTo {
-        double target();
-
-        record Hold(double target) implements MoveState {}
-    }
-
-    public record MoveTo(double target, Sender<Boolean> reachedTx) implements MoveState {}
-
     public static float BALL1;
     public static float BALL2;
     public static float BALL3;
@@ -83,47 +64,19 @@ public class Table extends HwServo {
     public static float FULL_REVOLUTION;
     public static float SECONDS_PER_ROTATION = 1;
 
+    private ICommand hasReached;
+
     private RelativeState state = RelativeState.BALL2;
     private final EncoderImpl encoder;
-    private final Actors.Actor<MoveState, MoveState> movementActor;
+    private boolean reached;
 
     public Table(HardwareMap hwMap, Encoder rawEncoder) {
         super(hwMap, "tableServo");
         this.encoder = new EncoderImpl(rawEncoder);
-        movementActor = Actors.actor(
-                        () -> new MoveState.Hold(BALL1),
+    }
 
-                        (state, message) -> message,
-
-                        state ->
-                                matchType(state)
-                                        .branch(
-                                                MoveTo.class,
-                                                (move) ->
-                                                        scope(dist -> {
-                                                            VarRegister<Double> distRegister =
-                                                                    dist.variable(() -> Math.abs(getPosition() - move.get().target()));
-                                                                    return sequence(
-                                                                            exec(
-                                                                                    () -> setPosition(move.get().target())
-                                                                            ),
-                                                                            waitSeconds(0.25),
-                                                                            Continuations.race(
-                                                                                    waitUntil(() -> encoder.getVelocity() < 10),
-                                                                                    waitSeconds(distRegister.get() / FULL_REVOLUTION * SECONDS_PER_ROTATION)
-                                                                            ),
-                                                                            exec(() -> Channels.send(() -> Boolean.TRUE, () -> move.get().reachedTx()))
-                                                                    );
-                                                                }
-                                                        )
-
-                                        )
-                                        .branch(
-                                                MoveState.Hold.class,
-                                                (hold) -> exec(() -> setPosition(hold.get().target()))
-                                        )
-                                        .assertExhaustive()
-                );
+    public boolean reached() {
+        return reached;
     }
 
     public void one() {
@@ -141,90 +94,36 @@ public class Table extends HwServo {
         state = RelativeState.BALL3;
     }
 
-    public Closure one(Sender<Boolean> reached) {
-        state = RelativeState.BALL1;
-        return sendToPosition(BALL1, reached);
-    }
-
-    public Closure two(Sender<Boolean> reached) {
-        state = RelativeState.BALL2;
-        return sendToPosition(BALL2, reached);
-    }
-
-    public Closure three(Sender<Boolean> reached) {
-        state = RelativeState.BALL3;
-        return sendToPosition(BALL3, reached);
-    }
-
     public void reset() {
         two();
     }
 
-    public Closure reset(Sender<Boolean> reached) {
-        return two(reached);
+    @Override
+    public boolean setPosition(double pos) {
+        if (super.evaluateCache(pos))
+            Scheduler.getInstance().schedule(hasReached);
+        return super.setPosition(pos);
+    }
+
+    public void setState(int state) {
+        setRelativeState(RelativeState.values()[state]);
+    }
+
+    public void setRelativeState(RelativeState relativeState) {
+        state = relativeState;
+        setPosition(relativeState.target());
+    }
+
+    public void fullRotation() {
+        switch (getState()) {
+            case BALL1 -> setPosition(BALL1_END);
+            case BALL2 -> setPosition(BALL2_END);
+            case BALL3 -> setPosition(BALL3_END);
+        }
     }
 
     public RelativeState getState() {
         return state;
-    }
-
-    public Closure sendToPosition(float position, Sender<Boolean> reached) {
-        return Channels.send(() -> new MoveTo(position, reached), movementActor::tx);
-    }
-
-    public Closure sendToPosition(float position) {
-        return Channels.send(() -> new MoveState.Hold(position), movementActor::tx);
-    }
-
-    public Closure setState(int state, Sender<Boolean> reached) {
-        if (state == 0)
-            return one(reached);
-        if (state == 1)
-            return two(reached);
-        return three(reached);
-    }
-
-    public Closure setState(int state) {
-        if (state == 0) {
-            this.state = RelativeState.BALL1;
-            return sendToPosition(BALL1);
-        } else if (state == 1) {
-            this.state = RelativeState.BALL2;
-            return sendToPosition(BALL2);
-        }
-
-        this.state = RelativeState.BALL3;
-        return sendToPosition(BALL3);
-    }
-
-    public Closure nextState(Sender<Boolean> reached) {
-        return setState(getState().next().ordinal(), reached);
-    }
-
-    public Closure nextState() {
-        return setState(getState().next().ordinal());
-    }
-
-    public Closure previousState(Sender<Boolean> reached) {
-        return setState(getState().previous().ordinal(), reached);
-    }
-
-    public Closure previousState() {
-        return setState(getState().previous().ordinal());
-    }
-
-    public Closure fullRotation(Sender<Boolean> reached) {
-        switch (state) {
-            case BALL1 -> {
-                return sendToPosition(BALL1_END, reached);
-            }
-            case BALL2 -> {
-                return sendToPosition(BALL2_END, reached);
-            }
-            default -> {
-                return sendToPosition(BALL3_END, reached);
-            }
-        }
     }
 
     public static void setValues(float BALL_1, float BALL_2, float BALL_1_END) {

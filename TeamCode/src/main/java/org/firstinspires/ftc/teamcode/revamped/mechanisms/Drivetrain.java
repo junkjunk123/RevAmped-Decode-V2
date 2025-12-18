@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.revamped.mechanisms;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.drivetrains.Mecanum;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.groups.Race;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,9 +13,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.revamped.utils.FollowParameters;
 import org.firstinspires.ftc.teamcode.revamped.utils.PathSupplier;
-
-import dev.frozenmilk.dairy.mercurial.continuations.Closure;
-import dev.frozenmilk.dairy.mercurial.continuations.Continuations;
 
 import java.util.Iterator;
 import java.util.List;
@@ -67,16 +67,16 @@ public class Drivetrain {
         }
     }
 
-    public Closure followNext(Function<Drivetrain, Boolean> isDone) {
-        return Continuations.command()
-                .setExecute(this::followNext)
-                .setFinished(() -> isDone.apply(this));
+    public Command followNext(Function<Drivetrain, Boolean> isDone) {
+        return new Command()
+                .setStart(this::followNext)
+                .setDone(() -> isDone.apply(this));
     }
 
-    public Closure followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return Continuations.race(
+    public Race followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
+        return new Race(
                 followNext(isDone),
-                Continuations.waitSeconds(timeout)
+                new Wait(timeout)
         );
     }
 

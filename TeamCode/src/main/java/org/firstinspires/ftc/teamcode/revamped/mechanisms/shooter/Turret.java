@@ -1,23 +1,10 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter;
-
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.matchType;
-import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.noop;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwMotor;
-
-import dev.frozenmilk.dairy.mercurial.continuations.Actors;
-import dev.frozenmilk.dairy.mercurial.continuations.Closure;
-import dev.frozenmilk.dairy.mercurial.continuations.Continuation;
-import dev.frozenmilk.dairy.mercurial.continuations.channels.Channels;
 
 public class Turret extends HwMotor {
     public static double RAD_LIMIT;
@@ -34,7 +21,7 @@ public class Turret extends HwMotor {
     public static double D;
     public static double F;
 
-    public sealed interface MoveState permits MoveState.MoveTo, MoveState.Next, MoveState.PresetState, MoveState.Previous {
+    public sealed interface MoveState permits MoveState.MoveTo, MoveState.PresetState {
         enum PresetState implements MoveState {
             LEFT_135,
             LEFT_90,
@@ -59,13 +46,7 @@ public class Turret extends HwMotor {
             }
         }
 
-        final class Next implements MoveState {
-            public static Next INSTANCE = new Next();
-        }
-
-        final class Previous implements MoveState {
-            public static Previous INSTANCE = new Previous();
-        }
+        int target();
 
         record MoveTo(int target) implements MoveState {}
     }
@@ -76,34 +57,12 @@ public class Turret extends HwMotor {
 
     public final HwDigitalDevice limitSwitch;
     private final PIDFController controller;
-    private final Actors.Actor<MoveState, MoveState> moveStateActor;
+    private MoveState moveState = new MoveState.MoveTo(0);
 
     public Turret(HardwareMap hardwareMap) {
         super(hardwareMap, "turret");
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch");
-        moveStateActor = new Actors.Actor<>(
-                () -> MoveState.PresetState.REST,
-                (s, m) -> {
-                    if (m instanceof MoveState.Next)
-                        if (s instanceof MoveState.PresetState p)
-                            return p.next();
-                        else
-                            return MoveState.PresetState.REST;
-                    else if (m instanceof MoveState.Previous)
-                        if (s instanceof MoveState.PresetState p)
-                            return p.previous();
-                        else
-                            return MoveState.PresetState.REST;
-                    return m;
-                },
-                state ->
-                        matchType(state)
-                                .branch(MoveState.PresetState.class, preset -> exec(() -> setTargetPosition(preset.get().target())))
-                                .branch(MoveState.MoveTo.class, command -> exec(() -> setTargetPosition(command.get().target())))
-                                .branch(MoveState.Next.class, t -> noop())
-                                .branch(MoveState.Previous.class, t -> noop())
-        );
     }
 
     public void setTargetPosition(int position) {
@@ -114,47 +73,35 @@ public class Turret extends HwMotor {
         return (int) controller.getTargetPosition() - getEncoderBase();
     }
 
-    public Closure preset(MoveState.PresetState presetState) {
-        controller.reset();
-        return Channels.send(() -> presetState, moveStateActor::tx);
+    public void move(MoveState moveState) {
+        setTargetPosition(moveState.target());
+        this.moveState = moveState;
     }
 
-    public Closure moveTo(int pos) {
-        if (Math.abs(pos - getTargetPosition()) > 0.5)
-            controller.reset();
-        return Channels.send(() -> new MoveState.MoveTo(pos), moveStateActor::tx);
+    public MoveState getMoveState() {
+        return moveState;
     }
 
-    public Closure nextPreset() {
-        controller.reset();
-        return Channels.send(() -> MoveState.Next.INSTANCE, moveStateActor::tx);
+    public void next() {
+        if (moveState instanceof MoveState.PresetState p)
+            move(p.next());
+        else
+            move(MoveState.PresetState.REST);
     }
 
-    public Closure previousPreset() {
-        controller.reset();
-        return Channels.send(() -> MoveState.Previous.INSTANCE, moveStateActor::tx);
+    public void previous() {
+        if (moveState instanceof MoveState.PresetState p)
+            move(p.previous());
+        else
+            move(MoveState.PresetState.REST);
     }
-
-    public Continuation PID = new Continuation() {
-        @NonNull
-        @Override
-        public Continuation apply() {
-            controller.updatePosition(getPosition());
-            controller.updateFeedForwardInput(Math.signum(getTargetPosition() - getPosition()));
-            setPower(controller.run());
-            return PID;
-        }
-
-        @NonNull
-        @Override
-        public StackTraceElement[] getStackTrace() {
-            return new StackTraceElement[] {new StackTraceElement("Turret", "periodic", "TurretMotor.java", 141)};
-        }
-    };
 
     @Override
     public void update() {
         super.update();
         limitSwitch.update();
+        controller.updatePosition(getPosition());
+        controller.updateFeedForwardInput(Math.signum(getTargetPosition() - getPosition()));
+        setPower(controller.run());
     }
 }

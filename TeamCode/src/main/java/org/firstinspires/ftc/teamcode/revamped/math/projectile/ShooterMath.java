@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.revamped.math.projectile;
+
 import static org.firstinspires.ftc.teamcode.revamped.math.calc.Angle.normalizeAnglePi;
 import static org.firstinspires.ftc.teamcode.revamped.math.calc.Angle.servoPosFromRad;
 import static org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret.RAD_LIMIT;
@@ -16,7 +17,6 @@ import org.firstinspires.ftc.teamcode.revamped.math.calc.Angle;
 import org.firstinspires.ftc.teamcode.revamped.math.calc.PoseDifferentiator;
 import org.firstinspires.ftc.teamcode.revamped.math.calc.Vector3D;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Hood;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.revamped.utils.AllianceColor;
 
 public class ShooterMath {
