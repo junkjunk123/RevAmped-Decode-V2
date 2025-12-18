@@ -13,7 +13,7 @@ public abstract class OpModeCommand extends LinearOpMode {
         waitForStart();
 
         while (opModeInInit()) {
-            initLoop();
+            initializeLoop();
         }
 
         waitForStart();
@@ -21,12 +21,12 @@ public abstract class OpModeCommand extends LinearOpMode {
         onStart();
 
         while (opModeIsActive()) {
-            update();
+            execute();
             Scheduler.getInstance().execute();
 
             if (isStopRequested()) {
                 reset();
-                onStop();
+                end();
             }
         }
     }
@@ -47,11 +47,11 @@ public abstract class OpModeCommand extends LinearOpMode {
 
     public abstract void initialize();
 
-    public void initLoop() {}
+    public void initializeLoop() {}
 
-    public void update() {}
+    public void execute() {}
 
     public void onStart() {}
 
-    public void onStop() {}
+    public void end() {}
 }

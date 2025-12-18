@@ -1,18 +1,17 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms;
 
-import android.util.Log;
-
-import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
-import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
-import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
+import org.firstinspires.ftc.teamcode.revamped.utils.Commands.OptionCommand;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.BooleanSupplier;
 
 /**
  * TeleOpStateHandler is a class that manages the state transitions in a teleoperated mode of a robot.
@@ -42,7 +41,7 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * The next transition operator that is pending execution.
      * This is used to handle transitions that are not immediately executed.
      */
-    private TransitionOperator next = null;
+    private ICommand next = null;
 
     /**
      * This flag indicates whether to force transitions regardless of the current state.
@@ -86,7 +85,7 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * Transition is a record that represents a transition between two states in the state machine.
      * It implements the GraphElement interface and contains the current state, next state, and the transition command.
      */
-    public record Transition(State current, State next, TransitionOperator transitionCommand) implements GraphElement {
+    public record Transition(State current, State next, ICommand transitionCommand) implements GraphElement {
         /**
          * Gets the current state, before the transition.
          * @return the current state of this transition
@@ -97,27 +96,11 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         }
 
         /**
-         * Checks if the transition command is complete.
-         * @return true if the transition command is complete, false otherwise
-         */
-        public boolean isComplete() {
-            return transitionCommand.isComplete();
-        }
-
-        /**
-         * Checks if the transition command has been aborted.
-         * @return true if the transition command has been aborted, false otherwise
-         */
-        public boolean isAborted() {
-            return transitionCommand.aborted();
-        }
-
-        /**
          * Checks if the transition command is currently running.
          * @return true if the transition command is running, false otherwise
          */
         public boolean isRunning() {
-            return !isAborted() && !isComplete();
+            return !transitionCommand.done();
         }
 
         @Override
@@ -130,140 +113,6 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         @Override
         public int hashCode() {
             return Objects.hash(current, next);
-        }
-    }
-
-    /**
-     * TransitionCommand is a functional interface that defines a command to be executed during a state transition.
-     * It provides a method to run the command and an optional timeout for the command execution.
-     */
-    @FunctionalInterface
-    public interface TransitionCommand {
-        /**
-         * Runs the transition command.
-         * @param setComplete a consumer that is called to indicate whether the command is complete
-         */
-        void run(Consumer<Boolean> setComplete);
-
-        /**
-         * Gets the timeout for the transition command.
-         * @return the timeout in seconds, or -1 if no timeout is set
-         */
-        default double timeout() {return -1;}
-
-        /**
-         * Creates a TransitionCommand with a specified timeout.
-         * @param action the action to be executed as part of the transition command
-         * @param timeout the timeout in seconds for the transition command
-         * @return a TransitionCommand that executes the action and sets the completion status after the timeout
-         */
-        static TransitionCommand withTimeout(Consumer<Consumer<Boolean>> action, double timeout) {
-            return new TransitionCommand() {
-                @Override
-                public void run(Consumer<Boolean> setComplete) {
-                    action.accept(setComplete);
-                }
-
-                @Override
-                public double timeout() {
-                    return timeout;
-                }
-            };
-        }
-
-        /**
-         * Creates a TransitionCommand that runs a specified action and sets the completion status to true.
-         * @param action the action to be executed as part of the transition command
-         * @return a TransitionCommand that executes the action and sets the completion status
-         */
-        static TransitionCommand fromRunnable(Runnable action) {
-            return setComplete -> {
-                action.run();
-                setComplete.accept(true);
-            };
-        }
-    }
-
-    /**
-     * TransitionOperator is a class that manages the execution of a transition command.
-     * It keeps track of whether the command is complete, aborted, or still running.
-     */
-    public static class TransitionOperator {
-        /**
-         * The transition command to be executed.
-         */
-        private final TransitionCommand transition;
-        public Boolean complete = false;
-        private final Consumer<Boolean> setComplete = done -> {
-            if (done == null || complete) return;
-            complete = done;
-        };
-
-        /**
-         * Constructor for TransitionOperator.
-         * @param transition the transition command to be executed
-         */
-        public TransitionOperator(TransitionCommand transition) {
-            this.transition = transition;
-        }
-
-        /**
-         * Runs the transition command and sets the completion status.
-         * If a timeout is specified, it schedules a delay to set the completion status after the timeout.
-         */
-        public void run() {
-            if (transition.timeout() > 0) {
-                Scheduler.getInstance().schedule(
-                        new Sequential(
-                                new Wait(transition.timeout()),
-                                new Instant(() -> setComplete.accept(null))
-                        )
-                );
-            }
-
-            transition.run(setComplete);
-        }
-
-        /**
-         * Checks if the transition command is complete.
-         * @return true if the transition command is complete, false otherwise
-         */
-        public boolean isComplete() {
-            return complete != null && complete;
-        }
-
-        /**
-         * Checks if the transition command has been aborted.
-         * If the command is not complete and the complete status is null, it is considered aborted.
-         * @return true if the transition command has been aborted, false otherwise
-         */
-        public boolean aborted() {
-            return !Boolean.FALSE.equals(complete) && complete == null;
-        }
-
-        /**
-         * Checks if the transition command is currently running.
-         * A command is considered running if it is not aborted and not complete.
-         * @return true if the transition command is running, false otherwise
-         */
-        public boolean isRunning() {
-            return !aborted() && !isComplete();
-        }
-
-        /**
-         * Sets the completion status to null, indicating that the command has been aborted.
-         * This method is used to mark the command as aborted.
-         */
-        public void setAborted() {
-            setComplete.accept(null);
-        }
-
-        /**
-         * Sets the completion status to true, indicating that the command has been completed.
-         * This method is used to mark the command as complete.
-         */
-        public void setComplete() {
-            setComplete.accept(true);
         }
     }
 
@@ -336,61 +185,34 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * If the transition is not valid, it checks if there is a pending transition and retries it after that transition is complete.
      * @param command the transition command to be executed
      * @param nextState the next state to transition to
-     * @param timeout an optional timeout for the transition command
      * @param force whether to force the transition regardless of the current state
      */
-    public void runTransition(TransitionCommand command, T nextState, Integer timeout, boolean force) {
-        TransitionOperator transitionOperator = new TransitionOperator(command);
+    public ICommand runTransition(ICommand command, T nextState, boolean force) {
         T currentState = currentState();
+        LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
 
-        if ((force || currentGraphElement instanceof State) && evaluate(currentState, nextState)) {
-            run(transitionOperator, nextState, timeout, currentState);
-        } else if (next == null && currentGraphElement instanceof Transition transition) {
-            State state = transition.next();
-            if (!enumClass.isInstance(state)) {
-                throw new IllegalStateException("Current state is not of expected enum type.");
+        commandHashMap.put(() -> (force || currentGraphElement instanceof State) &&
+                        evaluate(currentState, nextState), run(command, nextState, currentState));
+        commandHashMap.put(() -> {
+            if (next == null && currentGraphElement instanceof Transition transition) {
+                State state = transition.next();
+                if (!enumClass.isInstance(state)) {
+                    throw new IllegalStateException("Current state is not of expected enum type.");
+                }
+                T pendingNext = enumClass.cast(state);
+                assert pendingNext != null;
+                return evaluate(pendingNext, nextState);
             }
-            T pendingNext = enumClass.cast(state);
-            assert pendingNext != null;
-            if (evaluate(pendingNext, nextState)) {
-                next = transitionOperator;
-                Scheduler.getInstance().schedule(
-                        new Race(
-                                new Sequential(
-                                        new WaitUntil(() -> currentGraphElement instanceof State),
-                                        new Instant(() -> {
-                                            run(transitionOperator, nextState, timeout, currentState);
-                                            next = null;
-                                        })
-                                ),
-                                new Sequential(
-                                        new WaitUntil(transitionOperator::aborted),
-                                        new Instant(() -> retry(command, nextState, timeout, force))
-                                )
-                        )
-                );
-            } else {
-                Log.e("TeleOpStateHandler", "Transition from " + currentState + " to " + nextState + " is not valid.");
-            }
-        } else if (currentGraphElement instanceof State) {
-            Log.e("TeleOpStateHandler", "Transition from " + currentState + " to " + nextState + " is not valid.");
-        }
-    }
 
-    /**
-     * Retries a transition command if the current state is valid for the next state.
-     * @param command the transition command to be executed
-     * @param nextState the next state to transition to
-     * @param timeout an optional timeout for the transition command
-     * @param force whether to force the transition regardless of the current state
-     */
-    private void retry(TransitionCommand command, T nextState, Integer timeout, boolean force) {
-        TransitionOperator transitionOperator = new TransitionOperator(command);
-        T currentState = currentState();
+            return false;
+        }, new Sequential(
+                new Instant(() -> next = command),
+                new WaitUntil(() -> currentGraphElement instanceof State),
+                new Instant(() -> next = null),
+                runTransition(command, nextState, force)
+        ));
 
-        if ((force || currentGraphElement instanceof State) && evaluate(currentState, nextState)) {
-            run(transitionOperator, nextState, timeout, currentState);
-        }
+        return new OptionCommand(commandHashMap);
     }
 
     /**
@@ -399,36 +221,14 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * If a timeout is specified, it sets the maximum time to run the command.
      * @param command the transition command to be executed
      * @param nextState the next state to transition to
-     * @param timeout an optional timeout for the transition command
      * @param currentState the current state before the transition
      */
-    private void run(TransitionOperator command, T nextState, Integer timeout, T currentState) {
-        command.run();
-        currentGraphElement = new Transition(currentState, nextState, command);
-        Scheduler.getInstance().schedule(
-                new Race(
-                        new Sequential(
-                                new WaitUntil(command::isComplete),
-                                new Instant(() -> setCurrentState(nextState))
-                        ),
-                        new Sequential(
-                                new WaitUntil(command::aborted),
-                                new Instant(() -> setCurrentState(currentState))
-                        ),
-                        new Wait(timeout != null ? timeout : 0)
-                )
+    private ICommand run(ICommand command, T nextState, T currentState) {
+        return new Sequential(
+                new Instant(() -> currentGraphElement = new Transition(currentState, nextState, command)),
+                command,
+                new Instant(() -> setCurrentState(nextState))
         );
-    }
-
-    /**
-     * Runs a transition command to change the current state to the next state.
-     * This method allows for an optional timeout and a force flag to override the current state.
-     * @param command the transition command to be executed
-     * @param nextState the next state to transition to
-     * @param timeout an optional timeout for the transition command
-     */
-    public void runTransition(TransitionCommand command, T nextState, Integer timeout) {
-        runTransition(command, nextState, timeout, force);
     }
 
     /**
@@ -437,8 +237,8 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * @param command the transition command to be executed
      * @param nextState the next state to transition to
      */
-    public void runTransition(TransitionCommand command, T nextState) {
-        runTransition(command, nextState, null, force);
+    public void runTransition(ICommand command, T nextState) {
+        runTransition(command, nextState, force);
     }
 
     /**
@@ -466,40 +266,30 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * @param setting the setting to be executed
      * @param dependencies the list of graph elements that this setting depends on
      */
-    public void setting(Runnable setting, List<GraphElement> dependencies) {
-        if (force) {
-            setting.run();
-            return;
-        }
+    public ICommand setting(ICommand setting, List<GraphElement> dependencies) {
+        LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
+        commandHashMap.put(() -> force, setting);
+        commandHashMap.put(() -> !force, new Sequential(
+                new WaitUntil(() -> !dependencies.contains(currentGraphElement)),
+                setting
+        ));
 
-        if (!dependencies.contains(currentGraphElement))
-            setting.run();
-
-        Scheduler.getInstance().schedule(
-                new Sequential(
-                        new WaitUntil(() -> !dependencies.contains(currentGraphElement)),
-                        new Instant(setting)
-                )
-        );
+        return new OptionCommand(commandHashMap);
     }
 
     /**
      * Executes this setting after the current transition is completed, or immediately if the current graph element isn't a transition.
      */
-    public void setting(Runnable setting) {
-        if (force) {
-            setting.run();
-            return;
-        }
+    public ICommand setting(ICommand setting) {
+        LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
+        commandHashMap.put(() -> force, setting);
+        commandHashMap.put(() -> currentGraphElement instanceof State, setting);
+        commandHashMap.put(() -> !force && !(currentGraphElement instanceof State), new Sequential(
+                new WaitUntil(() -> currentElement() instanceof State),
+                setting
+        ));
 
-        if (currentGraphElement instanceof State) setting.run();
-        else
-            Scheduler.getInstance().schedule(
-                    new Sequential(
-                            new WaitUntil(() -> currentElement() instanceof State),
-                            new Instant(setting)
-                    )
-            );
+        return new OptionCommand(commandHashMap);
     }
 
     /**
@@ -508,27 +298,20 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * @param task the task to be executed
      * @param componentVector the binary vector representing the active components in the current state
      */
-    public void task(Runnable task, int[] componentVector) {
-        if (force) {
-            task.run();
-            return;
-        }
+    public ICommand task(ICommand task, int[] componentVector) {
+        LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
+        commandHashMap.put(() -> force, task);
+        commandHashMap.put(() -> currentGraphElement instanceof State &&
+                componentVector[currentState().ordinal()] == 1, task);
+        commandHashMap.put(() -> currentGraphElement instanceof Transition transition &&
+                componentVector[Objects.requireNonNull(enumClass.cast(transition.next())).ordinal()] == 1,
+                new Sequential(
+                        new WaitUntil(((Transition) currentGraphElement).transitionCommand::done),
+                        task
+                )
+        );
 
-        if (currentGraphElement instanceof State) {
-            if (componentVector[currentState().ordinal()] == 1) task.run();
-        }
-
-        else if (currentGraphElement instanceof Transition transition)
-            if (componentVector[Objects.requireNonNull(enumClass.cast(transition.next())).ordinal()] == 1)
-                Scheduler.getInstance().schedule(
-                        new Race(
-                                new Sequential(
-                                        new WaitUntil(transition::isComplete),
-                                        new Instant(task)
-                                ),
-                                new WaitUntil(transition::isAborted)
-                        )
-                );
+        return new OptionCommand(commandHashMap);
     }
 
     /**
@@ -536,53 +319,17 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * @param task the task to be executed
      * @param state the state to check against the current state
      */
-    public void task(Runnable task, T state) {
-        if (force) {
-            task.run();
-            return;
-        }
-
-        if (currentGraphElement instanceof State curState) {
-            if (curState == state) task.run();
-        }
-
-        else if (currentGraphElement instanceof Transition transition)
-            if (enumClass.cast(transition) == state)
-                Scheduler.getInstance().schedule(
-                        new Race(
-                                new Sequential(
-                                        new WaitUntil(transition::isComplete),
-                                        new Instant(task)
-                                ),
-                                new WaitUntil(transition::isAborted)
-                        )
-                );
-    }
-
-    /**
-     * Aborts the current transition if it is a Transition instance.
-     * This method sets the transition command to aborted, allowing for a clean exit from the transition.
-     */
-    public void abortTransition() {
-        if (currentGraphElement instanceof Transition transition) {
-            transition.transitionCommand().setAborted();
-        }
-    }
-
-    /**
-     * Overrides the current transition with a new action and sets the next state.
-     * This method allows for a clean override of the current transition, ensuring that the new action is executed
-     * and the current state is updated to the next state.
-     * @param overrideAction the action to be executed as an override
-     * @param nextState the next state to transition to after the override
-     */
-    public void override(Runnable overrideAction, T nextState) {
-        if (currentGraphElement instanceof Transition transition) {
-            transition.transitionCommand.setAborted();
-        }
-
-        overrideAction.run();
-        setCurrentState(nextState);
+    public ICommand task(ICommand task, T state) {
+        LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
+        commandHashMap.put(() -> force, task);
+        commandHashMap.put(() -> currentGraphElement instanceof State && currentState() == state, task);
+        commandHashMap.put(() -> currentGraphElement instanceof Transition transition && enumClass.cast(transition.next) == state,
+                new Sequential(
+                        new WaitUntil(((Transition) currentGraphElement).transitionCommand::done),
+                        task
+                )
+        );
+        return new OptionCommand(commandHashMap);
     }
 
     /**
@@ -622,6 +369,6 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
     }
 
     public static Transition referenceTransition(State current, State next) {
-        return new Transition(current, next, new TransitionOperator(t -> {}));
+        return new Transition(current, next, new Instant(() -> {}));
     }
 }
