@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.intake;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.Encoder;
@@ -79,39 +84,35 @@ public class Table extends HwServo {
         return reached;
     }
 
-    public void one() {
-        setPosition(BALL1);
-        state = RelativeState.BALL1;
+    public ICommand one() {
+        return setRelativeState(RelativeState.BALL1);
     }
 
-    public void two() {
-        setPosition(BALL2);
-        state = RelativeState.BALL2;
+    public ICommand two() {
+        return setRelativeState(RelativeState.BALL2);
     }
 
-    public void three() {
-        setPosition(BALL3);
-        state = RelativeState.BALL3;
+    public ICommand three() {
+        return setRelativeState(RelativeState.BALL3);
     }
 
     public void reset() {
         two();
     }
 
-    @Override
-    public boolean setPosition(double pos) {
-        if (super.evaluateCache(pos))
-            Scheduler.getInstance().schedule(hasReached);
-        return super.setPosition(pos);
+    public ICommand setState(int state) {
+        return setRelativeState(RelativeState.values()[state]);
     }
 
-    public void setState(int state) {
-        setRelativeState(RelativeState.values()[state]);
-    }
-
-    public void setRelativeState(RelativeState relativeState) {
-        state = relativeState;
-        setPosition(relativeState.target());
+    public ICommand setRelativeState(RelativeState relativeState) {
+        return new Sequential(
+                new Instant(() -> {
+                    state = relativeState;
+                    setPosition(relativeState.target());
+                }),
+                new Wait(250),
+                new WaitUntil(() -> encoder.getVelocity() < 10)
+        );
     }
 
     public void fullRotation() {
@@ -140,6 +141,7 @@ public class Table extends HwServo {
     }
 
     public void update() {
+        super.update();
         encoder.update();
     }
 }

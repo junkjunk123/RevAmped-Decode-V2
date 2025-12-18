@@ -88,7 +88,8 @@ public class Robot {
 
             @Override
             public void update() {
-                if (INSTANCE == IntakeState.INTAKING) {}
+                if (INSTANCE == IntakeState.INTAKING)
+                    intakeThread.update();
             }
         }
 
