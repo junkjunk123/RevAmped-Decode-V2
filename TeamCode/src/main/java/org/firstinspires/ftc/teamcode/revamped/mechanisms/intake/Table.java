@@ -54,6 +54,14 @@ public class Table extends HwServo {
                 }
             }
         }
+
+        public RelativeState next() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+
+        public RelativeState previous() {
+            return values()[(ordinal() + 2) % values().length];
+        }
     }
 
     public sealed interface MoveState permits MoveState.Hold, MoveTo {
@@ -75,7 +83,7 @@ public class Table extends HwServo {
     public static float FULL_REVOLUTION;
     public static float SECONDS_PER_ROTATION = 1;
 
-    private RelativeState initialShootState = RelativeState.BALL2;
+    private RelativeState state = RelativeState.BALL2;
     private final EncoderImpl encoder;
     private final Actors.Actor<MoveState, MoveState> movementActor;
 
@@ -120,31 +128,31 @@ public class Table extends HwServo {
 
     public void one() {
         setPosition(BALL1);
-        initialShootState = RelativeState.BALL1;
+        state = RelativeState.BALL1;
     }
 
     public void two() {
         setPosition(BALL2);
-        initialShootState = RelativeState.BALL2;
+        state = RelativeState.BALL2;
     }
 
     public void three() {
         setPosition(BALL3);
-        initialShootState = RelativeState.BALL3;
+        state = RelativeState.BALL3;
     }
 
     public Closure one(Sender<Boolean> reached) {
-        initialShootState = RelativeState.BALL1;
+        state = RelativeState.BALL1;
         return sendToPosition(BALL1, reached);
     }
 
     public Closure two(Sender<Boolean> reached) {
-        initialShootState = RelativeState.BALL2;
+        state = RelativeState.BALL2;
         return sendToPosition(BALL2, reached);
     }
 
     public Closure three(Sender<Boolean> reached) {
-        initialShootState = RelativeState.BALL3;
+        state = RelativeState.BALL3;
         return sendToPosition(BALL3, reached);
     }
 
@@ -157,11 +165,66 @@ public class Table extends HwServo {
     }
 
     public RelativeState getState() {
-        return initialShootState;
+        return state;
     }
 
     public Closure sendToPosition(float position, Sender<Boolean> reached) {
         return Channels.send(() -> new MoveTo(position, reached), movementActor::tx);
+    }
+
+    public Closure sendToPosition(float position) {
+        return Channels.send(() -> new MoveState.Hold(position), movementActor::tx);
+    }
+
+    public Closure setState(int state, Sender<Boolean> reached) {
+        if (state == 0)
+            return one(reached);
+        if (state == 1)
+            return two(reached);
+        return three(reached);
+    }
+
+    public Closure setState(int state) {
+        if (state == 0) {
+            this.state = RelativeState.BALL1;
+            return sendToPosition(BALL1);
+        } else if (state == 1) {
+            this.state = RelativeState.BALL2;
+            return sendToPosition(BALL2);
+        }
+
+        this.state = RelativeState.BALL3;
+        return sendToPosition(BALL3);
+    }
+
+    public Closure nextState(Sender<Boolean> reached) {
+        return setState(getState().next().ordinal(), reached);
+    }
+
+    public Closure nextState() {
+        return setState(getState().next().ordinal());
+    }
+
+    public Closure previousState(Sender<Boolean> reached) {
+        return setState(getState().previous().ordinal(), reached);
+    }
+
+    public Closure previousState() {
+        return setState(getState().previous().ordinal());
+    }
+
+    public Closure fullRotation(Sender<Boolean> reached) {
+        switch (state) {
+            case BALL1 -> {
+                return sendToPosition(BALL1_END, reached);
+            }
+            case BALL2 -> {
+                return sendToPosition(BALL2_END, reached);
+            }
+            default -> {
+                return sendToPosition(BALL3_END, reached);
+            }
+        }
     }
 
     public static void setValues(float BALL_1, float BALL_2, float BALL_1_END) {

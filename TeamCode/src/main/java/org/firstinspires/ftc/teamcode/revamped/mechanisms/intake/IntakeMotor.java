@@ -20,11 +20,15 @@ public class IntakeMotor extends HwMotor {
         setPower(0.5);
     }
 
-    public void verySlowIntake() {
+    public void shooting() {
         setPower(0.4);
     }
 
     public void slowOuttake() {
         setPower(-0.5);
+    }
+
+    public void stop() {
+        setPower(0.0);
     }
 }
