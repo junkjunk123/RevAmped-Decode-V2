@@ -65,8 +65,16 @@ public class Flywheel extends HwMotor {
         running = target != 0;
     }
 
-    public void mediumVelocity() {
+    public void medium() {
         setTargetVelocity(MEDIUM_VELOCITY);
+    }
+
+    public void far() {
+        setTargetVelocity(FAR_VELOCITY);
+    }
+
+    public void near() {
+        setTargetVelocity(NEAR_VELOCITY);
     }
 
     public void stop() {

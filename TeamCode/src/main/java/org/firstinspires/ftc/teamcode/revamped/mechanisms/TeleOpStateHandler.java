@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.revamped.mechanisms;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
@@ -57,6 +58,9 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
     /**
      * GraphElement is an interface that represents an element in the state machine graph.
      */
+
+    private int abortCounter;
+
     public interface GraphElement {
 
         /**
@@ -236,10 +240,16 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * @param currentState the current state before the transition
      */
     private ICommand run(ICommand command, T nextState, T currentState) {
-        return new Sequential(
-                new Instant(() -> currentGraphElement = new Transition(currentState, nextState, command)),
-                command,
-                new Instant(() -> setCurrentState(nextState))
+        int abortCounter = this.abortCounter;
+        return new Race (
+                new Sequential(
+                        new Instant(() -> currentGraphElement = new Transition(currentState, nextState, command)),
+                        command,
+                        new Instant(() -> setCurrentState(nextState))
+                ),
+                new Sequential(
+                        new WaitUntil(() -> this.abortCounter - abortCounter > 0)
+                )
         );
     }
 
@@ -406,5 +416,35 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
 
     public boolean atState(T state) {
         return currentState().equals(state);
+    }
+
+    public boolean nextStateAt(T state) {
+        return nextState().equals(state);
+    }
+
+    /**
+     * Aborts the current transition if it is a Transition instance.
+     * This method sets the transition command to aborted, allowing for a clean exit from the transition.
+     */
+    public void abortTransition() {
+        if (currentGraphElement instanceof Transition)
+            abortCounter++;
+    }
+
+    /**
+     * Overrides the current transition with a new action and sets the next state.
+     * This method allows for a clean override of the current transition, ensuring that the new action is executed
+     * and the current state is updated to the next state.
+     * @param overrideAction the action to be executed as an override
+     * @param nextState the next state to transition to after the override
+     */
+    public void override(Runnable overrideAction, T nextState) {
+        abortTransition();
+        overrideAction.run();
+        setCurrentState(nextState);
+    }
+
+    public int getAbortCounter() {
+        return abortCounter;
     }
 }

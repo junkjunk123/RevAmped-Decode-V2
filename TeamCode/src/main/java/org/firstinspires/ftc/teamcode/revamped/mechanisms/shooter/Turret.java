@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwDigitalDevice;
@@ -18,6 +22,8 @@ public class Turret extends HwMotor {
     public static double I;
     public static double D;
     public static double F;
+
+    public static int startPos;
 
     public sealed interface MoveState permits MoveState.MoveTo, MoveState.PresetState {
         enum PresetState implements MoveState {
@@ -61,6 +67,7 @@ public class Turret extends HwMotor {
         super(hardwareMap, "turret");
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch");
+        resetPosition(startPos);
     }
 
     public void setTargetPosition(int position) {
@@ -92,6 +99,14 @@ public class Turret extends HwMotor {
             move(p.previous());
         else
             move(MoveState.PresetState.REST);
+    }
+
+    public ICommand resetTurret() {
+        return new Sequential(
+                new Instant(() -> setTargetPosition(0)),
+                new WaitUntil(limitSwitch::state),
+                new Instant(this::resetPosition)
+        );
     }
 
     @Override

@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.revamped;
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,13 +14,11 @@ import org.firstinspires.ftc.teamcode.revamped.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.intake.IntakeDistance;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.intake.IntakeMotor;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Hood;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.revamped.utils.PathSupplier;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.Encoder;
@@ -30,6 +29,7 @@ import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler.DriveMessage;
 import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler.IntakeMessage;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class Robot {
     public static Robot INSTANCE;
@@ -120,8 +120,8 @@ public class Robot {
         robotState = message.robotState();
     }
 
-    public void sort() {
-        table.setState(tableCompartments.sort(table.getState().ordinal()));
+    public ICommand sort() {
+        return table.setState(tableCompartments.sort(table.getState().ordinal()));
     }
 
     public ICommand shootAll() {
@@ -134,7 +134,7 @@ public class Robot {
         );
     }
 
-    public ICommand shootAll(double delay) {
+    public ICommand shootAll(Supplier<Double> delay) {
         float[] shootSequence = table.getState().getShootStates();
         assert shootSequence != null && shootSequence.length > 2;
         return new Sequential(
@@ -144,16 +144,64 @@ public class Robot {
                 }),
                 new WaitUntil(table::reached),
                 new Instant(intakeMotor::stop),
-                new Wait(delay),
+                new Wait(delay.get()),
                 new Instant(() -> {
                     table.setPosition(shootSequence[1]);
                     intakeMotor.intakeSlow();
                 }),
                 new WaitUntil(table::reached),
                 new Instant(intakeMotor::shooting),
-                new Wait(delay),
+                new Wait(delay.get()),
                 new Instant(() -> table.setPosition(shootSequence[2] + Table.FULL_REVOLUTION / 3)),
                 new WaitUntil(table::reached)
         );
+    }
+
+    public ICommand shootAll(double delay) {
+        if (delay < 10) return shootAll();
+        return shootAll(() -> delay);
+    }
+
+    public ICommand resetShooter() {
+        return new Parallel(
+                turret.resetTurret(),
+                new Instant(() -> {
+                    flywheel.stop();
+                    hood.rest();
+                })
+        );
+    }
+
+    public ICommand resetAfterShooting() {
+        return new Parallel(
+                resetShooter(),
+                new Sequential(
+                        new Instant(intakeMotor::stop),
+                        new Race(
+                                table.reset(),
+                                new Wait(1000)
+                        ),
+                        new Wait(500),
+                        new Instant(() -> {
+                            popper.neutral();
+                            intakeMotor.intake();
+                        })
+                )
+        );
+    }
+
+    public void shootNear() {
+        hood.near();
+        flywheel.near();
+    }
+
+    public void shootFar() {
+        hood.far();
+        flywheel.far();
+    }
+
+    public void shootMedium() {
+        hood.medium();
+        flywheel.medium();
     }
 }

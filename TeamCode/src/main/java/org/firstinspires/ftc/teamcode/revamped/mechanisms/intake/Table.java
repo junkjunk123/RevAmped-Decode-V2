@@ -95,8 +95,8 @@ public class Table extends HwServo {
         return setRelativeState(RelativeState.BALL3);
     }
 
-    public void reset() {
-        two();
+    public ICommand reset() {
+        return two();
     }
 
     public ICommand setState(int state) {
