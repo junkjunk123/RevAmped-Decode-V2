@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.revamped.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.revamped.utils.Commands.ButtonMapper;
 import org.firstinspires.ftc.teamcode.revamped.utils.GamepadEx;
 
-@TeleOp
-public class DCTeleOp extends OpModeCommand {
+@TeleOp(name = "DCTeleOp")
+public class Tele extends OpModeCommand {
     @Override
     public void initialize() {
         Robot robot = new Robot(hardwareMap);
