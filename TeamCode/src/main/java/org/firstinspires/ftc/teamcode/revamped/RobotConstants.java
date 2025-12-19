@@ -21,7 +21,7 @@ public class RobotConstants {
         Flywheel.kStatic = 0.05; Flywheel.kV = 0.00045; Flywheel.kA = 0; 
         Flywheel.STATE_STDDEV = 2; Flywheel.MEASUREMENT_STDDEV = 0.2;
         Flywheel.MAX_ACCELERATION = Flywheel.FAR_VELOCITY * Flywheel.FAR_VELOCITY / Flywheel.RADIUS;
-        Flywheel.NEAR_VELOCITY = 800; Flywheel.MEDIUM_VELOCITY = 950; Flywheel.FAR_VELOCITY = 1150;
+        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1095; Flywheel.AUTO_VELOCITY = 780;
 
         //Hood Constants
         Hood.REST = 200/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;

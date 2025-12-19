@@ -50,4 +50,8 @@ public class TableCompartmentManager {
 
         return curGreenIndex - targetGreenIndex;
     }
+
+    public void populate(ArtifactColor[] colors) {
+        System.arraycopy(colors, 0, compartmentColors, 0, compartmentColors.length);
+    }
 }

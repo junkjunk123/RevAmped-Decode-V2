@@ -109,6 +109,10 @@ public class Turret extends HwMotor {
         );
     }
 
+    public boolean reached() {
+        return getVelocity() < 10 && getTargetPosition() - getPosition() < 25;
+    }
+
     @Override
     public void update() {
         super.update();

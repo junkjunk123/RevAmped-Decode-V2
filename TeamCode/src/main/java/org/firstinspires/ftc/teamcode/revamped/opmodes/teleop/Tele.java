@@ -104,7 +104,7 @@ public class Tele extends OpModeCommand {
                                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                                 tsh.runTransition(
                                         new Sequential(
-                                                robot.shootAll(250),
+                                                robot.shootAll(175),
                                                 robot.resetAfterShooting()
                                         ), RobotStateHandler.CycleState.INTAKE
                                 )

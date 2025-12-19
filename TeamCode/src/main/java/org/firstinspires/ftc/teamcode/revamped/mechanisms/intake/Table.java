@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.revamped.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.HwServo;
 
+import java.util.function.Supplier;
+
 
 public class Table extends HwServo {
     public enum RelativeState {
@@ -103,15 +105,23 @@ public class Table extends HwServo {
         return setRelativeState(RelativeState.values()[state]);
     }
 
-    public ICommand setRelativeState(RelativeState relativeState) {
+    public ICommand setState(Supplier<Integer> state) {
+        return setRelativeState(() -> RelativeState.values()[state.get()]);
+    }
+
+    public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
         return new Sequential(
                 new Instant(() -> {
-                    state = relativeState;
-                    setPosition(relativeState.target());
+                    state = relativeState.get();
+                    setPosition(state.target());
                 }),
                 new Wait(250),
                 new WaitUntil(() -> encoder.getVelocity() < 10)
         );
+    }
+
+    public ICommand setRelativeState(RelativeState relativeState) {
+        return setRelativeState(() -> relativeState);
     }
 
     public ICommand next() {

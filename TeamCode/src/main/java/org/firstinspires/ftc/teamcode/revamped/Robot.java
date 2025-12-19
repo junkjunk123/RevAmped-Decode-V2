@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.revamped.mechanisms.intake.TableCompartmen
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret;
+import org.firstinspires.ftc.teamcode.revamped.utils.Globals;
 import org.firstinspires.ftc.teamcode.revamped.utils.PathSupplier;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler.CycleState;
@@ -121,7 +122,9 @@ public class Robot {
     }
 
     public ICommand sort() {
-        return table.setState(tableCompartments.sort(table.getState().ordinal()));
+        return table.setState(() -> {if (Globals.randomizationState == null) return table.getState().ordinal();
+            return tableCompartments.sort(table.getState().ordinal());}
+        );
     }
 
     public ICommand shootAll() {
