@@ -5,6 +5,7 @@ import com.pedropathing.ivy.Scheduler;
 import org.firstinspires.ftc.teamcode.revamped.utils.BooleanSwitch;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 public class ButtonMapper {
     private final HashMap<BooleanSwitch, ICommand> buttonMap;
@@ -16,6 +17,10 @@ public class ButtonMapper {
     public ButtonMapper put(BooleanSwitch b, ICommand c) {
         buttonMap.put(b, c);
         return this;
+    }
+
+    public ButtonMapper put(BooleanSupplier b, ICommand c) {
+        return put(new BooleanSwitch(b), c);
     }
 
     public void update() {

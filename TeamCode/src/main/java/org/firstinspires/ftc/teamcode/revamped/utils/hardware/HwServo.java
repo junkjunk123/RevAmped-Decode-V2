@@ -103,8 +103,8 @@ public class HwServo implements HwDevice {
         return cachingTolerance;
     }
 
-    private boolean atPos(float pos) {
-        return Math.abs(getPosition() - pos) < cachingTolerance;
+    public boolean atPos(float pos) {
+        return evaluateCache(pos);
     }
 
     @NonNull

@@ -23,6 +23,11 @@ import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.TrackingThread
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.revamped.utils.PathSupplier;
 import org.firstinspires.ftc.teamcode.revamped.utils.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler.CycleState;
+import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler.RobotState;
+import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler.Message;
+import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler.DriveMessage;
+import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler.IntakeMessage;
 
 import java.util.List;
 
@@ -41,87 +46,6 @@ public class Robot {
     private final boolean teleop;
     private final List<LynxModule> hubs;
     private RobotState robotState;
-
-    public interface Message {
-        RobotState robotState();
-
-        class DriveMessage implements Message {
-            public final DriveState driveState;
-
-            public DriveMessage(DriveState driveState) {
-                this.driveState = driveState;
-            }
-
-            @Override
-            public RobotState robotState() {
-                return CycleState.DRIVE_TO_SHOOT;
-            }
-        }
-
-        class IntakeMessage implements Message {
-            public final IntakeState intakeState;
-
-            public IntakeMessage(IntakeState intakeState) {
-                this.intakeState = intakeState;
-            }
-
-            @Override
-            public RobotState robotState() {
-                return CycleState.INTAKE;
-            }
-        }
-    }
-
-    public interface RobotState {
-        void update();
-    }
-
-    public interface CycleState extends RobotState {
-        DriveToShoot DRIVE_TO_SHOOT = new DriveToShoot();
-        Intake INTAKE = new Intake();
-        Shoot SHOOT = new Shoot();
-
-        class Intake implements CycleState {
-            IntakeState INSTANCE = IntakeState.INTAKING;
-            IntakeThread intakeThread = new IntakeThread();
-
-            @Override
-            public void update() {
-                if (INSTANCE == IntakeState.INTAKING)
-                    intakeThread.update();
-            }
-        }
-
-        class DriveToShoot implements CycleState {
-            DriveState INSTANCE = DriveState.PASSIVE;
-            TrackingThread autoTracker;
-
-            public void init(Follower follower, Turret turret, Hood hood, Flywheel flywheel, boolean isTeleOp) {
-                autoTracker = new TrackingThread(follower, turret, flywheel, hood, isTeleOp);
-            }
-
-            @Override
-            public void update() {
-                if (INSTANCE == DriveState.AUTO_TRACKING)
-                    autoTracker.update();
-            }
-        }
-
-        class Shoot implements CycleState {
-            @Override
-            public void update() {}
-        }
-    }
-
-    public enum IntakeState {
-        INTAKING,
-        SORTING;
-    }
-
-    public enum DriveState {
-        AUTO_TRACKING,
-        PASSIVE
-    }
 
 
     public Robot(HardwareMap hardwareMap) {
@@ -142,8 +66,8 @@ public class Robot {
         intakeColor = new ColorManager(hardwareMap);
         intakeDistance = new IntakeDistance(hardwareMap);
         INSTANCE = this;
-        CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, teleop);
-        tableCompartments = new TableCompartmentManager();
+        RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, teleop);
+        tableCompartments = new TableCompartmentManager(CycleState.INTAKE.intakeThread);
         if (!teleop) init();
     }
 
@@ -187,10 +111,12 @@ public class Robot {
     }
 
     public void setRobotState(Message message) {
-        if (message instanceof Message.DriveMessage driveState)
+        if (message instanceof DriveMessage driveState)
             CycleState.DRIVE_TO_SHOOT.INSTANCE = driveState.driveState;
-        else if (message instanceof Message.IntakeMessage intakeMessage)
+        else if (message instanceof IntakeMessage intakeMessage)
             CycleState.INTAKE.INSTANCE = intakeMessage.intakeState;
+        else if (message instanceof CycleState.Intake)
+            CycleState.INTAKE.INSTANCE = RobotStateHandler.IntakeState.INTAKING;
         robotState = message.robotState();
     }
 

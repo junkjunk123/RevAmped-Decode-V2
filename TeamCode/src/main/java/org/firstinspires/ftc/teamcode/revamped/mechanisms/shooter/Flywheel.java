@@ -18,8 +18,11 @@ public class Flywheel extends HwMotor {
 
     public static double RADIUS;
     public static int COUNTS_PER_REVOLUTION;
+    public static double MAX_ACCELERATION;
 
-    private static double MAX_ACCELERATION;
+    public static double FAR_VELOCITY;
+    public static double MEDIUM_VELOCITY;
+    public static double NEAR_VELOCITY;
 
     private double targetVelocity;
     private double targetAcceleration;
@@ -60,6 +63,10 @@ public class Flywheel extends HwMotor {
             resetController();
         targetVelocity = target;
         running = target != 0;
+    }
+
+    public void mediumVelocity() {
+        setTargetVelocity(MEDIUM_VELOCITY);
     }
 
     public void stop() {

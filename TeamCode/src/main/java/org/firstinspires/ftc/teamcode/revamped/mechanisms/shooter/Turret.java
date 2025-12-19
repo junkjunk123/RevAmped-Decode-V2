@@ -14,8 +14,6 @@ public class Turret extends HwMotor {
     public static int AUTO_SET_2;
     public static int AUTO_SET_3;
     public static int FAR_AUTO;
-    public static float LL_DETECTION_RED;
-    public static float LL_DETECTION_BLUE;
     public static double P;
     public static double I;
     public static double D;

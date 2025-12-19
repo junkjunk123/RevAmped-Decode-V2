@@ -8,10 +8,12 @@ import com.pedropathing.math.Matrix;
 
 import org.firstinspires.ftc.teamcode.revamped.utils.Commands.OptionCommand;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 /**
  * TeleOpStateHandler is a class that manages the state transitions in a teleoperated mode of a robot.
@@ -20,7 +22,7 @@ import java.util.function.BooleanSupplier;
  *
  * @param <T> the type of the enum representing the states
  */
-public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
+public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
     /**
      * The current graph element representing the state or transition in the state machine.
      */
@@ -33,9 +35,13 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
     private Matrix adjMatrix;
 
     /**
-     * The class of the enum representing the states.
+     * The class of the states.
      */
-    private final Class<T> enumClass;
+    private final Class<T> stateClass;
+
+    private final HashMap<T, Integer> states;
+
+    private final Consumer<T> stateMutator;
 
     /**
      * The next transition operator that is pending execution.
@@ -129,7 +135,7 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * Each state is represented by a row in the matrix, and each column represents a possible transition to another state.
      */
     private void buildAdjMatrix() {
-        T[] states = enumClass.getEnumConstants();
+        T[] states = stateClass.getEnumConstants();
         assert states != null;
         double[][] entries = new double[states.length][states.length];
 
@@ -145,9 +151,11 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * Initializes the state handler with the initial state, scheduler, and builds the adjacency matrix.
      * @param initialState the initial state of the teleoperated mode
      */
-    public TeleOpStateHandler(T initialState) {
+    public TeleOpStateHandler(T initialState, Class<T> stateClass, HashMap<T, Integer> states, Consumer<T> mutateState) {
         this.currentGraphElement = initialState;
-        this.enumClass = initialState.getDeclaringClass();
+        this.stateClass = stateClass;
+        this.states = states;
+        stateMutator = mutateState;
         buildAdjMatrix();
     }
 
@@ -168,7 +176,7 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * @return true if the transition is valid, false otherwise
      */
     public boolean evaluate(T current, T next) {
-        return adjMatrix.get(current.ordinal(), next.ordinal()) == 1;
+        return adjMatrix.get(states.get(current), states.get(next)) == 1;
     }
 
     /**
@@ -196,10 +204,10 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         commandHashMap.put(() -> {
             if (next == null && currentGraphElement instanceof Transition transition) {
                 State state = transition.next();
-                if (!enumClass.isInstance(state)) {
+                if (!stateClass.isInstance(state)) {
                     throw new IllegalStateException("Current state is not of expected enum type.");
                 }
-                T pendingNext = enumClass.cast(state);
+                T pendingNext = stateClass.cast(state);
                 assert pendingNext != null;
                 return evaluate(pendingNext, nextState);
             }
@@ -213,6 +221,10 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         ));
 
         return new OptionCommand(commandHashMap);
+    }
+
+    public ICommand runTransition(Runnable transition, T nextState, boolean force) {
+        return runTransition(new Instant(transition), nextState, force);
     }
 
     /**
@@ -237,8 +249,12 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      * @param command the transition command to be executed
      * @param nextState the next state to transition to
      */
-    public void runTransition(ICommand command, T nextState) {
-        runTransition(command, nextState, force);
+    public ICommand runTransition(ICommand command, T nextState) {
+        return runTransition(command, nextState, force);
+    }
+
+    public ICommand runTransition(Runnable transition, T nextState) {
+        return runTransition(new Instant(transition), nextState);
     }
 
     /**
@@ -247,10 +263,10 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
      */
     public T currentState() {
         State state = currentGraphElement.getCurrentState();
-        if (!enumClass.isInstance(state)) {
+        if (!stateClass.isInstance(state)) {
             throw new IllegalStateException("Current state is not of expected enum type.");
         }
-        return enumClass.cast(state);
+        return stateClass.cast(state);
     }
 
     /**
@@ -277,6 +293,10 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         return new OptionCommand(commandHashMap);
     }
 
+    public ICommand setting(Runnable setting, List<GraphElement> dependencies) {
+        return setting(new Instant(setting), dependencies);
+    }
+
     /**
      * Executes this setting after the current transition is completed, or immediately if the current graph element isn't a transition.
      */
@@ -292,6 +312,10 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         return new OptionCommand(commandHashMap);
     }
 
+    public ICommand setting(Runnable runnable) {
+        return setting(new Instant(runnable));
+    }
+
     /**
      * Executes a task if the current state matches the component vector.
      * The component vector is a binary vector that indicates which components are active in the current state.
@@ -302,9 +326,9 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
         commandHashMap.put(() -> force, task);
         commandHashMap.put(() -> currentGraphElement instanceof State &&
-                componentVector[currentState().ordinal()] == 1, task);
+                componentVector[states.get(currentState())] == 1, task);
         commandHashMap.put(() -> currentGraphElement instanceof Transition transition &&
-                componentVector[Objects.requireNonNull(enumClass.cast(transition.next())).ordinal()] == 1,
+                componentVector[Objects.requireNonNull(states.get(stateClass.cast(transition.next())))] == 1,
                 new Sequential(
                         new WaitUntil(((Transition) currentGraphElement).transitionCommand::done),
                         task
@@ -312,6 +336,10 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         );
 
         return new OptionCommand(commandHashMap);
+    }
+
+    public ICommand task(Runnable task, int[] componentVector) {
+        return task(new Instant(task), componentVector);
     }
 
     /**
@@ -323,13 +351,17 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
         LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
         commandHashMap.put(() -> force, task);
         commandHashMap.put(() -> currentGraphElement instanceof State && currentState() == state, task);
-        commandHashMap.put(() -> currentGraphElement instanceof Transition transition && enumClass.cast(transition.next) == state,
+        commandHashMap.put(() -> currentGraphElement instanceof Transition transition && stateClass.cast(transition.next) == state,
                 new Sequential(
                         new WaitUntil(((Transition) currentGraphElement).transitionCommand::done),
                         task
                 )
         );
         return new OptionCommand(commandHashMap);
+    }
+
+    public ICommand task(Runnable task, T state) {
+        return task(new Instant(task), state);
     }
 
     /**
@@ -351,7 +383,7 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
     public T nextState() {
         if (currentGraphElement instanceof State state) {
             try {
-                return enumClass.cast(state);
+                return stateClass.cast(state);
             } catch (Exception ignored) {
                 throw new RuntimeException();
             }
@@ -359,7 +391,7 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
 
         else if (currentGraphElement instanceof Transition transition) {
             try {
-                return enumClass.cast(transition.next);
+                return stateClass.cast(transition.next);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -370,5 +402,9 @@ public class TeleOpStateHandler<T extends Enum<T> & TeleOpStateHandler.State> {
 
     public static Transition referenceTransition(State current, State next) {
         return new Transition(current, next, new Instant(() -> {}));
+    }
+
+    public boolean atState(T state) {
+        return currentState().equals(state);
     }
 }

@@ -13,6 +13,12 @@ public class TableCompartmentManager {
             ArtifactColor.NONE
     };
 
+    public final IntakeThread intakeThread;
+
+    public TableCompartmentManager(IntakeThread intakeThread) {
+        this.intakeThread = intakeThread;
+    }
+
     public boolean isEmpty() {
         return Arrays.stream(compartmentColors).anyMatch(t -> t != ArtifactColor.NONE);
     }

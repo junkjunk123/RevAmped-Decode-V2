@@ -114,6 +114,14 @@ public class Table extends HwServo {
         );
     }
 
+    public ICommand next() {
+        return setRelativeState(getState().next());
+    }
+
+    public ICommand previous() {
+        return setRelativeState(getState().previous());
+    }
+
     public void fullRotation() {
         switch (getState()) {
             case BALL1 -> setPosition(BALL1_END);

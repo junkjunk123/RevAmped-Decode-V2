@@ -77,6 +77,10 @@ public class HwMotor implements HwDevice {
         return lastPower;
     }
 
+    public boolean atPower(float power) {
+        return Math.abs(lastPower - power) <= powerThreshold;
+    }
+
     public void setMode(DcMotor.RunMode runMode) {
         for (DcMotorEx motor : hardware)
             motor.setMode(runMode);
