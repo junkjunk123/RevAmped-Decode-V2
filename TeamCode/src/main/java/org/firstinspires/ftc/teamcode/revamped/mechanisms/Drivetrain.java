@@ -8,6 +8,7 @@ import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Race;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -212,6 +213,10 @@ public class Drivetrain {
 
     public void arcadeDrive(double x, double y, double rx) {
         arcadeDrive(x, y, rx, MAGNITUDE_ZERO, ANGLE_ZERO, MAX_POWER);
+    }
+
+    public void arcadeDrive(Gamepad gamepad) {
+        arcadeDrive(gamepad.left_stick_x, gamepad.left_stick_y, gamepad.right_stick_x);
     }
 
     public void update() {

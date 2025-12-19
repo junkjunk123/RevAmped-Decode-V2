@@ -113,6 +113,7 @@ public class TeleOp extends OpModeCommand {
                 new Infinite(() -> {
                     robot.update();
                     mapper.update();
+                    robot.drivetrain.arcadeDrive(gamepad1);
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
