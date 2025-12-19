@@ -5,6 +5,7 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Sequential;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.revamped.Robot;
 import org.firstinspires.ftc.teamcode.revamped.RobotStateHandler;
@@ -18,7 +19,8 @@ import org.firstinspires.ftc.teamcode.revamped.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.revamped.utils.Commands.ButtonMapper;
 import org.firstinspires.ftc.teamcode.revamped.utils.GamepadEx;
 
-public class TeleOp extends OpModeCommand {
+@TeleOp
+public class DCTeleOp extends OpModeCommand {
     @Override
     public void initialize() {
         Robot robot = new Robot(hardwareMap);
