@@ -189,6 +189,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      */
     public void setCurrentState(T currentState) {
         this.currentGraphElement = currentState;
+        stateMutator.accept(currentState);
     }
 
     /**

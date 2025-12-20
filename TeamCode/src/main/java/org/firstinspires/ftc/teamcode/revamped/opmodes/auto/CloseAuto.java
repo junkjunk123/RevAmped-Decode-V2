@@ -11,12 +11,10 @@ import com.pedropathing.ivy.groups.Sequential;
 import org.firstinspires.ftc.teamcode.revamped.Robot;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.Drivetrain;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.revamped.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.revamped.opmodes.auto.paths.CloseAutoPaths;
 import org.firstinspires.ftc.teamcode.revamped.utils.ArtifactColor;
-import org.firstinspires.ftc.teamcode.revamped.utils.Commands.DualOptionCommand;
 import org.firstinspires.ftc.teamcode.revamped.utils.Globals;
 
 public class CloseAuto extends OpModeCommand {
