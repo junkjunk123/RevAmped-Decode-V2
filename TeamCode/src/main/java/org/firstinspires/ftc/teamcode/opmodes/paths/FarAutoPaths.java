@@ -44,19 +44,12 @@ public class FarAutoPaths implements PathSupplier {
         FollowParameters cornerOne = new FollowParameters(follower.pathBuilder()
                 .addPath(new BezierLine(START_POSE, CORNER_ONE))
                 .setConstantHeadingInterpolation(CORNER_ONE.getHeading())
-                .addParametricCallback(1, () -> {
-                    Robot.INSTANCE.flywheel().setCurrentState(Types.FlywheelState.STOPPED);
-                    Scheduler.getInstance().add(new Delay(Robot.INSTANCE.tableServo()::reached,
-                            () -> Scheduler.getInstance().add(new Delay(500, () -> Robot.INSTANCE.popper().setCurrentState(Types.PopperState.NEUTRAL))))
-                            .setMaxTimeToRun(1500));
-                })
                 .build()
         );
 
         FollowParameters cornerTwo = new FollowParameters(follower.pathBuilder()
                 .addPath(new BezierLine(CORNER_ONE, CORNER_TWO))
                 .setConstantHeadingInterpolation(CORNER_TWO.getHeading())
-                .addParametricCallback(0.5, () -> Robot.INSTANCE.intakeMotor().setCurrentState(Types.IntakeState.INTAKE))
                 .build()
         );
 

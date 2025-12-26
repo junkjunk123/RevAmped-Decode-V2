@@ -43,6 +43,7 @@ public class FarAuto extends OpModeCommand {
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 1500)
                         ),
                         robot.drivetrain.followNext(d -> d.velocityCondition(4), 2500),
+                        new Instant(robot.intakeMotor::intake),
                         new Wait(500),
                         robot.drivetrain.followNext(d -> d.velocityCondition(4), 1500),
                         new Instant(() -> robot.flywheel.far()),
