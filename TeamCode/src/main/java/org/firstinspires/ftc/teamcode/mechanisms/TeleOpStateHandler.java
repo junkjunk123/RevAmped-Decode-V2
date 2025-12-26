@@ -7,6 +7,7 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
+import org.firstinspires.ftc.teamcode.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.utils.commands.Option;
 
 import java.util.HashMap;
@@ -21,9 +22,8 @@ import java.util.function.Consumer;
  * It uses a finite state machine approach to handle transitions between different states.
  * The states are represented as an enum that implements the State interface.
  *
- * @param <T> the type of the enum representing the states
  */
-public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
+public class TeleOpStateHandler {
     /**
      * The current graph element representing the state or transition in the state machine.
      */
@@ -38,11 +38,11 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
     /**
      * The class of the states.
      */
-    private final Class<T> stateClass;
+    private final Class<RobotStateHandler.CycleState> stateClass = RobotStateHandler.CycleState.class;
 
-    private final HashMap<T, Integer> states;
+    private final HashMap<RobotStateHandler.CycleState, Integer> states;
 
-    private final Consumer<T> stateMutator;
+    private final Consumer<RobotStateHandler.Message> stateMutator;
 
     /**
      * The next transition operator that is pending execution.
@@ -67,41 +67,20 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
          * Gets the current state of this graph element.
          * @return the current state of this graph element
          */
-        State getCurrentState();
-    }
-
-    /**
-     * State is an interface that represents a state in the teleoperated mode of the robot.
-     */
-    public interface State extends GraphElement {
-        /**
-         * Gets the transition vector for this state.
-         * The transition vector is a binary vector that represents the possible transitions from this state.
-         * @return a binary vector representing the transition vector
-         */
-        double[] getTransitionVector();
-
-        /**
-         * Gets the next state that this state can transition to.
-         * @return the next state that this state can transition to
-         */
-        @Override
-        default State getCurrentState() {
-            return this;
-        }
+        RobotStateHandler.CycleState getCurrentState();
     }
 
     /**
      * Transition is a record that represents a transition between two states in the state machine.
      * It implements the GraphElement interface and contains the current state, next state, and the transition command.
      */
-    public record Transition(State current, State next, ICommand transitionCommand) implements GraphElement {
+    public record Transition(RobotStateHandler.CycleState current, RobotStateHandler.CycleState next, ICommand transitionCommand) implements GraphElement {
         /**
          * Gets the current state, before the transition.
          * @return the current state of this transition
          */
         @Override
-        public State getCurrentState() {
+        public RobotStateHandler.CycleState getCurrentState() {
             return current;
         }
 
@@ -139,7 +118,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * Each state is represented by a row in the matrix, and each column represents a possible transition to another state.
      */
     private void buildAdjMatrix() {
-        T[] states = stateClass.getEnumConstants();
+        RobotStateHandler.CycleState[] states = stateClass.getEnumConstants();
         assert states != null;
         double[][] entries = new double[states.length][states.length];
 
@@ -155,9 +134,8 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * Initializes the state handler with the initial state, scheduler, and builds the adjacency matrix.
      * @param initialState the initial state of the teleoperated mode
      */
-    public TeleOpStateHandler(T initialState, Class<T> stateClass, HashMap<T, Integer> states, Consumer<T> mutateState) {
+    public TeleOpStateHandler(RobotStateHandler.CycleState initialState, HashMap<RobotStateHandler.CycleState, Integer> states, Consumer<RobotStateHandler.Message> mutateState) {
         this.currentGraphElement = initialState;
-        this.stateClass = stateClass;
         this.states = states;
         stateMutator = mutateState;
         buildAdjMatrix();
@@ -179,7 +157,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * @param next the next state
      * @return true if the transition is valid, false otherwise
      */
-    public boolean evaluate(T current, T next) {
+    public boolean evaluate(RobotStateHandler.CycleState current, RobotStateHandler.CycleState next) {
         return adjMatrix.get(states.get(current), states.get(next)) == 1;
     }
 
@@ -187,9 +165,14 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * Sets the current state of the teleoperated mode.
      * @param currentState the new current state to be set
      */
-    public void setCurrentState(T currentState) {
-        this.currentGraphElement = currentState;
+    public void setCurrentState(RobotStateHandler.Message currentState) {
+        this.currentGraphElement = currentState.cycleState();
         stateMutator.accept(currentState);
+    }
+
+    public void setCurrentState(RobotStateHandler.Message currentState, boolean init) {
+        this.currentGraphElement = currentState.cycleState();
+        if (init) stateMutator.accept(currentState);
     }
 
     /**
@@ -200,19 +183,19 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * @param nextState the next state to transition to
      * @param force whether to force the transition regardless of the current state
      */
-    public ICommand runTransition(ICommand command, T nextState, boolean force) {
-        T currentState = currentState();
+    public ICommand runTransition(ICommand command, RobotStateHandler.CycleState nextState, boolean force) {
+        RobotStateHandler.CycleState currentState = currentState();
         LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
 
-        commandHashMap.put(() -> (force || currentGraphElement instanceof State) &&
+        commandHashMap.put(() -> (force || currentGraphElement instanceof RobotStateHandler.CycleState) &&
                         evaluate(currentState, nextState), run(command, nextState, currentState));
         commandHashMap.put(() -> {
             if (next == null && currentGraphElement instanceof Transition transition) {
-                State state = transition.next();
+                RobotStateHandler.CycleState state = transition.next();
                 if (!stateClass.isInstance(state)) {
                     throw new IllegalStateException("Current state is not of expected enum type.");
                 }
-                T pendingNext = stateClass.cast(state);
+                RobotStateHandler.CycleState pendingNext = stateClass.cast(state);
                 assert pendingNext != null;
                 return evaluate(pendingNext, nextState);
             }
@@ -220,7 +203,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
             return false;
         }, new Sequential(
                 new Instant(() -> next = command),
-                new WaitUntil(() -> currentGraphElement instanceof State),
+                new WaitUntil(() -> currentGraphElement instanceof RobotStateHandler.CycleState),
                 new Instant(() -> next = null),
                 runTransition(command, nextState, force)
         ));
@@ -228,7 +211,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
         return new Option(commandHashMap);
     }
 
-    public ICommand runTransition(Runnable transition, T nextState, boolean force) {
+    public ICommand runTransition(Runnable transition, RobotStateHandler.CycleState nextState, boolean force) {
         return runTransition(new Instant(transition), nextState, force);
     }
 
@@ -240,7 +223,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * @param nextState the next state to transition to
      * @param currentState the current state before the transition
      */
-    private ICommand run(ICommand command, T nextState, T currentState) {
+    private ICommand run(ICommand command, RobotStateHandler.CycleState nextState, RobotStateHandler.CycleState currentState) {
         int abortCounter = this.abortCounter;
         return new Race (
                 new Sequential(
@@ -260,11 +243,11 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * @param command the transition command to be executed
      * @param nextState the next state to transition to
      */
-    public ICommand runTransition(ICommand command, T nextState) {
+    public ICommand runTransition(ICommand command, RobotStateHandler.CycleState nextState) {
         return runTransition(command, nextState, force);
     }
 
-    public ICommand runTransition(Runnable transition, T nextState) {
+    public ICommand runTransition(Runnable transition, RobotStateHandler.CycleState nextState) {
         return runTransition(new Instant(transition), nextState);
     }
 
@@ -272,8 +255,8 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * Gets the current state of the teleoperated mode.
      * @return the current state of the teleoperated mode
      */
-    public T currentState() {
-        State state = currentGraphElement.getCurrentState();
+    public RobotStateHandler.CycleState currentState() {
+        RobotStateHandler.CycleState state = currentGraphElement.getCurrentState();
         if (!stateClass.isInstance(state)) {
             throw new IllegalStateException("Current state is not of expected enum type.");
         }
@@ -314,9 +297,9 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
     public ICommand setting(ICommand setting) {
         LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
         commandHashMap.put(() -> force, setting);
-        commandHashMap.put(() -> currentGraphElement instanceof State, setting);
-        commandHashMap.put(() -> !force && !(currentGraphElement instanceof State), new Sequential(
-                new WaitUntil(() -> currentElement() instanceof State),
+        commandHashMap.put(() -> currentGraphElement instanceof RobotStateHandler.CycleState, setting);
+        commandHashMap.put(() -> !force && !(currentGraphElement instanceof RobotStateHandler.CycleState), new Sequential(
+                new WaitUntil(() -> currentElement() instanceof RobotStateHandler.CycleState),
                 setting
         ));
 
@@ -336,7 +319,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
     public ICommand task(ICommand task, int[] componentVector) {
         LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
         commandHashMap.put(() -> force, task);
-        commandHashMap.put(() -> currentGraphElement instanceof State &&
+        commandHashMap.put(() -> currentGraphElement instanceof RobotStateHandler.CycleState &&
                 componentVector[states.get(currentState())] == 1, task);
         commandHashMap.put(() -> currentGraphElement instanceof Transition transition &&
                 componentVector[Objects.requireNonNull(states.get(stateClass.cast(transition.next())))] == 1,
@@ -358,10 +341,10 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * @param task the task to be executed
      * @param state the state to check against the current state
      */
-    public ICommand task(ICommand task, T state) {
+    public ICommand task(ICommand task, RobotStateHandler.CycleState state) {
         LinkedHashMap<BooleanSupplier, ICommand> commandHashMap = new LinkedHashMap<>();
         commandHashMap.put(() -> force, task);
-        commandHashMap.put(() -> currentGraphElement instanceof State && currentState() == state, task);
+        commandHashMap.put(() -> currentGraphElement instanceof RobotStateHandler.CycleState && currentState() == state, task);
         commandHashMap.put(() -> currentGraphElement instanceof Transition transition && stateClass.cast(transition.next) == state,
                 new Sequential(
                         new WaitUntil(((Transition) currentGraphElement).transitionCommand::done),
@@ -371,7 +354,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
         return new Option(commandHashMap);
     }
 
-    public ICommand task(Runnable task, T state) {
+    public ICommand task(Runnable task, RobotStateHandler.CycleState state) {
         return task(new Instant(task), state);
     }
 
@@ -391,8 +374,8 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
         return force;
     }
 
-    public T nextState() {
-        if (currentGraphElement instanceof State state) {
+    public RobotStateHandler.CycleState nextState() {
+        if (currentGraphElement instanceof RobotStateHandler.CycleState state) {
             try {
                 return stateClass.cast(state);
             } catch (Exception ignored) {
@@ -411,15 +394,15 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
         return null;
     }
 
-    public static Transition referenceTransition(State current, State next) {
+    public static Transition referenceTransition(RobotStateHandler.CycleState current, RobotStateHandler.CycleState next) {
         return new Transition(current, next, new Instant(() -> {}));
     }
 
-    public boolean atState(T state) {
+    public boolean atState(RobotStateHandler.CycleState state) {
         return currentState().equals(state);
     }
 
-    public boolean nextStateAt(T state) {
+    public boolean nextStateAt(RobotStateHandler.CycleState state) {
         return nextState().equals(state);
     }
 
@@ -439,7 +422,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
      * @param overrideAction the action to be executed as an override
      * @param nextState the next state to transition to after the override
      */
-    public void override(Runnable overrideAction, T nextState) {
+    public void override(Runnable overrideAction, RobotStateHandler.CycleState nextState) {
         abortTransition();
         overrideAction.run();
         setCurrentState(nextState);

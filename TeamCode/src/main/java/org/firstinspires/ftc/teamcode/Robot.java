@@ -24,7 +24,6 @@ import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.RobotStateHandler.CycleState;
-import org.firstinspires.ftc.teamcode.RobotStateHandler.RobotState;
 import org.firstinspires.ftc.teamcode.RobotStateHandler.Message;
 import org.firstinspires.ftc.teamcode.RobotStateHandler.DriveMessage;
 import org.firstinspires.ftc.teamcode.RobotStateHandler.IntakeMessage;
@@ -46,8 +45,7 @@ public class Robot {
     public final TableCompartmentManager tableCompartments;
     private final boolean teleop;
     private final List<LynxModule> hubs;
-    private RobotState robotState;
-
+    private CycleState robotState;
 
     public Robot(HardwareMap hardwareMap) {
         this(hardwareMap, null);
@@ -107,7 +105,7 @@ public class Robot {
         return teleop;
     }
 
-    public RobotState getRobotState() {
+    public CycleState getRobotState() {
         return robotState;
     }
 
@@ -118,7 +116,7 @@ public class Robot {
             CycleState.INTAKE.INSTANCE = intakeMessage.intakeState;
         else if (message instanceof CycleState.Intake)
             CycleState.INTAKE.INSTANCE = RobotStateHandler.IntakeState.INTAKING;
-        robotState = message.robotState();
+        robotState = message.cycleState();
     }
 
     public ICommand sort() {

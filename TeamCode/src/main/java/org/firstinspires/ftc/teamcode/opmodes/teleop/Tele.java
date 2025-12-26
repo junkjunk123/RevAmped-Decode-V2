@@ -24,7 +24,7 @@ public class Tele extends OpModeCommand {
     @Override
     public void initialize() {
         Robot robot = new Robot(hardwareMap);
-        TeleOpStateHandler<RobotStateHandler.CycleState> tsh = RobotStateHandler.createTeleOpStateHandler(robot);
+        TeleOpStateHandler tsh = RobotStateHandler.createTeleOpStateHandler(robot);
         GamepadEx gamepad_1 = new GamepadEx(gamepad1);
         GamepadEx gamepad_2 = new GamepadEx(gamepad2);
 
@@ -53,7 +53,11 @@ public class Tele extends OpModeCommand {
                                 new Instant(robot.turret::resetPosition)
                         )
                 )
-                .put(gamepad_1.x.risingEdge(), new Instant(() -> {tsh.abortTransition(); robot.popper.neutral();}))
+                .put(gamepad_1.x.risingEdge(), new Instant(() -> {
+                    tsh.abortTransition();
+                    robot.popper.neutral();
+                    tsh.setCurrentState(RobotStateHandler.IntakeMessage.SORTING);
+                }))
                 .put(gamepad_2.b.risingEdge().and(() -> tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
                         || !robot.intakeMotor.atPower(IntakeMotor.INTAKE)), tsh.runTransition(() -> {
                             robot.flywheel.medium();

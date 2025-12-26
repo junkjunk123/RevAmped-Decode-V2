@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class RobotStateHandler {
     public interface Message {
-        RobotState robotState();
+        CycleState cycleState();
     }
 
     public static class DriveMessage implements Message {
@@ -27,7 +27,7 @@ public class RobotStateHandler {
         }
 
         @Override
-        public RobotState robotState() {
+        public CycleState cycleState() {
             return CycleState.DRIVE_TO_SHOOT;
         }
     }
@@ -43,23 +43,24 @@ public class RobotStateHandler {
         }
 
         @Override
-        public RobotState robotState() {
+        public CycleState cycleState() {
             return CycleState.INTAKE;
         }
     }
 
-    public interface RobotState extends Message {
-        void update();
-
-        default RobotState robotState() {
-            return this;
-        }
-    }
-
-    public interface CycleState extends RobotState, TeleOpStateHandler.State {
+    public interface CycleState extends TeleOpStateHandler.GraphElement, Message {
         DriveToShoot DRIVE_TO_SHOOT = new DriveToShoot();
         Intake INTAKE = new Intake();
         Shoot SHOOT = new Shoot();
+
+        void update();
+
+        double[] getTransitionVector();
+
+        @Override
+        default CycleState cycleState() {
+            return this;
+        }
 
         class Intake implements CycleState {
             public IntakeState INSTANCE = IntakeState.INTAKING;
@@ -71,7 +72,6 @@ public class RobotStateHandler {
                     intakeThread.update();
             }
 
-            @Override
             public double[] getTransitionVector() {
                 return new double[] {1,1,0};
             }
@@ -91,7 +91,6 @@ public class RobotStateHandler {
                     autoTracker.update();
             }
 
-            @Override
             public double[] getTransitionVector() {
                 return new double[] {1,1,1};
             }
@@ -101,10 +100,13 @@ public class RobotStateHandler {
             @Override
             public void update() {}
 
-            @Override
             public double[] getTransitionVector() {
                 return new double[] {1,0,1};
             }
+        }
+
+        default CycleState getCurrentState() {
+            return this;
         }
     }
 
@@ -118,12 +120,11 @@ public class RobotStateHandler {
         PASSIVE
     }
 
-    public static TeleOpStateHandler<CycleState> createTeleOpStateHandler(Robot robot) {
+    public static TeleOpStateHandler createTeleOpStateHandler(Robot robot) {
         HashMap<CycleState, Integer> stateMap = new HashMap<>();
         stateMap.put(RobotStateHandler.CycleState.INTAKE, 0);
         stateMap.put(RobotStateHandler.CycleState.DRIVE_TO_SHOOT, 1);
         stateMap.put(RobotStateHandler.CycleState.SHOOT, 2);
-        return new TeleOpStateHandler<>(
-                CycleState.INTAKE, CycleState.class, stateMap, robot::setRobotState);
+        return new TeleOpStateHandler(CycleState.INTAKE, stateMap, robot::setRobotState);
     }
 }
