@@ -8,7 +8,7 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
 import org.firstinspires.ftc.teamcode.RobotStateHandler;
-import org.firstinspires.ftc.teamcode.utils.commands.Option;
+import org.firstinspires.ftc.teamcode.utils.commands.Optional;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -208,7 +208,7 @@ public class TeleOpStateHandler {
                 runTransition(command, nextState, force)
         ));
 
-        return new Option(commandHashMap);
+        return new Optional(commandHashMap);
     }
 
     public ICommand runTransition(Runnable transition, RobotStateHandler.CycleState nextState, boolean force) {
@@ -284,7 +284,7 @@ public class TeleOpStateHandler {
                 setting
         ));
 
-        return new Option(commandHashMap);
+        return new Optional(commandHashMap);
     }
 
     public ICommand setting(Runnable setting, List<GraphElement> dependencies) {
@@ -303,7 +303,7 @@ public class TeleOpStateHandler {
                 setting
         ));
 
-        return new Option(commandHashMap);
+        return new Optional(commandHashMap);
     }
 
     public ICommand setting(Runnable runnable) {
@@ -329,7 +329,7 @@ public class TeleOpStateHandler {
                 )
         );
 
-        return new Option(commandHashMap);
+        return new Optional(commandHashMap);
     }
 
     public ICommand task(Runnable task, int[] componentVector) {
@@ -351,7 +351,7 @@ public class TeleOpStateHandler {
                         task
                 )
         );
-        return new Option(commandHashMap);
+        return new Optional(commandHashMap);
     }
 
     public ICommand task(Runnable task, RobotStateHandler.CycleState state) {

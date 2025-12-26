@@ -70,7 +70,7 @@ public class Turret extends HwMotor {
         resetPosition(startPos);
     }
 
-    public void setTargetPosition(int position) {
+    public void runToPos(int position) {
         controller.setTargetPosition(position + getEncoderBase());
     }
 
@@ -79,7 +79,7 @@ public class Turret extends HwMotor {
     }
 
     public void move(MoveState moveState) {
-        setTargetPosition(moveState.target());
+        runToPos(moveState.target());
         this.moveState = moveState;
     }
 
@@ -103,7 +103,7 @@ public class Turret extends HwMotor {
 
     public ICommand resetTurret() {
         return new Sequential(
-                new Instant(() -> setTargetPosition(0)),
+                new Instant(() -> runToPos(0)),
                 new WaitUntil(limitSwitch::state),
                 new Instant(this::resetPosition)
         );

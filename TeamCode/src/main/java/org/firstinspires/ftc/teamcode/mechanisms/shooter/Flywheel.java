@@ -59,7 +59,7 @@ public class Flywheel extends HwMotor {
         setPower(control);
     };
 
-    public void setTargetVelocity(double target) {
+    public void runToVel(double target) {
         if (Math.abs(targetVelocity - target) > 1.0)
             resetController();
         targetVelocity = target;
@@ -67,18 +67,19 @@ public class Flywheel extends HwMotor {
     }
 
     public void medium() {
-        setTargetVelocity(MEDIUM_VELOCITY);
+        runToVel(MEDIUM_VELOCITY);
     }
 
     public void far() {
-        setTargetVelocity(FAR_VELOCITY);
+        runToVel(FAR_VELOCITY);
     }
 
     public void near() {
-        setTargetVelocity(NEAR_VELOCITY);
+        runToVel(NEAR_VELOCITY);
     }
 
-    public void auto() {setTargetVelocity(AUTO_VELOCITY);}
+    public void auto() {
+        runToVel(AUTO_VELOCITY);}
 
     public void stop() {
         running = false;

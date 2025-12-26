@@ -23,7 +23,6 @@ public class DecodeLimelight implements HwDevice {
     private final String id;
     private LLResult latestResult;
     private Pose detectionResult;
-    public static boolean usingLimelight = false;
     private long lastDetectionTime = 0;
 
     public enum Pipeline {

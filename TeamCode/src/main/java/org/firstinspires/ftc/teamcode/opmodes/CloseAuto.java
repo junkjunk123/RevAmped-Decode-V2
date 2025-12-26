@@ -60,7 +60,7 @@ public class CloseAuto extends OpModeCommand {
                           new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
                           new Wait(4000)
                     ),
-                    new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
+                    new Instant(() -> robot.turret.runToPos(Turret.AUTO_PRELOADS)),
                     robot.sortAndShoot(),
                     intake(0),
                     shoot(0),
@@ -89,11 +89,11 @@ public class CloseAuto extends OpModeCommand {
 
         return new Sequential(
                 new Instant(() -> {
-                    robot.turret.setTargetPosition(turretPos);
+                    robot.turret.runToPos(turretPos);
                     robot.flywheel.stop();
                 }),
                 new Parallel(
-                        robot.resetAfterShooting(),
+                        robot.resetTableAfterShooting(),
                         robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                 ),
                 new Instant(robot.intakeMotor::outtakeSlow),
@@ -132,7 +132,7 @@ public class CloseAuto extends OpModeCommand {
                                 )
                         ),
                         new Instant(() -> {
-                                robot.flywheel.setTargetVelocity(Flywheel.AUTO_VELOCITY + flywheelOffset);
+                                robot.flywheel.runToVel(Flywheel.AUTO_VELOCITY + flywheelOffset);
                                 robot.tableCompartments.populate(intookColors);
                         }),
                         new Sequential(

@@ -177,18 +177,22 @@ public class Robot {
     public ICommand resetAfterShooting() {
         return new Parallel(
                 resetShooter(),
-                new Sequential(
-                        new Instant(intakeMotor::stop),
-                        new Race(
-                                table.reset(),
-                                new Wait(1000)
-                        ),
-                        new Wait(500),
-                        new Instant(() -> {
-                            popper.neutral();
-                            intakeMotor.intake();
-                        })
-                )
+                resetTableAfterShooting()
+        );
+    }
+
+    public ICommand resetTableAfterShooting() {
+        return new Sequential(
+                new Instant(intakeMotor::stop),
+                new Race(
+                        table.reset(),
+                        new Wait(1000)
+                ),
+                new Wait(500),
+                new Instant(() -> {
+                    popper.neutral();
+                    intakeMotor.intake();
+                })
         );
     }
 

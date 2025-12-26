@@ -27,6 +27,6 @@ public class TrackingThread {
         if (isTeleOp) follower.update();
         shooterMath.update(trackTurret, trackHood, flywheel.getTargetVelocity());
         hood.setPosition(shooterMath.getHoodPos());
-        turret.setTargetPosition(shooterMath.getTurretPos());
+        turret.runToPos(shooterMath.getTurretPos());
     }
 }
