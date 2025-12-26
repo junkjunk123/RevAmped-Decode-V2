@@ -90,11 +90,16 @@ public class Drivetrain {
     }
 
     public boolean velocityCondition() {
-        return follower.getVelocity().getMagnitude() < follower.getCurrentPath().getPathEndVelocityConstraint();
+        return follower.getVelocity().dot(follower.getClosestPointTangentVector().normalize())
+                < follower.getCurrentPath().getPathEndVelocityConstraint();
     }
 
     public boolean velocityCondition(double dist) {
         return !follower.isBusy() || (distanceFromTarget() < dist && velocityCondition());
+    }
+
+    public boolean tValueCondition(double t) {
+        return follower.getCurrentTValue() > t;
     }
 
     public void apply(Consumer<DcMotorEx> action) {

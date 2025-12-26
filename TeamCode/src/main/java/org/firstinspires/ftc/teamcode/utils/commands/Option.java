@@ -7,10 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 
-public class OptionCommand extends Command {
+public class Option extends Command {
     private final LinkedHashMap<BooleanSupplier, ICommand> commands;
 
-    public OptionCommand(LinkedHashMap<BooleanSupplier, ICommand> commands) {
+    public Option(LinkedHashMap<BooleanSupplier, ICommand> commands) {
         this.commands = commands;
     }
 

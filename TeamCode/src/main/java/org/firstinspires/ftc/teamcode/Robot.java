@@ -156,7 +156,8 @@ public class Robot {
                 new Instant(intakeMotor::shooting),
                 new Wait(delay.get()),
                 new Instant(() -> table.setPosition(shootSequence[2] + Table.FULL_REVOLUTION / 3)),
-                new WaitUntil(table::reached)
+                new WaitUntil(table::reached),
+                new Instant(tableCompartments::removeAll)
         );
     }
 
@@ -190,6 +191,18 @@ public class Robot {
                             intakeMotor.intake();
                         })
                 )
+        );
+    }
+
+    public ICommand sortAndShoot() {
+        return new Sequential(
+                sort(),
+                new Instant(popper::pop),
+                new Parallel(
+                        new WaitUntil(turret::reached),
+                        new Wait(250)
+                ),
+                shootAll(() -> Globals.allianceColor == null ? 0.0 : 175.0)
         );
     }
 

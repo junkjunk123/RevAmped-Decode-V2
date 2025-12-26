@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -7,6 +8,7 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
@@ -36,7 +38,7 @@ public class Table extends HwServo {
             return null;
         }
 
-        public double target() {
+        public float target() {
             switch (this) {
                 case BALL1 -> {
                     return Table.BALL1;
@@ -110,13 +112,17 @@ public class Table extends HwServo {
     }
 
     public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
-        return new Sequential(
-                new Instant(() -> {
-                    state = relativeState.get();
-                    setPosition(state.target());
-                }),
-                new Wait(250),
-                new WaitUntil(() -> encoder.getVelocity() < 10)
+        return new Conditional(
+                () -> atPos(relativeState.get().target()),
+                new Command(),
+                new Sequential(
+                        new Instant(() -> {
+                            state = relativeState.get();
+                            setPosition(state.target());
+                        }),
+                        new Wait(250),
+                        new WaitUntil(() -> encoder.getVelocity() < 10)
+                )
         );
     }
 

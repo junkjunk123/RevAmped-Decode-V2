@@ -54,4 +54,10 @@ public class TableCompartmentManager {
     public void populate(ArtifactColor[] colors) {
         System.arraycopy(colors, 0, compartmentColors, 0, compartmentColors.length);
     }
+
+    public void removeAll() {
+        compartmentColors[0] = ArtifactColor.NONE;
+        compartmentColors[1] = ArtifactColor.NONE;
+        compartmentColors[2] = ArtifactColor.NONE;
+    }
 }

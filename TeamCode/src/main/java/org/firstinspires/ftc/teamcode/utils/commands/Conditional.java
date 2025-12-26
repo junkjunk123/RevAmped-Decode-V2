@@ -5,15 +5,15 @@ import com.pedropathing.ivy.ICommand;
 
 import java.util.function.BooleanSupplier;
 
-public class DualOptionCommand extends Command {
+public class Conditional extends Command {
     private final BooleanSupplier decider;
     private final ICommand option1;
     private final ICommand option2;
 
-    public DualOptionCommand(BooleanSupplier decider, ICommand option1, ICommand option2) {
+    public Conditional(BooleanSupplier decider, ICommand ifTrue, ICommand ifFalse) {
         this.decider = decider;
-        this.option1 = option1;
-        this.option2 = option2;
+        this.option1 = ifTrue;
+        this.option2 = ifFalse;
     }
 
     @Override

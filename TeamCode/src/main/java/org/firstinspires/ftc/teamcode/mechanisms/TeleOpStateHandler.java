@@ -7,7 +7,7 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
-import org.firstinspires.ftc.teamcode.utils.commands.OptionCommand;
+import org.firstinspires.ftc.teamcode.utils.commands.Option;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -225,7 +225,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
                 runTransition(command, nextState, force)
         ));
 
-        return new OptionCommand(commandHashMap);
+        return new Option(commandHashMap);
     }
 
     public ICommand runTransition(Runnable transition, T nextState, boolean force) {
@@ -301,7 +301,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
                 setting
         ));
 
-        return new OptionCommand(commandHashMap);
+        return new Option(commandHashMap);
     }
 
     public ICommand setting(Runnable setting, List<GraphElement> dependencies) {
@@ -320,7 +320,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
                 setting
         ));
 
-        return new OptionCommand(commandHashMap);
+        return new Option(commandHashMap);
     }
 
     public ICommand setting(Runnable runnable) {
@@ -346,7 +346,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
                 )
         );
 
-        return new OptionCommand(commandHashMap);
+        return new Option(commandHashMap);
     }
 
     public ICommand task(Runnable task, int[] componentVector) {
@@ -368,7 +368,7 @@ public class TeleOpStateHandler<T extends TeleOpStateHandler.State> {
                         task
                 )
         );
-        return new OptionCommand(commandHashMap);
+        return new Option(commandHashMap);
     }
 
     public ICommand task(Runnable task, T state) {
