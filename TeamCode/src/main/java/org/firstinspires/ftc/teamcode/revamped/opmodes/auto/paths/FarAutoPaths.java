@@ -7,18 +7,16 @@ import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
-import org.firstinspires.ftc.teamcode.revAmped.components.misc.Globals;
-import org.firstinspires.ftc.teamcode.revAmped.components.pedro.ColoredDecodePose;
-import org.firstinspires.ftc.teamcode.revAmped.components.pedro.PathSupplier;
-import org.firstinspires.ftc.teamcode.revAmped.components.scheduler.Commands.Delay;
-import org.firstinspires.ftc.teamcode.revAmped.components.scheduler.Scheduler;
-import org.firstinspires.ftc.teamcode.revAmped.mechanisms.Robot;
-import org.firstinspires.ftc.teamcode.revAmped.util.Types;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
+import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
+import org.firstinspires.ftc.teamcode.Robot;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
 @Configurable
 public class FarAutoPaths implements PathSupplier {
     private final boolean detectObelisk;
@@ -102,3 +100,4 @@ public class FarAutoPaths implements PathSupplier {
         return pathChains;
     }
 }
+ */

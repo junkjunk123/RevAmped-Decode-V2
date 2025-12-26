@@ -8,14 +8,14 @@ import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 
-import org.firstinspires.ftc.teamcode.revamped.Robot;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.DecodeLimelight;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.Drivetrain;
-import org.firstinspires.ftc.teamcode.revamped.mechanisms.shooter.Turret;
-import org.firstinspires.ftc.teamcode.revamped.opmodes.OpModeCommand;
+import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.mechanisms.DecodeLimelight;
+import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
+import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.revamped.opmodes.auto.paths.CloseAutoPaths;
-import org.firstinspires.ftc.teamcode.revamped.utils.ArtifactColor;
-import org.firstinspires.ftc.teamcode.revamped.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 public class CloseAuto extends OpModeCommand {
     private Robot robot;

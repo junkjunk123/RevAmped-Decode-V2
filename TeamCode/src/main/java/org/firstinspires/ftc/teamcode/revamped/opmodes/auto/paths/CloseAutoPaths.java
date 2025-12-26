@@ -4,9 +4,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
-import org.firstinspires.ftc.teamcode.revamped.utils.ColoredDecodePose;
-import org.firstinspires.ftc.teamcode.revamped.utils.FollowParameters;
-import org.firstinspires.ftc.teamcode.revamped.utils.PathSupplier;
+import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
+import org.firstinspires.ftc.teamcode.utils.FollowParameters;
+import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 
 import java.util.List;
 

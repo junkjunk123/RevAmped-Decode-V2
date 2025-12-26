@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.utils.FollowParameters;
-import org.firstinspires.ftc.teamcode.utils.PathSupplier;
+import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 
 import java.util.Iterator;
 import java.util.List;

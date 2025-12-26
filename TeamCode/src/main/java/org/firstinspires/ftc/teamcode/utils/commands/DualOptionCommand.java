@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.revamped.utils.Commands;
+package org.firstinspires.ftc.teamcode.utils.commands;
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.ICommand;

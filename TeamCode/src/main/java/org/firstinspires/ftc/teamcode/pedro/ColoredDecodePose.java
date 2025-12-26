@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.revamped.utils;
+package org.firstinspires.ftc.teamcode.pedro;
 
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -7,6 +7,9 @@ import com.pedropathing.geometry.FuturePose;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
 import com.pedropathing.paths.HeadingInterpolator;
+
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.Arrays;
 
