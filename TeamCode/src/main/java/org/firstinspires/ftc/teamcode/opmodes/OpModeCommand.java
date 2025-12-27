@@ -10,6 +10,7 @@ public abstract class OpModeCommand extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Globals.init(telemetry);
+        initialize();
         waitForStart();
 
         while (opModeInInit()) {

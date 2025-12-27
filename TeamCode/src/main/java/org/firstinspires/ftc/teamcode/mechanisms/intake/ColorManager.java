@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwColorSensor;
 
+import java.util.List;
+
 public class ColorManager {
     public static float minPurpleHueZero = 270;
     public static float maxPurpleHueZero = 290;
@@ -28,7 +30,8 @@ public class ColorManager {
 
     public final HwColorSensor colorOne;
     public final HwColorSensor colorTwo;
-    public final HwColorSensor colorThree;
+    public final HwColorSensor colorZero;
+    public final List<HwColorSensor> allSensors;
 
     public ColorManager(HardwareMap hardwareMap) {
         colorOne = new HwColorSensor(hardwareMap, "colorOne") {
@@ -45,18 +48,19 @@ public class ColorManager {
             }
         };
 
-        colorThree = new HwColorSensor(hardwareMap, "colorThree") {
+        colorZero = new HwColorSensor(hardwareMap, "colorZero") {
             @Override
             public ArtifactColor getColor(double hue, double dist) {
                 return null;
             }
         };
+
+        allSensors = List.of(colorZero, colorOne, colorTwo);
     }
 
     public void update() {
-        colorOne.update();
-        colorTwo.update();
-        colorThree.update();
+        for (HwColorSensor color : allSensors)
+            color.update();
     }
 
     public ArtifactColor getColorOne() {
@@ -67,7 +71,11 @@ public class ColorManager {
         return colorTwo.getColor();
     }
 
-    public ArtifactColor getColorThree() {
-        return colorThree.getColor();
+    public ArtifactColor getColorZero() {
+        return colorZero.getColor();
+    }
+
+    public ArtifactColor getColor(int sensor) {
+        return allSensors.get(sensor).getColor();
     }
 }

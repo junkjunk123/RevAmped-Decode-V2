@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
@@ -45,7 +46,7 @@ public class Robot {
     public final TableCompartmentManager tableCompartments;
     private final boolean teleop;
     private final List<LynxModule> hubs;
-    private CycleState robotState;
+    private CycleState robotState = CycleState.INTAKE;
 
     public Robot(HardwareMap hardwareMap) {
         this(hardwareMap, null);
@@ -66,14 +67,14 @@ public class Robot {
         intakeDistance = new IntakeDistance(hardwareMap);
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, teleop);
-        tableCompartments = new TableCompartmentManager(CycleState.INTAKE.intakeThread);
-        if (!teleop) init();
+        tableCompartments = new TableCompartmentManager(intakeColor);
+        if (!teleop) Scheduler.getInstance().schedule(init());
     }
 
-    public void init() {
+    public ICommand init() {
         hood.rest();
         popper.neutral();
-        table.reset();
+        return table.reset();
     }
 
     public void update() {
@@ -127,11 +128,8 @@ public class Robot {
 
     public ICommand shootAll() {
         return new Sequential(
-                new Instant(() -> {
-                    intakeMotor.intake();
-                    table.fullRotation();
-                }),
-                new WaitUntil(table::reached)
+                new Instant(intakeMotor::intake),
+                table.fullRotation()
         );
     }
 
@@ -139,22 +137,15 @@ public class Robot {
         float[] shootSequence = table.getState().getShootStates();
         assert shootSequence != null && shootSequence.length > 2;
         return new Sequential(
-                new Instant(() -> {
-                    intakeMotor.intakeSlow();
-                    table.setPosition(shootSequence[0]);
-                }),
-                new WaitUntil(table::reached),
+                new Instant(intakeMotor::intakeSlow),
+                table.setState(shootSequence[0]),
                 new Instant(intakeMotor::stop),
                 new Wait(delay.get()),
-                new Instant(() -> {
-                    table.setPosition(shootSequence[1]);
-                    intakeMotor.intakeSlow();
-                }),
-                new WaitUntil(table::reached),
+                new Instant(intakeMotor::intakeSlow),
+                table.setState(shootSequence[1]),
                 new Instant(intakeMotor::shooting),
                 new Wait(delay.get()),
-                new Instant(() -> table.setPosition(shootSequence[2] + Table.FULL_REVOLUTION / 3)),
-                new WaitUntil(table::reached),
+                table.setState(shootSequence[2] + Table.FULL_REVOLUTION / 3),
                 new Instant(tableCompartments::removeAll)
         );
     }

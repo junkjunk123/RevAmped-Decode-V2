@@ -49,4 +49,22 @@ public class GamepadEx {
         right_stick_y = new FloatSupplier(() -> gamepad.right_stick_y);
         left_stick_y = new FloatSupplier(() -> gamepad.left_stick_y);
     }
+
+    public void update() {
+        a.update();
+        b.update();
+        x.update();
+        y.update();
+        left_bumper.update();
+        right_bumper.update();
+        start.update();
+        back.update();
+        dpad_left.update();
+        dpad_down.update();
+        dpad_right.update();
+        dpad_up.update();
+        left_stick_button.update();
+        right_stick_button.update();
+        touchpad.update();
+    }
 }

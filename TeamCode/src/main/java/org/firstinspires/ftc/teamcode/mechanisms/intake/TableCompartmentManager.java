@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
+import org.firstinspires.ftc.teamcode.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
@@ -15,8 +16,9 @@ public class TableCompartmentManager {
 
     public final IntakeThread intakeThread;
 
-    public TableCompartmentManager(IntakeThread intakeThread) {
-        this.intakeThread = intakeThread;
+    public TableCompartmentManager(ColorManager colorManager) {
+        RobotStateHandler.CycleState.INTAKE.init(colorManager, compartmentColors);
+        intakeThread = RobotStateHandler.CycleState.INTAKE.intakeThread;
     }
 
     public boolean isEmpty() {

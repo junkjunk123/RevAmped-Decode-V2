@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -19,8 +20,10 @@ import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.commands.ButtonMapper;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 
+@Config
 @TeleOp(name = "DCTeleOp")
 public class Tele extends OpModeCommand {
+
     @Override
     public void initialize() {
         Robot robot = new Robot(hardwareMap);
@@ -35,19 +38,19 @@ public class Tele extends OpModeCommand {
                 .put(gamepad_1.dpad_down.risingEdge(), tsh.setting(robot::shootNear))
                 .put(gamepad_1.dpad_left.risingEdge(), tsh.setting(robot::shootMedium))
                 .put(gamepad_1.right_trigger.greaterThan(0.3f).risingEdge(), tsh.task(
-                        () -> robot.turret.runToPos(
+                                () -> robot.turret.runToPos(
                                         robot.turret.getTargetPosition() + (int) (20 * gamepad1.right_trigger)
-                                ), new int[] {1, 1, 0}
+                                ), new int[]{1, 1, 0}
                         )
                 )
                 .put(gamepad_1.left_trigger.greaterThan(0.3f).risingEdge(), tsh.task(
-                        () -> robot.turret.runToPos(
+                                () -> robot.turret.runToPos(
                                         robot.turret.getTargetPosition() - (int) (20 * gamepad1.left_trigger)
-                                ), new int[] {1, 1, 0}
+                                ), new int[]{1, 1, 0}
                         )
                 )
-                .put(gamepad_1.right_bumper.risingEdge(), tsh.task(robot.turret::next, new int[] {1, 1, 0}))
-                .put(gamepad_1.left_bumper.risingEdge(), tsh.task(robot.turret::previous, new int[] {1, 1, 0}))
+                .put(gamepad_1.right_bumper.risingEdge(), tsh.task(robot.turret::next, new int[]{1, 1, 0}))
+                .put(gamepad_1.left_bumper.risingEdge(), tsh.task(robot.turret::previous, new int[]{1, 1, 0}))
                 .put(gamepad_1.b.risingEdge(), new Sequential(
                                 new WaitUntil(robot.turret.limitSwitch::state),
                                 new Instant(robot.turret::resetPosition)
@@ -59,12 +62,12 @@ public class Tele extends OpModeCommand {
                     tsh.setCurrentState(RobotStateHandler.IntakeMessage.SORTING);
                 }))
                 .put(gamepad_2.b.risingEdge().and(() -> tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
-                        || !robot.intakeMotor.atPower(IntakeMotor.INTAKE)), tsh.runTransition(() -> {
-                            robot.flywheel.medium();
-                            robot.intakeMotor.intake();
-                            robot.table.reset();
-                        },
-                        RobotStateHandler.CycleState.INTAKE)
+                                || !robot.intakeMotor.atPower(IntakeMotor.INTAKE)), tsh.runTransition(() -> {
+                                    robot.flywheel.medium();
+                                    robot.intakeMotor.intake();
+                                    robot.table.reset();
+                                },
+                                RobotStateHandler.CycleState.INTAKE)
                 )
                 .put(gamepad_2.y.risingEdge(), robot.sort())
                 .put(gamepad_2.dpad_right.risingEdge(), new Instant(robot.intakeMotor::outtake))
@@ -72,30 +75,32 @@ public class Tele extends OpModeCommand {
                 .put(gamepad_2.right_bumper.risingEdge(), tsh.task(() -> {
                     robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
                     robot.table.next();
-                }, new int[] {1,0,0}))
+                }, new int[]{1, 0, 0}))
                 .put(gamepad_2.left_bumper.risingEdge(), tsh.task(() -> {
                     robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
                     robot.table.previous();
-                }, new int[] {1,0,0}))
+                }, new int[] {1, 0, 0}))
                 .put(gamepad_2.x.risingEdge().and(() -> tsh.atState(RobotStateHandler.CycleState.INTAKE)
                         && robot.popper.atPos(Popper.NEUTRAL)), tsh.runTransition(
-                            new Sequential(
-                                    new Instant(() -> {
-                                        robot.tableCompartments.intakeThread.updateColors();
-                                        robot.intakeMotor.stop();
-                                        robot.popper.pop();
-                                    }),
-                                    new Wait(250)
-                            ),
+                        new Sequential(
+                                new Instant(() -> {
+                                    robot.tableCompartments.intakeThread.updateColors();
+                                    robot.intakeMotor.stop();
+                                    robot.popper.pop();
+                                }),
+                                new Wait(250)
+                        ),
                         RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
                 )
                 .put(gamepad_2.dpad_up.risingEdge(),
                         new Sequential(
-                                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                                tsh.runTransition(() -> {
+                                }, RobotStateHandler.CycleState.SHOOT),
                                 tsh.runTransition(
                                         new Sequential(
                                                 robot.shootAll(() -> {
-                                                    if (robot.hood.atPos(Hood.FAR_PRESET)) return 100.0;
+                                                    if (robot.hood.atPos(Hood.FAR_PRESET))
+                                                        return 100.0;
                                                     return 0.0;
                                                 }),
                                                 robot.resetAfterShooting()
@@ -105,7 +110,8 @@ public class Tele extends OpModeCommand {
                 )
                 .put(gamepad_2.dpad_down.risingEdge(),
                         new Sequential(
-                                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                                tsh.runTransition(() -> {
+                                }, RobotStateHandler.CycleState.SHOOT),
                                 tsh.runTransition(
                                         new Sequential(
                                                 robot.shootAll(175),
@@ -123,7 +129,7 @@ public class Tele extends OpModeCommand {
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
-                        new Instant(robot::init)
+                        robot.init()
                 )
         );
     }

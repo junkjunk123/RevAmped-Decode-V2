@@ -24,7 +24,7 @@ public class Drivetrain {
     public final Follower follower;
     private final boolean isTeleOp;
     private Iterator<FollowParameters> paths;
-    public static Pose startPose;
+    public static Pose startPose = new Pose();
     private final List<DcMotorEx> motors;
     private DcMotorEx leftFront;
     private DcMotorEx rightFront;
@@ -58,8 +58,8 @@ public class Drivetrain {
     private void initMotors() {
         leftFront = motors.get(0);
         leftRear = motors.get(1);
-        rightRear = motors.get(2);
-        rightFront = motors.get(3);
+        rightFront = motors.get(2);
+        rightRear = motors.get(3);
     }
 
     public void followNext() {

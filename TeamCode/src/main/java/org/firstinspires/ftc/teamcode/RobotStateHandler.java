@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
+import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 
 import java.util.HashMap;
 
@@ -64,12 +66,16 @@ public class RobotStateHandler {
 
         class Intake implements CycleState {
             public IntakeState INSTANCE = IntakeState.INTAKING;
-            public IntakeThread intakeThread = new IntakeThread();
+            public IntakeThread intakeThread;
 
             @Override
             public void update() {
                 if (INSTANCE == IntakeState.INTAKING)
                     intakeThread.update();
+            }
+
+            public void init(ColorManager colorManager, ArtifactColor[] tableCompartments) {
+                intakeThread = new IntakeThread(tableCompartments, colorManager);
             }
 
             public double[] getTransitionVector() {

@@ -12,7 +12,7 @@ public class IntakeMotor extends HwMotor {
     public static float STOPPED;
 
     public IntakeMotor(HardwareMap hardwareMap) {
-        super(hardwareMap, "intakeMotor");
+        super(hardwareMap, "intake");
     }
 
     public void intake() {

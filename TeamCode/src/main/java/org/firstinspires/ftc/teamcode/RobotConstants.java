@@ -24,10 +24,10 @@ public class RobotConstants {
         Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1095; Flywheel.AUTO_VELOCITY = 780;
 
         //Hood Constants
-        Hood.REST = 200/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
+        Hood.REST = 8/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 220/255f; Hood.NEAR_PRESET = 190/255f; Hood.MEDIUM_PRESET = 220/255f;
+        Hood.FAR_PRESET = 78/255f; Hood.NEAR_PRESET = 8/255f; Hood.MEDIUM_PRESET = 78/255f;
 
         //Turret Constants
         Turret.P = 0.01; Turret.F = 0.01;
