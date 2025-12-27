@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
+import android.media.audiofx.PresetReverb;
+
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.ivy.ICommand;
@@ -62,7 +64,7 @@ public class Turret extends HwMotor {
 
     public final HwDigitalDevice limitSwitch;
     private final PIDFController controller;
-    private MoveState moveState = new MoveState.MoveTo(0);
+    private MoveState moveState = MoveState.PresetState.REST;
 
     public Turret(HardwareMap hardwareMap) {
         super(hardwareMap, "turret");

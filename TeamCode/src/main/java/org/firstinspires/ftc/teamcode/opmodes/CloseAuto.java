@@ -169,7 +169,7 @@ public class CloseAuto extends OpModeCommand {
                     robot.intakeMotor.stop();
                 }),
                 new Conditional(
-                        () -> robot.popper.atPos(Popper.NEUTRAL),
+                        () -> robot.popper.atState(Popper.PopperState.NEUTRAL),
                         robot.table.reset(),
                         new Sequential(
                                 new Instant(robot.popper::neutral),

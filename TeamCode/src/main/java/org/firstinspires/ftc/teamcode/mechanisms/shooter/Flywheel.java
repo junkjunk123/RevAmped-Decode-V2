@@ -33,6 +33,14 @@ public class Flywheel extends HwMotor {
     private final SingleStateKalman filter;
     private double lastTime;
 
+    public enum FlywheelState {
+        FAR,
+        MEDIUM,
+        NEAR,
+        STOPPED
+    }
+    private FlywheelState state = FlywheelState.STOPPED;
+
     public Flywheel(HardwareMap hardwareMap) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
         hardware[0].setDirection(DcMotorSimple.Direction.FORWARD);
@@ -71,14 +79,17 @@ public class Flywheel extends HwMotor {
 
     public void medium() {
         runToVel(MEDIUM_VELOCITY);
+        state = FlywheelState.MEDIUM;
     }
 
     public void far() {
         runToVel(FAR_VELOCITY);
+        state = FlywheelState.FAR;
     }
 
     public void near() {
         runToVel(NEAR_VELOCITY);
+        state = FlywheelState.NEAR;
     }
 
     public void auto() {
@@ -86,6 +97,7 @@ public class Flywheel extends HwMotor {
 
     public void stop() {
         running = false;
+        state = FlywheelState.STOPPED;
         setPower(0);
     }
 
@@ -132,5 +144,13 @@ public class Flywheel extends HwMotor {
 
     public boolean canShoot() {
         return Math.abs(targetVelocity - getVelocityImperial()) < targetVelocity / 40;
+    }
+
+    public boolean atState(FlywheelState state) {
+        return state == this.state;
+    }
+
+    public String getState() {
+        return state.name();
     }
 }
