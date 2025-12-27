@@ -72,9 +72,14 @@ public class Robot {
     }
 
     public ICommand init() {
-        hood.rest();
-        popper.neutral();
-        return table.reset();
+        return new Sequential(
+                new Instant(() -> {
+                    hood.rest();
+                    popper.neutral();
+                    turret.move(Turret.MoveState.PresetState.REST);
+                }),
+                table.reset()
+        );
     }
 
     public void update() {

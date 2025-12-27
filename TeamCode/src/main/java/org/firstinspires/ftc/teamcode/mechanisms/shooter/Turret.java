@@ -5,6 +5,7 @@ import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Sequential;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDigitalDevice;
@@ -68,14 +69,16 @@ public class Turret extends HwMotor {
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch");
         resetPosition(startPos);
+        setDirection(DcMotorSimple.Direction.REVERSE);
+        limitSwitch.setFlipped(true);
     }
 
     public void runToPos(int position) {
-        controller.setTargetPosition(position + getEncoderBase());
+        controller.setTargetPosition(position);
     }
 
     public int getTargetPosition() {
-        return (int) controller.getTargetPosition() - getEncoderBase();
+        return (int) controller.getTargetPosition();
     }
 
     public void move(MoveState moveState) {
@@ -103,7 +106,7 @@ public class Turret extends HwMotor {
 
     public ICommand resetTurret() {
         return new Sequential(
-                new Instant(() -> runToPos(0)),
+                new Instant(() -> move(MoveState.PresetState.REST)),
                 new WaitUntil(limitSwitch::state),
                 new Instant(this::resetPosition)
         );

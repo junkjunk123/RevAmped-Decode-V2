@@ -20,11 +20,13 @@ public class HwMotor implements HwDevice {
     public HwMotor(HardwareMap hardwareMap, String id) {
         this.hardware = new DcMotorEx[] {HwDevice.init(hardwareMap, DcMotorEx.class, id)};
         this.id = id;
+        resetPosition();
     }
 
     public HwMotor(HardwareMap hardwareMap, String... ids) {
         this.hardware = Arrays.stream(ids).map(s -> HwDevice.init(hardwareMap, DcMotorEx.class, s)).toArray(DcMotorEx[]::new);
         this.id = Arrays.toString(ids);
+        resetPosition();
     }
 
     public void setPower(double power) {
@@ -53,15 +55,15 @@ public class HwMotor implements HwDevice {
     }
 
     public void update() {
-        currentPos = -1;
+        currentPos = null;
     }
 
     public void resetPosition() {
-        encoderBase = getPosition();
+        resetPosition(0);
     }
 
     public void resetPosition(int pos) {
-        encoderBase = getPosition() - pos;
+        encoderBase = hardware[0].getCurrentPosition() - pos;
     }
 
     public void setDirection(DcMotorSimple.Direction direction) {

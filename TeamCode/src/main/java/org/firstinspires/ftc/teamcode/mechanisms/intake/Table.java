@@ -103,8 +103,8 @@ public class Table extends HwServo {
 
     public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
         return new Conditional(
-                () -> atPos(relativeState.get().target()),
-                new Command(),
+                () -> getState() == relativeState.get(),
+                new Instant(() -> setPosition(state.target())),
                 new Sequential(
                         new Instant(() -> {
                             state = relativeState.get();
@@ -154,16 +154,16 @@ public class Table extends HwServo {
         return state;
     }
 
-    public static void setValues(float BALL_1, float BALL_2, float BALL_1_END) {
-        BALL0 = BALL_1;
-        BALL1 = BALL_2;
-        float diff = BALL_1 - BALL_2;
+    public static void setValues(float BALL_0, float BALL_1, float BALL_0_END) {
+        BALL0 = BALL_0;
+        BALL1 = BALL_1;
+        float diff = BALL_1 - BALL_0;
         BALL2 = diff + BALL1;
         FULL_REVOLUTION = diff * 3;
-        BALL0_REV2 = BALL_1 + FULL_REVOLUTION;
-        BALL1_REV2 = BALL_2 + FULL_REVOLUTION;
-        BALL0_END = BALL_1_END;
-        BALL1_END = BALL_1_END + diff;
+        BALL0_REV2 = BALL_0 + FULL_REVOLUTION;
+        BALL1_REV2 = BALL_1 + FULL_REVOLUTION;
+        BALL0_END = BALL_0_END;
+        BALL1_END = BALL_0_END + diff;
         BALL2_END = BALL1_END + diff;
     }
 

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
 import com.pedropathing.control.KalmanFilterParameters;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -34,6 +35,8 @@ public class Flywheel extends HwMotor {
 
     public Flywheel(HardwareMap hardwareMap) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
+        hardware[0].setDirection(DcMotorSimple.Direction.FORWARD);
+        hardware[1].setDirection(DcMotorSimple.Direction.REVERSE);
         filter = new SingleStateKalman(new KalmanFilterParameters(STATE_STDDEV, MEASUREMENT_STDDEV));
     }
 

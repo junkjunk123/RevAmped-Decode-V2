@@ -104,7 +104,7 @@ public class HwServo implements HwDevice {
     }
 
     public boolean atPos(float pos) {
-        return evaluateCache(pos);
+        return Math.abs(pos - lastPos) * 256 <= 1.5;
     }
 
     @NonNull

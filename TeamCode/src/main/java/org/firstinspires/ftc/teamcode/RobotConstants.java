@@ -35,8 +35,8 @@ public class RobotConstants {
         Turret.TICKS_LIMIT = 560; Turret.RAD_LIMIT = Math.PI / 2;
 
         //Table Constants
-        float TURRET_BALL_1 = 242/255f, TURRET_BALL_2 = 205/255f, TURRET_BALL1_END = 88/255f;
-        Table.setValues(TURRET_BALL_1, TURRET_BALL_2, TURRET_BALL1_END);
+        float TURRET_BALL_0 = 242/255f, TURRET_BALL_1 = 205/255f, TURRET_BALL0_END = 88/255f;
+        Table.setValues(TURRET_BALL_0, TURRET_BALL_1, TURRET_BALL0_END);
 
         //ColorSensor Constants
         ColorManager.maxGreenDistanceOne = 60.0f; ColorManager.maxPurpleDistanceOne = 50.0f;

@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
@@ -13,6 +14,7 @@ public class IntakeMotor extends HwMotor {
 
     public IntakeMotor(HardwareMap hardwareMap) {
         super(hardwareMap, "intake");
+        setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void intake() {
