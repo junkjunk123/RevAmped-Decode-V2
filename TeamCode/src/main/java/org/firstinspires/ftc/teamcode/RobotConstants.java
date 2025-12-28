@@ -32,7 +32,7 @@ public class RobotConstants {
         //Turret Constants
         Turret.P = 0.01; Turret.F = 0.01;
         Turret.AUTO_PRELOADS = 438; Turret.AUTO_SET_1 = 513; Turret.AUTO_SET_2 = 513; Turret.AUTO_SET_3 = 563; Turret.FAR_AUTO = 691;
-        Turret.TICKS_LIMIT = 560; Turret.RAD_LIMIT = Math.PI / 2;
+        Turret.TICKS_LIMIT = 560; Turret.RAD_LIMIT = Math.PI / 2; Turret.updateFullRotation();
 
         //Table Constants
         float TURRET_BALL_0 = 242/255f, TURRET_BALL_1 = 205/255f, TURRET_BALL0_END = 88/255f;

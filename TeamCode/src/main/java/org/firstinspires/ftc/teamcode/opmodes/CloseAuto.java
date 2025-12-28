@@ -60,7 +60,7 @@ public class CloseAuto extends OpModeCommand {
                           new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
                           new Wait(4000)
                     ),
-                    new Instant(() -> robot.turret.runToPos(Turret.AUTO_PRELOADS)),
+                    new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
                     robot.sortAndShoot(),
                     intake(0),
                     shoot(0),
@@ -89,7 +89,7 @@ public class CloseAuto extends OpModeCommand {
 
         return new Sequential(
                 new Instant(() -> {
-                    robot.turret.runToPos(turretPos);
+                    robot.turret.setTargetPosition(turretPos);
                     robot.flywheel.stop();
                 }),
                 new Parallel(

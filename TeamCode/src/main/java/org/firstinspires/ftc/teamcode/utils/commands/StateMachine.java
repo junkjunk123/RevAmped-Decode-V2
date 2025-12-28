@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.utils.commands;
 
 import com.pedropathing.ivy.ICommand;
 
-public abstract class StateMachine<T extends Enum<T>> {
+import java.util.function.Supplier;
+
+public abstract class StateMachine<T> {
     protected GraphElement currentGraphElement;
     private T currentState;
 
@@ -22,10 +24,10 @@ public abstract class StateMachine<T extends Enum<T>> {
     }
 
     protected non-sealed class Edge extends GraphElement {
-        public final T nextState;
+        public final Supplier<T> nextState;
         public final ICommand command;
 
-        protected Edge(T nextState, ICommand command) {
+        protected Edge(Supplier<T> nextState, ICommand command) {
             this.nextState = nextState;
             this.command = command;
         }
@@ -40,5 +42,9 @@ public abstract class StateMachine<T extends Enum<T>> {
         currentState = state;
     }
 
-    public abstract ICommand runTransition(ICommand transition, T newState);
+    public ICommand runTransition(ICommand transition, T newState) {
+        return runTransition(transition, () -> newState);
+    }
+
+    public abstract ICommand runTransition(ICommand transition, Supplier<T> newState);
 }

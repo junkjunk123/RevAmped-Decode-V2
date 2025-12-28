@@ -143,14 +143,14 @@ public class Robot {
         assert shootSequence != null && shootSequence.length > 2;
         return new Sequential(
                 new Instant(intakeMotor::intakeSlow),
-                table.setState(shootSequence[0]),
+                table.setPos(shootSequence[0]),
                 new Instant(intakeMotor::stop),
                 new Wait(delay.get()),
                 new Instant(intakeMotor::intakeSlow),
-                table.setState(shootSequence[1]),
+                table.setPos(shootSequence[1]),
                 new Instant(intakeMotor::shooting),
                 new Wait(delay.get()),
-                table.setState(shootSequence[2] + Table.FULL_REVOLUTION / 3),
+                table.setPos(shootSequence[2] + Table.FULL_REVOLUTION / 3),
                 new Instant(tableCompartments::removeAll)
         );
     }
@@ -197,7 +197,7 @@ public class Robot {
                 sort(),
                 new Instant(popper::pop),
                 new Parallel(
-                        new WaitUntil(turret::reached),
+                        turret.reached(),
                         new Wait(250)
                 ),
                 shootAll(() -> Globals.allianceColor == null ? 0.0 : 175.0)

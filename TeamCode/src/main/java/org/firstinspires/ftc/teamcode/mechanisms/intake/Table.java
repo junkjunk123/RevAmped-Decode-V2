@@ -10,8 +10,9 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
+import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
-import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -72,7 +73,7 @@ public class Table extends HwServo {
     public static float BALL1_REV2;
     public static float FULL_REVOLUTION;
     public static double MS_PER_REVOLUTION = 1000;
-    private RelativeState state = RelativeState.BALL1;
+    private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
     private final Encoder encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
 
@@ -106,23 +107,26 @@ public class Table extends HwServo {
     }
 
     public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
+        RelativeState[] state = new RelativeState[1];
         return new Conditional(
                 () -> getState() == relativeState.get(),
-                new Instant(() -> setPosition(state.target())),
-                new Sequential(
-                        new Instant(() -> {
-                            state = relativeState.get();
-                            distance.set(Math.abs(state.target() - getPosition()));
-                            setPosition(state.target());
-                        }),
-                        new Race(
-                              new Sequential(
-                                      new Wait(250),
-                                      new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
-                              ),
-                              new Wait(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)
-                        )
-
+                new Instant(() -> setPosition(getState().target())),
+                stateHandler.runTransition(
+                        new Sequential(
+                                new Instant(() -> {
+                                    state[0] = relativeState.get();
+                                    distance.set(Math.abs(state[0].target() - getPosition()));
+                                    setPosition(state[0].target());
+                                }),
+                                new Race(
+                                        new Sequential(
+                                                new Wait(250),
+                                                new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                                        ),
+                                        new Wait(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)
+                                )
+                        ),
+                        () -> state[0]
                 )
         );
     }
@@ -141,13 +145,13 @@ public class Table extends HwServo {
 
     public ICommand fullRotation() {
         return switch (getState()) {
-            case BALL0 -> setState(BALL0_END);
-            case BALL1 -> setState(BALL1_END);
-            case BALL2 -> setState(BALL2_END);
+            case BALL0 -> setPos(BALL0_END);
+            case BALL1 -> setPos(BALL1_END);
+            case BALL2 -> setPos(BALL2_END);
         };
     }
 
-    public ICommand setState(float pos) {
+    public ICommand setPos(float pos) {
         return new Conditional(
                 () -> atPos(pos),
                 new Command(),
@@ -168,7 +172,7 @@ public class Table extends HwServo {
     }
 
     public RelativeState getState() {
-        return state;
+        return stateHandler.getCurrentState();
     }
 
     public static void setValues(float BALL_0, float BALL_1, float BALL_0_END) {

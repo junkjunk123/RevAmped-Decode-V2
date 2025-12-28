@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.mechanisms.intake;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 
 public class IntakeThread {
-    private ColorManager colorSensors;
-    private ArtifactColor[] tableCompartments;
+    private final ColorManager colorSensors;
+    private final ArtifactColor[] tableCompartments;
 
     public IntakeThread(ArtifactColor[] tableCompartments, ColorManager colorManager) {
         this.colorSensors = colorManager;

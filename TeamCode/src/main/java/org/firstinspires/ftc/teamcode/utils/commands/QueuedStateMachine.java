@@ -7,8 +7,9 @@ import com.pedropathing.ivy.groups.Sequential;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.function.Supplier;
 
-public class QueuedStateMachine<T extends Enum<T>> extends StateMachine<T> {
+public class QueuedStateMachine<T> extends StateMachine<T> {
     private final Queue<Edge> commandQueue = new ArrayDeque<>();
     private final int maxQueueSize;
 
@@ -23,7 +24,7 @@ public class QueuedStateMachine<T extends Enum<T>> extends StateMachine<T> {
     }
 
     @Override
-    public ICommand runTransition(ICommand transition, T newState) {
+    public ICommand runTransition(ICommand transition, Supplier<T> newState) {
         return new Sequential(
                 new Instant(() -> enqueue(new Edge(newState, transition))),
                 new WaitUntil(() -> currentGraphElement instanceof Node),
@@ -38,7 +39,7 @@ public class QueuedStateMachine<T extends Enum<T>> extends StateMachine<T> {
                     if (e != null) currentGraphElement = e;
                 }),
                 new Deferred(() -> ((Edge) currentGraphElement).command),
-                new Instant(() -> setCurrentState(((Edge) currentGraphElement).nextState))
+                new Instant(() -> setCurrentState(((Edge) currentGraphElement).nextState.get()))
         );
     }
 

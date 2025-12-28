@@ -38,13 +38,13 @@ public class Tele extends OpModeCommand {
                 .put(gamepad_1.dpad_left.risingEdge(), new Instant(robot::shootMedium))
                 .put(gamepad_1.right_trigger.greaterThan(0.3f).risingEdge(),
                         new Instant(
-                                () -> robot.turret.runToPos(
+                                () -> robot.turret.setTargetPosition(
                                         robot.turret.getTargetPosition() + (int) (20 * gamepad1.right_trigger)
                                 )
                         )
                 )
                 .put(gamepad_1.left_trigger.greaterThan(0.3f).risingEdge(), new Instant(
-                                () -> robot.turret.runToPos(
+                                () -> robot.turret.setTargetPosition(
                                         robot.turret.getTargetPosition() - (int) (20 * gamepad1.left_trigger)
                                 )
                         )

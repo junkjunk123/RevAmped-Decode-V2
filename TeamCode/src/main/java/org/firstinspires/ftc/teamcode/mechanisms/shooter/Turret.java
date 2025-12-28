@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
-import android.media.audiofx.PresetReverb;
 
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,9 +14,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Turret extends HwMotor {
     public static double RAD_LIMIT;
     public static double TICKS_LIMIT;
+    public static double FULL_ROTATION;
+
+    public static void updateFullRotation() {
+        FULL_ROTATION = TICKS_LIMIT / RAD_LIMIT * 2 * Math.PI;
+    }
+
     public static int AUTO_PRELOADS;
     public static int AUTO_SET_1;
     public static int AUTO_SET_2;
@@ -25,8 +34,9 @@ public class Turret extends HwMotor {
     public static double I;
     public static double D;
     public static double F;
-
     public static int startPos;
+    public static double MS_PER_REVOLUTION = 2000;
+    private final AtomicInteger distance = new AtomicInteger(0);
 
     public sealed interface MoveState permits MoveState.MoveTo, MoveState.PresetState {
         enum PresetState implements MoveState {
@@ -75,16 +85,35 @@ public class Turret extends HwMotor {
         limitSwitch.setFlipped(true);
     }
 
-    public void runToPos(int position) {
-        controller.setTargetPosition(position);
+    public void setTargetPosition(int position) {
+        move(new MoveState.MoveTo(position));
+    }
+
+    public ICommand runToPos(int position) {
+        return new Sequential(
+                new Instant(() -> setTargetPosition(position)),
+                reached()
+        );
+    }
+
+    public ICommand runToState(MoveState state) {
+        return new Sequential(
+                new Instant(() -> move(state)),
+                reached()
+        );
     }
 
     public int getTargetPosition() {
         return (int) controller.getTargetPosition();
     }
 
+    private void updateTargetPosition(int target) {
+        distance.set(Math.abs(target - getTargetPosition()));
+        controller.setTargetPosition(target);
+    }
+
     public void move(MoveState moveState) {
-        runToPos(moveState.target());
+        updateTargetPosition(moveState.target());
         this.moveState = moveState;
     }
 
@@ -114,8 +143,11 @@ public class Turret extends HwMotor {
         );
     }
 
-    public boolean reached() {
-        return Math.abs(getVelocity()) < 10 && Math.abs(getTargetPosition() - getPosition()) < 25;
+    public ICommand reached() {
+        return new Race(
+                new WaitUntil(() -> Math.abs(getVelocity()) < 10 && Math.abs(getTargetPosition() - getPosition()) < 25),
+                new Wait(distance.get() / FULL_ROTATION * MS_PER_REVOLUTION)
+        );
     }
 
     @Override

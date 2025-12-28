@@ -8,7 +8,6 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
@@ -31,7 +30,7 @@ public class FarAuto extends OpModeCommand {
                 new Sequential(
                         new Instant(() -> {
                             robot.flywheel.far();
-                            robot.turret.runToPos(Turret.FAR_AUTO);
+                            robot.turret.setTargetPosition(Turret.FAR_AUTO);
                             robot.popper.pop();
                             robot.hood.far();
                         }),

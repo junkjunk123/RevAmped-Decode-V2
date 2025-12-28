@@ -6,15 +6,16 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
-public class SimpleStateMachine<T extends Enum<T>> extends StateMachine<T> {
+public class SimpleStateMachine<T> extends StateMachine<T> {
     private final AtomicInteger abortCounter = new AtomicInteger();
 
     public SimpleStateMachine(T initialState) {
         super(initialState);
     }
 
-    public ICommand runTransition(ICommand transition, T newState) {
+    public ICommand runTransition(ICommand transition, Supplier<T> newState) {
         return new Conditional(
                 () -> currentGraphElement instanceof Node,
                 run(transition, newState),
@@ -25,7 +26,7 @@ public class SimpleStateMachine<T extends Enum<T>> extends StateMachine<T> {
         );
     }
 
-    private ICommand run(ICommand transition, T newState) {
+    private ICommand run(ICommand transition, Supplier<T> newState) {
         AtomicInteger current = new AtomicInteger();
         return new Race(
                 new Sequential(
@@ -34,7 +35,7 @@ public class SimpleStateMachine<T extends Enum<T>> extends StateMachine<T> {
                             current.set(abortCounter.get());
                         }),
                         transition,
-                        new Instant(() -> setCurrentState(newState))
+                        new Instant(() -> setCurrentState(newState.get()))
                 ),
                 new WaitUntil(() -> abortCounter.get() > current.get())
         );
