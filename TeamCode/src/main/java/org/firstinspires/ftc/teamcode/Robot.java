@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.RobotStateHandler.CycleState;
 import org.firstinspires.ftc.teamcode.RobotStateHandler.Message;
@@ -141,17 +142,21 @@ public class Robot {
     public ICommand shootAll(Supplier<Double> delay) {
         float[] shootSequence = table.getState().getShootStates();
         assert shootSequence != null && shootSequence.length > 2;
-        return new Sequential(
-                new Instant(intakeMotor::intakeSlow),
-                table.setPos(shootSequence[0]),
-                new Instant(intakeMotor::stop),
-                new Wait(delay.get()),
-                new Instant(intakeMotor::intakeSlow),
-                table.setPos(shootSequence[1]),
-                new Instant(intakeMotor::shooting),
-                new Wait(delay.get()),
-                table.setPos(shootSequence[2] + Table.FULL_REVOLUTION / 3),
-                new Instant(tableCompartments::removeAll)
+        return new Conditional(
+                () -> delay.get() > 10,
+                shootAll(),
+                new Sequential(
+                        new Instant(intakeMotor::intakeSlow),
+                        table.setPos(shootSequence[0]),
+                        new Instant(intakeMotor::stop),
+                        new Wait(delay.get()),
+                        new Instant(intakeMotor::intakeSlow),
+                        table.setPos(shootSequence[1]),
+                        new Instant(intakeMotor::shooting),
+                        new Wait(delay.get()),
+                        table.setPos(shootSequence[2] + Table.FULL_REVOLUTION / 3),
+                        new Instant(tableCompartments::removeAll)
+                )
         );
     }
 

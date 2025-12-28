@@ -146,7 +146,7 @@ public class Turret extends HwMotor {
     public ICommand reached() {
         return new Race(
                 new WaitUntil(() -> Math.abs(getVelocity()) < 10 && Math.abs(getTargetPosition() - getPosition()) < 25),
-                new Wait(distance.get() / FULL_ROTATION * MS_PER_REVOLUTION)
+                new Wait(Math.abs(distance.get() / FULL_ROTATION * MS_PER_REVOLUTION))
         );
     }
 

@@ -123,7 +123,7 @@ public class Table extends HwServo {
                                                 new Wait(250),
                                                 new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                         ),
-                                        new Wait(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)
+                                        new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
                                 )
                         ),
                         () -> state[0]
@@ -165,7 +165,7 @@ public class Table extends HwServo {
                                         new Wait(250),
                                         new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                 ),
-                                new Wait(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)
+                                new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
                         )
                 )
         );
@@ -190,5 +190,13 @@ public class Table extends HwServo {
 
     public void update() {
         super.update();
+    }
+
+    public StateMachine<RelativeState> getStateHandler() {
+        return stateHandler;
+    }
+
+    public Encoder getEncoder() {
+        return encoder;
     }
 }
