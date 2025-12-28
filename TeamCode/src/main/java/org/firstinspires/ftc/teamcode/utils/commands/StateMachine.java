@@ -42,6 +42,10 @@ public abstract class StateMachine<T> {
         currentState = state;
     }
 
+    public T getPendingState() {
+        return currentGraphElement instanceof Edge ? ((Edge) currentGraphElement).nextState.get() : currentState;
+    }
+
     public ICommand runTransition(ICommand transition, T newState) {
         return runTransition(transition, () -> newState);
     }
