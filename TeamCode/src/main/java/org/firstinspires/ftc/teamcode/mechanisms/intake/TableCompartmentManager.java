@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
-import org.firstinspires.ftc.teamcode.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 

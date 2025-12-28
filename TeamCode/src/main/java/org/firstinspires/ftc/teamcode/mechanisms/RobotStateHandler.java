@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.mechanisms;
 
 import com.pedropathing.follower.Follower;
 
-import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
@@ -50,7 +50,7 @@ public class RobotStateHandler {
         }
     }
 
-    public interface CycleState extends TeleOpStateHandler.GraphElement, Message {
+    public non-sealed interface CycleState extends TeleOpStateHandler.GraphElement, Message {
         DriveToShoot DRIVE_TO_SHOOT = new DriveToShoot();
         Intake INTAKE = new Intake();
         Shoot SHOOT = new Shoot();
