@@ -31,8 +31,7 @@ public class Tele extends OpModeCommand {
         GamepadEx gamepad_2 = new GamepadEx(gamepad2);
 
         ButtonMapper mapper = new ButtonMapper()
-                .put(gamepad_1.a.risingEdge(), new Instant(() -> {
-                        TrackingThread.trackTurret = true;}))
+                .put(gamepad_1.a.risingEdge(), new Instant(() -> TrackingThread.trackTurret = true))
                 .put(gamepad_1.y.risingEdge(), new Instant(() -> tsh.setForce(!tsh.isForce())))
                 .put(gamepad_1.dpad_up.risingEdge(), new Instant(robot::shootFar))
                 .put(gamepad_1.dpad_down.risingEdge(), new Instant(robot::shootNear))

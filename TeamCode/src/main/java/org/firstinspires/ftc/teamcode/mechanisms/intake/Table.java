@@ -5,6 +5,7 @@ import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class Table extends HwServo {
@@ -69,12 +71,14 @@ public class Table extends HwServo {
     public static float BALL0_REV2;
     public static float BALL1_REV2;
     public static float FULL_REVOLUTION;
+    public static double MS_PER_REVOLUTION = 1000;
     private RelativeState state = RelativeState.BALL1;
-    private final EncoderImpl encoder;
+    private final Encoder encoder;
+    private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
 
     public Table(HardwareMap hwMap, Encoder rawEncoder) {
         super(hwMap, "table");
-        this.encoder = new EncoderImpl(rawEncoder);
+        this.encoder = rawEncoder;
     }
 
     public ICommand one() {
@@ -108,10 +112,17 @@ public class Table extends HwServo {
                 new Sequential(
                         new Instant(() -> {
                             state = relativeState.get();
+                            distance.set(Math.abs(state.target() - getPosition()));
                             setPosition(state.target());
                         }),
-                        new Wait(250),
-                        new WaitUntil(() -> encoder.getVelocity() < 10)
+                        new Race(
+                              new Sequential(
+                                      new Wait(250),
+                                      new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                              ),
+                              new Wait(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)
+                        )
+
                 )
         );
     }
@@ -143,9 +154,15 @@ public class Table extends HwServo {
                 new Sequential(
                         new Instant(() -> {
                             setPosition(pos);
+                            distance.set(Math.abs(pos - getPosition()));
                         }),
-                        new Wait(250),
-                        new WaitUntil(() -> encoder.getVelocity() < 10)
+                        new Race(
+                                new Sequential(
+                                        new Wait(250),
+                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                                ),
+                                new Wait(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)
+                        )
                 )
         );
     }
@@ -169,6 +186,5 @@ public class Table extends HwServo {
 
     public void update() {
         super.update();
-        encoder.update();
     }
 }
