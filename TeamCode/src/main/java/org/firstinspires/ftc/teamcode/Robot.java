@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
+import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
@@ -31,6 +32,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.DriveMessage;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.IntakeMessage;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Supplier;
 
 public class Robot {
@@ -73,13 +76,11 @@ public class Robot {
     }
 
     public ICommand init() {
-        return new Sequential(
-                new Instant(() -> {
-                    hood.rest();
-                    popper.neutral();
-                    turret.move(Turret.MoveState.PresetState.REST);
-                }),
-                table.reset()
+        return new Parallel(
+                new Instant(hood::rest),
+                popper.neutral(),
+                table.reset(),
+                turret.runToState(Turret.MoveState.PresetState.REST)
         );
     }
 
@@ -127,8 +128,10 @@ public class Robot {
     }
 
     public ICommand sort() {
-        return table.setState(() -> {if (Globals.randomizationState == null) return table.getState().ordinal();
-            return tableCompartments.sort(table.getState().ordinal());}
+        AtomicReadOnce<Table.RelativeState> reader = table.pendingStateReader();
+        return table.setState(() -> {
+            if (Globals.randomizationState == null) return reader.read().ordinal();
+            return tableCompartments.sort(reader.read().ordinal());}
         );
     }
 
@@ -140,21 +143,23 @@ public class Robot {
     }
 
     public ICommand shootAll(Supplier<Double> delay) {
-        float[] shootSequence = table.getState().getShootStates();
-        assert shootSequence != null && shootSequence.length > 2;
+        AtomicReference<float[]> shootSequence = new AtomicReference<>();
         return new Conditional(
                 () -> delay.get() > 10,
                 shootAll(),
                 new Sequential(
-                        new Instant(intakeMotor::intakeSlow),
-                        table.setPos(shootSequence[0]),
+                        new Instant(() -> {
+                            intakeMotor.intakeSlow();
+                            shootSequence.set(table.getState().getShootStates());
+                        }),
+                        table.setPos(shootSequence.get()[0]),
                         new Instant(intakeMotor::stop),
                         new Wait(delay.get()),
                         new Instant(intakeMotor::intakeSlow),
-                        table.setPos(shootSequence[1]),
+                        table.setPos(shootSequence.get()[1]),
                         new Instant(intakeMotor::shooting),
                         new Wait(delay.get()),
-                        table.setPos(shootSequence[2] + Table.FULL_REVOLUTION / 3),
+                        table.setPos(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3),
                         new Instant(tableCompartments::removeAll)
                 )
         );
@@ -185,25 +190,19 @@ public class Robot {
     public ICommand resetTableAfterShooting() {
         return new Sequential(
                 new Instant(intakeMotor::stop),
-                new Race(
-                        table.reset(),
-                        new Wait(1000)
-                ),
+                table.reset(),
                 new Wait(500),
-                new Instant(() -> {
-                    popper.neutral();
-                    intakeMotor.intake();
-                })
+                new Instant(intakeMotor::intake),
+                popper.neutral()
         );
     }
 
     public ICommand sortAndShoot() {
         return new Sequential(
                 sort(),
-                new Instant(popper::pop),
                 new Parallel(
                         turret.reached(),
-                        new Wait(250)
+                        popper.pop()
                 ),
                 shootAll(() -> Globals.allianceColor == null ? 0.0 : 175.0)
         );

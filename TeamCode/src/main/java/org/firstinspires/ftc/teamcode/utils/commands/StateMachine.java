@@ -24,10 +24,10 @@ public abstract class StateMachine<T> {
     }
 
     protected non-sealed class Edge extends GraphElement {
-        public final Supplier<T> nextState;
+        public final T nextState;
         public final ICommand command;
 
-        protected Edge(Supplier<T> nextState, ICommand command) {
+        protected Edge(T nextState, ICommand command) {
             this.nextState = nextState;
             this.command = command;
         }
@@ -43,7 +43,7 @@ public abstract class StateMachine<T> {
     }
 
     public T getPendingState() {
-        return currentGraphElement instanceof Edge ? ((Edge) currentGraphElement).nextState.get() : currentState;
+        return currentGraphElement instanceof Edge ? ((Edge) currentGraphElement).nextState : currentState;
     }
 
     public ICommand runTransition(ICommand transition, T newState) {

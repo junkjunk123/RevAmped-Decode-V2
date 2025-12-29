@@ -9,15 +9,13 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
-import org.firstinspires.ftc.teamcode.utils.commands.Deferred;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
@@ -181,7 +179,7 @@ public final class TeleOpStateHandler {
     }
 
     private ICommand consumeQueued() {
-        return new Deferred(() -> {
+        return new Lazy(() -> {
             if (queued != null) {
                 TransitionRequest r = queued;
                 queued = null;

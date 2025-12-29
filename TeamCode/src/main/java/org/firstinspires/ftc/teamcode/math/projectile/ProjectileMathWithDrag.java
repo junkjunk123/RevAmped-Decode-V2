@@ -98,6 +98,9 @@ public class ProjectileMathWithDrag {
         return new Pose(v_x, v_y);
     }
 
+    /**
+     * I just made this up to get an estimate of how accurately the ball will actually go to the goal
+     */
     public static double getConfidence(Pose distances, double v_0, double theta_0) {
         double t = invertX(distances.getX(), v_0, theta_0);
         Pose velocity = getVelocity(t, v_0, theta_0);

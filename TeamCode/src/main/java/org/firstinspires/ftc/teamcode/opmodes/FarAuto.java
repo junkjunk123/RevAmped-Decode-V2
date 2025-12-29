@@ -30,11 +30,13 @@ public class FarAuto extends OpModeCommand {
                 new Sequential(
                         new Instant(() -> {
                             robot.flywheel.far();
-                            robot.turret.setTargetPosition(Turret.FAR_AUTO);
-                            robot.popper.pop();
                             robot.hood.far();
                         }),
-                        new Wait(750),
+                        new Parallel(
+                                robot.popper.pop(),
+                                robot.turret.runToPos(Turret.FAR_AUTO),
+                                new Wait(750)
+                        ),
                         robot.shootAll(100),
                         new Parallel(
                                 robot.resetTableAfterShooting(),
@@ -51,8 +53,7 @@ public class FarAuto extends OpModeCommand {
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 2500),
                                 new Sequential(
                                         new Wait(500),
-                                        new Instant(robot.popper::pop),
-                                        new Wait(250)
+                                        robot.popper.pop()
                                 )
                         )
                 )

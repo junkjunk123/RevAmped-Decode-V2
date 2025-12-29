@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Matrix;
+import com.pedropathing.math.MatrixUtil;
 import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.util.Range;
 
@@ -59,7 +60,9 @@ public class ShooterMath {
     public void update(boolean trackTurret, boolean trackHood, double flywheelVelocity) {
         Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
         Pose currentPos = follower.getPose();
-        Pose robotVelPose = follower.poseTracker.getLocalizer().getVelocity();
+        Matrix inverseRotation = MatrixUtil.createRotation(currentPos.getHeading()).transposed();
+        Vector robotLinearVel = follower.getVelocity().transform(inverseRotation);
+        Pose robotVelPose = new Pose(robotLinearVel.getXComponent(), robotLinearVel.getYComponent(), robotLinearVel.getTheta());
         Vector robotVelocity = robotVelPose.getAsVector();
         Pose robotAcceleration = accelerationCalculator.calculate(robotVelPose);
         Pose projectedRobotPose = RobotKinematicsCalculator.getProjectedPoseWithConstantLinearAcceleration(

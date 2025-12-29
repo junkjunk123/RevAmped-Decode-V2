@@ -5,6 +5,7 @@ import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -55,35 +56,39 @@ public class Tele extends OpModeCommand {
                                 new Instant(robot.turret::resetPosition)
                         )
                 )
-                .put(gamepad_1.x.risingEdge(), tsh.override(new Instant(robot.popper::neutral), RobotStateHandler.IntakeMessage.SORTING))
+                .put(gamepad_1.x.risingEdge(), tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING))
                 .put(gamepad_2.b.risingEdge().and(() -> tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
-                                || !robot.intakeMotor.atPower(IntakeMotor.INTAKE)), tsh.runTransition(() -> {
+                                || !robot.intakeMotor.atPower(IntakeMotor.INTAKE)), tsh.runTransition(new Parallel(
+                                new Instant(() -> {
                                     robot.flywheel.medium();
                                     robot.intakeMotor.intake();
-                                    robot.table.reset();
-                                },
+                                }),
+                                robot.table.reset(),
+                                robot.popper.neutral()
+                                ),
                                 RobotStateHandler.CycleState.INTAKE)
                 )
                 .put(gamepad_2.y.risingEdge(), robot.sort())
                 .put(gamepad_2.dpad_right.risingEdge(), new Instant(robot.intakeMotor::outtake))
                 .put(gamepad_2.right_trigger.greaterThan(0.3f).risingEdge(), new Instant(robot.intakeMotor::stop))
-                .put(gamepad_2.right_bumper.risingEdge(), tsh.task(() -> {
-                    robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
-                    robot.table.next();
-                }, new int[]{1, 0, 0}))
-                .put(gamepad_2.left_bumper.risingEdge(), tsh.task(() -> {
-                    robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
-                    robot.table.previous();
-                }, new int[] {1, 0, 0}))
+                .put(gamepad_2.right_bumper.risingEdge(), tsh.task(new Sequential(
+                                new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
+                                robot.table.next()
+                        ), new int[] {1, 0, 0})
+                )
+                .put(gamepad_2.left_bumper.risingEdge(), tsh.task(new Sequential(
+                            new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
+                            robot.table.previous()
+                        ), new int[] {1, 0, 0})
+                )
                 .put(gamepad_2.x.risingEdge().and(() -> tsh.atState(RobotStateHandler.CycleState.INTAKE)
                         && robot.popper.atPos(Popper.NEUTRAL)), tsh.runTransition(
                         new Sequential(
                                 new Instant(() -> {
                                     robot.tableCompartments.intakeThread.updateColors();
                                     robot.intakeMotor.stop();
-                                    robot.popper.pop();
                                 }),
-                                new Wait(250)
+                                robot.popper.pop()
                         ),
                         RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
                 )
