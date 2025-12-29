@@ -44,7 +44,11 @@ public class Popper extends HwServo {
     }
 
     public boolean atState(PopperState popperState) {
-        return stateMachine.getPendingState() == popperState;
+        return stateMachine.getCurrentState().equals(popperState);
+    }
+
+    public boolean movingToState(PopperState popperState) {
+        return stateMachine.getPendingState().equals(popperState);
     }
 
     public String getState() {
