@@ -90,8 +90,7 @@ public class Tele extends OpModeCommand {
                                 RobotStateHandler.CycleState.INTAKE
                         )
                 )
-                .put(gamepad_2.y.risingEdge(),
-                        () -> robot.sort())
+                .put(gamepad_2.y.risingEdge(), robot::sort)
                 .put(gamepad_2.dpad_right.risingEdge(),
                         () -> new Instant(robot.intakeMotor::outtake))
                 .put(gamepad_2.right_trigger.greaterThan(0.3f).risingEdge(),
