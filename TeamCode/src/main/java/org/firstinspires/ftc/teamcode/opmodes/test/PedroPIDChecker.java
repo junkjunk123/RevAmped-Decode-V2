@@ -24,7 +24,6 @@ public class PedroPIDChecker extends OpMode {
     private boolean done = false;
     private boolean translationalDone = false;
     private boolean headingDone = false;
-    private boolean evaluate = true;
 
     @Override
     public void init() {
