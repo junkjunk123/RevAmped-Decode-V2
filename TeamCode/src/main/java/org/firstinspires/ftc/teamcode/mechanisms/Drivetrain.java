@@ -40,7 +40,7 @@ public class Drivetrain {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
-        apply(m -> m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
+        apply(m -> m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT));
         initMotors();
         isTeleOp = true;
     }
@@ -231,5 +231,9 @@ public class Drivetrain {
 
     public void updateLocalization() {
         follower.poseTracker.update();
+    }
+
+    public void setPower(double power) {
+        apply(m -> m.setPower(power));
     }
 }

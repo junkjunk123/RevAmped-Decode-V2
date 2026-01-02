@@ -31,7 +31,7 @@ public class SimpleStateMachine<T> extends StateMachine<T> {
         return new Race(
                 new Sequential(
                         new Instant(() -> {
-                            currentGraphElement = new Edge(newState, transition);
+                            currentGraphElement = new Edge(newState.get(), transition);
                             current.set(abortCounter.get());
                         }),
                         transition,

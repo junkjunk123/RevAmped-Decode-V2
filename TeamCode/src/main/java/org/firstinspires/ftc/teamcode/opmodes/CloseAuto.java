@@ -152,7 +152,7 @@ public class CloseAuto extends OpModeCommand {
                                         robot.sort()
                                 ),
                                 new Wait(150),
-                                new Instant(() -> robot.popper.pop()),
+                                robot.popper.pop(),
                                 new Wait(250)
                         )
                 ),
@@ -172,9 +172,8 @@ public class CloseAuto extends OpModeCommand {
                         () -> robot.popper.atState(Popper.PopperState.NEUTRAL),
                         robot.table.reset(),
                         new Sequential(
-                                new Instant(robot.popper::neutral),
-                                new Wait(250),
-                                new Instant(robot.table::reset)
+                                robot.popper.neutral(),
+                                robot.table.reset()
                         )
                 )
         );

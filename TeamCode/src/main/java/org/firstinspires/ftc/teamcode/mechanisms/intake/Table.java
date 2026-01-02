@@ -9,8 +9,10 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
-import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+import org.firstinspires.ftc.teamcode.utils.commands.QueuedStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
@@ -73,7 +75,7 @@ public class Table extends HwServo {
     public static float BALL1_REV2;
     public static float FULL_REVOLUTION;
     public static double MS_PER_REVOLUTION = 1000;
-    private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
+    private final StateMachine<RelativeState> stateHandler = new QueuedStateMachine<>(RelativeState.BALL1, 1);
     private final Encoder encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
 
@@ -136,19 +138,20 @@ public class Table extends HwServo {
     }
 
     public ICommand next() {
-        return setRelativeState(getState().next());
+        return setRelativeState(pendingState().next());
     }
 
     public ICommand previous() {
-        return setRelativeState(getState().previous());
+        return setRelativeState(pendingState().previous());
     }
 
     public ICommand fullRotation() {
-        return switch (getState()) {
+        AtomicReadOnce<RelativeState> reader = pendingStateReader();
+        return new Lazy(() -> switch (reader.read()) {
             case BALL0 -> setPos(BALL0_END);
             case BALL1 -> setPos(BALL1_END);
             case BALL2 -> setPos(BALL2_END);
-        };
+        });
     }
 
     public ICommand setPos(float pos) {
@@ -173,6 +176,14 @@ public class Table extends HwServo {
 
     public RelativeState getState() {
         return stateHandler.getCurrentState();
+    }
+
+    public RelativeState pendingState() {
+        return stateHandler.getPendingState();
+    }
+
+    public AtomicReadOnce<RelativeState> pendingStateReader() {
+        return new AtomicReadOnce<>(this::pendingState);
     }
 
     public static void setValues(float BALL_0, float BALL_1, float BALL_0_END) {

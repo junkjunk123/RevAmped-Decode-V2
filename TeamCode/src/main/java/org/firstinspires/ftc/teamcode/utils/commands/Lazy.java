@@ -5,10 +5,10 @@ import com.pedropathing.ivy.ICommand;
 
 import java.util.function.Supplier;
 
-public class Deferred extends Command {
+public class Lazy extends Command {
     private final Supplier<ICommand> supplier;
 
-    public Deferred(Supplier<ICommand> supplier) {
+    public Lazy(Supplier<ICommand> supplier) {
         this.supplier = supplier;
     }
 
