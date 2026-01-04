@@ -8,6 +8,7 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 
@@ -186,7 +187,7 @@ public final class TeleOpStateHandler {
                 return start(r.command(), r.next);
             }
 
-            return new Command();
+            return Commands.NOOP;
         });
     }
 

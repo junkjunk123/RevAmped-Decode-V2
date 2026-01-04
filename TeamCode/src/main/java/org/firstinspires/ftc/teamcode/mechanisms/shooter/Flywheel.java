@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.control.KalmanFilterParameters;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -8,18 +9,11 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.math.calc.SingleStateKalman;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
+@Config
 public class Flywheel extends HwMotor {
-    public static double P;
-    public static double kStatic;
-    public static double kV;
-    public static double kA;
-
-    public static double STATE_STDDEV;
-    public static double MEASUREMENT_STDDEV;
-
     public static double RADIUS;
     public static int COUNTS_PER_REVOLUTION;
-    public static double MAX_ACCELERATION;
+    private final static double ETA = 0.49;
 
     public static double FAR_VELOCITY;
     public static double MEDIUM_VELOCITY;
@@ -27,11 +21,8 @@ public class Flywheel extends HwMotor {
     public static double AUTO_VELOCITY;
 
     private double targetVelocity;
-    private double targetAcceleration;
     private boolean running;
-
-    private final SingleStateKalman filter;
-    private double lastTime;
+    private final FlywheelController controller;
 
     public enum FlywheelState {
         FAR,
@@ -45,29 +36,13 @@ public class Flywheel extends HwMotor {
         super(hardwareMap, "flywheel_right", "flywheel_left");
         hardware[0].setDirection(DcMotorSimple.Direction.FORWARD);
         hardware[1].setDirection(DcMotorSimple.Direction.REVERSE);
-        filter = new SingleStateKalman(new KalmanFilterParameters(STATE_STDDEV, MEASUREMENT_STDDEV));
+        controller = new FlywheelController();
     }
 
     public void update() {
         super.update();
 
-        long now = System.nanoTime();
-        double dt;
-        if (lastTime == 0) {
-            dt = 0.02; // assume 20ms for the first loop
-        } else {
-            dt = (now - lastTime) * 1e-9;
-        }
-
-        lastTime = now;
-
-        if (!running) return;
-
-        double measuredVelocity = getVelocity();
-        updateKalman(measuredVelocity);
-        updateMotionProfile(dt);
-        double control = computeControl(getFilteredVelocity());
-        setPower(control);
+        if (running) setPower(controller.update(getVelocityImperial(), targetVelocity));
     };
 
     public void runToVel(double target) {
@@ -102,24 +77,7 @@ public class Flywheel extends HwMotor {
     }
 
     private void resetController() {
-        filter.reset(getVelocity(), 1.0);
-    }
-
-    private void updateKalman(double measuredVelocity) {
-        filter.update(measuredVelocity);
-    }
-
-    private void updateMotionProfile(double dt) {
-        double filteredVelocity = filter.getState();
-        double error = targetVelocity - filteredVelocity;
-        targetAcceleration = Range.clip(error / dt, -MAX_ACCELERATION, MAX_ACCELERATION);
-        targetVelocity = filteredVelocity + targetAcceleration * dt;
-    }
-
-    private double computeControl(double filteredVelocity) {
-        double error = targetVelocity - filteredVelocity;
-        double ff = kStatic * Math.signum(error) + kV * targetVelocity + kA * targetAcceleration;
-        return ff + P * error;
+        controller.reset(getVelocityImperial());
     }
 
     public boolean isRunning() {
@@ -128,10 +86,6 @@ public class Flywheel extends HwMotor {
 
     public double getTargetVelocity() {
         return targetVelocity;
-    }
-
-    public double getFilteredVelocity() {
-        return filter.getState();
     }
 
     public static double ticksPerInch() {
@@ -152,5 +106,24 @@ public class Flywheel extends HwMotor {
 
     public String getState() {
         return state.name();
+    }
+
+    public double getError() {
+        return controller.getError();
+    }
+
+    public double getLaunchVelocity() {
+        return targetVelocity / RADIUS * 1.417 * ETA;
+    }
+
+    /**
+     * @return inches/sec
+     */
+    public double getFilteredVelocity() {
+        return controller.getFilteredVelocity();
+    }
+
+    public FlywheelController getController() {
+        return controller;
     }
 }

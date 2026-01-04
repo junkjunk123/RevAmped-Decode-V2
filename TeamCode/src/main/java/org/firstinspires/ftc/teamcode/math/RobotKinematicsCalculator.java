@@ -60,4 +60,52 @@ public final class RobotKinematicsCalculator {
         Vector pose_final = pose_disp.plus(initialPose.getAsVector());
         return new Pose(theta_final, pose_final.getXComponent(), pose_final.getYComponent());
     }
+
+    public static Pose getProjectedPoseWithConstantVelocity(
+            Pose initialPose,
+            double time,
+            Pose velocity
+    ) {
+        double vx = velocity.getX();
+        double vy = velocity.getY();
+        double omega = velocity.getHeading();
+
+        double theta0 = initialPose.getHeading();
+
+        // Pure translation (limit ω → 0)
+        if (Math.abs(omega) < 1e-9) {
+            double dx = (vx * Math.cos(theta0) - vy * Math.sin(theta0)) * time;
+            double dy = (vx * Math.sin(theta0) + vy * Math.cos(theta0)) * time;
+
+            return new Pose(
+                    initialPose.getX() + dx,
+                    initialPose.getY() + dy,
+                    theta0
+            );
+        }
+
+        double theta = omega * time;
+        double sinT = Math.sin(theta);
+        double cosT = Math.cos(theta);
+
+        // V(theta) * v   (body → local frame)
+        double dxLocal =
+                ( sinT * vx - (1 - cosT) * vy ) / omega;
+        double dyLocal =
+                ( (1 - cosT) * vx + sinT * vy ) / omega;
+
+        // Rotate into world frame
+        double cos0 = Math.cos(theta0);
+        double sin0 = Math.sin(theta0);
+
+        double dxWorld = cos0 * dxLocal - sin0 * dyLocal;
+        double dyWorld = sin0 * dxLocal + cos0 * dyLocal;
+
+        return new Pose(
+                initialPose.getX() + dxWorld,
+                initialPose.getY() + dyWorld,
+                theta0 + theta
+        );
+    }
+
 }
