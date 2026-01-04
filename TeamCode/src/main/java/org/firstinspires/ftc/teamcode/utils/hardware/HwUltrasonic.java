@@ -27,4 +27,8 @@ public class HwUltrasonic extends HwSensor<Double, AnalogInput> {
     public double getDistance(DistanceUnit distanceUnit) {
         return distanceUnit.fromInches(getReading());
     }
+
+    public double getDistance() {
+        return getReading();
+    }
 }

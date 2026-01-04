@@ -27,4 +27,8 @@ public class HwDistance extends HwSensor<Double, DistanceSensor> {
     public double getDistance(DistanceUnit distanceUnit) {
         return distanceUnit.fromInches(getReading());
     }
+
+    public double getDistance() {
+        return getReading();
+    }
 }
