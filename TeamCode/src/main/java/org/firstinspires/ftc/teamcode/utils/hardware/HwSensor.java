@@ -12,7 +12,7 @@ public abstract class HwSensor<T, S> implements HwDevice {
      * @param id the unique identifier for the sensor
      */
     public HwSensor(HardwareMap hardwareMap, String id, Class<S> targetClass) {
-        HwDevice.init(hardwareMap, targetClass, id);
+        sensor = HwDevice.init(hardwareMap, targetClass, id);
         this.id = id;
     }
 

@@ -136,10 +136,12 @@ public class Turret extends HwMotor {
     }
 
     public ICommand resetTurret() {
-        return new Sequential(
-                new Instant(() -> move(MoveState.PresetState.REST)),
-                new WaitUntil(limitSwitch::state),
-                new Instant(this::resetPosition)
+        return new Race(
+                runToState(MoveState.PresetState.REST),
+                new Sequential(
+                        new WaitUntil(limitSwitch::state),
+                        new Instant(this::resetPosition)
+                )
         );
     }
 

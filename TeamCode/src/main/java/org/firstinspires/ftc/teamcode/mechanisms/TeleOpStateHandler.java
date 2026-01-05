@@ -8,6 +8,7 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
+import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -131,14 +133,17 @@ public final class TeleOpStateHandler {
         return runTransition(new Instant(command), next, force);
     }
 
+    public boolean evaluate(RobotStateHandler.CycleState next) {
+        return canStart(next, force);
+    }
+
     private boolean canStart(
             RobotStateHandler.CycleState next,
             boolean force
     ) {
-        if (current instanceof RobotStateHandler.CycleState s)
+        if (current instanceof RobotStateHandler.CycleState s) {
             return force || valid(s, next);
-        if (current instanceof Transition t && queued == null)
-            return valid(t.to(), next);
+        }
         return false;
     }
 
@@ -146,13 +151,12 @@ public final class TeleOpStateHandler {
             ICommand command,
             RobotStateHandler.CycleState next
     ) {
-        RobotStateHandler.CycleState from = currentState();
         AtomicInteger snapshot = new AtomicInteger();
 
         return new Race(
                 new Sequential(
                         new Instant(() ->
-                                current = new Transition(from, next, command)
+                                current = new Transition(currentState(), next, command)
                         ),
                         command,
                         new Instant(() -> setState(next)),
@@ -174,8 +178,10 @@ public final class TeleOpStateHandler {
             RobotStateHandler.CycleState next,
             boolean force
     ) {
-        return new Instant(() ->
-                queued = new TransitionRequest(command, next, force)
+        return new Instant(() -> {
+            if (current instanceof Transition t && queued == null)
+                if (force || valid(t.to(), next)) queued = new TransitionRequest(command, next, force);
+            }
         );
     }
 
@@ -298,5 +304,9 @@ public final class TeleOpStateHandler {
                 overrideAction,
                 new Instant(() -> setState(nextState.cycleState()))
         );
+    }
+
+    public Matrix getAdj() {
+        return adj;
     }
 }

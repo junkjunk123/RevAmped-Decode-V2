@@ -23,4 +23,8 @@ public class AtomicReadOnce<T> {
         }
         return value;
     }
+
+    public boolean hasBeenRead() {
+        return ref.get() == null;
+    }
 }
