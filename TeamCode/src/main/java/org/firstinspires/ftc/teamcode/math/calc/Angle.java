@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.math.calc;
 
+import com.pedropathing.math.Matrix;
 import com.qualcomm.robotcore.util.Range;
 
 public class Angle {
@@ -23,5 +24,15 @@ public class Angle {
         float pos = (float) Range.scale(rad, maxRad, minRad, maxRadPos, minRadPos);
         if (maxRadPos < minRadPos) return pos;
         return (maxRadPos - pos) + minRadPos;
+    }
+
+    public static Matrix rotMatrix(double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        double[][] vals = new double[][] {
+                {cos, -sin},
+                {-sin, cos}
+        };
+        return new Matrix(vals);
     }
 }

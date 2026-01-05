@@ -48,7 +48,7 @@ public class QueuedStateMachine<T> extends StateMachine<T> {
     private ICommand runAll() {
         return new Conditional(
                 () -> commandQueue.isEmpty() || executing,
-                new Command(),
+                Commands.NOOP,
                 new Loop(runOne(), commandQueue::size)
                         .with(new Instant(() -> executing = true))
                         .then(new Instant(() -> executing = false))
@@ -62,7 +62,8 @@ public class QueuedStateMachine<T> extends StateMachine<T> {
 
     @Override
     public T getPendingState() {
-        return !commandQueue.isEmpty() ? commandQueue.peekLast().nextState : super.getPendingState();
+        T returnVal = !commandQueue.isEmpty() ? commandQueue.peekLast().nextState : super.getPendingState();
+        return returnVal == null? super.getPendingState() : returnVal;
     }
 
     public AtomicReadOnce<T> pendingStateReader() {

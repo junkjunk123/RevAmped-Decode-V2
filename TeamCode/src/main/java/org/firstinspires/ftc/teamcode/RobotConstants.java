@@ -14,20 +14,16 @@ public class RobotConstants {
         IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f;IntakeMotor.OUTTAKE_SLOW = -0.5f;
 
         //Popper Constants
-        Popper.POP = 22/255f; Popper.NEUTRAL = 102/255f;
+        Popper.POP = 243/255f; Popper.NEUTRAL = 161/255f;
 
         //Flywheel Constants
-        Flywheel.P = 0.0005; Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
-        Flywheel.kStatic = 0.05; Flywheel.kV = 0.00045; Flywheel.kA = 0; 
-        Flywheel.STATE_STDDEV = 2; Flywheel.MEASUREMENT_STDDEV = 0.2;
-        Flywheel.MAX_ACCELERATION = Flywheel.FAR_VELOCITY * Flywheel.FAR_VELOCITY / Flywheel.RADIUS;
-        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1095; Flywheel.AUTO_VELOCITY = 780;
+        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.AUTO_VELOCITY = 780;
 
         //Hood Constants
-        Hood.REST = 8/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
+        Hood.REST = 40/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 78/255f; Hood.NEAR_PRESET = 8/255f; Hood.MEDIUM_PRESET = 78/255f;
+        Hood.FAR_PRESET = 130/255f; Hood.NEAR_PRESET = 40/255f; Hood.MEDIUM_PRESET = 130/255f;
 
         //Turret Constants
         Turret.P = 0.01; Turret.F = 0.01;

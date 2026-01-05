@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.changes;
-import static org.firstinspires.ftc.teamcode.pedro.Tuning.draw;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.drawOnlyCurrent;
+import static org.firstinspires.ftc.teamcode.pedro.Tuning.draw;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.follower;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.stopRobot;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.telemetryM;
@@ -15,21 +15,23 @@ import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.ErrorCalculator;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.Pose;
-import com.pedropathing.math.Vector;
-import com.pedropathing.paths.HeadingInterpolator;
-import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
+import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
+import com.pedropathing.geometry.*;
+import com.pedropathing.math.*;
+import com.pedropathing.paths.*;
 import com.pedropathing.telemetry.SelectableOpMode;
-import com.pedropathing.util.PoseHistory;
+import com.pedropathing.util.*;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * This is the Tuning class. It contains a selection menu for various tuning OpModes.
@@ -64,6 +66,7 @@ public class Tuning extends SelectableOpMode {
                 a.add("Lateral Velocity Tuner", LateralVelocityTuner::new);
                 a.add("Forward Zero Power Acceleration Tuner", ForwardZeroPowerAccelerationTuner::new);
                 a.add("Lateral Zero Power Acceleration Tuner", LateralZeroPowerAccelerationTuner::new);
+                a.add("Heading Auto Tuner", HeadingAutoTuner::new);
             });
             s.folder("Manual", p -> {
                 p.add("Translational Tuner", TranslationalTuner::new);
@@ -956,6 +959,123 @@ class DriveTuner extends OpMode {
     }
 }
 
+class HeadingAutoTuner extends OpMode {
+    private static final double ALPHA_LARGE = 1.2;
+    private static final double ALPHA_SMALL = 1.8;
+
+    private static final double POWER = 1;
+    private static final double RUNTIME = 5;
+    private static final int SAMPLES = 15;
+
+    private double tau;
+    private double lambda_small;
+    private double lambda_large;
+    private double K;
+    private final List<Double> times = new ArrayList<>();
+    private final List<Double> angularVelocities = new ArrayList<>();
+    private final NanoTimer timer = new NanoTimer();
+    private boolean done = false;
+
+    @Override
+    public void init() {
+    }
+
+    /**
+     * This initializes the Follower and creates the forward and backward Paths. Additionally, this
+     * initializes the Panels telemetry.
+     */
+    @Override
+    public void init_loop() {
+        telemetryM.debug("This will turn continuously in place for " + RUNTIME + " seconds.");
+        telemetryM.debug("Make sure you have enough room.");
+        telemetryM.update(telemetry);
+        follower.update();
+        drawOnlyCurrent();
+    }
+
+    @Override
+    public void start() {
+        timer.resetTimer();
+        follower.startTeleOpDrive(true);
+        follower.setTeleOpDrive(0, 0, POWER);
+        drawOnlyCurrent();
+    }
+
+    @Override
+    public void loop() {
+        if (gamepad1.bWasPressed()) {
+            stopRobot();
+            requestOpModeStop();
+        }
+
+        follower.update();
+        follower.setTeleOpDrive(0, 0, POWER);
+        telemetryM.update();
+        draw();
+
+        telemetryM.addData("done", done);
+
+        if (!done) {
+            times.add(timer.getElapsedTime() * 1e-9);
+            angularVelocities.add(follower.getAngularVelocity());
+
+            if (timer.getElapsedTime(TimeUnit.SECONDS) >= RUNTIME) {
+                done = true;
+                systemIdentification();
+            }
+
+            else return;
+        }
+
+        double numPlusLarge = tau + lambda_large / 2;
+        double numPlusSmall = tau + lambda_small / 2;
+        double numMinusLarge = lambda_large - tau / 2;
+        double numMinusSmall = lambda_small - tau / 2;
+        double denomLarge = (lambda_large + tau / 2) * K;
+        double denomSmall = (lambda_small + tau / 2) * K;
+
+        double kPLarge = numPlusLarge / denomLarge;
+        double kPSmall = numPlusSmall / denomSmall;
+        double kDLarge = tau * numMinusLarge / denomLarge;
+        double kDSmall = tau * numMinusSmall / denomSmall;
+
+        telemetryM.addData("Large Coefficients", "kP = " + kPLarge + ", kD = " + kDLarge);
+        telemetryM.addData("Small Coefficients", "kP = " + kPSmall + ", kD = " + kDSmall);
+    }
+
+    private void systemIdentification() {
+        double sum = 0;
+        int start = Math.max(0, angularVelocities.size() - SAMPLES);
+
+        for (int j = start; j < angularVelocities.size(); j++)
+            sum += angularVelocities.get(j);
+
+        int count = angularVelocities.size() - start;
+        double avg = sum / count;
+        K = avg / POWER;
+
+        double timeSum = 0;
+        double weightedTimeSum = 0;
+
+        for (int k = 0; k < times.size(); k++) {
+            double ratio = angularVelocities.get(k) / (K * POWER);
+            ratio = Math.min(ratio, 0.999);
+
+            if (ratio > 0.2 && ratio < 0.8) {
+                double t = times.get(k);
+                double y = Math.log(1 - ratio);
+                timeSum += t * t;
+                weightedTimeSum += t * y;
+            }
+        }
+
+        tau = - timeSum / weightedTimeSum;
+
+        lambda_small = tau * ALPHA_SMALL;
+        lambda_large = tau * ALPHA_LARGE;
+    }
+}
+
 /**
  * This is the Line Test Tuner OpMode. It will drive the robot forward and back
  * The user should push the robot laterally and angular to test out the drive, heading, and translational PIDFs.
@@ -1212,6 +1332,57 @@ class Circle extends OpMode {
         if (follower.atParametricEnd()) {
             follower.followPath(circle);
         }
+    }
+}
+
+class QuadraticDampingTuner extends OpMode {
+    private final ArrayList<double[]> accelerations = new ArrayList<>();
+    private Timer timer = new Timer();
+
+    private boolean stopping;
+    private boolean end;
+
+    public static double[] TEST_POWERS = {1, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2};
+    public static int ms = 1000;
+
+
+    @Override
+    public void init() {
+        follower.setStartingPose(new Pose(72, 72));
+    }
+
+    /** This initializes the drive motors as well as the Panels telemetryM. */
+    @Override
+    public void init_loop() {
+        telemetryM.debug("Press B on Gamepad 1 to stop.");
+        telemetryM.update(telemetry);
+        follower.update();
+        drawOnlyCurrent();
+    }
+
+    /** This starts the OpMode by setting the drive motors to run forward at full power. */
+    @Override
+    public void start() {
+        follower.startTeleopDrive(true);
+        follower.update();
+        timer.resetTimer();
+    }
+
+    /**
+     * This runs the OpMode. At any point during the running of the OpMode, pressing B on
+     * game pad 1 will stop the OpMode. When the robot hits the specified velocity, the robot will
+     * record its deceleration / negative acceleration until it stops. Then, it will average all the
+     * recorded deceleration / negative acceleration and print that value.
+     */
+    @Override
+    public void loop() {
+        if (gamepad1.bWasPressed()) {
+            stopRobot();
+            requestOpModeStop();
+        }
+
+        follower.update();
+        draw();
     }
 }
 

@@ -1,39 +1,39 @@
 package org.firstinspires.ftc.teamcode.math.projectile;
 
+import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
+
 import java.util.Arrays;
 
 public class ProjectileMath {
-    private static final double g = -386.0885; // gravity in in/s^2
+    private static final double g = 386.0885; // gravity in in/s^2
 
     /**
      * Solve for possible launch angles theta (radians).
      * Only returns positive angles (0 < theta < pi/2).
      *
-     * @param v initial speed
-     * @param h initial height
-     * @param x horizontal distance to target
-     * @param y target height
+     * @param distances a vector whose x-component is the cartesian xy distance to the target and whose y-component is the vertical distance to the target
+     * @param v0 the launch velocity of the artifact
      * @return array of positive solutions (length 0, 1, or 2) in radians
      */
-    public static double solveThetaWithoutDrag(double v, double h, double x, double y) {
-        if (x == 0) {
+    public static double solveTheta(Vector2D distances, double v0, double currentHoodRad) {
+        if (distances.getX() == 0) {
             return -1; // avoid division by zero
         }
 
         // coefficients
-        double A = (g * x * x) / (2 * v * v);
-        double C = h - y + A;
+        double A = (-g * distances.getX() * distances.getX()) / (2 * v0 * v0);
+        double C = -distances.getY() + A;
 
         // discriminant
-        double disc = x * x - 4 * A * C;
+        double disc = distances.getX() * distances.getX() - 4 * A * C;
         if (disc < 0) {
             return -1; // no real solution
         }
 
         double sqrtDisc = Math.sqrt(disc);
 
-        double T1 = (-x + sqrtDisc) / (2 * A);
-        double T2 = (-x - sqrtDisc) / (2 * A);
+        double T1 = (-distances.getX() + sqrtDisc) / (2 * A);
+        double T2 = (-distances.getX() - sqrtDisc) / (2 * A);
 
         // convert to angles and filter only positive
         java.util.List<Double> solutions = new java.util.ArrayList<>();
@@ -55,6 +55,6 @@ public class ProjectileMath {
             result[i] = solutions.get(i);
         }
 
-        return Arrays.stream(result).min().orElse(-1);
+        return Arrays.stream(result).min().orElse(currentHoodRad);
     }
 }
