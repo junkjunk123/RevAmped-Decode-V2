@@ -7,7 +7,7 @@
             <goBILDA5202SeriesMotor name="turret" port="0"/>
             <RevColorSensorV3 name="colorTwo" port="0" bus="1"/>
             <Servo name="table" port="2"/>
-            <Servo name="popper" port="1"/>
+            <Servo name="table2" port="3"/>
             <Servo name="hood" port="5"/>
             <DigitalDevice name="turret_switch" port="0"/>
         </LynxModule>
@@ -16,6 +16,7 @@
             <goBILDA5202SeriesMotor name="motor_lb" port="1"/>
             <goBILDA5202SeriesMotor name="motor_rb" port="2"/>
             <goBILDA5202SeriesMotor name="motor_rf" port="3"/>
+            <Servo name="popper" port="0"/>
             <RevColorSensorV3 name="colorOne" port="0" bus="1"/>
             <RevColorSensorV3 name="colorZero" port="0" bus="2"/>
             <goBILDAPinpoint name="pinpoint" port="0" bus="3"/>
