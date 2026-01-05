@@ -8,11 +8,13 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.QueuedStateMachine;
+import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
@@ -75,7 +77,7 @@ public class Table extends HwServo {
     public static float BALL1_REV2;
     public static float FULL_REVOLUTION;
     public static double MS_PER_REVOLUTION = 1000;
-    private final StateMachine<RelativeState> stateHandler = new QueuedStateMachine<>(RelativeState.BALL1, 1);
+    private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
     private final Encoder encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
     private final HwServo tableServo2;
@@ -111,29 +113,27 @@ public class Table extends HwServo {
     }
 
     public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
-        RelativeState[] state = new RelativeState[1];
         AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
-        return new Conditional(
-                () -> atPos(stateVal.read().target()),
-                new Instant(() -> setPosition(getState().target())),
-                stateHandler.runTransition(
-                        new Sequential(
-                                new Instant(() -> {
-                                    state[0] = stateVal.read();
-                                    distance.set(Math.abs(state[0].target() - getPosition()));
-                                    setPosition(state[0].target());
-                                }),
-                                new Race(
-                                        new Sequential(
-                                                new Wait(250),
-                                                new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
-                                        ),
-                                        new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
-                                )
-                        ),
-                        () -> state[0]
-                )
-        );
+        Tele.state = stateVal;
+        return new Lazy(() -> {
+           if (atPos(stateVal.read().target())) return Commands.NOOP;
+           return stateHandler.runTransition(
+                   new Sequential(
+                           new Instant(() -> {
+                               distance.set(Math.abs(stateVal.read().target() - getPosition()));
+                               setPosition(stateVal.read().target());
+                           }),
+                           new Race(
+                                   new Sequential(
+                                           new Wait(250),
+                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                                   ),
+                                   new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
+                           )
+                   ),
+                   stateVal::read
+           );
+        });
     }
 
     public ICommand setRelativeState(RelativeState relativeState) {

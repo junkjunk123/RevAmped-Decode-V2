@@ -8,6 +8,7 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.math.Matrix;
 
+import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
@@ -140,8 +141,9 @@ public final class TeleOpStateHandler {
             RobotStateHandler.CycleState next,
             boolean force
     ) {
-        if (current instanceof RobotStateHandler.CycleState s)
+        if (current instanceof RobotStateHandler.CycleState s) {
             return force || valid(s, next);
+        }
         return false;
     }
 

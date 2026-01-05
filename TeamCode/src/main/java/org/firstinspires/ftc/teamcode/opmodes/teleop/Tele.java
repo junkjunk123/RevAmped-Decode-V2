@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
+import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
@@ -32,8 +33,7 @@ public class Tele extends OpModeCommand {
             x2, dpadUp2, dpadDown2;
     private Robot robot;
     private TeleOpStateHandler tsh;
-    private boolean worked = false;
-    public static boolean worked2 = false;
+    public static AtomicReadOnce<Table.RelativeState> state;
 
     @Override
     public void initialize() {
@@ -124,14 +124,14 @@ public class Tele extends OpModeCommand {
         if (rightBumper2.isTrue()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
-                        robot.table.setRelativeState(Table.RelativeState.BALL2)
+                        robot.table.previous()
                 ), new int[]{1, 0, 0}
         ));
 
         if (leftBumper2.isTrue()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
-                        robot.table.setRelativeState(Table.RelativeState.BALL0)
+                        robot.table.next()
                 ), new int[]{1, 0, 0}
         ));
 
@@ -141,7 +141,6 @@ public class Tele extends OpModeCommand {
                             new Instant(() -> {
                                 //robot.tableCompartments.intakeThread.updateColors();
                                 robot.intakeMotor.stop();
-                                worked = true;
                             }),
                             robot.popper.pop()
                     ),
@@ -180,9 +179,8 @@ public class Tele extends OpModeCommand {
         telemetry.addData("turret", Robot.INSTANCE.turret.getTargetPosition());
         telemetry.addData("popper", Robot.INSTANCE.popper.atState(Popper.PopperState.NEUTRAL));
         telemetry.addData("cycleState", tsh.currentState());
-        telemetry.addData("worked", worked);
-        telemetry.addData("worked2", worked2);
         telemetry.addData("table", robot.table.getState());
+        telemetry.addData("state", state.hasBeenRead() ? state.read() : "null");
         telemetry.update();
     }
 

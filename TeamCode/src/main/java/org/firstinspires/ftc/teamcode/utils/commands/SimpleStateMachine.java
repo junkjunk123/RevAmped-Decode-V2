@@ -36,7 +36,6 @@ public class SimpleStateMachine<T> extends StateMachine<T> {
                         new Instant(() -> {
                             currentGraphElement = new Edge(newState.get(), transition);
                             current.set(abortCounter.get());
-                            Tele.worked2 = true;
                         }),
                         transition,
                         new Instant(() -> setCurrentState(newState.get()))
