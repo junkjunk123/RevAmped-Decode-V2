@@ -21,7 +21,7 @@ public class ObeliskDetectionTest extends OpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         manager = PanelsTelemetry.INSTANCE.getTelemetry();
     }
-
+//
     @Override
     public void loop() {
         limelight.update();
