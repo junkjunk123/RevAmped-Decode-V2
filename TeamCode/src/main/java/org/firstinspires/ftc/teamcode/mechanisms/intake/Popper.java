@@ -5,9 +5,13 @@ import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
+
+import java.util.Objects;
 
 public class Popper extends HwServo {
     public static float NEUTRAL;
@@ -24,23 +28,35 @@ public class Popper extends HwServo {
     }
 
     public ICommand pop() {
-        return stateMachine.runTransition(
-                new Sequential(
-                        new Instant(() -> setPosition(POP)),
-                        new Wait(250)
-                ),
-                PopperState.POP
-        );
+        return new Lazy(() -> {
+            if (!Objects.equals(getState(), PopperState.POP.name())) {
+                return stateMachine.runTransition(
+                        new Sequential(
+                                new Instant(() -> setPosition(POP)),
+                                new Wait(250)
+                        ),
+                        PopperState.POP
+                );
+            }
+
+            return Commands.NOOP;
+        });
     }
 
     public ICommand neutral() {
-        return stateMachine.runTransition(
-                new Sequential(
-                        new Instant(() -> setPosition(NEUTRAL)),
-                        new Wait(250)
-                ),
-                PopperState.NEUTRAL
-        );
+        return new Lazy(() -> {
+            if (!Objects.equals(getState(), PopperState.NEUTRAL.name())) {
+                return stateMachine.runTransition(
+                        new Sequential(
+                                new Instant(() -> setPosition(NEUTRAL)),
+                                new Wait(250)
+                        ),
+                        PopperState.NEUTRAL
+                );
+            }
+
+            return Commands.NOOP;
+        });
     }
 
     public boolean atState(PopperState popperState) {

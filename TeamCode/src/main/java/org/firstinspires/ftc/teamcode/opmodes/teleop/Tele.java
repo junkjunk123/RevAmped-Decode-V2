@@ -14,12 +14,15 @@ import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 
 @Config
 @TeleOp(name = "DCTeleOp")
@@ -29,6 +32,8 @@ public class Tele extends OpModeCommand {
             x2, dpadUp2, dpadDown2;
     private Robot robot;
     private TeleOpStateHandler tsh;
+    private boolean worked = false;
+    public static boolean worked2 = false;
 
     @Override
     public void initialize() {
@@ -119,14 +124,14 @@ public class Tele extends OpModeCommand {
         if (rightBumper2.isTrue()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
-                        robot.table.next()
+                        robot.table.setRelativeState(Table.RelativeState.BALL2)
                 ), new int[]{1, 0, 0}
         ));
 
         if (leftBumper2.isTrue()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
-                        robot.table.previous()
+                        robot.table.setRelativeState(Table.RelativeState.BALL0)
                 ), new int[]{1, 0, 0}
         ));
 
@@ -134,8 +139,9 @@ public class Tele extends OpModeCommand {
             schedule(tsh.runTransition(
                     new Sequential(
                             new Instant(() -> {
-                                robot.tableCompartments.intakeThread.updateColors();
+                                //robot.tableCompartments.intakeThread.updateColors();
                                 robot.intakeMotor.stop();
+                                worked = true;
                             }),
                             robot.popper.pop()
                     ),
@@ -144,12 +150,16 @@ public class Tele extends OpModeCommand {
         }
 
         if (dpadUp2.isTrue()) {
-            schedule(new Sequential(
-                    tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                    tsh.runTransition(new Sequential(
-                            robot.shootAll(0.0),
-                            robot.resetAfterShooting()
-                    ), RobotStateHandler.CycleState.INTAKE)
+            schedule(new Conditional(
+                    () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
+                    new Sequential(
+                            tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                            tsh.runTransition(new Sequential(
+                                    robot.shootAll(),
+                                    robot.resetAfterShooting()
+                            ), RobotStateHandler.CycleState.INTAKE)
+                    ),
+                    Commands.NOOP
             ));
         }
 
@@ -164,8 +174,15 @@ public class Tele extends OpModeCommand {
         }
 
         // Telemetry
+        telemetry.addData("intake -> drive", tsh.evaluate(RobotStateHandler.CycleState.DRIVE_TO_SHOOT));
+        telemetry.addData("adj", tsh.getAdj());
+        telemetry.addData("evaluate", tsh.evaluate(RobotStateHandler.CycleState.SHOOT));
         telemetry.addData("turret", Robot.INSTANCE.turret.getTargetPosition());
         telemetry.addData("popper", Robot.INSTANCE.popper.atState(Popper.PopperState.NEUTRAL));
+        telemetry.addData("cycleState", tsh.currentState());
+        telemetry.addData("worked", worked);
+        telemetry.addData("worked2", worked2);
+        telemetry.addData("table", robot.table.getState());
         telemetry.update();
     }
 

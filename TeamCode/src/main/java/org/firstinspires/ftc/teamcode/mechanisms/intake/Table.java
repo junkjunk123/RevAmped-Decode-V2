@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.QueuedStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
@@ -111,13 +112,14 @@ public class Table extends HwServo {
 
     public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
         RelativeState[] state = new RelativeState[1];
+        AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
         return new Conditional(
-                () -> getState() == relativeState.get(),
+                () -> atPos(stateVal.read().target()),
                 new Instant(() -> setPosition(getState().target())),
                 stateHandler.runTransition(
                         new Sequential(
                                 new Instant(() -> {
-                                    state[0] = relativeState.get();
+                                    state[0] = stateVal.read();
                                     distance.set(Math.abs(state[0].target() - getPosition()));
                                     setPosition(state[0].target());
                                 }),
@@ -139,11 +141,13 @@ public class Table extends HwServo {
     }
 
     public ICommand next() {
-        return setRelativeState(pendingState().next());
+        AtomicReadOnce<RelativeState> reader = pendingStateReader();
+        return setRelativeState(() -> reader.read().next());
     }
 
     public ICommand previous() {
-        return setRelativeState(pendingState().previous());
+        AtomicReadOnce<RelativeState> reader = pendingStateReader();
+        return setRelativeState(() -> reader.read().previous());
     }
 
     public ICommand fullRotation() {

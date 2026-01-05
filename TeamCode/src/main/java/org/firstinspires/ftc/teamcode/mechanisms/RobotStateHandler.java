@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import androidx.annotation.NonNull;
+
 import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.Robot;
@@ -75,11 +77,18 @@ public class RobotStateHandler {
             }
 
             public void init(ColorManager colorManager, ArtifactColor[] tableCompartments) {
+                INSTANCE = IntakeState.INTAKING;
                 intakeThread = new IntakeThread(tableCompartments, colorManager);
             }
 
             public double[] getTransitionVector() {
                 return new double[] {1,1,0};
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return "intake: " + INSTANCE.name();
             }
         }
 
@@ -88,6 +97,7 @@ public class RobotStateHandler {
             public TrackingThread autoTracker;
 
             public void init(Follower follower, Turret turret, Hood hood, Flywheel flywheel, boolean isTeleOp) {
+                INSTANCE = DriveState.AUTO_TRACKING;
                 autoTracker = new TrackingThread(follower, turret, flywheel, hood, isTeleOp);
             }
 
@@ -100,6 +110,12 @@ public class RobotStateHandler {
             public double[] getTransitionVector() {
                 return new double[] {1,1,1};
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return "driveToShoot: " + INSTANCE.name();
+            }
         }
 
         class Shoot implements CycleState {
@@ -108,6 +124,12 @@ public class RobotStateHandler {
 
             public double[] getTransitionVector() {
                 return new double[] {1,0,1};
+            }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return "shoot";
             }
         }
 

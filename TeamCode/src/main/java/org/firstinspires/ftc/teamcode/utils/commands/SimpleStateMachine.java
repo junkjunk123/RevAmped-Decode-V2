@@ -5,6 +5,9 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 
+import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -33,6 +36,7 @@ public class SimpleStateMachine<T> extends StateMachine<T> {
                         new Instant(() -> {
                             currentGraphElement = new Edge(newState.get(), transition);
                             current.set(abortCounter.get());
+                            Tele.worked2 = true;
                         }),
                         transition,
                         new Instant(() -> setCurrentState(newState.get()))
