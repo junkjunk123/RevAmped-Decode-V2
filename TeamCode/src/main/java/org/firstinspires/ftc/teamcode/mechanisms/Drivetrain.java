@@ -2,19 +2,22 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.drivetrains.Mecanum;
+import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.utils.FollowParameters;
+import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -23,7 +26,7 @@ import java.util.function.Function;
 public class Drivetrain {
     public final Follower follower;
     private final boolean isTeleOp;
-    private Iterator<FollowParameters> paths;
+    private ArrayDeque<FollowParameters> paths;
     public static Pose startPose = new Pose();
     private final List<DcMotorEx> motors;
     private DcMotorEx leftFront;
@@ -40,19 +43,21 @@ public class Drivetrain {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
-        apply(m -> m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT));
+        apply(m -> m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
         initMotors();
         isTeleOp = true;
+        follower.update();
     }
 
     public Drivetrain(HardwareMap hardwareMap, PathSupplier paths) {
         follower = Constants.createFollower(hardwareMap);
-        this.paths = paths.paths(follower).iterator();
+        this.paths = new ArrayDeque<>(paths.paths(follower));
         startPose = paths.startPose();
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
         initMotors();
         isTeleOp = false;
+        follower.update();
     }
 
     private void initMotors() {
@@ -63,9 +68,29 @@ public class Drivetrain {
     }
 
     public void followNext() {
-        if (paths.hasNext()) {
-            paths.next().follow(follower);
+        if (!paths.isEmpty()) {
+            paths.poll().follow(follower);
+        } else {
+            BezierPoint point = new BezierPoint(follower.getPose());
+            Path path = new Path(point);
+            path.setConstantHeadingInterpolation(follower.getHeading());
+            follower.followPath(path);
         }
+    }
+
+    public void followLast() {
+        if (!paths.isEmpty()) {
+            paths.pollLast().follow(follower);
+        } else {
+            BezierPoint point = new BezierPoint(follower.getPose());
+            Path path = new Path(point);
+            path.setConstantHeadingInterpolation(follower.getHeading());
+            follower.followPath(path);
+        }
+    }
+
+    public void skip(int i) {
+        for (int j = 0; j < i; j++) paths.poll();
     }
 
     public Command followNext(Function<Drivetrain, Boolean> isDone) {
@@ -74,9 +99,22 @@ public class Drivetrain {
                 .setDone(() -> isDone.apply(this));
     }
 
+    public Command followLast(Function<Drivetrain, Boolean> isDone) {
+        return new Command()
+                .setStart(this::followLast)
+                .setDone(() -> isDone.apply(this));
+    }
+
     public Race followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
         return new Race(
                 followNext(isDone),
+                new Wait(timeout)
+        );
+    }
+
+    public Race followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
+        return new Race(
+                followLast(isDone),
                 new Wait(timeout)
         );
     }

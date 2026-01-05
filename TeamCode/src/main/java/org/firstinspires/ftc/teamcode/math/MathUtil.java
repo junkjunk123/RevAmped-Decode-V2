@@ -14,4 +14,14 @@ public class MathUtil {
         if (!r[1].equals(I)) throw new IllegalArgumentException("matrix not invertible");
         return r[1];
     }
+
+    public static Matrix rotMatrix(double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        double[][] vals = new double[][] {
+                {cos, -sin},
+                {-sin, cos}
+        };
+        return new Matrix(vals);
+    }
 }

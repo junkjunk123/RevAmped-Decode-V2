@@ -145,21 +145,21 @@ public class Robot {
     public ICommand shootAll(Supplier<Double> delay) {
         AtomicReference<float[]> shootSequence = new AtomicReference<>();
         return new Conditional(
-                () -> delay.get() > 10,
+                () -> delay.get() < 10,
                 shootAll(),
                 new Sequential(
                         new Instant(() -> {
                             intakeMotor.intakeSlow();
                             shootSequence.set(table.getState().getShootStates());
                         }),
-                        table.setPos(shootSequence.get()[0]),
+                        table.setPos(() -> shootSequence.get()[0]),
                         new Instant(intakeMotor::stop),
                         new Wait(delay.get()),
                         new Instant(intakeMotor::intakeSlow),
-                        table.setPos(shootSequence.get()[1]),
+                        table.setPos(() -> shootSequence.get()[1]),
                         new Instant(intakeMotor::shooting),
                         new Wait(delay.get()),
-                        table.setPos(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3),
+                        table.setPos(() -> shootSequence.get()[2] + Table.FULL_REVOLUTION / 3),
                         new Instant(tableCompartments::removeAll)
                 )
         );

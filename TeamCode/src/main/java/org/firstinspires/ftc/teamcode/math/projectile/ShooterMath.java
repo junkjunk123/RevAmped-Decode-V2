@@ -13,11 +13,13 @@ import com.pedropathing.math.MatrixUtil;
 import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.math.calc.Angle;
 import org.firstinspires.ftc.teamcode.math.calc.PoseDifferentiator;
 import org.firstinspires.ftc.teamcode.math.calc.Vector3D;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 
 public class ShooterMath {
@@ -58,88 +60,92 @@ public class ShooterMath {
     }
 
     public void update(boolean trackTurret, boolean trackHood, double flywheelVelocity) {
-        Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
-        Pose currentPos = follower.getPose();
-        Matrix inverseRotation = MatrixUtil.createRotation(currentPos.getHeading()).transposed();
-        Vector robotLinearVel = follower.getVelocity().transform(inverseRotation);
-        Pose robotVelPose = new Pose(robotLinearVel.getXComponent(), robotLinearVel.getYComponent(), robotLinearVel.getTheta());
-        Vector robotVelocity = robotVelPose.getAsVector();
-        Pose robotAcceleration = accelerationCalculator.calculate(robotVelPose);
-        Pose projectedRobotPose = RobotKinematicsCalculator.getProjectedPoseWithConstantLinearAcceleration(
-                currentPos,
-                BALL_LAUNCH_MS / 1000.0,
-                robotVelPose,
-                robotAcceleration
-        );
-        Vector projectedRobotVelocity = robotVelocity.plus(robotAcceleration.getAsVector().times(BALL_LAUNCH_MS / 1000));
+        if (trackHood || trackTurret) {
+            Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
+            Pose currentPos = follower.getPose();
 
-        double deltaAngle;
+            Matrix inverseRotation = MathUtil.rotMatrix(currentPos.getHeading()).transposed();
+            Vector robotLinearVel = follower.getVelocity().transform(inverseRotation);
+            Pose robotVelPose = new Pose(robotLinearVel.getXComponent(), robotLinearVel.getYComponent(), robotLinearVel.getTheta());
+            Vector robotVelocity = robotVelPose.getAsVector();
+            Pose projectedRobotPose = RobotKinematicsCalculator.getProjectedPoseWithConstantVelocity(
+                    currentPos,
+                    BALL_LAUNCH_MS / 1000.0,
+                    robotVelPose
+            );
+            double deltaAngle;
 
-        if (trackTurret) {
-            if (!velocityCompensation || robotVelocity.getMagnitude() < 8) {
-                deltaAngle = angleTurretTo(currentPos, targetPos);
+            if (trackTurret) {
+                if (!velocityCompensation || robotVelocity.getMagnitude() < 8) {
+                    deltaAngle = angleTurretTo(currentPos, targetPos);
 
-                if ((deltaAngle > 0 && allianceColor == AllianceColor.Blue) || (deltaAngle < 0 && allianceColor == AllianceColor.Red)) {
-                    Pose targetCorrectedPose = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED_NEGATIVE : APRIL_TAG_POSE_BLUE_POSITIVE;
-                    deltaAngle = angleTurretTo(currentPos, targetCorrectedPose);
+                    if ((deltaAngle > 0 && allianceColor == AllianceColor.Blue) || (deltaAngle < 0 && allianceColor == AllianceColor.Red)) {
+                        Pose targetCorrectedPose = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED_NEGATIVE : APRIL_TAG_POSE_BLUE_POSITIVE;
+                        deltaAngle = angleTurretTo(currentPos, targetCorrectedPose);
+                    }
+
+                    turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
+                } else if (velocityCompensation) {
+                    Vector offset = targetPos.minus(projectedRobotPose).getAsVector();
+                    Vector iHat = offset.normalize();
+                    Vector jHat = new Vector();
+                    jHat.setOrthogonalComponents(-iHat.getYComponent(), iHat.getXComponent());
+                    Vector invertediHat = new Vector();
+                    invertediHat.setOrthogonalComponents(iHat.getYComponent(), iHat.getXComponent());
+                    double normalizedTurretNormalComponent = Range.clip(robotVelocity.dot(invertediHat) / flywheelVelocity, -1, 1);
+                    Vector flywheelDirectionVector = new Vector();
+                    flywheelDirectionVector.setOrthogonalComponents(
+                            Math.sqrt(1 - Math.pow(normalizedTurretNormalComponent, 2)),
+                            normalizedTurretNormalComponent
+                    );
+                    Matrix inverseRotMatrix = new Matrix(new double[][]{
+                            {iHat.getXComponent(), iHat.getYComponent()},
+                            {jHat.getXComponent(), jHat.getYComponent()}
+                    });
+                    double targetAngle = flywheelDirectionVector.transform(inverseRotMatrix).getTheta() + Math.PI;
+                    deltaAngle = normalizeAnglePi(targetAngle - projectedRobotPose.getHeading());
+                    deltaAngle = Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
+                    turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
                 }
+            }
 
-                turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);;
-            } else if (velocityCompensation) {
-                Vector offset = targetPos.minus(projectedRobotPose).getAsVector();
-                Vector iHat = offset.normalize();
-                Vector jHat = new Vector();
-                jHat.setOrthogonalComponents(-iHat.getYComponent(), iHat.getXComponent());
-                Vector invertediHat = new Vector();
-                invertediHat.setOrthogonalComponents(iHat.getYComponent(), iHat.getXComponent());
-                double normalizedTurretNormalComponent = Range.clip(projectedRobotVelocity.dot(invertediHat) / flywheelVelocity, -1, 1);
-                Vector flywheelDirectionVector = new Vector();
-                flywheelDirectionVector.setOrthogonalComponents(
-                        Math.sqrt(1 - Math.pow(normalizedTurretNormalComponent, 2)),
-                        normalizedTurretNormalComponent
+            if (trackHood) {
+                Vector3D target = Vector3D.get3DPosition(targetPos, LAUNCH_ZONE_HEIGHT);
+                Pose robotPose = velocityCompensation ? projectedRobotPose : currentPos;
+                Pose targetDisplacements = new Pose(
+                        robotPose.distanceFrom(new Pose(target.getX(), target.getY())),
+                        target.getZ() - LAUNCH_ZONE_HEIGHT
                 );
-                Matrix inverseRotMatrix = new Matrix(new double[][] {
-                        {iHat.getXComponent(), iHat.getYComponent()},
-                        {jHat.getXComponent(), jHat.getYComponent()}
-                });
-                double targetAngle = flywheelDirectionVector.transform(inverseRotMatrix).getTheta() + Math.PI;
-                deltaAngle = normalizeAnglePi(targetAngle - projectedRobotPose.getHeading());
-                deltaAngle = Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
-                turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
+                double initialVelocity = calcInitialLaunchVelocity(robotVelocity, flywheelVelocity, turretPos);
+
+                double theta = ProjectileMathWithDrag.solveTheta(
+                        targetDisplacements,
+                        initialVelocity,
+                        hoodPos
+                );
+
+                confidence = ProjectileMathWithDrag.getConfidence(
+                        targetDisplacements,
+                        initialVelocity,
+                        theta
+                );
+
+                if (!Double.isNaN(theta) && confidence > 0.5) {
+                    hoodPos = servoPosFromRad(
+                            theta,
+                            Hood.HOOD_MIN_RAD,
+                            Hood.HOOD_MAX_RAD,
+                            Hood.HOOD_MIN_POS,
+                            Hood.HOOD_MAX_POS
+                    );
+                }
             }
         }
+    }
 
-        if (trackHood) {
-            Vector3D target = Vector3D.get3DPosition(targetPos, LAUNCH_ZONE_HEIGHT);
-            Pose robotPose = velocityCompensation? projectedRobotPose : currentPos;
-            Vector robotVel = velocityCompensation? projectedRobotVelocity : robotVelocity;
-            Pose targetDisplacements = new Pose (
-                    robotPose.distanceFrom(new Pose(target.getX(), target.getY())),
-                    target.getZ() - LAUNCH_ZONE_HEIGHT
-            );
-            double initialVelocity = calcInitialLaunchVelocity(robotVel, flywheelVelocity, turretPos);
-
-            double theta = ProjectileMathWithDrag.solveTheta(
-                    targetDisplacements,
-                    initialVelocity
-            );
-
-            confidence = ProjectileMathWithDrag.getConfidence(
-                    targetDisplacements,
-                    initialVelocity,
-                    theta
-            );
-
-            if (!Double.isNaN(theta) && confidence > 0.5) {
-                hoodPos = servoPosFromRad(
-                        theta,
-                        Hood.HOOD_MIN_RAD,
-                        Hood.HOOD_MAX_RAD,
-                        Hood.HOOD_MIN_POS,
-                        Hood.HOOD_MAX_POS
-                );
-            }
-        }
+    public void reset(int turretPos, float hoodPos) {
+        this.turretPos = turretPos;
+        this.hoodPos = hoodPos;
     }
 
     private double angleTurretTo(Pose currentPos, Pose targetPos) {

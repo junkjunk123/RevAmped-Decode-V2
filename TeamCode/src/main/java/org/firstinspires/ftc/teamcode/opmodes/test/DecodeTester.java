@@ -7,7 +7,6 @@ public class DecodeTester extends SelectableOpMode {
     public DecodeTester() {
         super("Select a Testing OpMode.", s -> {
             s.folder("Limelight", l -> {
-                l.add("LimelightTest", LimelightTest::new);
                 l.add("ObeliskDetectionTest", ObeliskDetectionTest::new);
             });
             s.folder("Calibrator", l -> {

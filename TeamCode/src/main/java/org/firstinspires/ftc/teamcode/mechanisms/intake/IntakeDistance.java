@@ -10,6 +10,6 @@ public class IntakeDistance extends HwDigitalDevice {
     }
 
     public boolean hasArtifact() {
-        return state();
+        return getReading();
     }
 }
