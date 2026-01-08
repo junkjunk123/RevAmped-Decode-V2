@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.commands;
 
-import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.CommandBuilder;
 
 import java.util.function.Supplier;
 
@@ -25,9 +25,9 @@ public abstract class StateMachine<T> {
 
     protected non-sealed class Edge extends GraphElement {
         public final T nextState;
-        public final ICommand command;
+        public final  CommandBuilder command;
 
-        protected Edge(T nextState, ICommand command) {
+        protected Edge(T nextState,  CommandBuilder command) {
             this.nextState = nextState;
             this.command = command;
         }
@@ -47,9 +47,9 @@ public abstract class StateMachine<T> {
         return returnVal == null? currentState : returnVal;
     }
 
-    public ICommand runTransition(ICommand transition, T newState) {
+    public  CommandBuilder runTransition( CommandBuilder transition, T newState) {
         return runTransition(transition, () -> newState);
     }
 
-    public abstract ICommand runTransition(ICommand transition, Supplier<T> newState);
+    public abstract  CommandBuilder runTransition( CommandBuilder transition, Supplier<T> newState);
 }

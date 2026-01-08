@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import static com.pedropathing.ivy.groups.Groups.race;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.drivetrains.Mecanum;
 import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.commands.Wait;
-import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.CommandBuilder;
+import com.pedropathing.ivy.commands.Commands;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -18,7 +20,6 @@ import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 
 import java.util.ArrayDeque;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -93,29 +94,29 @@ public class Drivetrain {
         for (int j = 0; j < i; j++) paths.poll();
     }
 
-    public Command followNext(Function<Drivetrain, Boolean> isDone) {
-        return new Command()
+    public CommandBuilder followNext(Function<Drivetrain, Boolean> isDone) {
+        return Command.build()
                 .setStart(this::followNext)
                 .setDone(() -> isDone.apply(this));
     }
 
     public Command followLast(Function<Drivetrain, Boolean> isDone) {
-        return new Command()
+        return Command.build()
                 .setStart(this::followLast)
                 .setDone(() -> isDone.apply(this));
     }
 
-    public Race followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return new Race(
+    public CommandBuilder followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
+        return race(
                 followNext(isDone),
-                new Wait(timeout)
+                Commands.wait(timeout)
         );
     }
 
-    public Race followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return new Race(
+    public CommandBuilder followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
+        return race(
                 followLast(isDone),
-                new Wait(timeout)
+                Commands.wait(timeout)
         );
     }
 

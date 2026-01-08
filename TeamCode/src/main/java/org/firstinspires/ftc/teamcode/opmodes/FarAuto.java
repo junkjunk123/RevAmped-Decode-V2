@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.pedropathing.ivy.commands.Infinite;
-import com.pedropathing.ivy.commands.Instant;
-import com.pedropathing.ivy.commands.Wait;
-import com.pedropathing.ivy.groups.Parallel;
-import com.pedropathing.ivy.groups.Sequential;
+import static com.pedropathing.ivy.commands.Commands.infinite;
+import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.groups.Groups.parallel;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+
+import com.pedropathing.ivy.commands.Commands;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
@@ -26,33 +27,33 @@ public class FarAuto extends OpModeCommand {
         robot = new Robot(hardwareMap, new FarAutoPaths());
 
         schedule(
-                new Infinite(robot::update),
-                new Sequential(
-                        new Instant(() -> {
+                infinite(robot::update),
+                sequential(
+                        instant(() -> {
                             robot.flywheel.far();
                             robot.hood.far();
                         }),
-                        new Parallel(
+                        parallel(
                                 robot.popper.pop(),
                                 robot.turret.runToPos(Turret.FAR_AUTO),
-                                new Wait(750)
+                                Commands.wait(750.0)
                         ),
                         robot.shootAll(100),
-                        new Parallel(
+                        parallel(
                                 robot.resetTableAfterShooting(),
-                                new Instant(() -> robot.flywheel.stop()),
+                                instant(() -> robot.flywheel.stop()),
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 1500)
                         ),
                         robot.drivetrain.followNext(d -> d.velocityCondition(4), 2500),
-                        new Instant(robot.intakeMotor::intake),
-                        new Wait(500),
+                        instant(robot.intakeMotor::intake),
+                        Commands.wait(500.0),
                         robot.drivetrain.followNext(d -> d.velocityCondition(4), 1500),
-                        new Instant(() -> robot.flywheel.far()),
+                        instant(() -> robot.flywheel.far()),
                         robot.drivetrain.followNext(d -> d.velocityCondition(4), 1500),
-                        new Parallel(
+                        parallel(
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 2500),
-                                new Sequential(
-                                        new Wait(500),
+                                sequential(
+                                        Commands.wait(500.0),
                                         robot.popper.pop()
                                 )
                         )

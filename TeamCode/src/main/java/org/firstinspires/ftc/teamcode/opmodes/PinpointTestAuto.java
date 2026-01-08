@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.pedropathing.ivy.commands.Infinite;
-import com.pedropathing.ivy.commands.Wait;
-import com.pedropathing.ivy.commands.WaitUntil;
-import com.pedropathing.ivy.groups.Sequential;
+import static com.pedropathing.ivy.commands.Commands.infinite;
+import static com.pedropathing.ivy.commands.Commands.waitUntil;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+
+import com.pedropathing.ivy.commands.Commands;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
-import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
 import org.firstinspires.ftc.teamcode.opmodes.paths.PinpointTestPaths;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -26,32 +26,32 @@ public class PinpointTestAuto extends OpModeCommand {
         //flywheel = new Flywheel(hardwareMap);
         schedule(
                 //update statements
-                new Infinite(() ->{
+                infinite(() ->{
                     drivetrain.update();
                     telemetry.addData("pose",drivetrain.follower.getPose());
                     telemetry.update();
                 }),
-//                new Infinite(flywheel::update),
-//                new Infinite(intake::update),
-                new WaitUntil(() -> !opModeInInit()),
-                new Sequential(
+//                infinite(flywheel::update),
+//                infinite(intake::update),
+                waitUntil(() -> !opModeInInit()),
+                sequential(
                 //following the actual pathing
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                new Wait(1000),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                new Wait(1000),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                new Wait(1000),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                new Wait(1000),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                new Wait(1000),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                new Wait(1000),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                new Wait(1000),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4))
                 )
 

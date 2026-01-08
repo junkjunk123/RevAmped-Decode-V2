@@ -1,29 +1,29 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.pedropathing.ivy.ICommand;
-import com.pedropathing.ivy.commands.Infinite;
-import com.pedropathing.ivy.commands.Instant;
-import com.pedropathing.ivy.commands.Wait;
-import com.pedropathing.ivy.commands.WaitUntil;
-import com.pedropathing.ivy.groups.Deadline;
-import com.pedropathing.ivy.groups.Parallel;
-import com.pedropathing.ivy.groups.Race;
-import com.pedropathing.ivy.groups.Sequential;
+import static com.pedropathing.ivy.commands.Commands.conditional;
+import static com.pedropathing.ivy.commands.Commands.infinite;
+import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.commands.Commands.waitUntil;
+import static com.pedropathing.ivy.groups.Groups.deadline;
+import static com.pedropathing.ivy.groups.Groups.parallel;
+import static com.pedropathing.ivy.groups.Groups.race;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.CommandBuilder;
+import com.pedropathing.ivy.commands.Commands;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
+import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPaths;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
-import org.firstinspires.ftc.teamcode.utils.commands.Commands;
-import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
-import org.firstinspires.ftc.teamcode.utils.commands.Functional;
 
 public class CloseAuto extends OpModeCommand {
     private Robot robot;
@@ -41,26 +41,28 @@ public class CloseAuto extends OpModeCommand {
         overallTimer = new ElapsedTime();
 
         schedule(
-            new Infinite(robot::update),
-            new Sequential(
-                    new WaitUntil(() -> !opModeInInit()),
-                    new Instant(overallTimer::reset)
+            infinite(robot::update),
+            sequential(
+                    waitUntil(() -> !opModeInInit()),
+                    instant(overallTimer::reset)
             ),
-            new Sequential(
-                    new Instant(() -> {
+            sequential(
+                    instant(() -> {
                         robot.flywheel.auto();
                         robot.hood.near();
                         limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
                     }),
-                    new Deadline(
+                    deadline(
                             robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
-                            new Infinite(limelight::update)
+                            infinite(limelight::update)
                     ),
-                    new Race(
-                          new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
-                          new Wait(4000)
+                    race(
+                          Command.build()
+                                  .setExecute(limelight::update)
+                                  .setDone(() -> Globals.randomizationState != null),
+                          Commands.wait(4000.0)
                     ),
-                    new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
+                    instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
                     robot.sortAndShoot(),
                     intake(0),
                     shoot(0),
@@ -79,7 +81,7 @@ public class CloseAuto extends OpModeCommand {
         Turret.startPos = robot.turret.getTargetPosition();
     }
 
-    private ICommand intake(int iteration) {
+    private CommandBuilder intake(int iteration) {
         int turretPos = switch (iteration) {
             case 0 -> Turret.AUTO_SET_1;
             case 1 -> Turret.AUTO_SET_2;
@@ -87,23 +89,23 @@ public class CloseAuto extends OpModeCommand {
         };
         int driveTimeout = iteration == 2 ? 4500 : 3000;
 
-        return new Sequential(
-                new Instant(() -> {
+        return sequential(
+                instant(() -> {
                     robot.turret.setTargetPosition(turretPos);
                     robot.flywheel.stop();
                 }),
-                new Parallel(
+                parallel(
                         robot.resetTableAfterShooting(),
                         robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                 ),
-                new Instant(robot.intakeMotor::outtakeSlow),
-                new Wait(350),
-                new Instant(robot.intakeMotor::intake),
-                new Wait(100)
+                instant(robot.intakeMotor::outtakeSlow),
+                Commands.wait(350.0),
+                instant(robot.intakeMotor::intake),
+                Commands.wait(100.0)
         );
     }
 
-    private ICommand shoot(int iteration) {
+    private CommandBuilder shoot(int iteration) {
         double flywheelOffset = iteration == 2 ? 10 : 0;
 
         double driveTimeout = switch (iteration) {
@@ -120,58 +122,58 @@ public class CloseAuto extends OpModeCommand {
 
         boolean isSorting = iteration != 2 && Globals.randomizationState != null;
 
-        return new Sequential(
-                new Parallel(
+        return sequential(
+                parallel(
                         robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), driveTimeout),
-                        new Conditional(
+                        conditional(
                                 () -> iteration == 0,
-                                Commands.NOOP,
-                                new Sequential(
-                                        new Wait(200),
-                                        new Instant(() -> robot.intakeMotor.outtakeSlow())
+                                Command.NOOP,
+                                sequential(
+                                        Commands.wait(200.0),
+                                        instant(() -> robot.intakeMotor.outtakeSlow())
                                 )
                         ),
-                        new Instant(() -> {
+                        instant(() -> {
                                 robot.flywheel.runToVel(Flywheel.AUTO_VELOCITY + flywheelOffset);
                                 robot.tableCompartments.populate(intookColors);
                         }),
-                        new Sequential(
-                                new Race(
-                                        new WaitUntil(() -> iteration == 0),
-                                        new Wait(300),
-                                        new WaitUntil(() -> iteration == 2 && overallTimer.seconds() > 27)
+                        sequential(
+                                race(
+                                        waitUntil(() -> iteration == 0),
+                                        Commands.wait(300.0),
+                                        waitUntil(() -> iteration == 2 && overallTimer.seconds() > 27)
                                 ),
-                                new Instant(() -> robot.intakeMotor.intake()),
-                                new Race(
-                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
-                                        new WaitUntil(() -> iteration == 2 && overallTimer.seconds() > 27.5
+                                instant(() -> robot.intakeMotor.intake()),
+                                race(
+                                        waitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
+                                        waitUntil(() -> iteration == 2 && overallTimer.seconds() > 27.5
                                                     && overallTimer.seconds() < 28.7 && robot.drivetrain.distanceFromTarget() < 7)
                                 ),
-                                new Race(
-                                        new WaitUntil(() -> !isSorting),
+                                race(
+                                        waitUntil(() -> !isSorting),
                                         robot.sort()
                                 ),
-                                new Wait(150),
+                                Commands.wait(150.0),
                                 robot.popper.pop(),
-                                new Wait(250)
+                                Commands.wait(250.0)
                         )
                 ),
                 robot.shootAll(() -> !isSorting ? 0.0 : 175.0)
         );
     }
 
-    public ICommand park() {
-        return new Parallel(
+    public CommandBuilder park() {
+        return parallel(
                 robot.drivetrain.followNext(d -> d.velocityCondition(4)),
-                new Instant(() -> {
+                instant(() -> {
                     robot.turret.resetTurret();
                     robot.flywheel.stop();
                     robot.intakeMotor.stop();
                 }),
-                new Conditional(
+                conditional(
                         () -> robot.popper.atState(Popper.PopperState.NEUTRAL),
                         robot.table.reset(),
-                        new Sequential(
+                        sequential(
                                 robot.popper.neutral(),
                                 robot.table.reset()
                         )
