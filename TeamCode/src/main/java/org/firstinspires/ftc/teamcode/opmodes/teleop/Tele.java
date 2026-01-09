@@ -4,6 +4,7 @@ import static com.pedropathing.ivy.bindings.Bindings.bind;
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.race;
@@ -88,7 +89,7 @@ public class Tele extends OpModeCommand {
                                 waitUntil(robot.turret.limitSwitch::state),
                                 instant(robot.turret::resetPosition)
                         ),
-                        Commands.wait(750.0)
+                        waitMs(750.0)
                 ));
 
         bind(() -> gamepad1.x)

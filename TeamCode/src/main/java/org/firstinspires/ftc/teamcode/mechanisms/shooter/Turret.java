@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
 import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.groups.Groups.race;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.ivy.commands.Commands;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -90,14 +92,14 @@ public class Turret extends HwMotor {
         move(new MoveState.MoveTo(position));
     }
 
-    public CommandBuilder runToPos(int position) {
+    public Command runToPos(int position) {
         return sequential(
                 instant(() -> setTargetPosition(position)),
                 reached()
         );
     }
 
-    public CommandBuilder runToState(MoveState state) {
+    public Command runToState(MoveState state) {
         return sequential(
                 instant(() -> move(state)),
                 reached()
@@ -136,11 +138,11 @@ public class Turret extends HwMotor {
             move(MoveState.PresetState.REST);
     }
 
-    public CommandBuilder resetTurret() {
+    public Command resetTurret() {
         return race(
                 sequential(
                         runToState(MoveState.PresetState.REST),
-                        Commands.wait(250.0)
+                        waitMs(250.0)
                 ),
                 sequential(
                         waitUntil(limitSwitch::state),
@@ -149,10 +151,10 @@ public class Turret extends HwMotor {
         );
     }
 
-    public CommandBuilder reached() {
+    public Command reached() {
         return race(
                 waitUntil(() -> Math.abs(getVelocity()) < 10 && Math.abs(getTargetPosition() - getPosition()) < 25),
-                Commands.wait(Math.abs(distance.get() / FULL_ROTATION * MS_PER_REVOLUTION))
+                waitMs(Math.abs(distance.get() / FULL_ROTATION * MS_PER_REVOLUTION))
         );
     }
 

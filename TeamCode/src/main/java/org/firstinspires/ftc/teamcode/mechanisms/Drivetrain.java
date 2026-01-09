@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.race;
 
 import com.pedropathing.follower.Follower;
@@ -94,7 +95,7 @@ public class Drivetrain {
         for (int j = 0; j < i; j++) paths.poll();
     }
 
-    public CommandBuilder followNext(Function<Drivetrain, Boolean> isDone) {
+    public Command followNext(Function<Drivetrain, Boolean> isDone) {
         return Command.build()
                 .setStart(this::followNext)
                 .setDone(() -> isDone.apply(this));
@@ -106,17 +107,17 @@ public class Drivetrain {
                 .setDone(() -> isDone.apply(this));
     }
 
-    public CommandBuilder followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
+    public Command followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
         return race(
                 followNext(isDone),
-                Commands.wait(timeout)
+                waitMs(timeout)
         );
     }
 
-    public CommandBuilder followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
+    public Command followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
         return race(
                 followLast(isDone),
-                Commands.wait(timeout)
+                waitMs(timeout)
         );
     }
 

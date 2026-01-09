@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -42,7 +43,7 @@ public abstract class OpModeCommand extends LinearOpMode {
     /**
      * Schedules objects to the scheduler
      */
-    public void schedule(CommandBuilder... commands) {
+    public void schedule(Command... commands) {
         Scheduler.schedule(commands);
     }
 
