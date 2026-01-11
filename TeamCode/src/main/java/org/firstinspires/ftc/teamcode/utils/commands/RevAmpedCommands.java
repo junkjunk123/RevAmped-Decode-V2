@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntSupplier;
 
 public class RevAmpedCommands {
-    public static Command loop(Command command, IntSupplier iterations) {
+    public static CommandBuilder loop(Command command, IntSupplier iterations) {
         AtomicInteger integer = new AtomicInteger();
         AtomicReadOnce<Integer> iterationsReadOnce = new AtomicReadOnce<>(iterations::getAsInt);
         return Groups.loop(command.with(instant(integer::getAndIncrement))).setDone(() -> integer.get() < iterationsReadOnce.read());

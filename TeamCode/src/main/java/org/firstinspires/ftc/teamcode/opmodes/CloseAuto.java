@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.groups.Groups.deadline;
 import static com.pedropathing.ivy.groups.Groups.parallel;
@@ -61,7 +60,7 @@ public class CloseAuto extends OpModeCommand {
                           Command.build()
                                   .setExecute(limelight::update)
                                   .setDone(() -> Globals.randomizationState != null),
-                          waitMs(4000.0)
+                          Commands.wait(4000.0)
                     ),
                     instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
                     robot.sortAndShoot(),
@@ -82,7 +81,7 @@ public class CloseAuto extends OpModeCommand {
         Turret.startPos = robot.turret.getTargetPosition();
     }
 
-    private Command intake(int iteration) {
+    private CommandBuilder intake(int iteration) {
         int turretPos = switch (iteration) {
             case 0 -> Turret.AUTO_SET_1;
             case 1 -> Turret.AUTO_SET_2;
@@ -100,13 +99,13 @@ public class CloseAuto extends OpModeCommand {
                         robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                 ),
                 instant(robot.intakeMotor::outtakeSlow),
-                waitMs(350.0),
+                Commands.wait(350.0),
                 instant(robot.intakeMotor::intake),
-                waitMs(100.0)
+                Commands.wait(100.0)
         );
     }
 
-    private Command shoot(int iteration) {
+    private CommandBuilder shoot(int iteration) {
         double flywheelOffset = iteration == 2 ? 10 : 0;
 
         double driveTimeout = switch (iteration) {
@@ -130,7 +129,7 @@ public class CloseAuto extends OpModeCommand {
                                 () -> iteration == 0,
                                 Command.NOOP,
                                 sequential(
-                                        waitMs(200.0),
+                                        Commands.wait(200.0),
                                         instant(() -> robot.intakeMotor.outtakeSlow())
                                 )
                         ),
@@ -141,7 +140,7 @@ public class CloseAuto extends OpModeCommand {
                         sequential(
                                 race(
                                         waitUntil(() -> iteration == 0),
-                                        waitMs(300.0),
+                                        Commands.wait(300.0),
                                         waitUntil(() -> iteration == 2 && overallTimer.seconds() > 27)
                                 ),
                                 instant(() -> robot.intakeMotor.intake()),
@@ -154,16 +153,16 @@ public class CloseAuto extends OpModeCommand {
                                         waitUntil(() -> !isSorting),
                                         robot.sort()
                                 ),
-                                waitMs(150.0),
+                                Commands.wait(150.0),
                                 robot.popper.pop(),
-                                waitMs(250.0)
+                                Commands.wait(250.0)
                         )
                 ),
                 robot.shootAll(() -> !isSorting ? 0.0 : 175.0)
         );
     }
 
-    public Command park() {
+    public CommandBuilder park() {
         return parallel(
                 robot.drivetrain.followNext(d -> d.velocityCondition(4)),
                 instant(() -> {

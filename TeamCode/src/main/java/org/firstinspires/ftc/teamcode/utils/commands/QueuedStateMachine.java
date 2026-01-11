@@ -30,7 +30,7 @@ public class QueuedStateMachine<T> extends StateMachine<T> {
     }
 
     @Override
-    public Command runTransition(Command transition, Supplier<T> newState) {
+    public CommandBuilder runTransition(CommandBuilder transition, Supplier<T> newState) {
         return sequential(
                 instant(() -> enqueue(new Edge(newState.get(), transition))),
                 waitUntil(() -> currentGraphElement instanceof Node),
@@ -38,7 +38,7 @@ public class QueuedStateMachine<T> extends StateMachine<T> {
         );
     }
 
-    private Command runOne() {
+    private CommandBuilder runOne() {
         return sequential(
                 instant(() -> {
                     Edge e = commandQueue.poll();
@@ -49,7 +49,7 @@ public class QueuedStateMachine<T> extends StateMachine<T> {
         );
     }
 
-    private Command runAll() {
+    private CommandBuilder runAll() {
         return conditional(
                 () -> commandQueue.isEmpty() || executing,
                 Command.NOOP,

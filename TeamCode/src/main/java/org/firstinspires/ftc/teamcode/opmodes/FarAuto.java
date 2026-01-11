@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
@@ -37,7 +36,7 @@ public class FarAuto extends OpModeCommand {
                         parallel(
                                 robot.popper.pop(),
                                 robot.turret.runToPos(Turret.FAR_AUTO),
-                                waitMs(750.0)
+                                Commands.wait(750.0)
                         ),
                         robot.shootAll(100),
                         parallel(
@@ -47,14 +46,14 @@ public class FarAuto extends OpModeCommand {
                         ),
                         robot.drivetrain.followNext(d -> d.velocityCondition(4), 2500),
                         instant(robot.intakeMotor::intake),
-                        waitMs(500.0),
+                        Commands.wait(500.0),
                         robot.drivetrain.followNext(d -> d.velocityCondition(4), 1500),
                         instant(() -> robot.flywheel.far()),
                         robot.drivetrain.followNext(d -> d.velocityCondition(4), 1500),
                         parallel(
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 2500),
                                 sequential(
-                                        waitMs(500.0),
+                                        Commands.wait(500.0),
                                         robot.popper.pop()
                                 )
                         )

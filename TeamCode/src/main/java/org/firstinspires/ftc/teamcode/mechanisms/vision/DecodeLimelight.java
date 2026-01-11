@@ -134,7 +134,7 @@ public class DecodeLimelight implements HwDevice {
         limelight.close();
     }
 
-    public Command detectMotif() {
+    public CommandBuilder detectMotif() {
         return Command.build()
                 .setStart(() -> setCurrentPipeline(Pipeline.OBELISK))
                 .setExecute(this::update)

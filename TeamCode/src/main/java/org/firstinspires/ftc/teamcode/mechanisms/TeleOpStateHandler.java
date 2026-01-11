@@ -32,7 +32,7 @@ public final class TeleOpStateHandler {
     public record Transition(
             RobotStateHandler.CycleState from,
             RobotStateHandler.CycleState to,
-            Command command
+            CommandBuilder command
     ) implements GraphElement {
 
         @Override
@@ -57,7 +57,7 @@ public final class TeleOpStateHandler {
     }
 
     private record TransitionRequest(
-            Command command,
+            CommandBuilder command,
             RobotStateHandler.CycleState next,
             boolean force
     ) {}
@@ -102,19 +102,19 @@ public final class TeleOpStateHandler {
             abortCounter.incrementAndGet();
     }
 
-    public Command runTransition(
-            Command command,
+    public CommandBuilder runTransition(
+            CommandBuilder command,
             RobotStateHandler.CycleState next
     ) {
         return runTransition(command, next, force);
     }
 
-    public Command runTransition(Runnable command, RobotStateHandler.CycleState next) {
+    public CommandBuilder runTransition(Runnable command, RobotStateHandler.CycleState next) {
         return runTransition(instant(command), next);
     }
 
-    public Command runTransition(
-            Command command,
+    public CommandBuilder runTransition(
+            CommandBuilder command,
             RobotStateHandler.CycleState next,
             boolean force
     ) {
@@ -125,7 +125,7 @@ public final class TeleOpStateHandler {
         );
     }
 
-    public Command runTransition(Runnable command, RobotStateHandler.CycleState next, boolean force) {
+    public CommandBuilder runTransition(Runnable command, RobotStateHandler.CycleState next, boolean force) {
         return runTransition(instant(command), next, force);
     }
 
@@ -143,8 +143,8 @@ public final class TeleOpStateHandler {
         return false;
     }
 
-    private Command start(
-            Command command,
+    private CommandBuilder start(
+            CommandBuilder command,
             RobotStateHandler.CycleState next
     ) {
         AtomicInteger snapshot = new AtomicInteger();
@@ -169,8 +169,8 @@ public final class TeleOpStateHandler {
         );
     }
 
-    private Command queue(
-            Command command,
+    private CommandBuilder queue(
+            CommandBuilder command,
             RobotStateHandler.CycleState next,
             boolean force
     ) {
@@ -181,7 +181,7 @@ public final class TeleOpStateHandler {
         );
     }
 
-    private Command consumeQueued() {
+    private CommandBuilder consumeQueued() {
         return lazy(() -> {
             if (queued != null) {
                 TransitionRequest r = queued;
@@ -212,7 +212,7 @@ public final class TeleOpStateHandler {
         adj = new Matrix(m);
     }
 
-    public Command setting(Command setting) {
+    public CommandBuilder setting(CommandBuilder setting) {
         return conditional(
                 () -> force || current instanceof RobotStateHandler.CycleState,
                 setting,
@@ -225,8 +225,8 @@ public final class TeleOpStateHandler {
         );
     }
 
-    public Command setting(
-            Command setting,
+    public CommandBuilder setting(
+            CommandBuilder setting,
             List<GraphElement> dependencies
     ) {
         return conditional(
@@ -241,8 +241,8 @@ public final class TeleOpStateHandler {
         );
     }
 
-    public Command task(
-            Command task,
+    public CommandBuilder task(
+            CommandBuilder task,
             RobotStateHandler.CycleState state
     ) {
         return conditional(
@@ -257,8 +257,8 @@ public final class TeleOpStateHandler {
         );
     }
 
-    public Command task(
-            Command task,
+    public CommandBuilder task(
+            CommandBuilder task,
             int[] componentVector
     ) {
         return conditional(
@@ -280,19 +280,19 @@ public final class TeleOpStateHandler {
         return force;
     }
 
-    public Command setting(Runnable setting) {
+    public CommandBuilder setting(Runnable setting) {
         return setting(instant(setting));
     }
 
-    public Command task(Runnable task, int[] componentVector) {
+    public CommandBuilder task(Runnable task, int[] componentVector) {
         return task(instant(task), componentVector);
     }
 
-    public Command task(Runnable task, RobotStateHandler.CycleState state) {
+    public CommandBuilder task(Runnable task, RobotStateHandler.CycleState state) {
         return task(instant(task), state);
     }
 
-    public Command override(Command overrideAction, RobotStateHandler.Message nextState) {
+    public CommandBuilder override(CommandBuilder overrideAction, RobotStateHandler.Message nextState) {
         return sequential(
                 instant(this::abortTransition),
                 overrideAction,

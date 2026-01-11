@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.lazy;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
 import com.pedropathing.ivy.Command;
@@ -29,13 +28,13 @@ public class Popper extends HwServo {
         super(hwMap, "popper");
     }
 
-    public Command pop() {
+    public CommandBuilder pop() {
         return lazy(() -> {
             if (!Objects.equals(getState(), PopperState.POP.name())) {
                 return stateMachine.runTransition(
                         sequential(
                                 instant(() -> setPosition(POP)),
-                                waitMs(250.0)
+                                Commands.wait(250.0)
                         ),
                         PopperState.POP
                 );
@@ -45,13 +44,13 @@ public class Popper extends HwServo {
         });
     }
 
-    public Command neutral() {
+    public CommandBuilder neutral() {
         return lazy(() -> {
             if (!Objects.equals(getState(), PopperState.NEUTRAL.name())) {
                 return stateMachine.runTransition(
                         sequential(
                                 instant(() -> setPosition(NEUTRAL)),
-                                waitMs(250.0)
+                                Commands.wait(250.0)
                         ),
                         PopperState.NEUTRAL
                 );

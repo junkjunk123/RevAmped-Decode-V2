@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.conditional;
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
-import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.ivy.commands.Commands;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -76,7 +74,7 @@ public class Robot {
         if (!teleop) schedule(init());
     }
 
-    public Command init() {
+    public CommandBuilder init() {
         return parallel(
                 instant(hood::rest),
                 popper.neutral(),
@@ -128,7 +126,7 @@ public class Robot {
         robotState = message.cycleState();
     }
 
-    public Command sort() {
+    public CommandBuilder sort() {
         AtomicReadOnce<Table.RelativeState> reader = table.pendingStateReader();
         return table.setState(() -> {
             if (Globals.randomizationState == null) return reader.read().ordinal();
@@ -136,14 +134,14 @@ public class Robot {
         );
     }
 
-    public Command shootAll() {
+    public CommandBuilder shootAll() {
         return sequential(
                 instant(intakeMotor::intake),
                 table.fullRotation()
         );
     }
 
-    public Command shootAll(Supplier<Double> delay) {
+    public CommandBuilder shootAll(Supplier<Double> delay) {
         AtomicReference<float[]> shootSequence = new AtomicReference<>();
         return conditional(
                 () -> delay.get() < 10,
@@ -155,23 +153,23 @@ public class Robot {
                         }),
                         table.setPos(() -> shootSequence.get()[0]),
                         instant(intakeMotor::stop),
-                        waitMs(delay.get()),
+                        Commands.wait(delay.get()),
                         instant(intakeMotor::intakeSlow),
                         table.setPos(() -> shootSequence.get()[1]),
                         instant(intakeMotor::shooting),
-                        waitMs(delay.get()),
+                        Commands.wait(delay.get()),
                         table.setPos(() -> shootSequence.get()[2] + Table.FULL_REVOLUTION / 3),
                         instant(tableCompartments::removeAll)
                 )
         );
     }
 
-    public Command shootAll(double delay) {
+    public CommandBuilder shootAll(double delay) {
         if (delay < 10) return shootAll();
         return shootAll(() -> delay);
     }
 
-    public Command resetShooter() {
+    public CommandBuilder resetShooter() {
         return parallel(
                 turret.resetTurret(),
                 instant(() -> {
@@ -181,24 +179,24 @@ public class Robot {
         );
     }
 
-    public Command resetAfterShooting() {
+    public CommandBuilder resetAfterShooting() {
         return parallel(
                 resetShooter(),
                 resetTableAfterShooting()
         );
     }
 
-    public Command resetTableAfterShooting() {
+    public CommandBuilder resetTableAfterShooting() {
         return sequential(
                 instant(intakeMotor::stop),
                 table.reset(),
-                waitMs(500.0),
+                Commands.wait(500.0),
                 instant(intakeMotor::intake),
                 popper.neutral()
         );
     }
 
-    public Command sortAndShoot() {
+    public CommandBuilder sortAndShoot() {
         return sequential(
                 sort(),
                 parallel(

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
@@ -45,28 +44,28 @@ public class PinpointTestAuto extends OpModeCommand {
                 //following the actual pathing
                 drivetrain.followNext(d -> d.velocityCondition(4)),
                 parallel(
-                waitMs(1000.0),
+                Commands.wait(1000.0),
                         instant(() -> octocanum.engage())
                         ),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
                 parallel(
-                waitMs(1000.0),
+                Commands.wait(1000.0),
                         instant(() -> octocanum.raise())
                         ),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                        waitMs(1000.0),
+                        Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                        waitMs(1000.0),
+                        Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                Commands.wait(1000.0),
                 drivetrain.followNext(d -> d.velocityCondition(4))
                 )
         );
