@@ -81,7 +81,7 @@ public class Robot {
                 new Instant(hood::rest),
                 popper.neutral(),
                 table.reset(),
-                instant(octocanum::raise),
+                new Instant(octocanum::raise),
                 turret.runToState(Turret.MoveState.PresetState.REST)
 
         );

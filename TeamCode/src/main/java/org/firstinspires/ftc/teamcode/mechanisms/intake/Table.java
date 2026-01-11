@@ -221,6 +221,7 @@ public class Table extends HwServo {
         BALL1_END = BALL_0_END + diff;
         BALL2_END = BALL1_END + diff;
     }
+
     public static void setValues(float BALL_0, float BALL_1, float BALL_2, float BALL_0_END, float BALL_1_END, float BALL_2_END, float FULL_REVOLUTION_TICKS){
         FULL_REVOLUTION = FULL_REVOLUTION_TICKS;
         BALL0 = BALL_0;
