@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -77,13 +78,14 @@ public class Table extends HwServo {
     public static float FULL_REVOLUTION;
     public static double MS_PER_REVOLUTION = 1000;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
-    private final Encoder encoder;
+    private final EncoderImpl encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
     private final HwServo tableServo2;
+    private boolean atRelativeState = true;
 
     public Table(HardwareMap hwMap, Encoder rawEncoder) {
         super(hwMap, "table");
-        this.encoder = rawEncoder;
+        this.encoder = new EncoderImpl(rawEncoder);
         tableServo2 = new HwServo(hwMap, "table2");
     }
 
@@ -113,6 +115,7 @@ public class Table extends HwServo {
 
     public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
         AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
+        AtomicReadOnce<Double> accelTime = getAccelerationTime(true);
         Tele.state = stateVal;
         return new Lazy(() -> {
            if (atPos(stateVal.read().target())) return Commands.NOOP;
@@ -124,11 +127,12 @@ public class Table extends HwServo {
                            }),
                            new Race(
                                    new Sequential(
-                                           new Wait(250),
+                                           new Wait(accelTime.read()),
                                            new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                    ),
                                    new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
-                           )
+                           ),
+                           new Instant(() -> atRelativeState = true)
                    ),
                    stateVal::read
            );
@@ -164,6 +168,7 @@ public class Table extends HwServo {
 
     public ICommand setPos(Supplier<Float> pos) {
         float[] position = new float[1];
+        AtomicReadOnce<Double> accelTime = getAccelerationTime(false);
         return new Conditional(
                 () -> atPos(pos.get()),
                 Commands.NOOP,
@@ -175,13 +180,21 @@ public class Table extends HwServo {
                         }),
                         new Race(
                                 new Sequential(
-                                        new Wait(250),
+                                        new Wait(accelTime.read()),
                                         new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                 ),
                                 new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
-                        )
+                        ),
+                        new Instant(() -> atRelativeState = false)
                 )
         );
+    }
+
+    private AtomicReadOnce<Double> getAccelerationTime(boolean targetRelative) {
+        return new AtomicReadOnce<>(() -> {
+            if (atRelativeState != targetRelative) return 600.0;
+            else return 250.0;
+        });
     }
 
     public RelativeState getState() {
@@ -211,6 +224,7 @@ public class Table extends HwServo {
 
     public void update() {
         super.update();
+        encoder.update();
     }
 
     public StateMachine<RelativeState> getStateHandler() {
@@ -224,6 +238,8 @@ public class Table extends HwServo {
     @Override
     public boolean setPosition(double pos) {
         if (tableServo2 != null) tableServo2.setPosition(pos);
-        return super.setPosition(pos);
+        boolean moved = super.setPosition(pos);
+        if (moved) encoder.reset();
+        return moved;
     }
 }

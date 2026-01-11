@@ -26,9 +26,8 @@ import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 @Config
 @TeleOp(name = "DCTeleOp")
 public class Tele extends OpModeCommand {
-    private BooleanSwitch a, y, dpadUp1, dpadDown1, dpadLeft1, rightTrigger1, leftTrigger1, rightBumper1,
-            leftBumper1, b1, x1, b2, y2, dpadRight2, rightTrigger2, rightBumper2, leftBumper2,
-            x2, dpadUp2, dpadDown2;
+    private GamepadEx gamepad_1;
+    private GamepadEx gamepad_2;
     private Robot robot;
     private TeleOpStateHandler tsh;
     public static AtomicReadOnce<Table.RelativeState> state;
@@ -37,31 +36,13 @@ public class Tele extends OpModeCommand {
     public void initialize() {
         robot = new Robot(hardwareMap);
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
-        GamepadEx gamepad_1 = new GamepadEx(gamepad1);
-        GamepadEx gamepad_2 = new GamepadEx(gamepad2);
-
-        // Initialize switches
-        a = gamepad_1.a.risingEdge();
-        y = gamepad_1.y.risingEdge();
-        dpadUp1 = gamepad_1.dpad_up.risingEdge();
-        dpadDown1 = gamepad_1.dpad_down.risingEdge();
-        dpadLeft1 = gamepad_1.dpad_left.risingEdge();
-        rightTrigger1 = gamepad_1.right_trigger.greaterThan(0.3f).risingEdge();
-        leftTrigger1 = gamepad_1.left_trigger.greaterThan(0.3f).risingEdge();
-        rightBumper1 = gamepad_1.right_bumper.risingEdge();
-        leftBumper1 = gamepad_1.left_bumper.risingEdge();
-        b1 = gamepad_1.b.risingEdge();
-        x1 = gamepad_1.x.risingEdge();
-
-        b2 = gamepad_2.b.risingEdge();
-        y2 = gamepad_2.y.risingEdge();
-        dpadRight2 = gamepad_2.dpad_right.risingEdge();
-        rightTrigger2 = gamepad_2.right_trigger.greaterThan(0.3f).risingEdge();
-        rightBumper2 = gamepad_2.right_bumper.risingEdge();
-        leftBumper2 = gamepad_2.left_bumper.risingEdge();
-        x2 = gamepad_2.x.risingEdge();
-        dpadUp2 = gamepad_2.dpad_up.risingEdge();
-        dpadDown2 = gamepad_2.dpad_down.risingEdge();
+        gamepad_1 = new GamepadEx(gamepad1);
+        gamepad_2 = new GamepadEx(gamepad2);
+        
+        gamepad_1.left_trigger_button(f -> f.greaterThan(0.3f));
+        gamepad_1.right_trigger_button(f -> f.greaterThan(0.3f));
+        gamepad_2.left_trigger_button(f -> f.greaterThan(0.3f));
+        gamepad_2.right_trigger_button(f -> f.greaterThan(0.3f));
 
         // Schedule robot update loop
         schedule(new Infinite(() -> {
@@ -72,43 +53,51 @@ public class Tele extends OpModeCommand {
         // Initialize robot
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
-                robot.init()
+                robot.init(),
+                new Sequential(
+                        tsh.runTransition(() -> {}, RobotStateHandler.CycleState.INTAKE),
+                        tsh.runTransition(
+                                new Sequential(robot.popper.pop()),
+                                RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                        ),
+                        tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                        tsh.runTransition(new Sequential(
+                                robot.shootAll(),
+                                robot.resetAfterShooting()
+                        ), RobotStateHandler.CycleState.INTAKE)
+                )
         ));
     }
 
     @Override
     public void execute() {
         // Update switches
-        a.update(); y.update(); dpadUp1.update(); dpadDown1.update(); dpadLeft1.update();
-        rightTrigger1.update(); leftTrigger1.update(); rightBumper1.update(); leftBumper1.update();
-        b1.update(); x1.update();
-
-        b2.update(); y2.update(); dpadRight2.update(); rightTrigger2.update(); rightBumper2.update();
-        leftBumper2.update(); x2.update(); dpadUp2.update(); dpadDown2.update();
+        gamepad_1.update();
+        gamepad_2.update();
 
         // Schedule commands based on triggers
-        if (a.isTrue()) schedule(new Instant(() -> TrackingThread.trackTurret = true));
-        if (y.isTrue()) schedule(new Instant(() -> tsh.setForce(!tsh.isForce())));
-        if (dpadUp1.isTrue()) schedule(tsh.setting(robot::shootFar));
-        if (dpadDown1.isTrue()) schedule(tsh.setting(robot::shootNear));
-        if (dpadLeft1.isTrue()) schedule(tsh.setting(robot::shootMedium));
-        if (rightTrigger1.isTrue()) schedule(tsh.task(
-                () -> robot.turret.runToPos(robot.turret.getTargetPosition() + (int) (20 * gamepad1.right_trigger)),
+        if (gamepad_1.a.isRisingEdge()) schedule(new Instant(() -> TrackingThread.trackTurret = true));
+        if (gamepad_1.y.isRisingEdge()) schedule(new Instant(() -> tsh.setForce(!tsh.isForce())));
+        if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
+        if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));
+        if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
+        if (gamepad1.right_trigger > 0.3f) schedule(tsh.task(
+                () -> robot.turret.finetune((int) (20 * gamepad1.right_trigger)),
                 new int[]{1, 1, 0}
         ));
-        if (leftTrigger1.isTrue()) schedule(tsh.task(
-                () -> robot.turret.runToPos(robot.turret.getTargetPosition() - (int) (20 * gamepad1.left_trigger)),
+        if (gamepad1.left_trigger > 0.3f) schedule(tsh.task(
+                () -> robot.turret.finetune(- (int) (20 * gamepad1.left_trigger)),
                 new int[]{1, 1, 0}
         ));
-        if (rightBumper1.isTrue()) schedule(tsh.task(robot.turret::next, new int[]{1, 1, 0}));
-        if (leftBumper1.isTrue()) schedule(tsh.task(robot.turret::previous, new int[]{1, 1, 0}));
-        if (b1.isTrue()) schedule(new Sequential(
+        if (gamepad_1.right_bumper.isRisingEdge()) schedule(tsh.task(robot.turret::next, new int[]{1, 1, 0}));
+        if (gamepad_1.left_bumper.isRisingEdge()) schedule(tsh.task(robot.turret::previous, new int[]{1, 1, 0}));
+        if (gamepad_1.b.isRisingEdge()) schedule(new Sequential(
                 new WaitUntil(robot.turret.limitSwitch::state),
                 new Instant(robot.turret::resetPosition)
         ));
-        if (x1.isTrue()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
+        if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
 
-        if (b2.isTrue() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atPower(IntakeMotor.INTAKE))) {
+        if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atPower(IntakeMotor.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(() -> { robot.flywheel.stop(); robot.intakeMotor.intake(); }),
                     robot.table.reset(),
@@ -116,37 +105,42 @@ public class Tele extends OpModeCommand {
             ), RobotStateHandler.CycleState.INTAKE));
         }
 
-        if (y2.isTrue()) schedule(robot.sort());
-        if (dpadRight2.isTrue()) schedule(new Instant(robot.intakeMotor::outtake));
-        if (rightTrigger2.isTrue()) schedule(new Instant(robot.intakeMotor::stop));
-        if (rightBumper2.isTrue()) schedule(tsh.task(
+        if (gamepad_2.y.isRisingEdge()) schedule(robot.sort());
+        if (gamepad_2.right_trigger_button.isRisingEdge()) schedule(new Instant(robot.intakeMotor::outtake));
+        if (gamepad_2.a.isRisingEdge()) schedule(new Instant(robot.intakeMotor::stop));
+        if (gamepad_2.right_bumper.isRisingEdge()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
                         robot.table.previous()
                 ), new int[]{1, 0, 0}
         ));
 
-        if (leftBumper2.isTrue()) schedule(tsh.task(
+        if (gamepad_2.left_bumper.isRisingEdge()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
                         robot.table.next()
                 ), new int[]{1, 0, 0}
         ));
 
-        if (x2.isTrue() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL)) {
+        if (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL)) {
             schedule(tsh.runTransition(
-                    new Sequential(
+                    new Parallel(
                             new Instant(() -> {
                                 //robot.tableCompartments.intakeThread.updateColors();
                                 robot.intakeMotor.stop();
                             }),
-                            robot.popper.pop()
+                            robot.popper.pop(),
+                            new Conditional(
+                                    robot.flywheel::isStopped,
+                                    new Instant(robot::shootMedium),
+                                    Commands.NOOP
+                            )
                     ),
                     RobotStateHandler.CycleState.DRIVE_TO_SHOOT
             ));
         }
 
-        if (dpadUp2.isTrue()) {
+        if (gamepad_2.dpad_up.isRisingEdge()) {
             schedule(new Conditional(
                     () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
                     new Sequential(
@@ -160,7 +154,7 @@ public class Tele extends OpModeCommand {
             ));
         }
 
-        if (dpadDown2.isTrue()) {
+        if (gamepad_2.dpad_down.isRisingEdge()) {
             schedule(new Sequential(
                     tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                     tsh.runTransition(new Sequential(
@@ -171,19 +165,14 @@ public class Tele extends OpModeCommand {
         }
 
         // Telemetry
-        telemetry.addData("intake -> drive", tsh.evaluate(RobotStateHandler.CycleState.DRIVE_TO_SHOOT));
-        telemetry.addData("adj", tsh.getAdj());
-        telemetry.addData("evaluate", tsh.evaluate(RobotStateHandler.CycleState.SHOOT));
-        telemetry.addData("turret", Robot.INSTANCE.turret.getTargetPosition());
-        telemetry.addData("popper", Robot.INSTANCE.popper.atState(Popper.PopperState.NEUTRAL));
-        telemetry.addData("cycleState", tsh.currentState());
-        telemetry.addData("table", robot.table.getState());
-        telemetry.addData("state", state.hasBeenRead() ? state.read() : "null");
+        telemetry.addData("currentState", tsh.currentState());
+        telemetry.addData("tableMoving", robot.table.pendingState() != robot.table.getState());
+        telemetry.addData("tableVel", robot.table.getEncoder().getVelocity());
         telemetry.update();
     }
 
     @Override
     public void end() {
-        Turret.startPos = 0;
+        //Turret.startPos = 0;
     }
 }

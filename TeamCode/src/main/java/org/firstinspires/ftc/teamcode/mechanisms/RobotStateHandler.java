@@ -13,7 +13,9 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class RobotStateHandler {
     public interface Message {
@@ -149,10 +151,7 @@ public class RobotStateHandler {
     }
 
     public static TeleOpStateHandler createTeleOpStateHandler(Robot robot) {
-        HashMap<CycleState, Integer> stateMap = new HashMap<>();
-        stateMap.put(RobotStateHandler.CycleState.INTAKE, 0);
-        stateMap.put(RobotStateHandler.CycleState.DRIVE_TO_SHOOT, 1);
-        stateMap.put(RobotStateHandler.CycleState.SHOOT, 2);
+        List<CycleState> stateMap = List.of(CycleState.INTAKE, CycleState.DRIVE_TO_SHOOT, CycleState.SHOOT);
         return new TeleOpStateHandler(CycleState.INTAKE, stateMap, robot::setRobotState);
     }
 }

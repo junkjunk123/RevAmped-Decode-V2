@@ -89,6 +89,10 @@ public class Turret extends HwMotor {
         move(new MoveState.MoveTo(position));
     }
 
+    public void finetune(int ticks) {
+        setTargetPosition(getPosition() + ticks);
+    }
+
     public ICommand runToPos(int position) {
         return new Sequential(
                 new Instant(() -> setTargetPosition(position)),

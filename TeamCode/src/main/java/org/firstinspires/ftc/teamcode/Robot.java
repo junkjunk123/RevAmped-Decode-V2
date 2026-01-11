@@ -189,7 +189,6 @@ public class Robot {
         return new Sequential(
                 new Instant(intakeMotor::stop),
                 table.reset(),
-                new Wait(500),
                 new Instant(intakeMotor::intake),
                 popper.neutral()
         );

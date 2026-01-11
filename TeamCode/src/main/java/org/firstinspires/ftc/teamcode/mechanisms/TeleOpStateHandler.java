@@ -66,14 +66,14 @@ public final class TeleOpStateHandler {
     private GraphElement current;
     private TransitionRequest queued;
     private Matrix adj;
-    private final HashMap<RobotStateHandler.CycleState, Integer> index;
+    private final List<RobotStateHandler.CycleState> index;
     private final Consumer<RobotStateHandler.Message> mutator;
     private final AtomicInteger abortCounter = new AtomicInteger();
     private boolean force;
 
     public TeleOpStateHandler(
             RobotStateHandler.CycleState initial,
-            HashMap<RobotStateHandler.CycleState, Integer> index,
+            List<RobotStateHandler.CycleState> index,
             Consumer<RobotStateHandler.Message> mutator
     ) {
         this.current = initial;
@@ -203,15 +203,13 @@ public final class TeleOpStateHandler {
             RobotStateHandler.CycleState from,
             RobotStateHandler.CycleState to
     ) {
-        return adj.get(index.get(from), index.get(to)) == 1;
+        return adj.get(index.indexOf(from), index.indexOf(to)) == 1;
     }
 
     private void buildAdjacency() {
-        List<RobotStateHandler.CycleState> states =
-                new ArrayList<>(index.keySet());
-        double[][] m = new double[states.size()][states.size()];
-        for (int i = 0; i < states.size(); i++)
-            m[i] = states.get(i).getTransitionVector();
+        double[][] m = new double[index.size()][index.size()];
+        for (int i = 0; i < index.size(); i++)
+            m[i] = index.get(i).getTransitionVector();
         adj = new Matrix(m);
     }
 
@@ -267,12 +265,12 @@ public final class TeleOpStateHandler {
         return new Conditional(
                 () -> force ||
                         (current instanceof RobotStateHandler.CycleState &&
-                                componentVector[index.get(currentState())] == 1),
+                                componentVector[index.indexOf(currentState())] == 1),
                 task,
                 new Sequential(
                         new WaitUntil(() ->
                                 current instanceof RobotStateHandler.CycleState &&
-                                        componentVector[index.get(currentState())] == 1
+                                        componentVector[index.indexOf(currentState())] == 1
                         ),
                         task
                 )

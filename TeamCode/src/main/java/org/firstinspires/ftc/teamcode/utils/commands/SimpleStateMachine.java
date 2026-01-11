@@ -17,13 +17,9 @@ public class SimpleStateMachine<T> extends StateMachine<T> {
     }
 
     public ICommand runTransition(ICommand transition, Supplier<T> newState) {
-        return new Conditional(
-                () -> currentGraphElement instanceof Node,
-                run(transition, newState),
-                new Sequential(
-                        new Instant(abortCounter::getAndIncrement),
-                        run(transition, newState)
-                )
+        return new Sequential(
+                new Instant(() -> {if (currentGraphElement instanceof Edge) abortCounter.incrementAndGet();}),
+                run(transition, newState)
         );
     }
 
