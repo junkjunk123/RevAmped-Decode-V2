@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
-import static org.firstinspires.ftc.teamcode.utils.Globals.forwardPodY;
-import static org.firstinspires.ftc.teamcode.utils.Globals.strafePodX;
-
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;

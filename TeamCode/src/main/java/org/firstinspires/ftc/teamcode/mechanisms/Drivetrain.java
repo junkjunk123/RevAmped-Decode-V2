@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.race;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.drivetrains.Mecanum;
 import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.CommandBuilder;
-import com.pedropathing.ivy.commands.Commands;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -96,28 +93,28 @@ public class Drivetrain {
     }
 
     public Command followNext(Function<Drivetrain, Boolean> isDone) {
-        return Command.build()
+        return new Command()
                 .setStart(this::followNext)
                 .setDone(() -> isDone.apply(this));
     }
 
     public Command followLast(Function<Drivetrain, Boolean> isDone) {
-        return Command.build()
+        return new Command()
                 .setStart(this::followLast)
                 .setDone(() -> isDone.apply(this));
     }
 
-    public Command followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return race(
+    public Race followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
+        return new Race(
                 followNext(isDone),
-                waitMs(timeout)
+                new Wait(timeout)
         );
     }
 
-    public Command followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return race(
+    public Race followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
+        return new Race(
                 followLast(isDone),
-                waitMs(timeout)
+                new Wait(timeout)
         );
     }
 

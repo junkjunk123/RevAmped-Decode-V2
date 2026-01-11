@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.math.projectile;
 
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
-import org.firstinspires.ftc.teamcode.utils.Range;
 
 public class ProjectileMathWithDrag {
     private static final double g = 386.0885; // gravity in in/s^2

@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.CommandBuilder;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -135,7 +134,7 @@ public class DecodeLimelight implements HwDevice {
     }
 
     public Command detectMotif() {
-        return Command.build()
+        return new Command()
                 .setStart(() -> setCurrentPipeline(Pipeline.OBELISK))
                 .setExecute(this::update)
                 .setDone(() -> getCurrentPipeline() != Pipeline.OBELISK);

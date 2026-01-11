@@ -39,10 +39,8 @@ public class Flywheel extends HwMotor {
     public void update() {
         super.update();
 
-        Globals.telemetry.addData("isRunning", isRunning());
         if (isRunning()) {
             double power = controller.update(getVelocityImperial(), targetVelocity);
-            Globals.telemetry.addData("control output", power);
             setPower(power);
         }
     };

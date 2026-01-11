@@ -2,14 +2,11 @@ package org.firstinspires.ftc.teamcode.opmodes.paths;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
-import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
+import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 
 import java.util.List;
 
@@ -25,8 +22,8 @@ public class PinpointTestPaths implements PathSupplier {
     public static ColoredDecodePose LINEAR_ONE = new ColoredDecodePose(40.832, 49.520);
     public static ColoredDecodePose LINEAR_TWO = new ColoredDecodePose(13.87, 51.919);
     public static ColoredDecodePose TANGENTIAL_ONE = new ColoredDecodePose(55.167, 32.280);
-    public static ColoredDecodePose TANGENTIAL_CONTROL_ONE = new ColoredDecodePose(51.83,89.96);
-    public static ColoredDecodePose TANGENTIAL_CONTROL_TWO = new ColoredDecodePose(67.87,37.12);
+    public static ColoredDecodePose TANGENTIAL_CONTROL_ONE = new ColoredDecodePose(89.92,82.91);
+    public static ColoredDecodePose TANGENTIAL_CONTROL_TWO = new ColoredDecodePose(92.54,32.28);
     public static ColoredDecodePose RESET = new ColoredDecodePose(55.348, 6.914, Math.PI);
 
     @Override
