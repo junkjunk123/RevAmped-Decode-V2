@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.utils.commands;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.groups.Sequential;
 
-import static com.pedropathing.ivy.commands.Commands.conditional;
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitUntil;
-import static com.pedropathing.ivy.groups.Groups.race;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.ivy.CommandBuilder;
+import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -18,29 +18,29 @@ public class SimpleStateMachine<T> extends StateMachine<T> {
         super(initialState);
     }
 
-    public CommandBuilder runTransition(CommandBuilder transition, Supplier<T> newState) {
-        return conditional(
+    public ICommand runTransition(ICommand transition, Supplier<T> newState) {
+        return new Conditional(
                 () -> currentGraphElement instanceof Node,
                 run(transition, newState),
-                sequential(
-                        instant(abortCounter::getAndIncrement),
+                new Sequential(
+                        new Instant(abortCounter::getAndIncrement),
                         run(transition, newState)
                 )
         );
     }
 
-    private CommandBuilder run( CommandBuilder transition, Supplier<T> newState) {
+    private ICommand run(ICommand transition, Supplier<T> newState) {
         AtomicInteger current = new AtomicInteger();
-        return race(
-                sequential(
-                        instant(() -> {
+        return new Race(
+                new Sequential(
+                        new Instant(() -> {
                             currentGraphElement = new Edge(newState.get(), transition);
                             current.set(abortCounter.get());
                         }),
                         transition,
-                        instant(() -> setCurrentState(newState.get()))
+                        new Instant(() -> setCurrentState(newState.get()))
                 ),
-                waitUntil(() -> abortCounter.get() > current.get())
+                new WaitUntil(() -> abortCounter.get() > current.get())
         );
     }
 

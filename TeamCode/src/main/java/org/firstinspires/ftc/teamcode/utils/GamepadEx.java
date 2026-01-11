@@ -2,12 +2,6 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 public class GamepadEx {
     public final BooleanSwitch b;
     public final BooleanSwitch a;
@@ -25,17 +19,12 @@ public class GamepadEx {
     public final BooleanSwitch right_stick_button;
     public final BooleanSwitch touchpad;
 
-    public Set<BooleanSwitch> buttons;
-
     public final FloatSupplier right_trigger;
     public final FloatSupplier left_trigger;
     public final FloatSupplier right_stick_y;
     public final FloatSupplier right_stick_x;
     public final FloatSupplier left_stick_y;
     public final FloatSupplier left_stick_x;
-
-    public BooleanSwitch right_trigger_button;
-    public BooleanSwitch left_trigger_button;
 
     public GamepadEx(Gamepad gamepad) {
         a = new BooleanSwitch(() -> gamepad.a);
@@ -59,27 +48,23 @@ public class GamepadEx {
         left_stick_x = new FloatSupplier(() -> gamepad.left_stick_x);
         right_stick_y = new FloatSupplier(() -> gamepad.right_stick_y);
         left_stick_y = new FloatSupplier(() -> gamepad.left_stick_y);
-        buttons = new HashSet<>(List.of(
-                a, b, x, y, left_bumper, right_bumper, start, back, dpad_left, dpad_right, dpad_down, dpad_up, left_stick_button,
-                right_stick_button, touchpad
-        ));
-    }
-
-    public void apply(Function<BooleanSwitch, BooleanSwitch> function) {
-        buttons = buttons.stream().map(function).collect(Collectors.toSet());
-    }
-
-    public void left_trigger_button(Function<FloatSupplier, BooleanSwitch> f) {
-        left_trigger_button = f.apply(left_trigger);
-        buttons.add(left_trigger_button);
-    }
-
-    public void right_trigger_button(Function<FloatSupplier, BooleanSwitch> f) {
-        right_trigger_button = f.apply(right_trigger);
-        buttons.add(right_trigger_button);
     }
 
     public void update() {
-        for (BooleanSwitch button : buttons) button.update();
+        a.update();
+        b.update();
+        x.update();
+        y.update();
+        left_bumper.update();
+        right_bumper.update();
+        start.update();
+        back.update();
+        dpad_left.update();
+        dpad_down.update();
+        dpad_right.update();
+        dpad_up.update();
+        left_stick_button.update();
+        right_stick_button.update();
+        touchpad.update();
     }
 }

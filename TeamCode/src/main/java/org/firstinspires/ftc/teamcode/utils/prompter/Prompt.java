@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.prompter;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.utils.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;

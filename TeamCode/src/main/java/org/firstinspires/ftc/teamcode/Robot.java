@@ -1,22 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
-import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.commands.Commands.conditional;
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.groups.Groups.parallel;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.ivy.CommandBuilder;
-import com.pedropathing.ivy.commands.Commands;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.CycleState;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.DriveMessage;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.IntakeMessage;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistance;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -29,10 +24,16 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.CycleState;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.DriveMessage;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.IntakeMessage;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Supplier;
 
 public class Robot {
@@ -71,12 +72,12 @@ public class Robot {
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, teleop);
         tableCompartments = new TableCompartmentManager(intakeColor);
-        if (!teleop) schedule(init());
+        if (!teleop) Scheduler.getInstance().schedule(init());
     }
 
-    public CommandBuilder init() {
-        return parallel(
-                instant(hood::rest),
+    public ICommand init() {
+        return new Parallel(
+                new Instant(hood::rest),
                 popper.neutral(),
                 table.reset(),
                 turret.runToState(Turret.MoveState.PresetState.REST)
@@ -126,7 +127,7 @@ public class Robot {
         robotState = message.cycleState();
     }
 
-    public CommandBuilder sort() {
+    public ICommand sort() {
         AtomicReadOnce<Table.RelativeState> reader = table.pendingStateReader();
         return table.setState(() -> {
             if (Globals.randomizationState == null) return reader.read().ordinal();
@@ -134,72 +135,72 @@ public class Robot {
         );
     }
 
-    public CommandBuilder shootAll() {
-        return sequential(
-                instant(intakeMotor::intake),
+    public ICommand shootAll() {
+        return new Sequential(
+                new Instant(intakeMotor::intake),
                 table.fullRotation()
         );
     }
 
-    public CommandBuilder shootAll(Supplier<Double> delay) {
+    public ICommand shootAll(Supplier<Double> delay) {
         AtomicReference<float[]> shootSequence = new AtomicReference<>();
-        return conditional(
+        return new Conditional(
                 () -> delay.get() < 10,
                 shootAll(),
-                sequential(
-                        instant(() -> {
+                new Sequential(
+                        new Instant(() -> {
                             intakeMotor.intakeSlow();
                             shootSequence.set(table.getState().getShootStates());
                         }),
                         table.setPos(() -> shootSequence.get()[0]),
-                        instant(intakeMotor::stop),
-                        Commands.wait(delay.get()),
-                        instant(intakeMotor::intakeSlow),
+                        new Instant(intakeMotor::stop),
+                        new Wait(delay.get()),
+                        new Instant(intakeMotor::intakeSlow),
                         table.setPos(() -> shootSequence.get()[1]),
-                        instant(intakeMotor::shooting),
-                        Commands.wait(delay.get()),
+                        new Instant(intakeMotor::shooting),
+                        new Wait(delay.get()),
                         table.setPos(() -> shootSequence.get()[2] + Table.FULL_REVOLUTION / 3),
-                        instant(tableCompartments::removeAll)
+                        new Instant(tableCompartments::removeAll)
                 )
         );
     }
 
-    public CommandBuilder shootAll(double delay) {
+    public ICommand shootAll(double delay) {
         if (delay < 10) return shootAll();
         return shootAll(() -> delay);
     }
 
-    public CommandBuilder resetShooter() {
-        return parallel(
+    public ICommand resetShooter() {
+        return new Parallel(
                 turret.resetTurret(),
-                instant(() -> {
+                new Instant(() -> {
                     flywheel.stop();
                     hood.rest();
                 })
         );
     }
 
-    public CommandBuilder resetAfterShooting() {
-        return parallel(
+    public ICommand resetAfterShooting() {
+        return new Parallel(
                 resetShooter(),
                 resetTableAfterShooting()
         );
     }
 
-    public CommandBuilder resetTableAfterShooting() {
-        return sequential(
-                instant(intakeMotor::stop),
+    public ICommand resetTableAfterShooting() {
+        return new Sequential(
+                new Instant(intakeMotor::stop),
                 table.reset(),
-                Commands.wait(500.0),
-                instant(intakeMotor::intake),
+                new Wait(500),
+                new Instant(intakeMotor::intake),
                 popper.neutral()
         );
     }
 
-    public CommandBuilder sortAndShoot() {
-        return sequential(
+    public ICommand sortAndShoot() {
+        return new Sequential(
                 sort(),
-                parallel(
+                new Parallel(
                         turret.reached(),
                         popper.pop()
                 ),

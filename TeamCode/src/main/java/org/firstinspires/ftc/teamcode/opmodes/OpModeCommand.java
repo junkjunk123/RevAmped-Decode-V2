@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.pedropathing.ivy.CommandBuilder;
+import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -23,7 +23,7 @@ public abstract class OpModeCommand extends LinearOpMode {
 
         while (opModeIsActive()) {
             execute();
-            Scheduler.execute();
+            Scheduler.getInstance().execute();
 
             if (isStopRequested()) {
                 reset();
@@ -36,14 +36,14 @@ public abstract class OpModeCommand extends LinearOpMode {
      * Cancels all previous commands
      */
     public void reset() {
-        Scheduler.reset();
+        Scheduler.getInstance().reset();
     }
 
     /**
      * Schedules objects to the scheduler
      */
-    public void schedule(CommandBuilder... commands) {
-        Scheduler.schedule(commands);
+    public void schedule(ICommand... commands) {
+        Scheduler.getInstance().schedule(commands);
     }
 
     public abstract void initialize();

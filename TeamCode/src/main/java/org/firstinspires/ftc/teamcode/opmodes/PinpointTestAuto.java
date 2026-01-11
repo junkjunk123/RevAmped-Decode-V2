@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.pedropathing.ivy.commands.Infinite;
-import com.pedropathing.ivy.commands.Instant;
-import com.pedropathing.ivy.commands.Wait;
-import com.pedropathing.ivy.commands.WaitUntil;
-import com.pedropathing.ivy.groups.Parallel;
-import com.pedropathing.ivy.groups.Sequential;
+import static com.pedropathing.ivy.commands.Commands.infinite;
+import static com.pedropathing.ivy.commands.Commands.waitUntil;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+
+import com.pedropathing.ivy.commands.Commands;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -42,11 +41,13 @@ public class PinpointTestAuto extends OpModeCommand {
                 new Sequential(
                 //following the actual pathing
                 drivetrain.followNext(d -> d.velocityCondition(4)),
+                new Wait(1000),
                 new Parallel(
                 new Wait(1000),
                         new Instant(() -> octocanum.engage())
                         ),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
+                new Wait(1000),
                 new Parallel(
                 new Wait(1000),
                         new Instant(() -> octocanum.raise())

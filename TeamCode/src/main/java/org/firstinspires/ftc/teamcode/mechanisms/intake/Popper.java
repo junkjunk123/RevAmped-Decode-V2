@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.lazy;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.CommandBuilder;
-import com.pedropathing.ivy.commands.Commands;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
@@ -28,35 +27,35 @@ public class Popper extends HwServo {
         super(hwMap, "popper");
     }
 
-    public CommandBuilder pop() {
-        return lazy(() -> {
+    public ICommand pop() {
+        return new Lazy(() -> {
             if (!Objects.equals(getState(), PopperState.POP.name())) {
                 return stateMachine.runTransition(
-                        sequential(
-                                instant(() -> setPosition(POP)),
-                                Commands.wait(250.0)
+                        new Sequential(
+                                new Instant(() -> setPosition(POP)),
+                                new Wait(250)
                         ),
                         PopperState.POP
                 );
             }
 
-            return Command.NOOP;
+            return Commands.NOOP;
         });
     }
 
-    public CommandBuilder neutral() {
-        return lazy(() -> {
+    public ICommand neutral() {
+        return new Lazy(() -> {
             if (!Objects.equals(getState(), PopperState.NEUTRAL.name())) {
                 return stateMachine.runTransition(
-                        sequential(
-                                instant(() -> setPosition(NEUTRAL)),
-                                Commands.wait(250.0)
+                        new Sequential(
+                                new Instant(() -> setPosition(NEUTRAL)),
+                                new Wait(250)
                         ),
                         PopperState.NEUTRAL
                 );
             }
 
-            return Command.NOOP;
+            return Commands.NOOP;
         });
     }
 

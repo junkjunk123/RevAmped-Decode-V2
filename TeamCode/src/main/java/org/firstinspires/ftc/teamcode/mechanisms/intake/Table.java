@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
-import static com.pedropathing.ivy.commands.Commands.conditional;
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.lazy;
-import static com.pedropathing.ivy.commands.Commands.waitUntil;
-import static com.pedropathing.ivy.groups.Groups.race;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.CommandBuilder;
-import com.pedropathing.ivy.commands.Commands;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+import org.firstinspires.ftc.teamcode.utils.commands.QueuedStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
@@ -87,46 +88,47 @@ public class Table extends HwServo {
         tableServo2 = new HwServo(hwMap, "table2");
     }
 
-    public CommandBuilder zero() {
+    public ICommand zero() {
         return setRelativeState(RelativeState.BALL0);
     }
 
-    public CommandBuilder one() {
+    public ICommand one() {
         return setRelativeState(RelativeState.BALL1);
     }
 
-    public CommandBuilder two() {
+    public ICommand two() {
         return setRelativeState(RelativeState.BALL2);
     }
 
-    public CommandBuilder reset() {
+    public ICommand reset() {
         return one();
     }
 
-    public CommandBuilder setState(int state) {
+    public ICommand setState(int state) {
         return setRelativeState(RelativeState.values()[state]);
     }
 
-    public CommandBuilder setState(Supplier<Integer> state) {
+    public ICommand setState(Supplier<Integer> state) {
         return setRelativeState(() -> RelativeState.values()[state.get()]);
     }
 
-    public CommandBuilder setRelativeState(Supplier<RelativeState> relativeState) {
+    public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
         AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
-        return lazy(() -> {
-           if (atPos(stateVal.read().target())) return Command.NOOP;
+        Tele.state = stateVal;
+        return new Lazy(() -> {
+           if (atPos(stateVal.read().target())) return Commands.NOOP;
            return stateHandler.runTransition(
-                   sequential(
-                           instant(() -> {
+                   new Sequential(
+                           new Instant(() -> {
                                distance.set(Math.abs(stateVal.read().target() - getPosition()));
                                setPosition(stateVal.read().target());
                            }),
-                           race(
-                                   sequential(
-                                           Commands.wait(250.0),
-                                           waitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                           new Race(
+                                   new Sequential(
+                                           new Wait(250),
+                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                    ),
-                                   Commands.wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
+                                   new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
                            )
                    ),
                    stateVal::read
@@ -134,21 +136,21 @@ public class Table extends HwServo {
         });
     }
 
-    public CommandBuilder setRelativeState(RelativeState relativeState) {
+    public ICommand setRelativeState(RelativeState relativeState) {
         return setRelativeState(() -> relativeState);
     }
 
-    public CommandBuilder next() {
+    public ICommand next() {
         AtomicReadOnce<RelativeState> reader = pendingStateReader();
         return setRelativeState(() -> reader.read().next());
     }
 
-    public CommandBuilder previous() {
+    public ICommand previous() {
         AtomicReadOnce<RelativeState> reader = pendingStateReader();
         return setRelativeState(() -> reader.read().previous());
     }
 
-    public CommandBuilder fullRotation() {
+    public ICommand fullRotation() {
         AtomicReadOnce<RelativeState> reader = pendingStateReader();
         return setPos(() -> switch (reader.read()) {
             case BALL0 -> BALL0_END;
@@ -157,27 +159,27 @@ public class Table extends HwServo {
         });
     }
 
-    public CommandBuilder setPos(float pos) {
+    public ICommand setPos(float pos) {
         return setPos(() -> pos);
     }
 
-    public CommandBuilder setPos(Supplier<Float> pos) {
+    public ICommand setPos(Supplier<Float> pos) {
         float[] position = new float[1];
-        return conditional(
+        return new Conditional(
                 () -> atPos(pos.get()),
-                Command.NOOP,
-                sequential(
-                        instant(() -> {
+                Commands.NOOP,
+                new Sequential(
+                        new Instant(() -> {
                             position[0] = pos.get();
                             distance.set(Math.abs(position[0] - getPosition()));
                             setPosition(position[0]);
                         }),
-                        race(
-                                sequential(
-                                        Commands.wait(250.0),
-                                        waitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                        new Race(
+                                new Sequential(
+                                        new Wait(250),
+                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                 ),
-                                Commands.wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
+                                new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
                         )
                 )
         );

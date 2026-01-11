@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.control.KalmanFilterParameters;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.math.calc.SingleStateKalman;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
 @Config
@@ -19,6 +21,7 @@ public class Flywheel extends HwMotor {
     public static double AUTO_VELOCITY;
 
     private double targetVelocity;
+    private boolean running;
     private final FlywheelController controller;
 
     public enum FlywheelState {
@@ -39,18 +42,14 @@ public class Flywheel extends HwMotor {
     public void update() {
         super.update();
 
-        Globals.telemetry.addData("isRunning", isRunning());
-        if (isRunning()) {
-            double power = controller.update(getVelocityImperial(), targetVelocity);
-            Globals.telemetry.addData("control output", power);
-            setPower(power);
-        }
+        if (running) setPower(controller.update(getVelocityImperial(), targetVelocity));
     };
 
     public void runToVel(double target) {
         if (Math.abs(targetVelocity - target) > 1.0)
             resetController();
         targetVelocity = target;
+        running = target != 0;
     }
 
     public void medium() {
@@ -69,16 +68,20 @@ public class Flywheel extends HwMotor {
     }
 
     public void auto() {
-        runToVel(AUTO_VELOCITY);
-    }
+        runToVel(AUTO_VELOCITY);}
 
     public void stop() {
+        running = false;
         state = FlywheelState.STOPPED;
         setPower(0);
     }
 
     private void resetController() {
         controller.reset(getVelocityImperial());
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public double getTargetVelocity() {
@@ -112,10 +115,6 @@ public class Flywheel extends HwMotor {
     public double getLaunchVelocity() {
         return targetVelocity / RADIUS * 1.417 * ETA;
     }
-
-    public boolean isStopped() {return state == FlywheelState.STOPPED;}
-
-    public boolean isRunning() {return !isStopped();}
 
     /**
      * @return inches/sec

@@ -18,7 +18,6 @@ public class RobotConstants {
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.AUTO_VELOCITY = 780;
-        Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants
         Hood.REST = 40/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;

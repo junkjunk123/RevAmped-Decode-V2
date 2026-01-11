@@ -8,7 +8,7 @@
             <RevColorSensorV3 name="colorTwo" port="0" bus="1"/>
             <Servo name="table" port="2"/>
             <Servo name="table2" port="3"/>
-            <Servo name="hood" port="0"/>
+            <Servo name="hood" port="5"/>
             <DigitalDevice name="turret_switch" port="0"/>
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
