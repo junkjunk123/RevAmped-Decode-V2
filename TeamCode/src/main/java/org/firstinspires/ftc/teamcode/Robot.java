@@ -5,13 +5,16 @@ import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Parallel;
-import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.CycleState;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.DriveMessage;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.IntakeMessage;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistance;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -26,14 +29,9 @@ import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.CycleState;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.DriveMessage;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.IntakeMessage;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Supplier;
 
 public class Robot {

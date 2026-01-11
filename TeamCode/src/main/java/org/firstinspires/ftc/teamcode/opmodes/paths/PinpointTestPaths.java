@@ -2,14 +2,11 @@ package org.firstinspires.ftc.teamcode.opmodes.paths;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
-import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
+import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
-import org.firstinspires.ftc.teamcode.utils.FollowParameters;
 
 import java.util.List;
 

@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.utils.commands;
 
-import com.pedropathing.ivy.ICommand;
-
-import java.util.Arrays;
-import java.util.function.IntSupplier;
-
 import com.pedropathing.ivy.Chainability;
+import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.groups.Sequential;
+
+import java.util.function.IntSupplier;
 
 /**
  * A command group that runs a command multiple times in sequence for a
@@ -47,11 +45,9 @@ public class Loop extends Sequential {
     public void start() {
         int iterations = iterationsSupplier.getAsInt();
         if (iterations < 1) return;
-        ICommand[] repeatedCommands = new ICommand[iterations];
         for (int i = 0; i < iterations; i++) {
-            repeatedCommands[i] = command.copy();
+            commands[i] = command.copy();
         }
-        commands.addAll(Arrays.asList(repeatedCommands));
         super.start();
     }
 

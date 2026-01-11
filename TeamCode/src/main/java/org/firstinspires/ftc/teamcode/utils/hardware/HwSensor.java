@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.hardware;
+
 import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public abstract class HwSensor<T, S> implements HwDevice {

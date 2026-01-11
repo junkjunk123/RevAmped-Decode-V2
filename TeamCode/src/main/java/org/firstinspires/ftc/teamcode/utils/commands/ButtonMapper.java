@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.utils.commands;
+
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.Scheduler;
 
 import org.firstinspires.ftc.teamcode.utils.BooleanSwitch;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;

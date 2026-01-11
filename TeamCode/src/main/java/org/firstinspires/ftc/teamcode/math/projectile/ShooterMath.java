@@ -9,7 +9,6 @@ import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Matrix;
-import com.pedropathing.math.MatrixUtil;
 import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.util.Range;
 
@@ -19,7 +18,6 @@ import org.firstinspires.ftc.teamcode.math.calc.Angle;
 import org.firstinspires.ftc.teamcode.math.calc.PoseDifferentiator;
 import org.firstinspires.ftc.teamcode.math.calc.Vector3D;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 
 public class ShooterMath {
