@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
+import org.firstinspires.ftc.teamcode.mechanisms.octocanum.Octocanum;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
@@ -45,6 +46,7 @@ public class Robot {
     public final Table table;
     public final Hood hood;
     public final Popper popper;
+    public final Octocanum octocanum;
     public final IntakeMotor intakeMotor;
     public final ColorManager intakeColor;
     public final IntakeDistance intakeDistance;
@@ -62,6 +64,7 @@ public class Robot {
         setBulkReadMode(LynxModule.BulkCachingMode.MANUAL);
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         teleop = pathSupplier == null;
+        octocanum = new Octocanum(hardwareMap);
         turret = new Turret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
@@ -81,7 +84,9 @@ public class Robot {
                 instant(hood::rest),
                 popper.neutral(),
                 table.reset(),
+                instant(octocanum::raise),
                 turret.runToState(Turret.MoveState.PresetState.REST)
+
         );
     }
 
@@ -96,6 +101,7 @@ public class Robot {
         intakeDistance.update();
         hood.update();
         robotState.update();
+        octocanum.update();
     }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {

@@ -32,6 +32,11 @@ public class Octocanum{
             case DOWN -> {raise();}
         }
     }
+
+    public void update(){
+        front.update();
+        back.update();
+    }
     public OctoState getState(){
         return octoState;
     }

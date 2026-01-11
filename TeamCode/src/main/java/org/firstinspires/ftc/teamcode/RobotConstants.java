@@ -32,9 +32,12 @@ public class RobotConstants {
         Turret.TICKS_LIMIT = 560; Turret.RAD_LIMIT = Math.PI / 2; Turret.updateFullRotation();
 
         //Table Constants
-        float TURRET_BALL_0 = 242/255f, TURRET_BALL_1 = 205/255f, TURRET_BALL0_END = 88/255f;
-        Table.setValues(TURRET_BALL_0, TURRET_BALL_1, TURRET_BALL0_END);
+        //float TURRET_BALL_0 = 242/255f, TURRET_BALL_1 = 205/255f, TURRET_BALL0_END = 88/255f;
+        //Table.setValues(TURRET_BALL_0, TURRET_BALL_1, TURRET_BALL0_END);
+        //full rotation 146/255f ball 1 250/255
 
+        float TURRET_BALL_0 = 250/255f, TURRET_BALL_1 = 201/255f, TURRET_BALL_2 = 155/255f, TURRET_BALL_0_END = 100/255f, TURRET_BALL_1_END = 51/255f, TURRET_BALL_2_END = 5, FULL_REVOLUTION_TICKS = 146/255f;
+        Table.setValues(TURRET_BALL_0,TURRET_BALL_1,TURRET_BALL_2, TURRET_BALL_0_END, TURRET_BALL_1_END, TURRET_BALL_2_END,FULL_REVOLUTION_TICKS);
         //ColorSensor Constants
         ColorManager.maxGreenDistanceOne = 60.0f; ColorManager.maxPurpleDistanceOne = 50.0f;
         ColorManager.maxGreenDistanceTwo = 60.0f; ColorManager.maxPurpleDistanceTwo = 60.0f;
