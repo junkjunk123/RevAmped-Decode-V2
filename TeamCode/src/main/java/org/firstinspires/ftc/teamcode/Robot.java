@@ -4,6 +4,7 @@ import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -29,6 +30,9 @@ import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channel;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 
 import java.util.List;
@@ -209,6 +213,23 @@ public class Robot {
                 ),
                 shootAll(() -> Globals.allianceColor == null ? 0.0 : 175.0)
         );
+    }
+
+    public Notifier shootAndReset() {
+        return new Notifier(c -> new Sequential(
+                shootAll(),
+                Channels.send(c, Channels::signal),
+                new Parallel(
+                        new Sequential(
+                                resetTableAfterShooting(),
+                                Channels.send(c, Channels::signal)
+                        ),
+                        new Sequential(
+                                resetShooter(),
+                                Channels.send(c, Channels::signal)
+                        )
+                )
+        ));
     }
 
     public void shootNear() {
