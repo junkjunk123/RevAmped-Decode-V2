@@ -22,7 +22,7 @@ public interface Encoder {
         };
     }
 
-    static Encoder external(DcMotorEx otherMotor) {
+    static Encoder fromMotor(DcMotorEx otherMotor) {
         return new Encoder() {
             @Override
             public int getPosition() {

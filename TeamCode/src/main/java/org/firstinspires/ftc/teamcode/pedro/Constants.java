@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
-import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
@@ -13,10 +12,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.mechanisms.PedroMecanumDrive;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadConstants;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
-import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()

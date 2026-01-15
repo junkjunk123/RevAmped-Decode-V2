@@ -3,14 +3,13 @@ package org.firstinspires.ftc.teamcode.mechanisms.octocanum;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Octocanum {
-    private OctocanumFront front;
-    private OctocanumBack back;
+    private final OctocanumFront front;
+    private final OctocanumBack back;
     private OctoState octoState;
 
     public Octocanum(HardwareMap hardwareMap){
         front = new OctocanumFront(hardwareMap);
         back = new OctocanumBack(hardwareMap);
-        octoState = OctoState.UP;
         raise();
     }
 
@@ -33,8 +32,8 @@ public class Octocanum {
 
     public void toggle(){
         switch (octoState){
-            case UP -> {engage();}
-            case DOWN -> {raise();}
+            case UP -> engage();
+            case DOWN -> raise();
         }
     }
 

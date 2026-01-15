@@ -4,7 +4,6 @@ import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
-import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -30,10 +29,8 @@ import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
-import org.firstinspires.ftc.teamcode.utils.commands.channel.Channel;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
-import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 
 import java.util.List;
@@ -70,7 +67,7 @@ public class Robot {
         turret = new Turret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
-        table = new Table(hardwareMap, Encoder.external(intakeMotor.get()));
+        table = new Table(hardwareMap, Encoder.fromMotor(intakeMotor.get()));
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap);
         intakeColor = new ColorManager(hardwareMap);
