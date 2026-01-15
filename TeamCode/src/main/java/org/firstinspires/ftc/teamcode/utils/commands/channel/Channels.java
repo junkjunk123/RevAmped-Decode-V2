@@ -32,7 +32,7 @@ public class Channels {
 
     public static <T> T receiveLast(Channel<T> channel) {
         @SuppressWarnings("unchecked")
-        T channelMessage = (T) channel.receiveLast();
+        T channelMessage = channel.receiveLast();
         return channelMessage;
     }
 

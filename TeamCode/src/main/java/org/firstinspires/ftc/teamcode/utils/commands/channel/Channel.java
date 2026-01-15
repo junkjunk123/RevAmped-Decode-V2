@@ -23,6 +23,10 @@ public class Channel<T> {
         return stream.pollLast();
     }
 
+    public void clear() {
+        stream.clear();
+    }
+
     public boolean hasMessages() {
         return !stream.isEmpty();
     }
