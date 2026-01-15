@@ -61,7 +61,9 @@ public class Lift extends HwCRServo {
             case RETRACT -> {
                 controller.updateFeedForwardInput(0);
                 controller.updateError(-getPosition());
-                setPower(controller.run());
+                setPower(controller.run() * 0.8);
+
+                if (getPosition() <= 5) rest();
             }
         }
     }

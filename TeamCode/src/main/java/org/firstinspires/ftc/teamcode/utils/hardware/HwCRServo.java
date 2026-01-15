@@ -46,6 +46,7 @@ public class HwCRServo implements HwDevice {
                 .toArray(CRServoImplEx[]::new);
         this.id = Arrays.toString(ids);
         resetPosition();
+        if (encoder == null) throw new IllegalArgumentException("Encoder cannot be null");
         this.encoder = encoder;
     }
 

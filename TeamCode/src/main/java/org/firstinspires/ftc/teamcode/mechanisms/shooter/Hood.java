@@ -26,6 +26,7 @@ public class Hood extends HwServo {
 
     public Hood(HardwareMap hwMap) {
         super(hwMap, "hood");
+        rest();
     }
 
     public void rest() {

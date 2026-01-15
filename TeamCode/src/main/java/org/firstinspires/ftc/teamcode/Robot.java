@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
+import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.octocanum.Octocanum;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
@@ -49,9 +50,11 @@ public class Robot {
     public final IntakeMotor intakeMotor;
     public final ColorManager intakeColor;
     public final IntakeDistance intakeDistance;
+    private Lift lift;
     public final TableCompartmentManager tableCompartments;
     private final boolean teleop;
     private final List<LynxModule> hubs;
+    private final HardwareMap hardwareMap;
     private CycleState robotState = CycleState.INTAKE;
 
     public Robot(HardwareMap hardwareMap) {
@@ -59,11 +62,12 @@ public class Robot {
     }
 
     public Robot(HardwareMap hardwareMap, PathSupplier pathSupplier) {
+        this.hardwareMap = hardwareMap;
         hubs = hardwareMap.getAll(LynxModule.class);
         setBulkReadMode(LynxModule.BulkCachingMode.MANUAL);
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         teleop = pathSupplier == null;
-        octocanum = new Octocanum(hardwareMap);
+        octocanum = teleop ? new Octocanum(hardwareMap) : null;
         turret = new Turret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
@@ -80,12 +84,11 @@ public class Robot {
 
     public ICommand init() {
         return new Parallel(
-                new Instant(hood::rest),
-                popper.neutral(),
-                table.reset(),
-                new Instant(octocanum::raise),
+                new Sequential(
+                        table.reset(),
+                        popper.neutral()
+                ),
                 turret.runToState(Turret.MoveState.PresetState.REST)
-
         );
     }
 
@@ -100,7 +103,13 @@ public class Robot {
         intakeDistance.update();
         hood.update();
         robotState.update();
-        octocanum.update();
+
+        if (teleop) {
+            octocanum.update();
+            drivetrain.update();
+
+            if (lift != null) lift.update();
+        }
     }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {
@@ -243,5 +252,10 @@ public class Robot {
     public void shootMedium() {
         hood.medium();
         flywheel.medium();
+    }
+
+    public void lift() {
+        lift = new Lift(hardwareMap, null);
+        lift.lift();
     }
 }
