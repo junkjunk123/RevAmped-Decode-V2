@@ -3,6 +3,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.octocanum.OctocanumBack;
+import org.firstinspires.ftc.teamcode.mechanisms.octocanum.OctocanumFront;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
@@ -30,6 +32,10 @@ public class RobotConstants {
         Turret.P = 0.01; Turret.F = 0.01;
         Turret.AUTO_PRELOADS = 438; Turret.AUTO_SET_1 = 513; Turret.AUTO_SET_2 = 513; Turret.AUTO_SET_3 = 563; Turret.FAR_AUTO = 691;
         Turret.TICKS_LIMIT = 560; Turret.RAD_LIMIT = Math.PI / 2; Turret.updateFullRotation();
+
+        //Octocanum Constants
+        OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 56/255f;
+        OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 110/255f;
 
         //Table Constants
         //float TURRET_BALL_0 = 242/255f, TURRET_BALL_1 = 205/255f, TURRET_BALL0_END = 88/255f;

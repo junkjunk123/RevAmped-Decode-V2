@@ -24,13 +24,11 @@ dependencies {
     implementation 'org.firstinspires.ftc:FtcCommon:11.0.0'
     implementation 'org.firstinspires.ftc:Vision:11.0.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.pedropathing:ftc:2.0.5'
+    implementation 'com.pedropathing:ftc:2.1.0-SNAPSHOT'
     implementation 'com.pedropathing:telemetry:1.0.0'
     implementation 'com.bylazar:fullpanels:1.0.9'
     implementation 'dev.frozenmilk.sinister:Sloth:0.2.4'
-    implementation('com.pedropathing:ivy:LOCAL') {
-        changing = true
-    }
+    implementation('com.pedropathing:ivy:LOCAL') {changing = true}
     implementation 'com.acmerobotics.slothboard:dashboard:0.2.4+0.4.17'
 }
 

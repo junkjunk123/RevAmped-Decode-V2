@@ -8,24 +8,15 @@ public class OctocanumBack extends HwServo {
     public OctocanumBack(HardwareMap hardwareMap) throws IllegalArgumentException {
         super(hardwareMap, "octo_back");
     }
-    public enum ServoState{
-        UP,
-        DOWN;
-    }
 
-    private ServoState servoState = ServoState.UP;
+    public static float ENGAGED;
+    public static float RAISED;
 
     public void engage(){
-        servoState = ServoState.DOWN;
-        setPosition(162/255f);
+        setPosition(ENGAGED);
     }
 
     public void raise(){
-        servoState = ServoState.UP;
-        setPosition(56/255f);
-    }
-
-    public ServoState getState(){
-        return servoState;
+        setPosition(RAISED);
     }
 }

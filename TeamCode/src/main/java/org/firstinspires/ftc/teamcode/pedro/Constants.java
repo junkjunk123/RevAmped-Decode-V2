@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.mechanisms.PedroMecanumDrive;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadConstants;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
@@ -27,16 +28,6 @@ public class Constants {
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.08, 0, 0.005, 0.0006))
             .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0, 0.01))
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.5, 0, 0.1, 0.0005))
-            .drivePIDFCoefficients(
-                    new FilteredPIDFCoefficients(0.03, 0, 0.0004, 0.6,0.015)
-            )
-            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.005,
-                    0,
-                    0,
-                    0.6,
-                    0.015))
-            .drivePIDFSwitch(5)
             .centripetalScaling(0.00055);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -82,9 +73,10 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                .mecanumDrivetrain(driveConstants)
-                //.pinpointLocalizer(localizerConstants)
-                .setLocalizer(new OctoQuadLocalizer(hardwareMap, octoQuadConstants, OctoQuadLocalizer.InitMode.INITIALIZE_OCTOQUAD))
+                //.mecanumDrivetrain(driveConstants)
+                .pinpointLocalizer(localizerConstants)
+                .setDrivetrain(new PedroMecanumDrive(hardwareMap, driveConstants))
+                //.setLocalizer(new OctoQuadLocalizer(hardwareMap, octoQuadConstants, OctoQuadLocalizer.InitMode.INITIALIZE_OCTOQUAD))
                 .pathConstraints(pathConstraints)
                 .build();
     }
