@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode;
-import com.pedropathing.drivetrain.Drivetrain;
 
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -18,7 +17,7 @@ public class RobotConstants {
         IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f;IntakeMotor.OUTTAKE_SLOW = -0.5f;
 
         //Popper Constants
-        Popper.POP = 128/255f; Popper.NEUTRAL = 150/255f;
+        Popper.POP = 134/255f; Popper.NEUTRAL = 49/255f;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.AUTO_VELOCITY = 780;
@@ -31,7 +30,7 @@ public class RobotConstants {
         Hood.FAR_PRESET = 130/255f; Hood.NEAR_PRESET = 40/255f; Hood.MEDIUM_PRESET = 130/255f;
 
         //Turret Constants
-        Turret.P = 0.01; Turret.F = 0.01;
+        Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
         Turret.AUTO_PRELOADS = 438; Turret.AUTO_SET_1 = 513; Turret.AUTO_SET_2 = 513; Turret.AUTO_SET_3 = 563; Turret.FAR_AUTO = 691;
         Turret.TICKS_LIMIT = 817; Turret.RAD_LIMIT = Math.PI; Turret.updateFullRotation();
 
@@ -39,14 +38,10 @@ public class RobotConstants {
         OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
         OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
 
-        //Table Constants
-        //float TURRET_BALL_0 = 242/255f, TURRET_BALL_1 = 205/255f, TURRET_BALL0_END = 88/255f;
-        //Table.setValues(TURRET_BALL_0, TURRET_BALL_1, TURRET_BALL0_END);
-        //full rotation 146/255f ball 1 250/255
-
         //updated
-        float TURRET_BALL_0 = 239/255f, TURRET_BALL_1 = 203/255f, TURRET_BALL_2 = 168/255f, TURRET_BALL_0_END = 122/255f, TURRET_BALL_1_END = 86/255f, TURRET_BALL_2_END = 51/255f, FULL_REVOLUTION_TICKS = 107/255f;
-        Table.setValues(TURRET_BALL_0,TURRET_BALL_1,TURRET_BALL_2, TURRET_BALL_0_END, TURRET_BALL_1_END, TURRET_BALL_2_END,FULL_REVOLUTION_TICKS);
+        float TABLE_BALL_0 = 237/255f, TABLE_BALL_1 = 202/255f, TABLE_BALL_2 = 164/255f, TABLE_BALL_0_END = 110/255f, TABLE_BALL_1_END = 75/255f, TABLE_BALL_2_END = 37/255f, FULL_REVOLUTION_TICKS = 107/255f;
+        Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
+
         //ColorSensor Constants
         ColorManager.maxGreenDistanceOne = 60.0f; ColorManager.maxPurpleDistanceOne = 50.0f;
         ColorManager.maxGreenDistanceTwo = 60.0f; ColorManager.maxPurpleDistanceTwo = 60.0f;

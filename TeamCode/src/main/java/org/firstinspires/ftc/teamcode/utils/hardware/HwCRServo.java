@@ -22,14 +22,13 @@ public class HwCRServo implements HwDevice {
     public HwCRServo(HardwareMap hardwareMap, String id) {
         this.hardware = new CRServoImplEx[] {HwDevice.init(hardwareMap, CRServoImplEx.class, id)};
         this.id = id;
-        resetPosition();
     }
 
     public HwCRServo(HardwareMap hardwareMap, Encoder encoder, String id) {
         this.hardware = new CRServoImplEx[] {HwDevice.init(hardwareMap, CRServoImplEx.class, id)};
         this.id = id;
-        resetPosition();
         this.encoder = encoder;
+        resetPosition();
     }
 
     public HwCRServo(HardwareMap hardwareMap, String... ids) {
@@ -37,7 +36,6 @@ public class HwCRServo implements HwDevice {
                 .map(s -> HwDevice.init(hardwareMap, CRServoImplEx.class, s))
                 .toArray(CRServoImplEx[]::new);
         this.id = Arrays.toString(ids);
-        resetPosition();
     }
 
     public HwCRServo(HardwareMap hardwareMap, Encoder encoder, String... ids) {
@@ -45,9 +43,9 @@ public class HwCRServo implements HwDevice {
                 .map(s -> HwDevice.init(hardwareMap, CRServoImplEx.class, s))
                 .toArray(CRServoImplEx[]::new);
         this.id = Arrays.toString(ids);
-        resetPosition();
         if (encoder == null) throw new IllegalArgumentException("Encoder cannot be null");
         this.encoder = encoder;
+        resetPosition();
     }
 
     public void setPower(double power) {
@@ -88,8 +86,8 @@ public class HwCRServo implements HwDevice {
     }
 
     public void setDirection(DcMotorSimple.Direction direction) {
-        for (CRServoImplEx motor : hardware)
-            motor.setDirection(direction);
+        for (CRServoImplEx servo : hardware)
+            servo.setDirection(direction);
     }
 
     public void setCachingThreshold(double powerThreshold) {
@@ -110,6 +108,24 @@ public class HwCRServo implements HwDevice {
 
     public void setEncoder(Encoder encoder) {
         this.encoder = encoder;
+    }
+
+    protected void setEncoderBase(int encoderBase) {
+        this.encoderBase = encoderBase;
+    }
+
+    public Encoder getEncoder() {
+        return encoder;
+    }
+
+    public void invalidateCache() {
+        currentPos = null;
+    }
+
+    public void deenergize() {
+        for (CRServoImplEx servo : hardware) {
+            servo.setPwmDisable();
+        }
     }
 
     @NonNull

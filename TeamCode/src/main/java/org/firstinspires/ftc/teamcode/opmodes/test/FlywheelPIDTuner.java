@@ -37,7 +37,7 @@ public class FlywheelPIDTuner extends OpMode {
 
     @Override
     public void loop() {
-        flywheel.runToVel(targetVelocity);
+        flywheel.setVelocity(targetVelocity);
         double vel = flywheel.getVelocityImperial();
         sampleAmount++;
         telemetry.addData("error", targetVelocity - vel);

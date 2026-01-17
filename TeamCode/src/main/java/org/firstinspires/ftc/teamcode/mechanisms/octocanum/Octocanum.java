@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.mechanisms.octocanum;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
+
+import java.util.function.Consumer;
+
 public class Octocanum {
     private final OctocanumFront front;
     private final OctocanumBack back;
@@ -40,6 +44,11 @@ public class Octocanum {
     public void update(){
         front.update();
         back.update();
+    }
+
+    public void apply(Consumer<HwServo> function) {
+        function.accept(front);
+        function.accept(back);
     }
 
     public OctoState getState(){

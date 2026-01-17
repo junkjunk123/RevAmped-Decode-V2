@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.ivy.ICommand;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Config
 public class Turret extends HwMotor {
     public static double RAD_LIMIT;
     public static double TICKS_LIMIT;
@@ -34,11 +36,17 @@ public class Turret extends HwMotor {
     public static double I;
     public static double D;
     public static double F;
-    public static int startPos;
+    public static double P_SECONDARY;
+    public static double I_SECONDARY;
+    public static double D_SECONDARY;
+    public static double F_SECONDARY;
+    public static int PIDF_SWITCH;
+    public static int startPos = 0;
     public static double MS_PER_REVOLUTION = 2000;
     private final AtomicInteger distance = new AtomicInteger(0);
 
-    public sealed interface MoveState permits MoveState.MoveTo, MoveState.PresetState {
+    public sealed interface MoveState permits MoveState.MoveTo, MoveState.PresetState, MoveState.Deenergize {
+        Deenergize DEENERGIZE = new Deenergize();
         enum PresetState implements MoveState {
             LEFT_135,
             LEFT_90,
@@ -66,6 +74,12 @@ public class Turret extends HwMotor {
         int target();
 
         record MoveTo(int target) implements MoveState {}
+        final class Deenergize implements MoveState {
+            @Override
+            public int target() {
+                return 0;
+            }
+        }
     }
 
     public static int ticksPerRotation() {
@@ -74,15 +88,18 @@ public class Turret extends HwMotor {
 
     public final HwDigitalDevice limitSwitch;
     private final PIDFController controller;
+    private final PIDFController secondaryController;
     private MoveState moveState = MoveState.PresetState.REST;
 
     public Turret(HardwareMap hardwareMap) {
         super(hardwareMap, "turret");
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
+        secondaryController = new PIDFController(new PIDFCoefficients(P_SECONDARY, I_SECONDARY, D_SECONDARY, F_SECONDARY));
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch");
-        resetPosition(startPos);
+        setTargetPosition(0);
         setDirection(DcMotorSimple.Direction.REVERSE);
-        limitSwitch.setFlipped(true);
+        setEncoderBase(getEncoder().getPosition() - startPos);
+        invalidateCache();
     }
 
     public void setTargetPosition(int position) {
@@ -114,6 +131,7 @@ public class Turret extends HwMotor {
     private void updateTargetPosition(int target) {
         distance.set(Math.abs(target - getTargetPosition()));
         controller.setTargetPosition(target);
+        secondaryController.setTargetPosition(target);
     }
 
     public void move(MoveState moveState) {
@@ -160,8 +178,42 @@ public class Turret extends HwMotor {
     public void update() {
         super.update();
         limitSwitch.update();
-        controller.updatePosition(getPosition());
-        controller.updateFeedForwardInput(Math.signum(getTargetPosition() - getPosition()));
-        setPower(controller.run());
+
+        if (deenergized()) return;
+
+        double error = getTargetPosition() - getPosition();
+
+        if (Math.abs(error) > PIDF_SWITCH) {
+            controller.updatePosition(getPosition());
+            controller.updateFeedForwardInput(Math.signum(error));
+            setPower(controller.run());
+            return;
+        }
+
+        secondaryController.updatePosition(getPosition());
+        secondaryController.updateFeedForwardInput(Math.signum(error));
+        setPower(secondaryController.run());
+    }
+
+    public ICommand prepareForLift() {
+        return new Sequential(
+                runToPos(FAR_AUTO),
+                new Instant(() -> {
+                    deenergize();
+                    moveState = MoveState.DEENERGIZE;
+                })
+        );
+    }
+
+    public boolean deenergized() {
+        return moveState.equals(MoveState.DEENERGIZE);
+    }
+
+    public PIDFController getController() {
+        return controller;
+    }
+
+    public PIDFController getSecondaryController() {
+        return secondaryController;
     }
 }

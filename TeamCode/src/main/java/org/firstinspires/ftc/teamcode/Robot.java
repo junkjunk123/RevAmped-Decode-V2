@@ -4,9 +4,11 @@ import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
@@ -32,8 +34,8 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
-import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -72,11 +74,12 @@ public class Robot {
         turret = new Turret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
-        table = new Table(hardwareMap, Encoder.fromMotor(intakeMotor.get()));
+        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.leftRear));
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap);
         intakeColor = new ColorManager(hardwareMap);
-        intakeDistance = new IntakeDistance(hardwareMap);
+        //intakeDistance = new IntakeDistance(hardwareMap);
+        intakeDistance = null;
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, teleop);
         tableCompartments = new TableCompartmentManager(intakeColor);
@@ -101,7 +104,7 @@ public class Robot {
         intakeMotor.update();
         table.update();
         popper.update();
-        intakeDistance.update();
+        //intakeDistance.update();
         hood.update();
         robotState.update();
 
@@ -256,7 +259,19 @@ public class Robot {
     }
 
     public ICommand lift() {
-        lift = new Lift(hardwareMap, null);
-        return lift.lift();
+        return new Sequential(
+                new Instant(() -> {
+                    lift = new Lift(hardwareMap, Encoder.fromMotor(intakeMotor.get()));
+                    intakeMotor.deenergize();
+                    flywheel.deenergize();
+                    popper.deenergize();
+                    drivetrain.apply(DcMotorEx::setMotorDisable);
+                    octocanum.apply(HwServo::deenergize);
+                    table.deenergize();
+                    hood.deenergize();
+                }),
+                new WaitUntil(turret::deenergized),
+                lift.lift()
+        );
     }
 }

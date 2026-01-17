@@ -28,10 +28,10 @@ public class Drivetrain {
     private ArrayDeque<FollowParameters> paths;
     public static Pose startPose = new Pose();
     private final List<DcMotorEx> motors;
-    private DcMotorEx leftFront;
-    private DcMotorEx rightFront;
-    private DcMotorEx leftRear;
-    private DcMotorEx rightRear;
+    public final DcMotorEx leftFront;
+    public final DcMotorEx rightFront;
+    public final DcMotorEx leftRear;
+    public final DcMotorEx rightRear;
     private boolean prevVelZero;
     private boolean fieldCentric;
     public static float MAGNITUDE_ZERO = 0.15f;
@@ -43,7 +43,10 @@ public class Drivetrain {
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
         apply(m -> m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
-        initMotors();
+        leftFront = motors.get(0);
+        leftRear = motors.get(1);
+        rightFront = motors.get(2);
+        rightRear = motors.get(3);
         isTeleOp = true;
         follower.update();
     }
@@ -53,7 +56,10 @@ public class Drivetrain {
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
         apply(m -> m.setZeroPowerBehavior(powerBehavior));
-        initMotors();
+        leftFront = motors.get(0);
+        leftRear = motors.get(1);
+        rightFront = motors.get(2);
+        rightRear = motors.get(3);
         isTeleOp = true;
         follower.update();
     }
@@ -64,16 +70,12 @@ public class Drivetrain {
         startPose = paths.startPose();
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
-        initMotors();
-        isTeleOp = false;
-        follower.update();
-    }
-
-    private void initMotors() {
         leftFront = motors.get(0);
         leftRear = motors.get(1);
         rightFront = motors.get(2);
         rightRear = motors.get(3);
+        isTeleOp = false;
+        follower.update();
     }
 
     public void followNext() {

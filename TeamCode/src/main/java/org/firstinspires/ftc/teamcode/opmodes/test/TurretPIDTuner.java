@@ -27,7 +27,7 @@ public class TurretPIDTuner extends OpMode {
     @Override
     public void init() {
         turret = hardwareMap.get(DcMotorEx.class, "turret");
-        limitSwitch = hardwareMap.get(DigitalChannel.class, "turret_limit");
+        limitSwitch = hardwareMap.get(DigitalChannel.class, "turret_switch");
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         startPos = turret.getCurrentPosition();
         turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

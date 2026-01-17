@@ -21,15 +21,15 @@ public class HwMotor implements HwDevice {
     public HwMotor(HardwareMap hardwareMap, String id) {
         this.hardware = new DcMotorEx[] {HwDevice.init(hardwareMap, DcMotorEx.class, id)};
         this.id = id;
-        resetPosition();
         encoder = Encoder.fromMotor(get());
+        resetPosition();
     }
 
     public HwMotor(HardwareMap hardwareMap, String... ids) {
         this.hardware = Arrays.stream(ids).map(s -> HwDevice.init(hardwareMap, DcMotorEx.class, s)).toArray(DcMotorEx[]::new);
         this.id = Arrays.toString(ids);
-        resetPosition();
         encoder = Encoder.fromMotor(get());
+        resetPosition();
     }
 
     public void setPower(double power) {
@@ -102,6 +102,25 @@ public class HwMotor implements HwDevice {
 
     public void setEncoder(Encoder encoder) {
         this.encoder = encoder;
+    }
+
+    protected void setEncoderBase(int encoderBase) {
+        this.encoderBase = encoderBase;
+    }
+
+    public Encoder getEncoder() {
+        return encoder;
+    }
+
+    public void invalidateCache() {
+        currentPos = null;
+    }
+
+    public void deenergize() {
+        for (DcMotorEx motor : hardware) {
+            motor.setPower(0);
+            motor.setMotorDisable();
+        }
     }
 
     @NonNull

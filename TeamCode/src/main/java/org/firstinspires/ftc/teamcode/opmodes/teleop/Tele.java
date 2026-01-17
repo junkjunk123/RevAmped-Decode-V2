@@ -15,10 +15,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
-import org.firstinspires.ftc.teamcode.utils.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
@@ -54,18 +52,18 @@ public class Tele extends OpModeCommand {
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 robot.init(),
-                new Sequential(
-                        tsh.runTransition(() -> {}, RobotStateHandler.CycleState.INTAKE),
-                        tsh.runTransition(
-                                new Sequential(robot.popper.pop()),
-                                RobotStateHandler.CycleState.DRIVE_TO_SHOOT
-                        ),
-                        tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                        tsh.runTransition(new Sequential(
-                                robot.shootAll(),
-                                robot.resetAfterShooting()
-                        ), RobotStateHandler.CycleState.INTAKE)
-                )
+                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.INTAKE)
+                /* ,
+                tsh.runTransition(
+                        new Sequential(robot.popper.pop()),
+                        RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                ),
+                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                tsh.runTransition(new Sequential(
+                        robot.shootAll(),
+                        robot.resetAfterShooting()
+                ), RobotStateHandler.CycleState.INTAKE)
+                 */
         ));
     }
 
@@ -81,14 +79,7 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
-        if (gamepad1.right_trigger > 0.3f) schedule(tsh.task(
-                () -> robot.turret.finetune((int) (20 * gamepad1.right_trigger)),
-                new int[]{1, 1, 0}
-        ));
-        if (gamepad1.left_trigger > 0.3f) schedule(tsh.task(
-                () -> robot.turret.finetune(- (int) (20 * gamepad1.left_trigger)),
-                new int[]{1, 1, 0}
-        ));
+        if (gamepad_1.right_trigger_button.isRisingEdge()) robot.octocanum.toggle();
         if (gamepad_1.right_bumper.isRisingEdge()) schedule(tsh.task(robot.turret::next, new int[]{1, 1, 0}));
         if (gamepad_1.left_bumper.isRisingEdge()) schedule(tsh.task(robot.turret::previous, new int[]{1, 1, 0}));
         if (gamepad_1.b.isRisingEdge()) schedule(new Sequential(
@@ -165,7 +156,11 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_right.isRisingEdge()) {
-            schedule(robot.lift());
+            schedule(new Conditional(
+                    robot.turret::deenergized,
+                    robot.lift(),
+                    robot.turret.prepareForLift()
+            ));
         }
 
         // Telemetry

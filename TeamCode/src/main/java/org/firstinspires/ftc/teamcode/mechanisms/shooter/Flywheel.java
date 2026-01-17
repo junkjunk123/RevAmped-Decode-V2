@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
 @Config
@@ -25,6 +24,7 @@ public class Flywheel extends HwMotor {
         FAR,
         MEDIUM,
         NEAR,
+        TRACKING,
         STOPPED
     }
     private FlywheelState state = FlywheelState.STOPPED;
@@ -45,10 +45,15 @@ public class Flywheel extends HwMotor {
         }
     };
 
-    public void runToVel(double target) {
+    private void runToVel(double target) {
         if (Math.abs(targetVelocity - target) > 1.0)
             resetController();
         targetVelocity = target;
+    }
+
+    public void setVelocity(double target) {
+        runToVel(target);
+        state = FlywheelState.TRACKING;
     }
 
     public void medium() {
@@ -114,6 +119,12 @@ public class Flywheel extends HwMotor {
     public boolean isStopped() {return state == FlywheelState.STOPPED;}
 
     public boolean isRunning() {return !isStopped();}
+
+    @Override
+    public void deenergize() {
+        super.deenergize();
+        state = FlywheelState.STOPPED;
+    }
 
     /**
      * @return inches/sec

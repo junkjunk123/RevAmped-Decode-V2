@@ -132,7 +132,7 @@ public class CloseAuto extends OpModeCommand {
                                 )
                         ),
                         new Instant(() -> {
-                                robot.flywheel.runToVel(Flywheel.AUTO_VELOCITY + flywheelOffset);
+                                robot.flywheel.setVelocity(Flywheel.AUTO_VELOCITY + flywheelOffset);
                                 robot.tableCompartments.populate(intookColors);
                         }),
                         new Sequential(

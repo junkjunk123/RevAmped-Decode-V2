@@ -4,6 +4,7 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Sequential;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
@@ -19,9 +20,13 @@ public class Lift extends HwCRServo {
 
     public Lift(HardwareMap hardwareMap, Encoder encoder) {
         super(hardwareMap, new EncoderImpl(encoder), "lift_left", "lift_right");
+        hardware[0].setDirection(DcMotorSimple.Direction.FORWARD);
+        hardware[1].setDirection(DcMotorSimple.Direction.REVERSE);
+        setEncoderBase(getEncoder().getPosition());
     }
 
     private LiftState state = LiftState.REST;
+    public static int FULLY_RAISED;
 
     public void rest() {
         if (state == LiftState.REST) return;
@@ -38,8 +43,8 @@ public class Lift extends HwCRServo {
                         setPower(1.0f);
                     }),
                     new Wait(500),
-                    new WaitUntil(() -> getVelocity() < 5)
-                            .timeoutAfter(2500),
+                    new WaitUntil(() -> Math.abs(Math.abs(getPosition()) - FULLY_RAISED) < 8)
+                            .timeoutAfter(9000),
                     new Instant(this::rest)
             );
         });

@@ -24,7 +24,7 @@ public class IntakeMotor extends HwMotor {
 
     public IntakeMotor(HardwareMap hardwareMap) {
         super(hardwareMap, "intake");
-        setDirection(DcMotorSimple.Direction.REVERSE);
+        setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     public void intake() {
