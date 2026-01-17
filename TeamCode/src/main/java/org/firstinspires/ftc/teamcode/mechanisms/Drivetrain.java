@@ -48,6 +48,16 @@ public class Drivetrain {
         follower.update();
     }
 
+    public Drivetrain(HardwareMap hardwareMap,DcMotor.ZeroPowerBehavior powerBehavior) {
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(startPose);
+        motors = ((Mecanum) follower.drivetrain).getMotors();
+        apply(m -> m.setZeroPowerBehavior(powerBehavior));
+        initMotors();
+        isTeleOp = true;
+        follower.update();
+    }
+
     public Drivetrain(HardwareMap hardwareMap, PathSupplier paths) {
         follower = Constants.createFollower(hardwareMap);
         this.paths = new ArrayDeque<>(paths.paths(follower));
