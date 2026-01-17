@@ -9,12 +9,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 @Config
 @TeleOp
 public class TurretPIDTuner extends OpMode {
     private DcMotorEx turret;
     public static int targetPosition;
+    private DigitalChannel limitSwitch;
     private int startPos;
     public static double P = 0.01;
     public static double I = 0;
@@ -25,6 +27,7 @@ public class TurretPIDTuner extends OpMode {
     @Override
     public void init() {
         turret = hardwareMap.get(DcMotorEx.class, "turret");
+        limitSwitch = hardwareMap.get(DigitalChannel.class, "turret_limit");
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         startPos = turret.getCurrentPosition();
         turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -35,6 +38,7 @@ public class TurretPIDTuner extends OpMode {
     @Override
     public void init_loop() {
         telemetry.addData("pos", pos());
+        telemetry.addData("switch", limitSwitch.getState());
         telemetry.update();
     }
 
