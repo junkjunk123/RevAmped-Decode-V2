@@ -255,8 +255,8 @@ public class Robot {
         flywheel.medium();
     }
 
-    public void lift() {
+    public ICommand lift() {
         lift = new Lift(hardwareMap, null);
-        lift.lift();
+        return lift.lift();
     }
 }

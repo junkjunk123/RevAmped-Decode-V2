@@ -164,6 +164,10 @@ public class Tele extends OpModeCommand {
             ));
         }
 
+        if (gamepad_2.dpad_right.isRisingEdge()) {
+            schedule(robot.lift());
+        }
+
         // Telemetry
         telemetry.addData("currentState", tsh.currentState());
         telemetry.addData("tableMoving", robot.table.pendingState() != robot.table.getState());
