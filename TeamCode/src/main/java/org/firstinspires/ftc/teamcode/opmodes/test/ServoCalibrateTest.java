@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Config
-@TeleOp(name = "ServoCalibrateTest", group = "Test")
+@TeleOp(name = "ServoCalibrateTest", group = "a")
 public class ServoCalibrateTest extends OpMode {
     private ServoImplEx servo;
     private int posJoy1;
@@ -43,7 +43,7 @@ public class ServoCalibrateTest extends OpMode {
     @Override
     public void init() {
         gamepad_1 = new GamepadEx(gamepad1);
-        servos = List.of("hood","popper","spindexer_1","spindexer_2","octo_front","octo_back");
+        servos = List.of("hood","popper","spindexer_1","spindexer_2","octo_front","octo_back","lift_1","lift_2");
         telemetryA = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         //voltage = hardwareMap.get(AnalogInput.class,"popper_voltage");
         telemetry.addData(">>", "Press start to continue");
