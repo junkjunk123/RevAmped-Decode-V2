@@ -1,12 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
-import static org.firstinspires.ftc.teamcode.pedro.HeadingTuner.d;
-import static org.firstinspires.ftc.teamcode.pedro.HeadingTuner.f;
-import static org.firstinspires.ftc.teamcode.pedro.HeadingTuner.i;
-import static org.firstinspires.ftc.teamcode.pedro.HeadingTuner.p;
-import static org.firstinspires.ftc.teamcode.utils.Globals.forwardPodY;
-import static org.firstinspires.ftc.teamcode.utils.Globals.strafePodX;
-
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
@@ -27,7 +20,7 @@ public class Constants {
             .translationalPIDFCoefficients(new PIDFCoefficients(0.03, 0, 0, 0.015))
             .translationalPIDFSwitch(4.0)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.08, 0, 0.005, 0.0006))
-            .headingPIDFCoefficients(new PIDFCoefficients(p, i, d, f))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0, 0.01))
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.5, 0, 0.1, 0.0005))
             .drivePIDFCoefficients(
                     new FilteredPIDFCoefficients(0.03, 0, 0.0004, 0.6,0.015)
