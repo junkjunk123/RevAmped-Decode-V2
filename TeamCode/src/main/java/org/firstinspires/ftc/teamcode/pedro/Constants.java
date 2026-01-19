@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
 import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -18,13 +19,9 @@ import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12.4)
-            .forwardZeroPowerAcceleration(-29.08)
-            .lateralZeroPowerAcceleration(-69)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.03, 0, 0, 0.015))
-            .translationalPIDFSwitch(4.0)
-            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.08, 0, 0.005, 0.0006))
             .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0, 0.01))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.5, 0, 0.1, 0.0005))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(6.5, 0, 0.1, 0.0015))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.075, 0.0487, 0.002))
             .centripetalScaling(0.00055);
 
     public static MecanumConstants driveConstants = new MecanumConstants()

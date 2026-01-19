@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.commands.channel;
+import com.pedropathing.ivy.commands.WaitUntil;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -33,6 +35,20 @@ public class Channel<T> {
 
     public int size() {
         return stream.size();
+    }
+
+    public WaitUntil listen() {
+        return new WaitUntil(this::hasMessages);
+    }
+
+    public WaitUntil listenAndClear() {
+        return new WaitUntil(() -> {
+            boolean hasMessages = this.hasMessages();
+            if (hasMessages) {
+                this.clear();
+            }
+            return hasMessages;
+        });
     }
 
     Channel() {}

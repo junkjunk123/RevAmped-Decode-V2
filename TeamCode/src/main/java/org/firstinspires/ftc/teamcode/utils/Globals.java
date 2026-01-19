@@ -15,8 +15,10 @@ import org.firstinspires.ftc.teamcode.RobotConstants;
 public final class Globals {
     // Prevent instantiation
 
-    public static double forwardPodY = 3;
-    public static double strafePodX = -4;
+    public static double P = 0.8;
+    public static double I;
+    public static double D;
+    public static double F = 0.01;
 
     private Globals() {
         throw new UnsupportedOperationException("Globals is a utility class and cannot be instantiated");

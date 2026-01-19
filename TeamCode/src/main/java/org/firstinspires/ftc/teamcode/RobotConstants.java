@@ -17,10 +17,10 @@ public class RobotConstants {
         IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f;IntakeMotor.OUTTAKE_SLOW = -0.5f;
 
         //Popper Constants
-        Popper.POP = 132/255f; Popper.NEUTRAL = 49/255f;
+        Popper.POP = 136/255f; Popper.NEUTRAL = 50/255f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.AUTO_VELOCITY = 780;
+        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 780;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants

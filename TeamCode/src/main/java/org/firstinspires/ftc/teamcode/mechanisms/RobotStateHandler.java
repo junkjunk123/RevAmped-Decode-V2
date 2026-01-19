@@ -109,6 +109,14 @@ public class RobotStateHandler {
                     autoTracker.update();
             }
 
+            public static void toggleDefault() {
+                if (CycleState.DRIVE_TO_SHOOT.INSTANCE == DriveState.AUTO_TRACKING) {
+                    CycleState.DRIVE_TO_SHOOT.INSTANCE = DriveState.PASSIVE;
+                } else {
+                    CycleState.DRIVE_TO_SHOOT.INSTANCE = DriveState.AUTO_TRACKING;
+                }
+            }
+
             public double[] getTransitionVector() {
                 return new double[] {1,1,1};
             }

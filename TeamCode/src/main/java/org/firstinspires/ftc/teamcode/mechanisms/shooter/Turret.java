@@ -45,8 +45,9 @@ public class Turret extends HwMotor {
     public static double MS_PER_REVOLUTION = 2000;
     private final AtomicInteger distance = new AtomicInteger(0);
 
-    public sealed interface MoveState permits MoveState.MoveTo, MoveState.PresetState, MoveState.Deenergize {
+    public sealed interface MoveState permits MoveState.CloseAuto, MoveState.Deenergize, MoveState.MoveTo, MoveState.PresetState {
         Deenergize DEENERGIZE = new Deenergize();
+        CloseAuto CLOSE_AUTO = new CloseAuto();
         enum PresetState implements MoveState {
             LEFT_135,
             LEFT_90,
@@ -78,6 +79,12 @@ public class Turret extends HwMotor {
             @Override
             public int target() {
                 return 0;
+            }
+        }
+        final class CloseAuto implements MoveState {
+            @Override
+            public int target() {
+                return AUTO_PRELOADS;
             }
         }
     }

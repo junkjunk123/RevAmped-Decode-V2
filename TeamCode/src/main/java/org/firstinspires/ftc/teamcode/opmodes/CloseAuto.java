@@ -48,7 +48,7 @@ public class CloseAuto extends OpModeCommand {
             ),
             new Sequential(
                     new Instant(() -> {
-                        robot.flywheel.auto();
+                        robot.flywheel.closeAuto();
                         robot.hood.near();
                         limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
                     }),
@@ -132,7 +132,7 @@ public class CloseAuto extends OpModeCommand {
                                 )
                         ),
                         new Instant(() -> {
-                                robot.flywheel.setVelocity(Flywheel.AUTO_VELOCITY + flywheelOffset);
+                                robot.flywheel.setVelocity(Flywheel.CLOSE_AUTO_VELOCITY + flywheelOffset);
                                 robot.tableCompartments.populate(intookColors);
                         }),
                         new Sequential(

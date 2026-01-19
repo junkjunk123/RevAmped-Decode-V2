@@ -74,6 +74,10 @@ public class ColoredDecodePose implements FuturePose {
         return new BezierCurve(Arrays.stream(poses).map(ColoredDecodePose::getPose).toArray(Pose[]::new));
     }
 
+    public static BezierCurve through(ColoredDecodePose... poses) {
+        return BezierCurve.through(Arrays.stream(poses).map(ColoredDecodePose::getPose).toArray(Pose[]::new));
+    }
+
     public static BezierLine makeBezier(ColoredDecodePose pose1, ColoredDecodePose pose2) {
         return new BezierLine(pose1.getPose(), pose2.getPose());
     }

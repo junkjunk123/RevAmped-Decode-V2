@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
+import static com.pedropathing.math.MathFunctions.quadraticFit;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.changes;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.draw;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.drawOnlyCurrent;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.follower;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.stopRobot;
 import static org.firstinspires.ftc.teamcode.pedro.Tuning.telemetryM;
+
+import android.annotation.SuppressLint;
 
 import com.bylazar.configurables.PanelsConfigurables;
 import com.bylazar.configurables.annotations.Configurable;
@@ -15,6 +18,7 @@ import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -29,6 +33,9 @@ import com.pedropathing.util.PoseHistory;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +76,7 @@ public class Tuning extends SelectableOpMode {
                 a.add("Forward Zero Power Acceleration Tuner", ForwardZeroPowerAccelerationTuner::new);
                 a.add("Lateral Zero Power Acceleration Tuner", LateralZeroPowerAccelerationTuner::new);
                 a.add("Heading Auto Tuner", HeadingAutoTuner::new);
+                a.add("Quadratic Damping Tuner", PredictiveBrakingTuner::new);
             });
             s.folder("Manual", p -> {
                 p.add("Translational Tuner", TranslationalTuner::new);
@@ -860,6 +868,7 @@ class HeadingTuner extends OpMode {
      */
     @Override
     public void loop() {
+        follower.setSecondaryHeadingPIDFCoefficients(new PIDFCoefficients(Globals.P, Globals.I, Globals.D, Globals.F));
         follower.update();
         draw();
 
@@ -1337,54 +1346,170 @@ class Circle extends OpMode {
     }
 }
 
-class QuadraticDampingTuner extends OpMode {
-    private final ArrayList<double[]> accelerations = new ArrayList<>();
-    private Timer timer = new Timer();
+class PredictiveBrakingTuner extends OpMode {
+    private static final double[] TEST_POWERS =
+            {1, 1, 1, 0.9, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2};
+    private static final double BRAKING_POWER = -0.2;
 
-    private boolean stopping;
-    private boolean end;
+    private static final int DRIVE_TIME_MS = 1000;
 
-    public static double[] TEST_POWERS = {1, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2};
-    public static int ms = 1000;
-
-
-    @Override
-    public void init() {
-        follower.setStartingPose(new Pose(72, 72));
+    private enum State {
+        START_MOVE,
+        WAIT_DRIVE_TIME,
+        APPLY_BRAKE,
+        WAIT_BRAKE_TIME,
+        RECORD,
+        DONE
     }
 
-    /** This initializes the drive motors as well as the Panels telemetryM. */
+    private static class BrakeRecord {
+        double timeMs;
+        Pose pose;
+        double velocity;
+
+        BrakeRecord(double timeMs, Pose pose, double velocity) {
+            this.timeMs = timeMs;
+            this.pose = pose;
+            this.velocity = velocity;
+        }
+    }
+
+    private State state = State.START_MOVE;
+
+    private final ElapsedTime timer = new ElapsedTime();
+
+    private int iteration = 0;
+
+    private Vector startPosition;
+    private double measuredVelocity;
+
+    private final List<double[]> velocityToBrakingDistance = new ArrayList<>();
+    private final List<BrakeRecord> brakeData = new ArrayList<>();
+
+    @Override
+    public void init() {}
+
     @Override
     public void init_loop() {
-        telemetryM.debug("Press B on Gamepad 1 to stop.");
+        telemetryM.debug("The robot will move forwards and backwards starting at max speed and slowing down.");
+        telemetryM.debug("Make sure you have enough room. Leave at least 4-5 feet.");
+        telemetryM.debug("After stopping, kFriction and kBraking will be displayed.");
+        telemetryM.debug("Make sure to turn the timer off.");
+        telemetryM.debug("Press B on game pad 1 to stop.");
         telemetryM.update(telemetry);
         follower.update();
-        drawOnlyCurrent();
+        Drawing.drawCurrent();
     }
 
-    /** This starts the OpMode by setting the drive motors to run forward at full power. */
     @Override
     public void start() {
-        follower.startTeleopDrive(true);
+        timer.reset();
         follower.update();
-        timer.resetTimer();
+        follower.startTeleOpDrive(true);
     }
 
-    /**
-     * This runs the OpMode. At any point during the running of the OpMode, pressing B on
-     * game pad 1 will stop the OpMode. When the robot hits the specified velocity, the robot will
-     * record its deceleration / negative acceleration until it stops. Then, it will average all the
-     * recorded deceleration / negative acceleration and print that value.
-     */
+    @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
-        if (gamepad1.bWasPressed()) {
+        follower.update();
+
+        if (gamepad1.b) {
             stopRobot();
             requestOpModeStop();
+            return;
         }
 
-        follower.update();
-        draw();
+        double direction = (iteration % 2 == 0) ? 1 : -1;
+
+        switch (state) {
+            case START_MOVE: {
+                if (iteration >= TEST_POWERS.length) {
+                    state = State.DONE;
+                    break;
+                }
+
+                double currentPower = TEST_POWERS[iteration];
+                follower.setMaxPower(currentPower);
+                follower.setTeleOpDrive(direction, 0, 0, true);
+
+                timer.reset();
+                state = State.WAIT_DRIVE_TIME;
+                break;
+            }
+
+            case WAIT_DRIVE_TIME: {
+                if (timer.milliseconds() >= DRIVE_TIME_MS) {
+                    measuredVelocity = follower.getVelocity().getMagnitude();
+                    startPosition = follower.getPose().getAsVector();
+                    state = State.APPLY_BRAKE;
+                }
+                break;
+            }
+
+            case APPLY_BRAKE: {
+                follower.setTeleOpDrive(BRAKING_POWER * direction, 0, 0, true);
+
+                timer.reset();
+                state = State.WAIT_BRAKE_TIME;
+                break;
+            }
+
+            case WAIT_BRAKE_TIME: {
+                double t = timer.milliseconds();
+                Pose currentPose = follower.getPose();
+                double currentVelocity = follower.getVelocity().getMagnitude();
+
+                brakeData.add(new BrakeRecord(t, currentPose, currentVelocity));
+
+                if (follower.getVelocity().dot(new Vector(direction,
+                        follower.getHeading())) <= 0) {
+                    state = State.RECORD;
+                }
+                break;
+            }
+
+            case RECORD: {
+                Vector endPosition = follower.getPose().getAsVector();
+                double brakingDistance = endPosition.minus(startPosition).getMagnitude();
+
+                velocityToBrakingDistance.add(new double[]{measuredVelocity, brakingDistance});
+
+                telemetryM.debug("Test " + iteration,
+                        String.format("v=%.3f  d=%.3f", measuredVelocity,
+                                brakingDistance));
+                telemetryM.update(telemetry);
+
+                iteration++;
+                state = State.START_MOVE;
+
+                break;
+            }
+
+            case DONE: {
+                stopRobot();
+
+                double[] coefficients = quadraticFit(velocityToBrakingDistance);
+
+                telemetryM.debug("Tuning Complete");
+                telemetryM.debug("Braking Profile:");
+                telemetryM.debug("kQuadratic", coefficients[1]);
+                telemetryM.debug("kLinear", coefficients[0]);
+                telemetryM.update(telemetry);
+                telemetryM.debug("Tuning Complete");
+                telemetryM.debug("Braking Profile:");
+                telemetryM.debug("kQuadraticFriction", coefficients[1]);
+                telemetryM.debug("kLinearBraking", coefficients[0]);
+                for (BrakeRecord record : brakeData) {
+                    Pose p = record.pose;
+                    telemetryM.debug(String.format("t=%.0f ms, x=%.2f, y=%.2f, θ=%.2f, v=%.2f",
+                            record.timeMs, p.getX(), p.getY(),
+                            p.getHeading(),
+                            record.velocity));
+                }
+                telemetryM.update();
+                break;
+            }
+        }
     }
 }
 
@@ -1463,6 +1588,20 @@ class Drawing {
      */
     public static void drawRobot(Pose pose) {
         drawRobot(pose, robotLook);
+    }
+
+    public static void drawCurrent() {
+        try {
+            Drawing.drawRobot(follower.getPose());
+            Drawing.sendPacket();
+        } catch (Exception e) {
+            throw new RuntimeException("Drawing failed " + e);
+        }
+    }
+
+    public static void drawCurrentAndHistory() {
+        Drawing.drawPoseHistory(Tuning.poseHistory);
+        drawCurrent();
     }
 
     /**

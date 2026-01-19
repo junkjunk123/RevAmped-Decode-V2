@@ -18,6 +18,9 @@ public class FlywheelTuner extends OpMode {
     private final ElapsedTime timer = new ElapsedTime();
     private double time = 0;
     private boolean measured = false;
+    public static boolean track;
+    public static boolean reset;
+    private double minVel = Double.MAX_VALUE;
 
     @Override
     public void init() {
@@ -36,16 +39,33 @@ public class FlywheelTuner extends OpMode {
     public void loop() {
         flywheel.update();
 
-        if (flywheel.getError() < 50 && !measured) {
+        if (flywheel.getError() < 20 && !measured) {
             time = timer.milliseconds();
             measured = true;
+        }
+
+        if (targetVelocity != flywheel.getTargetVelocity()) {
+            flywheel.setVelocity(targetVelocity);
+            timer.reset();
+        }
+
+        if (track) {
+            minVel = Math.min(minVel, flywheel.getFilteredVelocity());
+        }
+
+        if (reset) {
+            reset = false;
+            timer.reset();
+            measured = false;
         }
 
         telemetry.addData("target", flywheel.getTargetVelocity());
         telemetry.addData("error", flywheel.getError());
         telemetry.addData("flywheelVel", flywheel.getVelocityImperial());
         telemetry.addData("flywheelFilteredVel", flywheel.getFilteredVelocity());
+        telemetry.addData("minVel", minVel);
         telemetry.addData("time", time);
+        telemetry.addData("power", flywheel.getPower());
         telemetry.update();
     }
 }

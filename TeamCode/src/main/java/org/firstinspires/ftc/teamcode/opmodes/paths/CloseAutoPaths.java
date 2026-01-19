@@ -32,7 +32,6 @@ public class CloseAutoPaths implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-
         FollowParameters initialShoot = new FollowParameters(follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(START_POSE, SHOOT_PRELOADS))
                 .setLinearHeadingInterpolation(START_POSE.getHeading(), SHOOT_PRELOADS.getHeading())
