@@ -23,7 +23,7 @@ public class FlywheelTuner extends OpMode {
     public void init() {
         Globals.constants.build();
         flywheel = new Flywheel(hardwareMap);
-        flywheel.runToVel(targetVelocity);
+        flywheel.setVelocity(targetVelocity);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 

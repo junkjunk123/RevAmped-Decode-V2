@@ -4,7 +4,6 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.MathFunctions;
 import com.pedropathing.math.Matrix;
-import com.pedropathing.math.MatrixUtil;
 import com.pedropathing.math.Vector;
 
 import java.util.NavigableMap;
@@ -33,9 +32,9 @@ public class FusionLocalizer implements Localizer {
         this.currentPosition = new Pose();
 
         //Standard Deviations for Kalman Filter
-        this.P = MatrixUtil.diag(P[0], P[1], P[2]);
-        this.Q = MatrixUtil.diag(processVariance[0], processVariance[1], processVariance[2]);
-        this.R = MatrixUtil.diag(measurementVariance[0], measurementVariance[1], measurementVariance[2]);
+        this.P = Matrix.diag(P[0], P[1], P[2]);
+        this.Q = Matrix.diag(processVariance[0], processVariance[1], processVariance[2]);
+        this.R = Matrix.diag(measurementVariance[0], measurementVariance[1], measurementVariance[2]);
         twistHistory.put(0L, new Pose());
     }
 
@@ -130,7 +129,7 @@ public class FusionLocalizer implements Localizer {
         });
 
         // Measurement mask M
-        Matrix M = MatrixUtil.diag(
+        Matrix M = Matrix.diag(
                 measX ? 1 : 0,
                 measY ? 1 : 0,
                 measH ? 1 : 0
@@ -159,7 +158,7 @@ public class FusionLocalizer implements Localizer {
         poseHistory.put(timestamp, updatedPast);
 
         // Joseph-form covariance update
-        Matrix I = MatrixUtil.eye(3);
+        Matrix I = Matrix.identity(3);
         Matrix IK = I.minus(K);
         Matrix updatedCovariance =
                 IK.multiply(Pm).multiply(IK.transposed())
@@ -195,18 +194,6 @@ public class FusionLocalizer implements Localizer {
 
         currentPosition = poseHistory.lastEntry().getValue().copy();
         P = covarianceHistory.lastEntry().getValue().copy();
-    }
-
-    //Inverts a matrix
-    private Matrix invert(Matrix m) {
-        if (m.getRows() != m.getColumns())
-            throw new IllegalStateException("Matrix must be square");
-
-        Matrix I = MatrixUtil.eye(m.getRows());
-        Matrix[] r = Matrix.rref(m, I);
-
-        if (!r[1].equals(I)) throw new IllegalArgumentException("matrix not invertible");
-        return r[1];
     }
 
     //Performs linear interpolation inside the history map for the value at a given timestamp

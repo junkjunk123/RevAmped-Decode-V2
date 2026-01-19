@@ -1,22 +1,22 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
-import static com.pedropathing.ivy.commands.Commands.conditional;
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.lazy;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.commands.Commands.waitUntil;
-import static com.pedropathing.ivy.groups.Groups.race;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.CommandBuilder;
-import com.pedropathing.ivy.commands.Commands;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -78,78 +78,82 @@ public class Table extends HwServo {
     public static float FULL_REVOLUTION;
     public static double MS_PER_REVOLUTION = 1000;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
-    private final Encoder encoder;
+    private final EncoderImpl encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
     private final HwServo tableServo2;
+    private boolean atRelativeState = true;
 
     public Table(HardwareMap hwMap, Encoder rawEncoder) {
         super(hwMap, "table");
-        this.encoder = rawEncoder;
+        this.encoder = new EncoderImpl(rawEncoder);
         tableServo2 = new HwServo(hwMap, "table2");
     }
 
-    public Command zero() {
+    public ICommand zero() {
         return setRelativeState(RelativeState.BALL0);
     }
 
-    public Command one() {
+    public ICommand one() {
         return setRelativeState(RelativeState.BALL1);
     }
 
-    public Command two() {
+    public ICommand two() {
         return setRelativeState(RelativeState.BALL2);
     }
 
-    public Command reset() {
+    public ICommand reset() {
         return one();
     }
 
-    public Command setState(int state) {
+    public ICommand setState(int state) {
         return setRelativeState(RelativeState.values()[state]);
     }
 
-    public Command setState(Supplier<Integer> state) {
+    public ICommand setState(Supplier<Integer> state) {
         return setRelativeState(() -> RelativeState.values()[state.get()]);
     }
 
-    public Command setRelativeState(Supplier<RelativeState> relativeState) {
+    public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
         AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
-        return lazy(() -> {
-           if (atPos(stateVal.read().target())) return Command.NOOP;
+        AtomicReadOnce<Double> accelTime = getAccelerationTime(true);
+        Tele.state = stateVal;
+        return new Lazy(() -> {
+           if (atPos(stateVal.read().target())) return Commands.NOOP;
            return stateHandler.runTransition(
-                   sequential(
-                           instant(() -> {
+                   new Sequential(
+                           new Instant(() -> {
                                distance.set(Math.abs(stateVal.read().target() - getPosition()));
                                setPosition(stateVal.read().target());
                            }),
-                           race(
-                                   sequential(
-                                           waitMs(250.0),
-                                           waitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                           new Race(
+                                   new Sequential(
+                                           new Wait(accelTime.read()),
+                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                    ),
-                                   waitMs(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
-                           )
+                                   new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
+                           ),
+                           new Instant(() -> atRelativeState = true)
                    ),
                    stateVal::read
            );
         });
     }
 
-    public Command setRelativeState(RelativeState relativeState) {
+    public ICommand setRelativeState(RelativeState relativeState) {
         return setRelativeState(() -> relativeState);
     }
 
-    public Command next() {
+    public ICommand next() {
         AtomicReadOnce<RelativeState> reader = pendingStateReader();
         return setRelativeState(() -> reader.read().next());
     }
 
-    public Command previous() {
+    public ICommand previous() {
         AtomicReadOnce<RelativeState> reader = pendingStateReader();
         return setRelativeState(() -> reader.read().previous());
     }
 
-    public Command fullRotation() {
+    public ICommand fullRotation() {
         AtomicReadOnce<RelativeState> reader = pendingStateReader();
         return setPos(() -> switch (reader.read()) {
             case BALL0 -> BALL0_END;
@@ -158,30 +162,39 @@ public class Table extends HwServo {
         });
     }
 
-    public Command setPos(float pos) {
+    public ICommand setPos(float pos) {
         return setPos(() -> pos);
     }
 
-    public Command setPos(Supplier<Float> pos) {
+    public ICommand setPos(Supplier<Float> pos) {
         float[] position = new float[1];
-        return conditional(
+        AtomicReadOnce<Double> accelTime = getAccelerationTime(false);
+        return new Conditional(
                 () -> atPos(pos.get()),
-                Command.NOOP,
-                sequential(
-                        instant(() -> {
+                Commands.NOOP,
+                new Sequential(
+                        new Instant(() -> {
                             position[0] = pos.get();
                             distance.set(Math.abs(position[0] - getPosition()));
                             setPosition(position[0]);
                         }),
-                        race(
-                                sequential(
-                                        waitMs(250.0),
-                                        waitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                        new Race(
+                                new Sequential(
+                                        new Wait(accelTime.read()),
+                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                 ),
-                                waitMs(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
-                        )
+                                new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
+                        ),
+                        new Instant(() -> atRelativeState = false)
                 )
         );
+    }
+
+    private AtomicReadOnce<Double> getAccelerationTime(boolean targetRelative) {
+        return new AtomicReadOnce<>(() -> {
+            if (atRelativeState != targetRelative) return 600.0;
+            else return 250.0;
+        });
     }
 
     public RelativeState getState() {
@@ -209,8 +222,21 @@ public class Table extends HwServo {
         BALL2_END = BALL1_END + diff;
     }
 
+    public static void setValues(float BALL_0, float BALL_1, float BALL_2, float BALL_0_END, float BALL_1_END, float BALL_2_END, float FULL_REVOLUTION_TICKS){
+        FULL_REVOLUTION = FULL_REVOLUTION_TICKS;
+        BALL0 = BALL_0;
+        BALL1 = BALL_1;
+        BALL2 = BALL_2;
+        BALL0_END = BALL_0_END;
+        BALL1_END = BALL_1_END;
+        BALL2_END = BALL_2_END;
+        BALL0_REV2 = BALL_0 + FULL_REVOLUTION;
+        BALL1_REV2 = BALL_1 + FULL_REVOLUTION;
+    }
+
     public void update() {
         super.update();
+        encoder.update();
     }
 
     public StateMachine<RelativeState> getStateHandler() {
@@ -224,6 +250,8 @@ public class Table extends HwServo {
     @Override
     public boolean setPosition(double pos) {
         if (tableServo2 != null) tableServo2.setPosition(pos);
-        return super.setPosition(pos);
+        boolean moved = super.setPosition(pos);
+        if (moved) encoder.reset();
+        return moved;
     }
 }

@@ -107,6 +107,10 @@ public class HwServo implements HwDevice {
         return Math.abs(pos - lastPos) * 256 <= 1.5;
     }
 
+    public void deenergize() {
+        servo.setPwmDisable();
+    }
+
     @NonNull
     @Override
     public String toString() {

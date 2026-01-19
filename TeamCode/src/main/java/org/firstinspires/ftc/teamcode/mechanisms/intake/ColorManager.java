@@ -34,6 +34,10 @@ public class ColorManager {
     public final List<HwColorSensor> allSensors;
 
     public ColorManager(HardwareMap hardwareMap) {
+        colorOne = null;
+        colorTwo = null;
+        colorZero = null;
+        /*
         colorOne = new HwColorSensor(hardwareMap, "colorOne") {
             @Override
             public ArtifactColor getColor(double hue, double dist) {
@@ -55,7 +59,10 @@ public class ColorManager {
             }
         };
 
-        allSensors = List.of(colorZero, colorOne, colorTwo);
+         */
+
+        allSensors = List.of();
+        //allSensors = List.of(colorZero, colorOne, colorTwo);
     }
 
     public void update() {

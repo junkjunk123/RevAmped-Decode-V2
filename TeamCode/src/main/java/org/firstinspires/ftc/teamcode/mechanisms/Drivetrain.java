@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.race;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.drivetrains.Mecanum;
 import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.CommandBuilder;
-import com.pedropathing.ivy.commands.Commands;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -31,10 +28,10 @@ public class Drivetrain {
     private ArrayDeque<FollowParameters> paths;
     public static Pose startPose = new Pose();
     private final List<DcMotorEx> motors;
-    private DcMotorEx leftFront;
-    private DcMotorEx rightFront;
-    private DcMotorEx leftRear;
-    private DcMotorEx rightRear;
+    public final DcMotorEx leftFront;
+    public final DcMotorEx rightFront;
+    public final DcMotorEx leftRear;
+    public final DcMotorEx rightRear;
     private boolean prevVelZero;
     private boolean fieldCentric;
     public static float MAGNITUDE_ZERO = 0.15f;
@@ -46,7 +43,23 @@ public class Drivetrain {
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
         apply(m -> m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
-        initMotors();
+        leftFront = motors.get(0);
+        leftRear = motors.get(1);
+        rightFront = motors.get(2);
+        rightRear = motors.get(3);
+        isTeleOp = true;
+        follower.update();
+    }
+
+    public Drivetrain(HardwareMap hardwareMap,DcMotor.ZeroPowerBehavior powerBehavior) {
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(startPose);
+        motors = ((Mecanum) follower.drivetrain).getMotors();
+        apply(m -> m.setZeroPowerBehavior(powerBehavior));
+        leftFront = motors.get(0);
+        leftRear = motors.get(1);
+        rightFront = motors.get(2);
+        rightRear = motors.get(3);
         isTeleOp = true;
         follower.update();
     }
@@ -57,16 +70,12 @@ public class Drivetrain {
         startPose = paths.startPose();
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
-        initMotors();
-        isTeleOp = false;
-        follower.update();
-    }
-
-    private void initMotors() {
         leftFront = motors.get(0);
         leftRear = motors.get(1);
         rightFront = motors.get(2);
         rightRear = motors.get(3);
+        isTeleOp = false;
+        follower.update();
     }
 
     public void followNext() {
@@ -96,28 +105,28 @@ public class Drivetrain {
     }
 
     public Command followNext(Function<Drivetrain, Boolean> isDone) {
-        return Command.build()
+        return new Command()
                 .setStart(this::followNext)
                 .setDone(() -> isDone.apply(this));
     }
 
     public Command followLast(Function<Drivetrain, Boolean> isDone) {
-        return Command.build()
+        return new Command()
                 .setStart(this::followLast)
                 .setDone(() -> isDone.apply(this));
     }
 
-    public Command followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return race(
+    public Race followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
+        return new Race(
                 followNext(isDone),
-                waitMs(timeout)
+                new Wait(timeout)
         );
     }
 
-    public Command followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return race(
+    public Race followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
+        return new Race(
                 followLast(isDone),
-                waitMs(timeout)
+                new Wait(timeout)
         );
     }
 

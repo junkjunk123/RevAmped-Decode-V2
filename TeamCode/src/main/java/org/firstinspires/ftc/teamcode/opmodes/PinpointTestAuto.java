@@ -1,19 +1,16 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static com.pedropathing.ivy.commands.Commands.infinite;
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.commands.Commands.waitUntil;
-import static com.pedropathing.ivy.groups.Groups.parallel;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.ivy.commands.Commands;
+import com.pedropathing.ivy.commands.Infinite;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Sequential;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.octocanum.Octocanum;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
-import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
 import org.firstinspires.ftc.teamcode.opmodes.paths.PinpointTestPaths;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -33,42 +30,45 @@ public class PinpointTestAuto extends OpModeCommand {
         //flywheel = new Flywheel(hardwareMap);
         schedule(
                 //update statements
-                infinite(() ->{
+                new Infinite(() ->{
                     drivetrain.update();
                     telemetry.addData("pose",drivetrain.follower.getPose());
                     telemetry.update();
                 }),
 //                new Infinite(flywheel::update),
 //                new Infinite(intake::update),
-                waitUntil(() -> !opModeInInit()),
-                sequential(
+                new WaitUntil(() -> !opModeInInit()),
+                new Sequential(
                 //following the actual pathing
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                parallel(
-                waitMs(1000.0),
-                        instant(() -> octocanum.engage())
+                new Wait(1000),
+                new Parallel(
+                new Wait(1000),
+                        new Instant(() -> octocanum.engage())
                         ),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                parallel(
-                waitMs(1000.0),
-                        instant(() -> octocanum.raise())
+                new Wait(1000),
+                new Parallel(
+                new Wait(1000),
+                        new Instant(() -> octocanum.raise())
                         ),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                        waitMs(1000.0),
+                        new Wait(1000),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                        waitMs(1000.0),
+                        new Wait(1000),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                new Wait(1000),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                new Wait(1000),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                new Wait(1000),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                new Wait(1000),
                 drivetrain.followNext(d -> d.velocityCondition(4)),
-                waitMs(1000.0),
+                new Wait(1000),
                 drivetrain.followNext(d -> d.velocityCondition(4))
                 )
+
         );
     }
 }

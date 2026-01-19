@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
+import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
 
 @TeleOp
 public class LocalizationTest extends OpMode {
@@ -20,10 +22,10 @@ public class LocalizationTest extends OpMode {
         follower.update();
         telemetry.addData("pose", follower.getPose());
 
-        GoBildaPinpointDriver pinpoint = ((PinpointLocalizer) follower.getPoseTracker().getLocalizer()).getPinpoint();
+        OctoQuadFWv3 octoquad = ((OctoQuadLocalizer) follower.getPoseTracker().getLocalizer()).getOctoQuad();
 
-        double xPodIn = pinpoint.getEncoderX();
-        double yPodIn = pinpoint.getEncoderY();
+        double xPodIn = octoquad.readAllEncoderData().positions[1];
+        double yPodIn = octoquad.readAllEncoderData().positions[0];
 
         double IN_PER_TICK = 0.001989436789;
         xPodIn *= IN_PER_TICK;

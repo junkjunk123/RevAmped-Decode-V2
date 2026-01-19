@@ -16,16 +16,19 @@ public class HwMotor implements HwDevice {
     private Integer currentPos;
     private int encoderBase;
     private final String id;
+    private Encoder encoder;
 
     public HwMotor(HardwareMap hardwareMap, String id) {
         this.hardware = new DcMotorEx[] {HwDevice.init(hardwareMap, DcMotorEx.class, id)};
         this.id = id;
+        encoder = Encoder.fromMotor(get());
         resetPosition();
     }
 
     public HwMotor(HardwareMap hardwareMap, String... ids) {
         this.hardware = Arrays.stream(ids).map(s -> HwDevice.init(hardwareMap, DcMotorEx.class, s)).toArray(DcMotorEx[]::new);
         this.id = Arrays.toString(ids);
+        encoder = Encoder.fromMotor(get());
         resetPosition();
     }
 
@@ -43,11 +46,11 @@ public class HwMotor implements HwDevice {
     }
 
     public double getVelocity() {
-        return hardware[0].getVelocity();
+        return encoder.getVelocity();
     }
 
     private int getPosRaw() {
-        return hardware[0].getCurrentPosition() - encoderBase;
+        return encoder.getPosition() - encoderBase;
     }
 
     public int getPosition() {
@@ -63,7 +66,7 @@ public class HwMotor implements HwDevice {
     }
 
     public void resetPosition(int pos) {
-        encoderBase = hardware[0].getCurrentPosition() - pos;
+        encoderBase = getPosition() + encoderBase - pos;
     }
 
     public void setDirection(DcMotorSimple.Direction direction) {
@@ -95,6 +98,29 @@ public class HwMotor implements HwDevice {
 
     public int getEncoderBase() {
         return encoderBase;
+    }
+
+    public void setEncoder(Encoder encoder) {
+        this.encoder = encoder;
+    }
+
+    protected void setEncoderBase(int encoderBase) {
+        this.encoderBase = encoderBase;
+    }
+
+    public Encoder getEncoder() {
+        return encoder;
+    }
+
+    public void invalidateCache() {
+        currentPos = null;
+    }
+
+    public void deenergize() {
+        for (DcMotorEx motor : hardware) {
+            motor.setPower(0);
+            motor.setMotorDisable();
+        }
     }
 
     @NonNull

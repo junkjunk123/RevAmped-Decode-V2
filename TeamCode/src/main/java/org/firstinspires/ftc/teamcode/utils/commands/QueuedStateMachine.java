@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils.commands;
 
-import static com.pedropathing.ivy.commands.Commands.conditional;
-import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.lazy;
-import static com.pedropathing.ivy.commands.Commands.waitUntil;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.CommandBuilder;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Sequential;
 
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 
@@ -30,32 +26,32 @@ public class QueuedStateMachine<T> extends StateMachine<T> {
     }
 
     @Override
-    public Command runTransition(Command transition, Supplier<T> newState) {
-        return sequential(
-                instant(() -> enqueue(new Edge(newState.get(), transition))),
-                waitUntil(() -> currentGraphElement instanceof Node),
+    public ICommand runTransition(ICommand transition, Supplier<T> newState) {
+        return new Sequential(
+                new Instant(() -> enqueue(new Edge(newState.get(), transition))),
+                new WaitUntil(() -> currentGraphElement instanceof Node),
                 runAll()
         );
     }
 
-    private Command runOne() {
-        return sequential(
-                instant(() -> {
+    private ICommand runOne() {
+        return new Sequential(
+                new Instant(() -> {
                     Edge e = commandQueue.poll();
                     if (e != null) currentGraphElement = e;
                 }),
-                lazy(() -> ((Edge) currentGraphElement).command),
-                instant(() -> setCurrentState(((Edge) currentGraphElement).nextState))
+                new Lazy(() -> ((Edge) currentGraphElement).command),
+                new Instant(() -> setCurrentState(((Edge) currentGraphElement).nextState))
         );
     }
 
-    private Command runAll() {
-        return conditional(
+    private ICommand runAll() {
+        return new Conditional(
                 () -> commandQueue.isEmpty() || executing,
-                Command.NOOP,
-                RevAmpedCommands.loop(runOne(), commandQueue::size)
-                        .with(instant(() -> executing = true))
-                        .then(instant(() -> executing = false))
+                Commands.NOOP,
+                new Loop(runOne(), commandQueue::size)
+                        .with(new Instant(() -> executing = true))
+                        .then(new Instant(() -> executing = false))
         );
     }
 

@@ -25,7 +25,7 @@ public class TableEncoderTest extends OpMode {
     @Override
     public void init() {
         intakeMotor = new IntakeMotor(hardwareMap);
-        table = new Table(hardwareMap, Encoder.external(intakeMotor.get()));
+        table = new Table(hardwareMap, Encoder.fromMotor(intakeMotor.get()));
         Globals.init(telemetry);
     }
 
