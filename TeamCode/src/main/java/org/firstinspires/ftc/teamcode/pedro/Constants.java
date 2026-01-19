@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
+import static org.firstinspires.ftc.teamcode.pedro.HeadingTuner.d;
+import static org.firstinspires.ftc.teamcode.pedro.HeadingTuner.f;
+import static org.firstinspires.ftc.teamcode.pedro.HeadingTuner.i;
+import static org.firstinspires.ftc.teamcode.pedro.HeadingTuner.p;
 import static org.firstinspires.ftc.teamcode.utils.Globals.forwardPodY;
 import static org.firstinspires.ftc.teamcode.utils.Globals.strafePodX;
 
@@ -17,13 +21,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(12.4)
-            .forwardZeroPowerAcceleration(-29.08)
-            .lateralZeroPowerAcceleration(-69)
+            .mass(14)
+            .forwardZeroPowerAcceleration(-39.46)
+            .lateralZeroPowerAcceleration(-78.17)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.03, 0, 0, 0.015))
             .translationalPIDFSwitch(4.0)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.08, 0, 0.005, 0.0006))
-            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0, 0.01))
+            .headingPIDFCoefficients(new PIDFCoefficients(p, i, d, f))
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.5, 0, 0.1, 0.0005))
             .drivePIDFCoefficients(
                     new FilteredPIDFCoefficients(0.03, 0, 0.0004, 0.6,0.015)
@@ -46,8 +50,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(85.38)
-            .yVelocity(70.47);
+            .xVelocity(76.41)
+            .yVelocity(60.04);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(2.2)
