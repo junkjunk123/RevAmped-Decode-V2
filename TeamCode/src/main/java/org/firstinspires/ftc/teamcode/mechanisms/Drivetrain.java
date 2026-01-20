@@ -42,25 +42,12 @@ public class Drivetrain {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
-        apply(m -> m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE));
         leftFront = motors.get(0);
         leftRear = motors.get(1);
         rightFront = motors.get(2);
         rightRear = motors.get(3);
         isTeleOp = true;
-        follower.update();
-    }
-
-    public Drivetrain(HardwareMap hardwareMap,DcMotor.ZeroPowerBehavior powerBehavior) {
-        follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(startPose);
-        motors = ((Mecanum) follower.drivetrain).getMotors();
-        apply(m -> m.setZeroPowerBehavior(powerBehavior));
-        leftFront = motors.get(0);
-        leftRear = motors.get(1);
-        rightFront = motors.get(2);
-        rightRear = motors.get(3);
-        isTeleOp = true;
+        follower.startTeleOpDrive();
         follower.update();
     }
 

@@ -17,7 +17,7 @@ public class drivetrainTele extends OpModeCommand {
     private GamepadEx gamepad_1;
     @Override
     public void initialize() {
-        drivetrain = new Drivetrain(hardwareMap, DcMotor.ZeroPowerBehavior.FLOAT);
+        drivetrain = new Drivetrain(hardwareMap);
         octocanum = new Octocanum(hardwareMap);
         gamepad_1 = new GamepadEx(gamepad1);
         schedule(

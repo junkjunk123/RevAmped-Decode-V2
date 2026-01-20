@@ -123,7 +123,7 @@ public class ManualFusionLocalizer implements Localizer {
 
     @Override
     public Pose getVelocity() {
-        return new Pose(velocity.getX(), velocity.getY(), velocity.getHeading());
+        return velocity.copy();
     }
 
     @Override
@@ -146,7 +146,7 @@ public class ManualFusionLocalizer implements Localizer {
     }
 
     @Override
-    public double getTotalHeading() { return state.getHeading(); }
+    public double getTotalHeading() { return deadReckoning.getTotalHeading(); }
 
     @Override
     public double getForwardMultiplier() { return deadReckoning.getForwardMultiplier(); }
