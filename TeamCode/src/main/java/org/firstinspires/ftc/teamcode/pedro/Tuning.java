@@ -1008,7 +1008,7 @@ class HeadingAutoTuner extends OpMode {
     public void start() {
         timer.resetTimer();
         follower.startTeleOpDrive(true);
-        follower.setTeleOpDrive(0, 0, POWER);
+        follower.setTeleOpDrive(0, 0, POWER, true);
         drawOnlyCurrent();
     }
 
@@ -1020,8 +1020,7 @@ class HeadingAutoTuner extends OpMode {
         }
 
         follower.update();
-        follower.setTeleOpDrive(0, 0, POWER);
-        telemetryM.update();
+        telemetryM.update(telemetry);
         draw();
 
         telemetryM.addData("done", done);
@@ -1033,6 +1032,7 @@ class HeadingAutoTuner extends OpMode {
             if (timer.getElapsedTime(TimeUnit.SECONDS) >= RUNTIME) {
                 done = true;
                 systemIdentification();
+                follower.setTeleOpDrive(0,0,0,true);
             }
 
             else return;

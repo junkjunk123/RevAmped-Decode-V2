@@ -28,6 +28,6 @@ public class TrackingThread {
         if (isTeleOp) follower.update();
         shooterMath.update(trackTurret, trackHood, flywheel.getLaunchVelocity());
         hood.updateTracking(shooterMath.getHoodPos());
-        turret.setTargetPosition(shooterMath.getTurretPos());
+        turret.angleTo(shooterMath.getTurretPos());
     }
 }

@@ -113,6 +113,10 @@ public class Turret extends HwMotor {
         move(new MoveState.MoveTo(position));
     }
 
+    public void angleTo(double radians) {
+        setTargetPosition((int) (radians / (Math.PI * 2) * FULL_ROTATION));
+    }
+
     public void finetune(int ticks) {
         setTargetPosition(getPosition() + ticks);
     }

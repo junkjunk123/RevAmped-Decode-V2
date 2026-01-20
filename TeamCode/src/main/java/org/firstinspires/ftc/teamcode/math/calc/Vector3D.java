@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.math.calc;
 
+import androidx.annotation.NonNull;
+
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Matrix;
 
 /**
  * A class representing a three-dimensional vector with additional operations
@@ -108,5 +111,115 @@ public class Vector3D {
 
     public static Vector3D get3DPosition(Pose pose, double height) {
         return new Vector3D(pose.getX(), pose.getY(), height);
+    }
+
+    public double[] getValues() {
+        return values;
+    }
+
+    public Vector3D copy() {
+        return new Vector3D(getX(), getY(), getZ());
+    }
+
+    public Vector3D transform(Matrix matrix) {
+        if (matrix.getRows() != 3 || matrix.getColumns() != 3) {
+            throw new IllegalArgumentException("Matrix must be 3x3 for Vector3D transformation.");
+        }
+
+        double[] result = new double[3];
+        for (int i = 0; i < 3; i++) {
+            result[i] = 0;
+            for (int j = 0; j < 3; j++) {
+                result[i] += matrix.get(i, j) * this.get(j);
+            }
+        }
+
+        return new Vector3D(result[0], result[1], result[2]);
+    }
+
+    public double quadraticForm(Matrix matrix) {
+        if (matrix.getRows() != 3 || matrix.getColumns() != 3) {
+            throw new IllegalArgumentException("Matrix must be 3x3 for Vector3D quadratic form.");
+        }
+
+        double result = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                result += this.get(i) * matrix.get(i, j) * this.get(j);
+            }
+        }
+
+        return result;
+    }
+
+    public Vector3D add(Vector3D other) {
+        return new Vector3D(this.getX() + other.getX(), this.getY() + other.getY(), this.getZ() + other.getZ());
+    }
+
+    public Vector3D subtract(Vector3D other) {
+        return new Vector3D(this.getX() - other.getX(), this.getY() - other.getY(), this.getZ() - other.getZ());
+    }
+
+    public Vector3D scale(double scalar) {
+        return new Vector3D(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
+    }
+
+    public Vector3D normalize() {
+        double mag = this.magnitude();
+        if (mag == 0) {
+            throw new ArithmeticException("Cannot normalize a zero vector.");
+        }
+        return this.scale(1.0 / mag);
+    }
+
+    public Vector3D plus(Vector3D other) {
+        return this.add(other);
+    }
+
+    public Vector3D minus(Vector3D other) {
+        return this.subtract(other);
+    }
+
+    public Vector3D times(double scalar) {
+        return this.scale(scalar);
+    }
+
+    public Vector3D dividedBy(double scalar) {
+        if (scalar == 0) {
+            throw new ArithmeticException("Cannot divide by zero.");
+        }
+        return this.scale(1.0 / scalar);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "Vector3D{" +
+                "x=" + getX() +
+                ", y=" + getY() +
+                ", z=" + getZ() +
+                '}';
+    }
+
+    public double distanceTo(Vector3D other) {
+        return this.subtract(other).magnitude();
+    }
+
+    public Pose toPose() {
+        return new Pose(getX(), getY(), getZ());
+    }
+
+    public Matrix tensorProduct(Vector3D other) {
+        Matrix result = new Matrix(3, 3);
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                result.set(i, j, this.get(i) * other.get(j));
+            }
+        }
+        return result;
+    }
+
+    public Matrix outerProduct(Vector3D other) {
+        return this.tensorProduct(other);
     }
 }
