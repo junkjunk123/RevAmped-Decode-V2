@@ -102,7 +102,7 @@ public class Turret extends HwMotor {
         super(hardwareMap, "turret");
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         secondaryController = new PIDFController(new PIDFCoefficients(P_SECONDARY, I_SECONDARY, D_SECONDARY, F_SECONDARY));
-        limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch");
+        limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch").flip();
         setTargetPosition(0);
         setDirection(DcMotorSimple.Direction.REVERSE);
         setEncoderBase(getEncoder().getPosition() - startPos);
