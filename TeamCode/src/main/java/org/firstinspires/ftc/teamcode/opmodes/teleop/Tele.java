@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
@@ -93,10 +92,7 @@ public class Tele extends OpModeCommand {
                     new Instant(() -> {
                         robot.flywheel.stop();
                     }),
-                    new Sequential(
-                            robot.popper.neutral(),
-                            robot.table.reset()
-                    ),
+                    robot.resetTable(),
                     robot.turret.resetTurret()
             ), RobotStateHandler.CycleState.INTAKE));
         }

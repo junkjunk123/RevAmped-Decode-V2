@@ -93,7 +93,7 @@ public class CloseAuto extends OpModeCommand {
                     robot.flywheel.stop();
                 }),
                 new Parallel(
-                        robot.resetTableAfterShooting(),
+                        robot.resetTable(),
                         robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                 ),
                 new Instant(robot.intakeMotor::outtakeSlow),

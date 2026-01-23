@@ -15,11 +15,13 @@ import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Config
 @TeleOp(name = "ServoCalibrateTest", group = "a")
 public class ServoCalibrateTest extends OpMode {
     private ServoImplEx servo;
+    private ServoImplEx servo2;
     private int posJoy1;
     private long timeStamp = 0;
     public static int denominator = 255;
@@ -66,6 +68,7 @@ public class ServoCalibrateTest extends OpMode {
     public void start() {
         selectedPort = servos.indexOf(currentServo);
         servo = hardwareMap.get(ServoImplEx.class, currentServo);
+        servo2 = secondServo();
         int initialPos = (int) servo.getPosition() * 255;
         if (initialPos == 0) {
             posJoy1 = denominator / 2;
@@ -73,6 +76,12 @@ public class ServoCalibrateTest extends OpMode {
             posJoy1 = initialPos;
         }
         calibratedPositions.put(currentServo, posJoy1);
+    }
+
+    private ServoImplEx secondServo() {
+        if (currentServo.equals("table")) return hardwareMap.get(ServoImplEx.class, "table2");
+        else if (currentServo.equals("table2")) return hardwareMap.get(ServoImplEx.class, "table");
+        return null;
     }
 
     @Override
@@ -105,6 +114,7 @@ public class ServoCalibrateTest extends OpMode {
 
                 posJoy1 = Range.clip(posJoy1, 0, denominator);
                 servo.setPosition((float) posJoy1 / denominator);
+                if (servo2 != null) servo2.setPosition((float) posJoy1 / denominator);
 
                 if (gamepad_1.right_bumper.isRisingEdge()) {
                     TICK_CHANGE += 5;
@@ -139,6 +149,7 @@ public class ServoCalibrateTest extends OpMode {
             case CALIBRATE -> {
                 selectedPort = servos.indexOf(currentServo);
                 servo = hardwareMap.get(ServoImplEx.class, currentServo);
+                servo2 = secondServo();
 
                 if (calibratedPositions.containsKey(currentServo)) {
                     posJoy1 = calibratedPositions.get(currentServo);

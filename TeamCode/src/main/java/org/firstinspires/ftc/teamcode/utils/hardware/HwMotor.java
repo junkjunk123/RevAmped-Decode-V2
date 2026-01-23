@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 public class HwMotor implements HwDevice {
     private double lastPower = 0;
@@ -19,16 +20,24 @@ public class HwMotor implements HwDevice {
     private Encoder encoder;
 
     public HwMotor(HardwareMap hardwareMap, String id) {
+        this(hardwareMap, true, id);
+    }
+
+    public HwMotor(HardwareMap hardwareMap, boolean initEncoder, String id) {
         this.hardware = new DcMotorEx[] {HwDevice.init(hardwareMap, DcMotorEx.class, id)};
         this.id = id;
-        encoder = Encoder.fromMotor(get());
+        this.encoder = initEncoder ? Encoder.fromMotor(get()) : null;
         resetPosition();
     }
 
     public HwMotor(HardwareMap hardwareMap, String... ids) {
+        this(hardwareMap, true, ids);
+    }
+
+    public HwMotor(HardwareMap hardwareMap, boolean initEncoder, String... ids) {
         this.hardware = Arrays.stream(ids).map(s -> HwDevice.init(hardwareMap, DcMotorEx.class, s)).toArray(DcMotorEx[]::new);
         this.id = Arrays.toString(ids);
-        encoder = Encoder.fromMotor(get());
+        this.encoder = initEncoder ? Encoder.fromMotor(get()) : null;
         resetPosition();
     }
 

@@ -24,7 +24,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
-import org.firstinspires.ftc.teamcode.mechanisms.octocanum.Octocanum;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
@@ -35,7 +34,6 @@ import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
-import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -202,11 +200,11 @@ public class Robot {
     public ICommand resetAfterShooting() {
         return new Parallel(
                 resetShooter(),
-                resetTableAfterShooting()
+                resetTable()
         );
     }
 
-    public ICommand resetTableAfterShooting() {
+    public ICommand resetTable() {
         return new Sequential(
                 new Instant(intakeMotor::stop),
                 popper.neutral(),
@@ -232,7 +230,7 @@ public class Robot {
                 Channels.send(c, Channels::signal),
                 new Parallel(
                         new Sequential(
-                                resetTableAfterShooting(),
+                                resetTable(),
                                 Channels.send(c, Channels::signal)
                         ),
                         new Sequential(

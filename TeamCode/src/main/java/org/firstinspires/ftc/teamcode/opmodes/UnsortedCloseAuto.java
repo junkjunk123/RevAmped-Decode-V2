@@ -52,7 +52,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 robot.popper.pop(),
                 robot.shootAll(),
                 Channels.send(c, Channels::signal),
-                robot.resetTableAfterShooting()
+                robot.resetTable()
         ));
     }
 

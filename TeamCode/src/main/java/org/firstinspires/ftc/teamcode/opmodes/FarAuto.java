@@ -39,7 +39,7 @@ public class FarAuto extends OpModeCommand {
                         ),
                         robot.shootAll(100),
                         new Parallel(
-                                robot.resetTableAfterShooting(),
+                                robot.resetTable(),
                                 new Instant(() -> robot.flywheel.stop()),
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 1500)
                         ),

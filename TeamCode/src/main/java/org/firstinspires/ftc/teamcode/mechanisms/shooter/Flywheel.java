@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
 @Config
@@ -31,6 +32,8 @@ public class Flywheel extends HwMotor {
 
     public Flywheel(HardwareMap hardwareMap) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
+        setEncoder(Encoder.fromMotor(get()).reverse());
+        resetPosition();
         hardware[0].setDirection(DcMotorSimple.Direction.REVERSE);
         hardware[1].setDirection(DcMotorSimple.Direction.FORWARD);
         controller = new FlywheelController();
