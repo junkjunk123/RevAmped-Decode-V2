@@ -31,8 +31,8 @@ public class Flywheel extends HwMotor {
 
     public Flywheel(HardwareMap hardwareMap) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
-        hardware[0].setDirection(DcMotorSimple.Direction.FORWARD);
-        hardware[1].setDirection(DcMotorSimple.Direction.REVERSE);
+        hardware[0].setDirection(DcMotorSimple.Direction.REVERSE);
+        hardware[1].setDirection(DcMotorSimple.Direction.FORWARD);
         controller = new FlywheelController();
     }
 

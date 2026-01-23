@@ -79,7 +79,7 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
-        if (gamepad_1.right_trigger_button.isRisingEdge()) robot.octocanum.toggle();
+
         if (gamepad_1.right_bumper.isRisingEdge()) schedule(tsh.task(robot.turret::next, new int[]{1, 1, 0}));
         if (gamepad_1.left_bumper.isRisingEdge()) schedule(tsh.task(robot.turret::previous, new int[]{1, 1, 0}));
         if (gamepad_1.b.isRisingEdge()) schedule(new Sequential(
@@ -155,13 +155,6 @@ public class Tele extends OpModeCommand {
             ));
         }
 
-        if (gamepad_2.dpad_right.isRisingEdge()) {
-            schedule(new Conditional(
-                    robot.turret::deenergized,
-                    robot.lift(),
-                    robot.turret.prepareForLift()
-            ));
-        }
 
         // Telemetry
         telemetry.addData("currentState", tsh.currentState());
