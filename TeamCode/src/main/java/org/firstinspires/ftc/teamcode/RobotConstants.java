@@ -17,7 +17,7 @@ public class RobotConstants {
         IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f;IntakeMotor.OUTTAKE_SLOW = -0.5f;
 
         //Popper Constants
-        Popper.POP = 136/255f; Popper.NEUTRAL = 50/255f;
+        Popper.POP = 125/255f; Popper.NEUTRAL = 31/255f;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 780;
@@ -27,7 +27,7 @@ public class RobotConstants {
         Hood.REST = 40/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 130/255f; Hood.NEAR_PRESET = 40/255f; Hood.MEDIUM_PRESET = 130/255f;
+        Hood.FAR_PRESET = 177/255f; Hood.NEAR_PRESET = 46/255f; Hood.MEDIUM_PRESET = 141/255f;
 
         //Turret Constants
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
@@ -35,11 +35,11 @@ public class RobotConstants {
         Turret.TICKS_LIMIT = 817; Turret.RAD_LIMIT = Math.PI; Turret.updateFullRotation();
 
         //Octocanum Constants
-        OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
-        OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
+        //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
+        //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
 
         //updated
-        float TABLE_BALL_0 = 237/255f, TABLE_BALL_1 = 202/255f, TABLE_BALL_2 = 164/255f, TABLE_BALL_0_END = 110/255f, TABLE_BALL_1_END = 75/255f, TABLE_BALL_2_END = 37/255f, FULL_REVOLUTION_TICKS = 107/255f;
+        float TABLE_BALL_0 = 237/255f, TABLE_BALL_1 = 202/255f, TABLE_BALL_2 = 166/255f, TABLE_BALL_0_END = 85/255f, TABLE_BALL_1_END = 50/255f, TABLE_BALL_2_END = 14/255f, FULL_REVOLUTION_TICKS = 131/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
 
         //ColorSensor Constants

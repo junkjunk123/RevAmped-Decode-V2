@@ -49,7 +49,7 @@ public class Robot {
     public final Table table;
     public final Hood hood;
     public final Popper popper;
-    public final Octocanum octocanum;
+    //public final Octocanum octocanum;
     public final IntakeMotor intakeMotor;
     public final ColorManager intakeColor;
     public final IntakeDistance intakeDistance;
@@ -70,7 +70,7 @@ public class Robot {
         setBulkReadMode(LynxModule.BulkCachingMode.MANUAL);
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         teleop = pathSupplier == null;
-        octocanum = teleop ? new Octocanum(hardwareMap) : null;
+        //octocanum = teleop ? new Octocanum(hardwareMap) : null;
         turret = new Turret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
@@ -109,10 +109,10 @@ public class Robot {
         robotState.update();
 
         if (teleop) {
-            octocanum.update();
+            //octocanum.update();
             drivetrain.update();
 
-            if (lift != null) lift.update();
+            //if (lift != null) lift.update();
         }
     }
 
@@ -266,7 +266,7 @@ public class Robot {
                     flywheel.deenergize();
                     popper.deenergize();
                     drivetrain.apply(DcMotorEx::setMotorDisable);
-                    octocanum.apply(HwServo::deenergize);
+                    //octocanum.apply(HwServo::deenergize);
                     table.deenergize();
                     hood.deenergize();
                 }),
