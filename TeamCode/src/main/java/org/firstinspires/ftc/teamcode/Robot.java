@@ -89,8 +89,8 @@ public class Robot {
     public ICommand init() {
         return new Parallel(
                 new Sequential(
-                        table.reset(),
-                        popper.neutral()
+                        popper.neutral(),
+                        table.reset()
                 ),
                 turret.runToState(Turret.MoveState.PresetState.REST)
         );
@@ -209,9 +209,9 @@ public class Robot {
     public ICommand resetTableAfterShooting() {
         return new Sequential(
                 new Instant(intakeMotor::stop),
+                popper.neutral(),
                 table.reset(),
-                new Instant(intakeMotor::intake),
-                popper.neutral()
+                new Instant(intakeMotor::intake)
         );
     }
 

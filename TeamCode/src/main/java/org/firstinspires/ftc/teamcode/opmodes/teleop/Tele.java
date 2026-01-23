@@ -90,9 +90,14 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atPower(IntakeMotor.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
-                    new Instant(() -> { robot.flywheel.stop(); robot.intakeMotor.intake(); }),
-                    robot.table.reset(),
-                    robot.popper.neutral()
+                    new Instant(() -> {
+                        robot.flywheel.stop();
+                    }),
+                    new Sequential(
+                            robot.popper.neutral(),
+                            robot.table.reset()
+                    ),
+                    robot.turret.resetTurret()
             ), RobotStateHandler.CycleState.INTAKE));
         }
 
