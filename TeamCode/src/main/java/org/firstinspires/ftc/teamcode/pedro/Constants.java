@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
+import static org.firstinspires.ftc.teamcode.opmodes.test.LocalizationTest.forwardY;
+import static org.firstinspires.ftc.teamcode.opmodes.test.LocalizationTest.strafeX;
+
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
@@ -38,10 +41,10 @@ public class Constants {
             .yVelocity(70.47);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(2.2)
-            .strafePodX(-1.15)
+            .forwardPodY(forwardY)
+            .strafePodX(strafeX)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
@@ -53,18 +56,6 @@ public class Constants {
             10,
             1
     );
-
-    public static OctoQuadConstants octoQuadConstants = new OctoQuadConstants()
-            .name("octoquad")
-            .deadwheelPortX(1)
-            .deadwheelPortY(0)
-            .deadwheelXDir(OctoQuadFWv3.EncoderDirection.REVERSE)
-            .deadwheelYDir(OctoQuadFWv3.EncoderDirection.FORWARD)
-            .deadwheelXTicksPerMM(19.89436789f)
-            .deadwheelYTicksPerMM(19.89436789f)
-            .tcpOffsetXMM((float) DistanceUnit.MM.fromInches(-3.46))
-            .tcpOffsetYMM((float) DistanceUnit.MM.fromInches(5.175))
-            .imuScalar(0.9731f);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

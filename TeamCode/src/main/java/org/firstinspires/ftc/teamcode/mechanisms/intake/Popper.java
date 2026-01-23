@@ -29,7 +29,7 @@ public class Popper extends HwServo {
 
     public ICommand pop() {
         return new Lazy(() -> {
-            if (!Objects.equals(getState(), PopperState.POP.name())) {
+            if (!movingToState(PopperState.POP)) {
                 return stateMachine.runTransition(
                         new Sequential(
                                 new Instant(() -> setPosition(POP)),
@@ -37,8 +37,6 @@ public class Popper extends HwServo {
                         ),
                         PopperState.POP
                 );
-
-
             }
 
             return Commands.NOOP;
@@ -47,7 +45,7 @@ public class Popper extends HwServo {
 
     public ICommand neutral() {
         return new Lazy(() -> {
-            if (!Objects.equals(getState(), PopperState.NEUTRAL.name())) {
+            if (!movingToState(PopperState.NEUTRAL)) {
                 return stateMachine.runTransition(
                         new Sequential(
                                 new Instant(() -> setPosition(NEUTRAL)),
