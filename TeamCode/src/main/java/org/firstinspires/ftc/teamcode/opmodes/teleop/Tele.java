@@ -27,7 +27,6 @@ public class Tele extends OpModeCommand {
     private GamepadEx gamepad_2;
     private Robot robot;
     private TeleOpStateHandler tsh;
-    public static AtomicReadOnce<Table.RelativeState> state;
 
     @Override
     public void initialize() {
@@ -50,7 +49,7 @@ public class Tele extends OpModeCommand {
         // Initialize robot
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
-                robot.init(),
+                new Instant(robot::initialize),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.INTAKE)
                 /* ,
                 tsh.runTransition(
@@ -87,7 +86,7 @@ public class Tele extends OpModeCommand {
         ));
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
 
-        if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atPower(IntakeMotor.INTAKE))) {
+        if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(() -> {
                         robot.flywheel.stop();
@@ -150,7 +149,7 @@ public class Tele extends OpModeCommand {
             schedule(new Sequential(
                     tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                     tsh.runTransition(new Sequential(
-                            robot.shootAll(175),
+                            robot.shootAll(Table.SLOW_SHOOT_DELAY),
                             robot.resetAfterShooting()
                     ), RobotStateHandler.CycleState.INTAKE)
             ));

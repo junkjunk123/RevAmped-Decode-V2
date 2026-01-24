@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.ivy.ICommand;
-import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
@@ -27,10 +26,13 @@ import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
+import org.firstinspires.ftc.teamcode.opmodes.CloseAuto;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
@@ -53,7 +55,6 @@ public class Robot {
     public final IntakeDistance intakeDistance;
     private Lift lift;
     public final TableCompartmentManager tableCompartments;
-    private final boolean teleop;
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
     private CycleState robotState = CycleState.INTAKE;
@@ -67,7 +68,7 @@ public class Robot {
         hubs = hardwareMap.getAll(LynxModule.class);
         setBulkReadMode(LynxModule.BulkCachingMode.MANUAL);
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
-        teleop = pathSupplier == null;
+        Globals.isTeleOp = pathSupplier == null;
         //octocanum = teleop ? new Octocanum(hardwareMap) : null;
         turret = new Turret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
@@ -79,9 +80,9 @@ public class Robot {
         //intakeDistance = new IntakeDistance(hardwareMap);
         intakeDistance = null;
         INSTANCE = this;
-        RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, teleop);
+        RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
         tableCompartments = new TableCompartmentManager(intakeColor);
-        if (!teleop) Scheduler.getInstance().schedule(init());
+        if (!Globals.isTeleOp) initialize();
     }
 
     public ICommand init() {
@@ -94,8 +95,15 @@ public class Robot {
         );
     }
 
+    public void initialize() {
+        popper.setPosition(Popper.NEUTRAL);
+        table.setPosition(Table.BALL1);
+        turret.move(Turret.MoveState.PresetState.REST);
+    }
+
     public void update() {
         clearBulkCache();
+        drivetrain.update();
         intakeColor.update();
         flywheel.update();
         turret.update();
@@ -105,13 +113,6 @@ public class Robot {
         //intakeDistance.update();
         hood.update();
         robotState.update();
-
-        if (teleop) {
-            //octocanum.update();
-            drivetrain.update();
-
-            //if (lift != null) lift.update();
-        }
     }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {
@@ -127,7 +128,7 @@ public class Robot {
     }
 
     public boolean isTeleop() {
-        return teleop;
+        return Globals.isTeleOp;
     }
 
     public CycleState getRobotState() {
@@ -145,11 +146,21 @@ public class Robot {
     }
 
     public ICommand sort() {
-        AtomicReadOnce<Table.RelativeState> reader = table.pendingStateReader();
-        return table.setState(() -> {
-            if (Globals.randomizationState == null) return reader.read().ordinal();
-            return tableCompartments.sort(reader.read().ordinal());}
-        );
+        return new Lazy(() -> {
+            if (Globals.randomizationState != null) return table.setState(() -> tableCompartments.sort(table.getState().ordinal()));
+            return Commands.NOOP;
+        });
+    }
+
+    public ICommand sortAuto() {
+        return new Lazy(() -> {
+            if (Globals.randomizationState != null)
+                return new Sequential(
+                    new Instant(() -> table.setPosition(Table.RelativeState.values()[tableCompartments.sort(table.getState().ordinal())].target())),
+                    new Wait(400)
+                );
+            return Commands.NOOP;
+        });
     }
 
     public ICommand shootAll() {
@@ -170,11 +181,8 @@ public class Robot {
                             shootSequence.set(table.getState().getShootStates());
                         }),
                         table.setPos(() -> shootSequence.get()[0]),
-                        new Instant(intakeMotor::stop),
                         new Wait(delay.get()),
-                        new Instant(intakeMotor::intakeSlow),
                         table.setPos(() -> shootSequence.get()[1]),
-                        new Instant(intakeMotor::shooting),
                         new Wait(delay.get()),
                         table.setPos(() -> shootSequence.get()[2] + Table.FULL_REVOLUTION / 3),
                         new Instant(tableCompartments::removeAll)
@@ -182,8 +190,41 @@ public class Robot {
         );
     }
 
+    public ICommand autoSlowShoot(Supplier<Double> delay) {
+        AtomicReference<float[]> shootSequence = new AtomicReference<>();
+        return new Conditional(
+                () -> delay.get() < 10,
+                new Sequential(
+                        new Instant(intakeMotor::intake),
+                        new Lazy(() -> {
+                            float pos = switch (table.getState()) {
+                                case BALL0 -> Table.BALL0_END;
+                                case BALL1 -> Table.BALL1_END;
+                                case BALL2 -> Table.BALL2_END;
+                            };
+
+                            return new Sequential(
+                                new Instant(() -> table.setPosition(pos)),
+                                new Wait(1250)
+                            );
+                        })
+                ),
+                new Sequential(
+                        new Instant(() -> {
+                            intakeMotor.intake();
+                            shootSequence.set(table.getState().getShootStates());
+                        }),
+                        new Instant(() -> table.setPosition(shootSequence.get()[0])),
+                        new Wait(delay.get() + 775),
+                        new Instant(() -> table.setPosition(shootSequence.get()[1])),
+                        new Wait(delay.get() + 775),
+                        new Instant(() -> table.setPosition(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3)),
+                        new Instant(tableCompartments::removeAll)
+                )
+        );
+    }
+
     public ICommand shootAll(double delay) {
-        if (delay < 10) return shootAll();
         return shootAll(() -> delay);
     }
 
@@ -213,14 +254,12 @@ public class Robot {
         );
     }
 
-    public ICommand sortAndShoot() {
+    public ICommand sortAndShootAuto() {
         return new Sequential(
-                sort(),
-                new Parallel(
-                        turret.reached(),
-                        popper.pop()
-                ),
-                shootAll(() -> Globals.allianceColor == null ? 0.0 : 175.0)
+                sortAuto(),
+                popper.pop(),
+                turret.reached(),
+                autoSlowShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
         );
     }
 

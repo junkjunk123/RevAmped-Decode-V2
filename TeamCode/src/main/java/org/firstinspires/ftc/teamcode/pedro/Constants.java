@@ -20,11 +20,20 @@ import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadConstants;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
 
 public class Constants {
+    public static double DEFAULT_PROPORTIONAL = 0.25;
+    public static double SAFE_PROPORTIONAL = 0.15;
+    public static double FORWARD_PROPORTIONAL = 0.15;
+    public static double BACKWARD_PROPORTIONAL = 0.3;
+
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12.4)
             .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0, 0.01))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(6.5, 0, 0.1, 0.0015))
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.075, 0.0487, 0.002))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(4, 0, 0.1, 0.0005))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(
+                    DEFAULT_PROPORTIONAL,
+                    0.090,
+                    0.00125
+            ))
             .centripetalScaling(0.00055);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -41,8 +50,8 @@ public class Constants {
             .yVelocity(70.47);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(forwardY)
-            .strafePodX(strafeX)
+            .forwardPodY(3.5)
+            .strafePodX(-2)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
@@ -59,9 +68,9 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                //.mecanumDrivetrain(driveConstants)
+                .mecanumDrivetrain(driveConstants)
                 .pinpointLocalizer(localizerConstants)
-                .setDrivetrain(new PedroMecanumDrive(hardwareMap, driveConstants))
+                //.setDrivetrain(new PedroMecanumDrive(hardwareMap, driveConstants))
                 //.setLocalizer(new OctoQuadLocalizer(hardwareMap, octoQuadConstants, OctoQuadLocalizer.InitMode.INITIALIZE_OCTOQUAD))
                 .pathConstraints(pathConstraints)
                 .build();

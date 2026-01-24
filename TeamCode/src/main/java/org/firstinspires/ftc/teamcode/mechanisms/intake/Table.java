@@ -31,7 +31,7 @@ public class Table extends HwServo {
         public float[] getShootStates() {
             switch (this) {
                 case BALL0 -> {
-                    return new float[] {Table.BALL1, Table.BALL2, Table.BALL2_END};
+                    return new float[] {Table.BALL1, Table.BALL2, Table.BALL0_END};
                 }
                 case BALL1 -> {
                     return new float[] {Table.BALL2, Table.BALL0_REV2, Table.BALL1_END};
@@ -77,6 +77,7 @@ public class Table extends HwServo {
     public static float BALL1_REV2;
     public static float FULL_REVOLUTION;
     public static double MS_PER_REVOLUTION = 1000;
+    public static double SLOW_SHOOT_DELAY = 25;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
     private final EncoderImpl encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
@@ -116,7 +117,6 @@ public class Table extends HwServo {
     public ICommand setRelativeState(Supplier<RelativeState> relativeState) {
         AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
         AtomicReadOnce<Double> accelTime = getAccelerationTime(true);
-        Tele.state = stateVal;
         return new Lazy(() -> {
            if (atPos(stateVal.read().target())) return Commands.NOOP;
            return stateHandler.runTransition(

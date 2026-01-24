@@ -12,6 +12,7 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
@@ -105,7 +106,7 @@ public class Turret extends HwMotor {
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch").flip();
         setTargetPosition(0);
         setDirection(DcMotorSimple.Direction.REVERSE);
-        setEncoderBase(getEncoder().getPosition() - startPos);
+        setEncoderBase(Globals.isTeleOp ? getEncoder().getPosition() - startPos : getEncoder().getPosition());
         invalidateCache();
     }
 

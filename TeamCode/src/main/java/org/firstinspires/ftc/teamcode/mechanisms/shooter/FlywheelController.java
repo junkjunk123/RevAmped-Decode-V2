@@ -32,7 +32,7 @@ public class FlywheelController {
     // --- Regeneration settings ---
     public static double REGEN_RATIO = 0.90;
     public static double REGEN_HYSTERESIS = 0.85;
-    public static double REGEN_KICK = 0.2;
+    public static double REGEN_KICK = 0.4;
     public static double REGEN_GAIN = 0.0003;
 
     // --- Kalman Filter ---

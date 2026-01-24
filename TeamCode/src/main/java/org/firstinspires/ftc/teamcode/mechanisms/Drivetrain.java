@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -24,7 +25,6 @@ import java.util.function.Function;
 
 public class Drivetrain {
     public final Follower follower;
-    private final boolean isTeleOp;
     private ArrayDeque<FollowParameters> paths;
     public static Pose startPose = new Pose();
     private final List<DcMotorEx> motors;
@@ -46,7 +46,7 @@ public class Drivetrain {
         leftRear = motors.get(1);
         rightFront = motors.get(2);
         rightRear = motors.get(3);
-        isTeleOp = true;
+        Globals.isTeleOp = true;
         follower.startTeleOpDrive();
         follower.update();
     }
@@ -61,7 +61,7 @@ public class Drivetrain {
         leftRear = motors.get(1);
         rightFront = motors.get(2);
         rightRear = motors.get(3);
-        isTeleOp = false;
+        Globals.isTeleOp = false;
         follower.update();
     }
 
@@ -261,7 +261,7 @@ public class Drivetrain {
     }
 
     public void update() {
-        if (!isTeleOp)
+        if (!Globals.isTeleOp)
             follower.update();
     }
 

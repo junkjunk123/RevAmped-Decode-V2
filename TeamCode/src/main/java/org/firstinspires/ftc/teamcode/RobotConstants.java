@@ -9,18 +9,20 @@ import org.firstinspires.ftc.teamcode.mechanisms.octocanum.OctocanumFront;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 public class RobotConstants {
     public void build() {
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.INTAKE_SLOW = 0.5f; IntakeMotor.OUTTAKE = -1.0f;
-        IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f;IntakeMotor.OUTTAKE_SLOW = -0.5f;
+        IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.5f;
 
         //Popper Constants
-        Popper.POP = 125/255f; Popper.NEUTRAL = 31/255f;
+        Popper.POP = 127/255f; Popper.NEUTRAL = 31/255f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 780;
+        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 700;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants
@@ -31,7 +33,8 @@ public class RobotConstants {
 
         //Turret Constants
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
-        Turret.AUTO_PRELOADS = 438; Turret.AUTO_SET_1 = 513; Turret.AUTO_SET_2 = 513; Turret.AUTO_SET_3 = 563; Turret.FAR_AUTO = 691;
+        Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 380; Turret.AUTO_SET_2 = 380; Turret.AUTO_SET_3 = 410; Turret.FAR_AUTO = 410;
+
         Turret.TICKS_LIMIT = 817; Turret.RAD_LIMIT = Math.PI; Turret.updateFullRotation();
 
         //Octocanum Constants
@@ -39,7 +42,7 @@ public class RobotConstants {
         //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
 
         //updated
-        float TABLE_BALL_0 = 237/255f, TABLE_BALL_1 = 202/255f, TABLE_BALL_2 = 166/255f, TABLE_BALL_0_END = 85/255f, TABLE_BALL_1_END = 50/255f, TABLE_BALL_2_END = 14/255f, FULL_REVOLUTION_TICKS = 131/255f;
+        float TABLE_BALL_0 = 237/255f, TABLE_BALL_1 = 202/255f, TABLE_BALL_2 = 166/255f, TABLE_BALL_0_END = 112/255f, TABLE_BALL_1_END = 76/255f, TABLE_BALL_2_END = 40/255f, FULL_REVOLUTION_TICKS = -106/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
 
         //ColorSensor Constants

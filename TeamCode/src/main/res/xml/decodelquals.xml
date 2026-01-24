@@ -19,4 +19,5 @@
             <Servo name="hood" port="2"/>
         </LynxModule>
     </LynxUsbDevice>
+    <EthernetDevice serialNumber="EthernetOverUsb:eth0:172.29.0.21" name="limelight" port="0" ipAddress="172.29.0.1" />
 </Robot>

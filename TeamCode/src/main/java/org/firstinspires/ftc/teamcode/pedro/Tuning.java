@@ -19,10 +19,12 @@ import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
@@ -30,7 +32,6 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.telemetry.SelectableOpMode;
 import com.pedropathing.util.NanoTimer;
 import com.pedropathing.util.PoseHistory;
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -39,7 +40,6 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -323,6 +323,45 @@ class TurnTuner extends OpMode {
         telemetryM.debug("Total Angle: " + follower.getTotalHeading());
         telemetryM.debug("The multiplier will display what your turn ticks to inches should be to scale your current angle to " + ANGLE + " radians.");
         telemetryM.debug("Multiplier: " + (ANGLE / (follower.getTotalHeading() / follower.getPoseTracker().getLocalizer().getTurningMultiplier())));
+        telemetryM.update(telemetry);
+
+        draw();
+    }
+}
+
+class OffsetsTuner extends OpMode {
+
+    @Override
+    public void init() {
+        follower.setStartingPose(new Pose(72,72));
+        follower.update();
+        drawOnlyCurrent();
+    }
+
+    /** This initializes the PoseUpdater as well as the Panels telemetry. */
+    @Override
+    public void init_loop() {
+        telemetryM.debug("Turn your robot " + Math.PI + " radians. Your offsets in inches will be shown on the telemetry.");
+        telemetryM.update(telemetry);
+
+        drawOnlyCurrent();
+    }
+
+    /**
+     * This updates the robot's pose estimate, and updates the Panels telemetry with the
+     * calculated offsets and draws the robot.
+     */
+    @Override
+    public void loop() {
+        follower.update();
+
+        telemetryM.debug("Total Angle: " + follower.getTotalHeading());
+
+        //telemetryM.debug("The multiplier will display what your turn ticks to inches should be to scale your current angle to " + ANGLE + " radians.");
+
+        //telemetryM.debug("forwardY: " + (ANGLE / (follower.getTotalHeading() / follower.getPoseTracker().getLocalizer().getTurningMultiplier())));
+        telemetryM.debug("strafeX: " + -follower.getPose().getX() / 2.0);
+        telemetryM.debug("forwardY: " + -follower.getPose().getY() / 2.0);
         telemetryM.update(telemetry);
 
         draw();
@@ -973,10 +1012,10 @@ class DriveTuner extends OpMode {
 class HeadingAutoTuner extends OpMode {
     private static final double ALPHA_LARGE = 1.2;
     private static final double ALPHA_SMALL = 1.8;
-
-    private static final double POWER = 1;
+    private static final double POWER = 0.75;
     private static final double RUNTIME = 5;
     private static final int SAMPLES = 15;
+    private static final double BETA = 0.30;
 
     private double tau;
     private double lambda_small;
@@ -986,15 +1025,13 @@ class HeadingAutoTuner extends OpMode {
     private final List<Double> angularVelocities = new ArrayList<>();
     private final NanoTimer timer = new NanoTimer();
     private boolean done = false;
+    private double lastTime = 0.0;
+    private double dt = 0.0;
 
     @Override
     public void init() {
     }
 
-    /**
-     * This initializes the Follower and creates the forward and backward Paths. Additionally, this
-     * initializes the Panels telemetry.
-     */
     @Override
     public void init_loop() {
         telemetryM.debug("This will turn continuously in place for " + RUNTIME + " seconds.");
@@ -1007,6 +1044,7 @@ class HeadingAutoTuner extends OpMode {
     @Override
     public void start() {
         timer.resetTimer();
+        lastTime = timer.getElapsedTimeSeconds();
         follower.startTeleOpDrive(true);
         follower.setTeleOpDrive(0, 0, POWER, true);
         drawOnlyCurrent();
@@ -1015,75 +1053,104 @@ class HeadingAutoTuner extends OpMode {
     @Override
     public void loop() {
         if (gamepad1.bWasPressed()) {
-            stopRobot();
+            follower.setTeleOpDrive(0, 0, 0, true);
             requestOpModeStop();
         }
+
+        double now = timer.getElapsedTimeSeconds();
+        dt = now - lastTime;
+        if (dt <= 0) dt = 1e-6;
+        lastTime = now;
 
         follower.update();
         telemetryM.update(telemetry);
         draw();
 
         telemetryM.addData("done", done);
+        telemetryM.addData("dt", String.format("%.6f s", dt));
 
         if (!done) {
-            times.add(timer.getElapsedTime() * 1e-9);
+            times.add(timer.getElapsedTimeSeconds());
             angularVelocities.add(follower.getAngularVelocity());
 
-            if (timer.getElapsedTime(TimeUnit.SECONDS) >= RUNTIME) {
+            if (timer.getElapsedTimeSeconds() >= RUNTIME) {
                 done = true;
                 systemIdentification();
-                follower.setTeleOpDrive(0,0,0,true);
-            }
-
-            else return;
-        }
-
-        double numPlusLarge = tau + lambda_large / 2;
-        double numPlusSmall = tau + lambda_small / 2;
-        double numMinusLarge = lambda_large - tau / 2;
-        double numMinusSmall = lambda_small - tau / 2;
-        double denomLarge = (lambda_large + tau / 2) * K;
-        double denomSmall = (lambda_small + tau / 2) * K;
-
-        double kPLarge = numPlusLarge / denomLarge;
-        double kPSmall = numPlusSmall / denomSmall;
-        double kDLarge = tau * numMinusLarge / denomLarge;
-        double kDSmall = tau * numMinusSmall / denomSmall;
-
-        telemetryM.addData("Large Coefficients", "kP = " + kPLarge + ", kD = " + kDLarge);
-        telemetryM.addData("Small Coefficients", "kP = " + kPSmall + ", kD = " + kDSmall);
-    }
-
-    private void systemIdentification() {
-        double sum = 0;
-        int start = Math.max(0, angularVelocities.size() - SAMPLES);
-
-        for (int j = start; j < angularVelocities.size(); j++)
-            sum += angularVelocities.get(j);
-
-        int count = angularVelocities.size() - start;
-        double avg = sum / count;
-        K = avg / POWER;
-
-        double timeSum = 0;
-        double weightedTimeSum = 0;
-
-        for (int k = 0; k < times.size(); k++) {
-            double ratio = angularVelocities.get(k) / (K * POWER);
-            ratio = Math.min(ratio, 0.999);
-
-            if (ratio > 0.2 && ratio < 0.8) {
-                double t = times.get(k);
-                double y = Math.log(1 - ratio);
-                timeSum += t * t;
-                weightedTimeSum += t * y;
+                follower.setTeleOpDrive(0, 0, 0, true);
+            } else {
+                follower.setTeleOpDrive(0, 0, POWER, true);
+                return;
             }
         }
-
-        tau = - timeSum / weightedTimeSum;
 
         lambda_small = tau * ALPHA_SMALL;
         lambda_large = tau * ALPHA_LARGE;
+
+        double safeK = (Math.abs(K) < 1e-8) ? Math.copySign(1e-8, K == 0 ? 1.0 : K) : K;
+
+        double kDLarge = (BETA * tau) / safeK;
+        double kPLarge = (((1.0 + BETA) * tau / lambda_large) - 1.0) / safeK;
+        double kDSmall = (BETA * tau) / safeK;
+        double kPSmall = (((1.0 + BETA) * tau / lambda_small) - 1.0) / safeK;
+
+        telemetryM.addData("Est tau (s)", String.format("%.4f", tau));
+        telemetryM.addData("Est K (rad/s per power)", String.format("%.4f", K));
+        telemetryM.addData("Lambda large (s)", String.format("%.4f", lambda_large));
+        telemetryM.addData("Lambda small (s)", String.format("%.4f", lambda_small));
+        telemetryM.addData("Large Coefficients", "kP=" + String.format("%.4f", kPLarge) + ", kD=" + String.format("%.4f", kDLarge));
+        telemetryM.addData("Small Coefficients", "kP=" + String.format("%.4f", kPSmall) + ", kD=" + String.format("%.4f", kDSmall));
+    }
+
+    private void systemIdentification() {
+        int N = times.size();
+        if (N < 4) {
+            this.tau = 0.2;
+            this.K = 1.0;
+            return;
+        }
+
+        double t0 = times.get(0);
+        List<Double> t = new ArrayList<>(N);
+        for (int i = 0; i < N; i++) t.add(times.get(i) - t0);
+
+        int start = Math.max(0, N - SAMPLES);
+        double sum = 0;
+        for (int i = start; i < N; i++) sum += angularVelocities.get(i);
+        double A = sum / (N - start);
+
+        double tauLocal = Math.max(0.05, (t.get(N - 1) - t.get(0)) / 3.0);
+
+        for (int iter = 0; iter < 8; iter++) {
+            double num = 0.0;
+            double den = 0.0;
+            for (int i = 0; i < N; i++) {
+                double wi = angularVelocities.get(i);
+                if (wi <= 0.0 || wi >= 0.999 * A) continue;
+                double y = Math.log(1.0 - wi / A);
+                num += t.get(i) * t.get(i);
+                den += t.get(i) * y;
+            }
+            if (den != 0.0) {
+                double newTau = -num / den;
+                if (newTau > 1e-6 && newTau < 100.0) tauLocal = newTau;
+            }
+
+            double numA = 0.0;
+            double denA = 0.0;
+            for (int i = 0; i < N; i++) {
+                double phi = 1.0 - Math.exp(-t.get(i) / tauLocal);
+                numA += angularVelocities.get(i) * phi;
+                denA += phi * phi;
+            }
+            if (denA > 0.0) {
+                double newA = numA / denA;
+                if (newA > 1e-6) A = newA;
+            }
+        }
+
+        this.tau = tauLocal;
+        double safePower = (Math.abs(POWER) < 1e-9) ? 1e-9 : POWER;
+        this.K = A / safePower;
     }
 }
 
@@ -1139,9 +1206,23 @@ class Line extends OpMode {
         if (!follower.isBusy()) {
             if (forward) {
                 forward = false;
+                follower.vectorCalculator.predictiveBrakingController.setCoefficients(
+                        new PredictiveBrakingCoefficients(
+                                0.3,
+                                0.090,
+                                0.00125
+                        )
+                );
                 follower.followPath(backwards);
             } else {
                 forward = true;
+                follower.vectorCalculator.predictiveBrakingController.setCoefficients(
+                        new PredictiveBrakingCoefficients(
+                                0.15,
+                                0.090,
+                                0.00125
+                        )
+                );
                 follower.followPath(forwards);
             }
         }

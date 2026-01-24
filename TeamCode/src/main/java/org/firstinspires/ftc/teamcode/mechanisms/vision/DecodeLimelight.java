@@ -130,6 +130,7 @@ public class DecodeLimelight implements HwDevice {
     }
 
     public void close() {
+        setCurrentPipeline(Pipeline.NONE);
         limelight.close();
     }
 

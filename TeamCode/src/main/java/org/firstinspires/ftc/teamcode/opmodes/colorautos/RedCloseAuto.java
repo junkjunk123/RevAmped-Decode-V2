@@ -4,10 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.opmodes.CloseAuto;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 @Autonomous
 public class RedCloseAuto extends CloseAuto {
-    public RedCloseAuto(AllianceColor allianceColor) {
-        super(allianceColor);
+    @Override
+    public void initialize() {
+        Globals.setAllianceColor(AllianceColor.Red);
+        super.initialize();
     }
 }

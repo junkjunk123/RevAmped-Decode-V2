@@ -76,6 +76,7 @@ public class Flywheel extends HwMotor {
 
     public void closeAuto() {
         runToVel(CLOSE_AUTO_VELOCITY);
+        state = FlywheelState.TRACKING;
     }
 
     public void stop() {
