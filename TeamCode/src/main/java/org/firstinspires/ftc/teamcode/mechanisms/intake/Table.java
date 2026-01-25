@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Table extends HwServo {
@@ -29,19 +30,11 @@ public class Table extends HwServo {
         BALL2;
 
         public float[] getShootStates() {
-            switch (this) {
-                case BALL0 -> {
-                    return new float[] {Table.BALL1, Table.BALL2, Table.BALL0_END};
-                }
-                case BALL1 -> {
-                    return new float[] {Table.BALL2, Table.BALL0_REV2, Table.BALL1_END};
-                }
-                case BALL2 -> {
-                    return new float[] {Table.BALL0_REV2, Table.BALL1_REV2, Table.BALL2_END};
-                }
-            }
-
-            return null;
+            float first = target() + SHOOT_INCREMENT;
+            float secondIncrement = FULL_REVOLUTION / 3;
+            float second = secondIncrement + first;
+            float third = secondIncrement + second;
+            return new float[] {first, second, third};
         }
 
         public float target() {
@@ -76,6 +69,7 @@ public class Table extends HwServo {
     public static float BALL0_REV2;
     public static float BALL1_REV2;
     public static float FULL_REVOLUTION;
+    public static float SHOOT_INCREMENT;
     public static double MS_PER_REVOLUTION = 1000;
     public static double SLOW_SHOOT_DELAY = 25;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);

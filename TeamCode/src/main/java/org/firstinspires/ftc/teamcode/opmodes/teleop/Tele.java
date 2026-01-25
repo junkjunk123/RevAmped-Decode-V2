@@ -88,9 +88,7 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
-                    new Instant(() -> {
-                        robot.flywheel.stop();
-                    }),
+                    new Instant(robot.flywheel::stop),
                     robot.resetTable(),
                     robot.turret.resetTurret()
             ), RobotStateHandler.CycleState.INTAKE));
@@ -155,6 +153,11 @@ public class Tele extends OpModeCommand {
             ));
         }
 
+        if (gamepad_2.dpad_left.isRisingEdge()) {
+            schedule(tsh.task(robot.popper.pop(), RobotStateHandler.CycleState.INTAKE));
+        } else if (gamepad_2.dpad_left.isFallingEdge()) {
+            schedule(tsh.task(robot.popper.neutral(), RobotStateHandler.CycleState.INTAKE));
+        }
 
         // Telemetry
         telemetry.addData("currentState", tsh.currentState());

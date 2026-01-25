@@ -54,12 +54,20 @@ public class CloseAuto extends OpModeCommand {
                     }),
                     new Race(
                             robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
-                            new Infinite(limelight::update)
+                            new Sequential(
+                                    new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
+                                    new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
+                                    new Infinite(() -> {})
+                            )
                     ),
-                    new Race(
-                          new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
-                          new Wait(4000)
-                    ),
+                    new Lazy(() -> {
+                        if (Globals.randomizationState != null) return Commands.NOOP;
+                        return new Race(
+                                new Functional(() -> {
+                                }, limelight::update, () -> Globals.randomizationState != null),
+                                new Wait(4000)
+                        );
+                    }),
                     new Instant(() -> {
                         limelight.close();
                         robot.turret.setTargetPosition(Turret.AUTO_PRELOADS);
@@ -119,7 +127,7 @@ public class CloseAuto extends OpModeCommand {
     @Override
     public void end() {
         Drivetrain.startPose = robot.drivetrain.follower.getPose();
-        Turret.startPos = robot.turret.getTargetPosition();
+        //Turret.startPos = robot.turret.getTargetPosition();
     }
 
     private ICommand intake(int iteration) {

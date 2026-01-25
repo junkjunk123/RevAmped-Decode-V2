@@ -1,31 +1,80 @@
 package org.firstinspires.ftc.teamcode.opmodes.paths;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-
+import com.pedropathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
-
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Configurable
 public class UnsortedCloseAutoPaths implements PathSupplier {
-    /*
-    {"startPoint":{"x":15.5,"y":114,"heading":"linear","startDeg":90,"endDeg":180},"lines":[{"name":"Path 1","endPoint":{"x":60,"y":84,"heading":"constant","startDeg":180,"endDeg":150,"degrees":180},"controlPoints":[],"color":"#6A89D8"},{"name":"Path 2","endPoint":{"x":10,"y":60,"heading":"constant","reverse":false,"degrees":180},"controlPoints":[{"x":55,"y":58}],"color":"#78B5C8"},{"name":"Path 3","endPoint":{"x":60,"y":84,"heading":"constant","reverse":false,"degrees":180},"controlPoints":[{"x":55,"y":58}],"color":"#58B69B"},{"name":"Path 4","endPoint":{"x":11.5,"y":60,"heading":"linear","reverse":false,"startDeg":180,"endDeg":150,"degrees":180},"controlPoints":[{"x":52,"y":66}],"color":"#A7557D"},{"name":"Path 6","endPoint":{"x":60,"y":84,"heading":"constant","reverse":false,"degrees":180},"controlPoints":[],"color":"#ABBC6A"},{"name":"Path 6","endPoint":{"x":11.5,"y":60,"heading":"linear","reverse":false,"startDeg":180,"endDeg":150},"controlPoints":[{"x":52,"y":66}],"color":"#589887"},{"name":"Path 7","endPoint":{"x":60,"y":84,"heading":"constant","reverse":false,"degrees":180},"controlPoints":[],"color":"#A89B68"},{"name":"Path 8","endPoint":{"x":11.5,"y":60,"heading":"linear","reverse":false,"startDeg":180,"endDeg":150},"controlPoints":[{"x":52,"y":66}],"color":"#9C6BA7"},{"name":"Path 9","endPoint":{"x":60,"y":84,"heading":"constant","reverse":false,"degrees":180},"controlPoints":[],"color":"#96598A"},{"name":"Path 10","endPoint":{"x":17,"y":84,"heading":"constant","reverse":false,"degrees":180},"controlPoints":[],"color":"#9C6B79"},{"name":"Path 11","endPoint":{"x":54,"y":112,"heading":"tangential","reverse":false},"controlPoints":[],"color":"#8BBA9C"}]}
-     */
-    public static ColoredDecodePose START_POSE = new ColoredDecodePose(15.5, 114, Math.PI);
-    public static ColoredDecodePose SHOOT_POSE = new ColoredDecodePose(60, 84, Math.PI);
+    public static ColoredDecodePose START_POSE = new ColoredDecodePose(14, 114, Math.PI);
+    public static ColoredDecodePose CONTROL_POINT_1 = new ColoredDecodePose(50, 98, Math.PI);
+    public static ColoredDecodePose SHOOT_POSE = new ColoredDecodePose(57, 78, Math.PI);
+    public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(12, 59, Math.PI);
+    public static ColoredDecodePose INTAKE_1_CONTROL = new ColoredDecodePose(50, 59, Math.PI);
+    public static ColoredDecodePose SHOOT_POSE_CONTROL_1 = new ColoredDecodePose(32, 58, Math.PI);
+    public static ColoredDecodePose GATE = new ColoredDecodePose(12, 59.5, Math.toRadians(140));
+    public static ColoredDecodePose INTAKE_FINAL_PRELOAD_CONTROL = new ColoredDecodePose(55, 85, Math.PI);
+    public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(18, 84, Math.PI);
+    public static ColoredDecodePose PARK = new ColoredDecodePose(56, 111, Math.toRadians(220));
 
     @Override
     public Pose startPose() {
-        return null;
+        return START_POSE.getPose();
     }
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-        return Collections.emptyList();
+        FollowParameters shootPreloads = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(START_POSE, CONTROL_POINT_1, SHOOT_POSE))
+                .setTangentHeadingInterpolation()
+                .build()
+        );
+
+        FollowParameters intakeFirstSet = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, INTAKE_1_CONTROL, INTAKE_1))
+                .setTangentHeadingInterpolation()
+                .build()
+        );
+
+        PathChain shootingFromGate = follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE, SHOOT_POSE))
+                .setTangentHeadingInterpolation()
+                .build();
+
+        FollowParameters shootFirstSet = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(INTAKE_1, SHOOT_POSE_CONTROL_1, SHOOT_POSE))
+                .setConstantHeadingInterpolation(shootingFromGate.getFinalHeadingGoal())
+                .build()
+        );
+
+        Supplier<FollowParameters> intakeToGate = () -> new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, INTAKE_1_CONTROL, GATE))
+                .setLinearHeadingInterpolation(SHOOT_POSE.getHeading(), GATE.getHeading(), 0.8)
+                .build()
+        );
+
+        Supplier<FollowParameters> shootFromGate = () -> new FollowParameters(Constants.BACKWARD_PROPORTIONAL, shootingFromGate);
+
+        FollowParameters intakeFinalPresets = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, INTAKE_FINAL_PRELOAD_CONTROL, INTAKE_FINAL_PRELOAD))
+                .setConstantHeadingInterpolation(INTAKE_FINAL_PRELOAD.getHeading())
+                .build()
+        );
+
+        FollowParameters shootFinalPresets = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(INTAKE_FINAL_PRELOAD, PARK))
+                .setLinearHeadingInterpolation(INTAKE_FINAL_PRELOAD.getHeading(), PARK.getHeading(), 0.8)
+                .build()
+        );
+
+        return List.of(shootPreloads, intakeFirstSet, shootFirstSet, intakeToGate.get(), shootFromGate.get(),
+                intakeToGate.get(), shootFromGate.get(), intakeToGate.get(), shootFromGate.get(), intakeToGate.get(),
+                shootFromGate.get(), intakeFinalPresets, shootFinalPresets);
     }
 }
