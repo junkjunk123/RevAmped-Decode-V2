@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.mechanisms.intake.Table.MS_PER_REVO
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 @TeleOp
 public class TableEncoderTest extends OpMode {
     private Table table;
-    private IntakeMotor intakeMotor;
+    private DcMotorEx motor;
     private double previousPos = Table.BALL1;
     private double distance;
     private double actualTime;
@@ -24,13 +25,15 @@ public class TableEncoderTest extends OpMode {
 
     @Override
     public void init() {
-        intakeMotor = new IntakeMotor(hardwareMap);
-        table = new Table(hardwareMap, Encoder.fromMotor(intakeMotor.get()));
+        motor = hardwareMap.get(DcMotorEx.class, "motor_lb");
+        table = new Table(hardwareMap, Encoder.fromMotor(motor));
         Globals.init(telemetry);
     }
 
     @Override
     public void loop() {
+        table.update();
+
         if (gamepad1.aWasPressed()) {
             table.setPosition(Table.BALL1_END);
             distance = Math.abs(Table.BALL1_END - previousPos);

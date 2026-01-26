@@ -55,6 +55,9 @@ public final class Globals {
             Turret.AUTO_SET_2 *= -1;
             Turret.AUTO_SET_3 *= -1;
             Turret.FAR_AUTO *= -1;
+            Turret.UNSORTED_FINAL *= -1;
+            Turret.UNSORTED_GATE *= -1;
+            Turret.UNSORTED_AUTO_PRELOADS *= -1;
         }
     }
 }

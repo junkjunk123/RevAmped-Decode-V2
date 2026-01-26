@@ -17,6 +17,7 @@ public class Flywheel extends HwMotor {
     public static double MEDIUM_VELOCITY;
     public static double NEAR_VELOCITY;
     public static double CLOSE_AUTO_VELOCITY;
+    public static double UNSORTED_AUTO_VELOCITY;
 
     private double targetVelocity;
     private final FlywheelController controller;
@@ -76,6 +77,11 @@ public class Flywheel extends HwMotor {
 
     public void closeAuto() {
         runToVel(CLOSE_AUTO_VELOCITY);
+        state = FlywheelState.TRACKING;
+    }
+
+    public void unsortedAuto() {
+        runToVel(UNSORTED_AUTO_VELOCITY);
         state = FlywheelState.TRACKING;
     }
 

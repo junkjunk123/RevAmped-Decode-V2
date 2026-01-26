@@ -154,7 +154,7 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_left.isRisingEdge()) {
-            schedule(tsh.task(robot.popper.pop(), RobotStateHandler.CycleState.INTAKE));
+            schedule(tsh.task(robot.popper.block(), RobotStateHandler.CycleState.INTAKE));
         } else if (gamepad_2.dpad_left.isFallingEdge()) {
             schedule(tsh.task(robot.popper.neutral(), RobotStateHandler.CycleState.INTAKE));
         }

@@ -329,6 +329,13 @@ class TurnTuner extends OpMode {
     }
 }
 
+/**
+ * This is the OffsetsTuner OpMode. This tracks the movement of the robot as it turns 180 degrees,
+ * and calculates what the robot's strafeX and forwardY offsets should be. Ensure that your strafeX and forwardY offsets
+ * are set to 0 before running this OpMode. After running, input the displayed offsets into your localizer constants.
+ *
+ * @author Havish Sripada - 12808 RevAmped Robotics
+ */
 class OffsetsTuner extends OpMode {
     @Override
     public void init() {
@@ -340,6 +347,7 @@ class OffsetsTuner extends OpMode {
     /** This initializes the PoseUpdater as well as the Panels telemetry. */
     @Override
     public void init_loop() {
+        telemetryM.debug("Prerequisite: Make sure both your offsets are set to 0 in your localizer constants.");
         telemetryM.debug("Turn your robot " + Math.PI + " radians. Your offsets in inches will be shown on the telemetry.");
         telemetryM.update(telemetry);
 
@@ -356,9 +364,7 @@ class OffsetsTuner extends OpMode {
 
         telemetryM.debug("Total Angle: " + follower.getTotalHeading());
 
-        //telemetryM.debug("The multiplier will display what your turn ticks to inches should be to scale your current angle to " + ANGLE + " radians.");
-
-        //telemetryM.debug("forwardY: " + (ANGLE / (follower.getTotalHeading() / follower.getPoseTracker().getLocalizer().getTurningMultiplier())));
+        telemetryM.debug("The following values are the offsets in inches that should be applied to your localizer.");
         telemetryM.debug("strafeX: " + -follower.getPose().getX() / 2.0);
         telemetryM.debug("forwardY: " + -follower.getPose().getY() / 2.0);
         telemetryM.update(telemetry);

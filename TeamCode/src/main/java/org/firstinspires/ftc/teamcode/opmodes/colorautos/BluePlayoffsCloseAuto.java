@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 public class BluePlayoffsCloseAuto extends UnsortedCloseAuto {
     @Override
     public void initialize() {
-        Globals.allianceColor = AllianceColor.Blue;
+        Globals.setAllianceColor(AllianceColor.Blue);
         super.initialize();
     }
 }

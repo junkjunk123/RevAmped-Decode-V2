@@ -26,9 +26,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
-import org.firstinspires.ftc.teamcode.opmodes.CloseAuto;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
-import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
@@ -190,7 +188,25 @@ public class Robot {
         );
     }
 
-    public ICommand autoSlowShoot(Supplier<Double> delay) {
+    public ICommand autoFastShoot() {
+        return new Sequential(
+                new Instant(intakeMotor::intake),
+                new Lazy(() -> {
+                    float pos = switch (table.getState()) {
+                        case BALL0 -> Table.BALL0_END;
+                        case BALL1 -> Table.BALL1_END;
+                        case BALL2 -> Table.BALL2_END;
+                    };
+
+                    return new Sequential(
+                            new Instant(() -> table.setPosition(pos)),
+                            new Wait(850)
+                    );
+                })
+        );
+    }
+
+    public ICommand autoShoot(Supplier<Double> delay) {
         AtomicReference<float[]> shootSequence = new AtomicReference<>();
         return new Conditional(
                 () -> delay.get() < 10,
@@ -259,7 +275,7 @@ public class Robot {
                 sortAuto(),
                 popper.pop(),
                 turret.reached(),
-                autoSlowShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
+                autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
         );
     }
 

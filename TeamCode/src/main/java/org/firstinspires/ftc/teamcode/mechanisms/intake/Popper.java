@@ -16,6 +16,7 @@ import java.util.Objects;
 public class Popper extends HwServo {
     public static float NEUTRAL;
     public static float POP;
+    public static float BLOCK;
 
     public enum PopperState {
         NEUTRAL,
@@ -43,6 +44,14 @@ public class Popper extends HwServo {
         });
     }
 
+    public ICommand block() {
+        return new Sequential(
+                new Instant(() -> setPosition(BLOCK)),
+                new Wait(250),
+                new Instant(() -> stateMachine.setCurrentState(PopperState.POP))
+        );
+    }
+
     public ICommand neutral() {
         return new Lazy(() -> {
             if (!movingToState(PopperState.NEUTRAL)) {
@@ -65,6 +74,11 @@ public class Popper extends HwServo {
 
     public boolean movingToState(PopperState popperState) {
         return stateMachine.getPendingState().equals(popperState);
+    }
+
+    public void popCommandless() {
+        setPosition(POP);
+        stateMachine.setCurrentState(PopperState.POP);
     }
 
     public String getState() {

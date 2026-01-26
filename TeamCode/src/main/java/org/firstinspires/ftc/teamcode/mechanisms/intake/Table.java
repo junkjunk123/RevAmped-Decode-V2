@@ -70,13 +70,14 @@ public class Table extends HwServo {
     public static float BALL1_REV2;
     public static float FULL_REVOLUTION;
     public static float SHOOT_INCREMENT;
-    public static double MS_PER_REVOLUTION = 1000;
+    public static double MS_PER_REVOLUTION = 750;
     public static double SLOW_SHOOT_DELAY = 25;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
     private final EncoderImpl encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
     private final HwServo tableServo2;
     private boolean atRelativeState = true;
+    private boolean useEncoder;
 
     public Table(HardwareMap hwMap, Encoder rawEncoder) {
         super(hwMap, "table");
@@ -119,13 +120,13 @@ public class Table extends HwServo {
                                distance.set(Math.abs(stateVal.read().target() - getPosition()));
                                setPosition(stateVal.read().target());
                            }),
-                           new Race(
+                           useEncoder ? new Race(
                                    new Sequential(
                                            new Wait(accelTime.read()),
                                            new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                    ),
-                                   new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
-                           ),
+                                   new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION))
+                           ) : new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION - 150)),
                            new Instant(() -> atRelativeState = true)
                    ),
                    stateVal::read
@@ -172,13 +173,13 @@ public class Table extends HwServo {
                             distance.set(Math.abs(position[0] - getPosition()));
                             setPosition(position[0]);
                         }),
-                        new Race(
+                        useEncoder ? new Race(
                                 new Sequential(
                                         new Wait(accelTime.read()),
                                         new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
                                 ),
                                 new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
-                        ),
+                        ) : new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)),
                         new Instant(() -> atRelativeState = false)
                 )
         );
@@ -247,5 +248,9 @@ public class Table extends HwServo {
         boolean moved = super.setPosition(pos);
         if (moved) encoder.reset();
         return moved;
+    }
+
+    public void setUseEncoder(boolean useEncoder) {
+        this.useEncoder = useEncoder;
     }
 }

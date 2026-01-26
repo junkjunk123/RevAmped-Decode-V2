@@ -203,7 +203,7 @@ public class CloseAuto extends OpModeCommand {
                                 robot.popper.pop()
                         )
                 ),
-                robot.autoSlowShoot(() -> !isSorting.get() ? 0.0 : Table.SLOW_SHOOT_DELAY)
+                robot.autoShoot(() -> !isSorting.get() ? 0.0 : Table.SLOW_SHOOT_DELAY)
         );
     }
 

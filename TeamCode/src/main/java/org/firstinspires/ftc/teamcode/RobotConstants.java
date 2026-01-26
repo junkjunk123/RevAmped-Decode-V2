@@ -19,10 +19,11 @@ public class RobotConstants {
         IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.5f;
 
         //Popper Constants
-        Popper.POP = 127/255f; Popper.NEUTRAL = 24/255f;
+        Popper.POP = 127/255f; Popper.NEUTRAL = 24/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 680;
+        Flywheel.UNSORTED_AUTO_VELOCITY = 810;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants
@@ -34,6 +35,7 @@ public class RobotConstants {
         //Turret Constants
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
         Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
+        Turret.UNSORTED_AUTO_PRELOADS = 73; Turret.UNSORTED_GATE = 496; Turret.UNSORTED_FINAL = 482;
 
         Turret.TICKS_LIMIT = 817; Turret.RAD_LIMIT = Math.PI; Turret.updateFullRotation();
 
