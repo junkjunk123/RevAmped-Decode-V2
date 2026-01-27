@@ -28,6 +28,7 @@ public class Tele extends OpModeCommand {
     private Robot robot;
     private TeleOpStateHandler tsh;
 
+
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
@@ -85,6 +86,12 @@ public class Tele extends OpModeCommand {
                 new Instant(robot.turret::resetPosition)
         ));
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
+
+        if (gamepad_1.right_trigger_button.isTrue())
+            robot.turret.finetune((int) (gamepad1.right_trigger * 20));
+
+        if (gamepad_1.right_trigger_button.isTrue())
+            robot.turret.finetune(-(int) (gamepad1.right_trigger * 20));
 
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
@@ -153,6 +160,10 @@ public class Tele extends OpModeCommand {
             ));
         }
 
+        if (gamepad_2.left_trigger_button.isRisingEdge()) {
+            robot.turret.resetPosition();
+        }
+
         if (gamepad_2.dpad_left.isRisingEdge()) {
             schedule(tsh.task(robot.popper.block(), RobotStateHandler.CycleState.INTAKE));
         } else if (gamepad_2.dpad_left.isFallingEdge()) {
@@ -163,6 +174,7 @@ public class Tele extends OpModeCommand {
         telemetry.addData("currentState", tsh.currentState());
         telemetry.addData("tableMoving", robot.table.pendingState() != robot.table.getState());
         telemetry.addData("tableVel", robot.table.getEncoder().getVelocity());
+        telemetry.addData("position", robot.drivetrain.follower.getPose());
         telemetry.update();
     }
 

@@ -83,16 +83,6 @@ public class Robot {
         if (!Globals.isTeleOp) initialize();
     }
 
-    public ICommand init() {
-        return new Parallel(
-                new Sequential(
-                        popper.neutral(),
-                        table.reset()
-                ),
-                turret.runToState(Turret.MoveState.PresetState.REST)
-        );
-    }
-
     public void initialize() {
         popper.setPosition(Popper.NEUTRAL);
         table.setPosition(Table.BALL1);

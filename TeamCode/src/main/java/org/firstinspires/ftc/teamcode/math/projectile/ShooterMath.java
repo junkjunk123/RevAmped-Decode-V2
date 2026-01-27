@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.RAD_LIMIT
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.TICKS_LIMIT;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Matrix;
@@ -20,29 +21,21 @@ import org.firstinspires.ftc.teamcode.math.calc.Vector3D;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 
+@Config
 public class ShooterMath {
     private final Follower follower;
     public static Pose APRIL_TAG_POSE_RED;
-    public static Pose APRIL_TAG_POSE_BLUE_POSITIVE;
-    public static Pose APRIL_TAG_POSE_RED_NEGATIVE;
     public static Pose APRIL_TAG_POSE_BLUE;
     public static double LAUNCH_ZONE_HEIGHT = 58;
 
-    public static double bluePositiveX = 14; //added 8 inch
-    public static double bluePositiveY = 145; //subtracted 4 inch
     public static double blueNegativeX = 15; //added 18 inch
     public static double blueNegativeY = 133;
     public static double redPositiveX = 119;
     public static double redPositiveY = 133;
-    public static double redNegativeX = 151;
-    public static double redNegativeY = 180;
 
     public static double BALL_LAUNCH_MS = 100; //time through flywheel
-    public static double LAUNCH_ETA = 0.9;
 
     public static boolean velocityCompensation;
-
-    private final PoseDifferentiator accelerationCalculator;
 
     private int turretPos;
     private double hoodPos;
@@ -50,40 +43,35 @@ public class ShooterMath {
 
     public ShooterMath(Follower follower) {
         this.follower = follower;
-        accelerationCalculator = new PoseDifferentiator(Pose::new, follower.poseTracker.getLocalizer()::getVelocity);
         APRIL_TAG_POSE_BLUE = new Pose(blueNegativeX, blueNegativeY);
-        APRIL_TAG_POSE_BLUE_POSITIVE = new Pose(bluePositiveX, bluePositiveY);
         APRIL_TAG_POSE_RED = new Pose(redPositiveX, redPositiveY);
-        APRIL_TAG_POSE_RED_NEGATIVE = new Pose(redNegativeX, redNegativeY);
     }
 
     public void update(boolean trackTurret, boolean trackHood, double flywheelVelocity) {
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
             Pose currentPos = follower.getPose();
-
-            Matrix inverseRotation = MathUtil.rotMatrix(currentPos.getHeading()).transposed();
-            Vector robotLinearVel = follower.getVelocity().transform(inverseRotation);
-            Pose robotVelPose = new Pose(robotLinearVel.getXComponent(), robotLinearVel.getYComponent(), robotLinearVel.getTheta());
-            Vector robotVelocity = robotVelPose.getAsVector();
-            Pose projectedRobotPose = RobotKinematicsCalculator.getProjectedPoseWithConstantVelocity(
-                    currentPos,
-                    BALL_LAUNCH_MS / 1000.0,
-                    robotVelPose
-            );
+            Vector robotVelocity = null;
+            Pose projectedRobotPose = null;
+            if (velocityCompensation) {
+                Matrix inverseRotation = MathUtil.rotMatrix(currentPos.getHeading()).transposed();
+                Vector robotLinearVel = follower.getVelocity().transform(inverseRotation);
+                Pose robotVelPose = new Pose(robotLinearVel.getXComponent(), robotLinearVel.getYComponent(), robotLinearVel.getTheta());
+                robotVelocity = robotVelPose.getAsVector();
+                projectedRobotPose = RobotKinematicsCalculator.getProjectedPoseWithConstantVelocity(
+                        currentPos,
+                        BALL_LAUNCH_MS / 1000.0,
+                        robotVelPose
+                );
+            }
             double deltaAngle;
 
             if (trackTurret) {
-                if (!velocityCompensation || robotVelocity.getMagnitude() < 8) {
+                if (!velocityCompensation) {
                     deltaAngle = angleTurretTo(currentPos, targetPos);
-
-                    if ((deltaAngle > 0 && allianceColor == AllianceColor.Blue) || (deltaAngle < 0 && allianceColor == AllianceColor.Red)) {
-                        Pose targetCorrectedPose = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED_NEGATIVE : APRIL_TAG_POSE_BLUE_POSITIVE;
-                        deltaAngle = angleTurretTo(currentPos, targetCorrectedPose);
-                    }
-
                     turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
                 } else if (velocityCompensation) {
+                    /*
                     Vector offset = targetPos.minus(projectedRobotPose).getAsVector();
                     Vector iHat = offset.normalize();
                     Vector jHat = new Vector();
@@ -103,6 +91,11 @@ public class ShooterMath {
                     double targetAngle = flywheelDirectionVector.transform(inverseRotMatrix).getTheta() + Math.PI;
                     deltaAngle = normalizeAnglePi(targetAngle - projectedRobotPose.getHeading());
                     deltaAngle = Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
+                    turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
+
+                     */
+
+                    deltaAngle = angleTurretTo(projectedRobotPose, targetPos);
                     turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
                 }
             }
@@ -151,7 +144,7 @@ public class ShooterMath {
         offset.setOrthogonalComponents(targetPos.getX() - currentPos.getX(), targetPos.getY() - currentPos.getY());
         double targetAngle = offset.getTheta() + Math.PI;
         double currentAngle = follower.getPose().getHeading();
-        double deltaAngle = Angle.normalizeAnglePi(targetAngle - currentAngle);
+        double deltaAngle = normalizeAnglePi(targetAngle - currentAngle);
         return Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
     }
 

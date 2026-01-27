@@ -150,7 +150,7 @@ public class RobotStateHandler {
 
     public enum IntakeState {
         INTAKING,
-        SORTING;
+        SORTING
     }
 
     public enum DriveState {

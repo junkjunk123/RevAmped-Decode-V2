@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.math.projectile.ShooterMath;
 
+@Config
 public class TrackingThread {
     private final ShooterMath shooterMath;
     private final Turret turret;
@@ -28,6 +30,6 @@ public class TrackingThread {
         if (isTeleOp) follower.update();
         shooterMath.update(trackTurret, trackHood, flywheel.getLaunchVelocity());
         hood.updateTracking(shooterMath.getHoodPos());
-        turret.angleTo(shooterMath.getTurretPos());
+        turret.setTargetPosition(shooterMath.getTurretPos());
     }
 }

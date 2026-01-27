@@ -26,7 +26,7 @@ import java.util.function.Function;
 public class Drivetrain {
     public final Follower follower;
     private ArrayDeque<FollowParameters> paths;
-    public static Pose startPose = new Pose();
+    public static Pose startPose = new Pose(72, 72, Math.PI / 2);
     private final List<DcMotorEx> motors;
     public final DcMotorEx leftFront;
     public final DcMotorEx rightFront;

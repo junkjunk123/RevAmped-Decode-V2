@@ -20,7 +20,6 @@ public class TurretTest extends OpMode {
     @Override
     public void init_loop() {
         telemetry.addData("pos", turret.getEncoder().getPosition());
-        telemetry.addData("startPos", Turret.startPos);
         telemetry.addData("encoderBase", turret.getEncoderBase());
         telemetry.addData("target", turret.getTargetPosition());
         telemetry.addData("currentPos", turret.getPosition());

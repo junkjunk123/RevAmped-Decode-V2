@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
+@Config
 public class Hood extends HwServo {
     public static float HOOD_MIN_RAD;
     public static float HOOD_MAX_RAD;

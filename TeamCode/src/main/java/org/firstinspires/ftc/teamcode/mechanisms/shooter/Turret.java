@@ -45,7 +45,6 @@ public class Turret extends HwMotor {
     public static double D_SECONDARY;
     public static double F_SECONDARY;
     public static int PIDF_SWITCH;
-    public static int startPos = 0;
     public static double MS_PER_REVOLUTION = 2000;
     private final AtomicInteger distance = new AtomicInteger(0);
 
@@ -107,9 +106,9 @@ public class Turret extends HwMotor {
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         secondaryController = new PIDFController(new PIDFCoefficients(P_SECONDARY, I_SECONDARY, D_SECONDARY, F_SECONDARY));
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch").flip();
-        setTargetPosition(0);
+        updateTargetPosition(0);
         setDirection(DcMotorSimple.Direction.REVERSE);
-        setEncoderBase(Globals.isTeleOp ? getEncoder().getPosition() - startPos : getEncoder().getPosition());
+        setEncoderBase(getEncoder().getPosition());
         invalidateCache();
     }
 
@@ -122,7 +121,7 @@ public class Turret extends HwMotor {
     }
 
     public void finetune(int ticks) {
-        setTargetPosition(getPosition() + ticks);
+        setTargetPosition(getTargetPosition() + ticks);
     }
 
     public ICommand runToPos(int position) {
