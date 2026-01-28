@@ -101,7 +101,7 @@ public class SimpleShooterMath {
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Flywheel.MAX_VELOCITY);
                 double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
                 hoodSine = Range.clip(hoodSine, 0, 1);
-                double hoodDeg = Math.asin(hoodSine);
+                double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
                 hoodPos = Range.clip(hoodPos, Hood.HOOD_MIN_POS, Hood.HOOD_MAX_POS);
             }
