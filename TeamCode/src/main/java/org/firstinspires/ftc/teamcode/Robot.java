@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
+import org.firstinspires.ftc.teamcode.opmodes.CloseAuto;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
@@ -35,6 +36,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -141,14 +143,10 @@ public class Robot {
     }
 
     public ICommand sortAuto() {
-        return new Lazy(() -> {
-            if (Globals.randomizationState != null)
-                return new Sequential(
-                    new Instant(() -> table.setPosition(Table.RelativeState.values()[tableCompartments.sort(table.getState().ordinal())].target())),
-                    new Wait(400)
-                );
-            return Commands.NOOP;
-        });
+        return new Sequential(
+                new Instant(() -> table.setStateCommandless(Table.RelativeState.values()[tableCompartments.sort(table.getState().ordinal())])),
+                new Wait(400)
+        );
     }
 
     public ICommand shootAll() {

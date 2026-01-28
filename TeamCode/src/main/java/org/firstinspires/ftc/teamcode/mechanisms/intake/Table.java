@@ -138,6 +138,12 @@ public class Table extends HwServo {
         });
     }
 
+    public void setStateCommandless(RelativeState relativeState) {
+        stateHandler.setCurrentState(relativeState);
+        setPosition(relativeState.target());
+        atRelativeState = true;
+    }
+
     public ICommand setRelativeState(RelativeState relativeState) {
         return setRelativeState(() -> relativeState);
     }

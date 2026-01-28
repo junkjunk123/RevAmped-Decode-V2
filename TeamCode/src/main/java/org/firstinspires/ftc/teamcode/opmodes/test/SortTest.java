@@ -8,10 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 
-@Disabled
-@Config
 @TeleOp
 public class SortTest extends OpMode {
     private ArtifactColor[] artifactColors = new ArtifactColor[3];
@@ -22,34 +21,23 @@ public class SortTest extends OpMode {
 
     @Override
     public void init() {
+        Globals.init(telemetry);
         robot = new Robot(hardwareMap);
+        robot.tableCompartments.populate(new ArtifactColor[]{ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE});
     }
 
     @Override
     public void start() {
         robot.update();
-
-        if (artifactColors[1] == ArtifactColor.GREEN || artifactColors[2] == ArtifactColor.GREEN)
-            artifactColors[0] = ArtifactColor.PURPLE;
-        else artifactColors[0] = ArtifactColor.GREEN;
-
-        int greenIndex = motif.getGreenIndex();
-        int curGreenIndex = 0;
-        for (int i = 0; i < 3; i++)
-            if (artifactColors[i] == ArtifactColor.GREEN)
-                curGreenIndex = i;
-        index = robot.table.getState().ordinal() - greenIndex + curGreenIndex;
-        index = (index + 3) % 3;
-        robot.table.setPosition(Table.RelativeState.values()[index].target());
+        Globals.randomizationState = motif;
+        index = robot.tableCompartments.sort(robot.table.getState().ordinal());
+        robot.table.setPosition(index);
     }
 
 
     @Override
     public void loop() {
-        update();
-    }
-
-    public void update() {
-        robot.update();
+        telemetry.addData("val", robot.tableCompartments.sort(robot.table.getState().ordinal()));
+        telemetry.update();
     }
 }

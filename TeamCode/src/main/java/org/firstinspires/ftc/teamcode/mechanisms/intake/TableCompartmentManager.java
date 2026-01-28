@@ -22,7 +22,7 @@ public class TableCompartmentManager {
     }
 
     public boolean isEmpty() {
-        return Arrays.stream(compartmentColors).anyMatch(t -> t != ArtifactColor.NONE);
+        return Arrays.stream(compartmentColors).allMatch(t -> t == ArtifactColor.NONE);
     }
 
     public boolean isFull() {
@@ -44,17 +44,20 @@ public class TableCompartmentManager {
     }
 
     public int sort(int curIndex) {
-        if (isEmpty() || allGreen() || allPurple() || Globals.randomizationState == null)
+        if (isEmpty() || allGreen() || allPurple() || Globals.randomizationState == null) {
             return curIndex;
+        }
 
         int targetGreenIndex = Globals.randomizationState.getGreenIndex();
         int curGreenIndex = getGreenIndices()[0];
 
-        return curGreenIndex - targetGreenIndex;
+        return (curGreenIndex - targetGreenIndex + 3) % 3;
     }
 
     public void populate(ArtifactColor[] colors) {
-        System.arraycopy(colors, 0, compartmentColors, 0, compartmentColors.length);
+        compartmentColors[0] = colors[0];
+        compartmentColors[1] = colors[1];
+        compartmentColors[2] = colors[2];
     }
 
     public void removeAll() {

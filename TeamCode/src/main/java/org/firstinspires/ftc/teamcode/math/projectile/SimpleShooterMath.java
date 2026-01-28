@@ -11,6 +11,7 @@ import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.TICKS_LIM
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.MathFunctions;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.util.Range;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import smile.interpolation.BilinearInterpolation;
 import smile.interpolation.Interpolation2D;
@@ -60,7 +62,7 @@ public class SimpleShooterMath {
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
             Pose currentPos = follower.getPose();
-            Pose projectedRobotPose = null;
+            Pose projectedRobotPose;
             Vector displacement = getDispVector(targetPos, currentPos);
             Vector projectedDisplacement = displacement;
 
@@ -75,9 +77,9 @@ public class SimpleShooterMath {
                 );
                 projectedDisplacement = getDispVector(targetPos, projectedRobotPose);
             }
-            double deltaAngle;
 
             if (trackTurret) {
+                double deltaAngle;
                 if (!velocityCompensation) {
                     deltaAngle = angleTurretTo(displacement);
                 } else {
@@ -103,7 +105,7 @@ public class SimpleShooterMath {
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
-                hoodPos = Range.clip(hoodPos, Hood.HOOD_MIN_POS, Hood.HOOD_MAX_POS);
+                hoodPos = Range.clip(hoodPos, 0, 1);
             }
         }
     }

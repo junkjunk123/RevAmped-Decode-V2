@@ -13,9 +13,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPaths;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.ArrayDeque;
@@ -26,7 +28,7 @@ import java.util.function.Function;
 public class Drivetrain {
     public final Follower follower;
     private ArrayDeque<FollowParameters> paths;
-    public static Pose startPose = new Pose(72, 72, Math.PI / 2);
+    public static Pose startPose = CloseAutoPaths.START_POSE.getPose(AllianceColor.Red);
     private final List<DcMotorEx> motors;
     public final DcMotorEx leftFront;
     public final DcMotorEx rightFront;

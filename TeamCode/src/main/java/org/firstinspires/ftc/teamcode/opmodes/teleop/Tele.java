@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
@@ -73,7 +74,10 @@ public class Tele extends OpModeCommand {
         gamepad_2.update();
 
         // Schedule commands based on triggers
-        if (gamepad_1.a.isRisingEdge()) schedule(new Instant(RobotStateHandler.CycleState.DriveToShoot::toggleDefault));
+        if (gamepad_1.a.isRisingEdge()) schedule(new Instant(() -> {
+            TrackingThread.trackTurret = !TrackingThread.trackTurret;
+            TrackingThread.trackHood = !TrackingThread.trackHood;
+        }));
         if (gamepad_1.y.isRisingEdge()) schedule(new Instant(() -> tsh.setForce(!tsh.isForce())));
         if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));

@@ -24,10 +24,6 @@ import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Functional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloseAuto extends OpModeCommand {
@@ -116,9 +112,6 @@ public class CloseAuto extends OpModeCommand {
 
     @Override
     public void execute() {
-        List<Double> powers = new ArrayList<>();
-        robot.drivetrain.apply(m -> powers.add(m.getPower()));
-        telemetry.addData("powers", Arrays.toString(powers.toArray()));
         telemetry.addData("limelightDetected", Globals.randomizationState != null);
         if (Globals.randomizationState != null) telemetry.addData("motif", Globals.randomizationState);
         telemetry.update();

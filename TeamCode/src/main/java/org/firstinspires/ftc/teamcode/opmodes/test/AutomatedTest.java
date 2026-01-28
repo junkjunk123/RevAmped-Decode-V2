@@ -39,4 +39,10 @@ public class AutomatedTest extends OpModeCommand {
                 )
         );
     }
+
+    @Override
+    public void initializeLoop() {
+        telemetry.addData("Automated Test", "Press play to begin");
+        telemetry.update();
+    }
 }
