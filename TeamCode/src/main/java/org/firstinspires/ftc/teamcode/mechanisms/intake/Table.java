@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
 import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
@@ -8,6 +9,7 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.math.calc.Integrator;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
@@ -15,6 +17,8 @@ import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
@@ -252,5 +256,24 @@ public class Table extends HwServo {
 
     public void setUseEncoder(boolean useEncoder) {
         this.useEncoder = useEncoder;
+    }
+
+    public Speaker<String> test() {
+        setPosition(BALL1);
+        Integrator encoder = new Integrator();
+        return new Speaker<>(c ->
+                new Sequential(
+                        new Race(
+                                new Wait(5000),
+                                new Infinite(() -> encoder.update(Math.abs(getEncoder().getVelocity())))
+                        ),
+                        Channels.send(c, () -> {
+                            if (encoder.getIntegral() > 15)
+                                return this + "MOTOR TEST PASS: Encoder counts normal.";
+                            else
+                                return this + "MOTOR TEST FAIL: Encoder counts too low!";
+                        })
+                )
+        );
     }
 }

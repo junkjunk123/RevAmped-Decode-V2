@@ -2,11 +2,20 @@ package org.firstinspires.ftc.teamcode.utils.hardware;
 
 import androidx.annotation.NonNull;
 
+import com.pedropathing.ivy.commands.Infinite;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.math.calc.Integrator;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 
 import java.util.Arrays;
 
@@ -126,6 +135,27 @@ public class HwCRServo implements HwDevice {
         for (CRServoImplEx servo : hardware) {
             servo.setPwmDisable();
         }
+    }
+
+    public Speaker<String> test() {
+        setPower(0.5);
+        Integrator encoder = new Integrator();
+        return new Speaker<>(c ->
+                new Sequential(
+                        new Race(
+                                new Wait(5000),
+                                new Infinite(() -> {
+                                    encoder.update(Math.abs(getVelocity()));
+                                })
+                        ),
+                        Channels.send(c, () -> {
+                            if (encoder.getIntegral() > 15)
+                                return id + "MOTOR TEST PASS: Encoder counts normal.";
+                            else
+                                return id + "MOTOR TEST FAIL: Encoder counts too low!";
+                        })
+                )
+        );
     }
 
     @NonNull

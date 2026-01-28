@@ -23,7 +23,7 @@ public class IntakeMotor extends HwMotor {
     private IntakeState state = IntakeState.STOPPED;
 
     public IntakeMotor(HardwareMap hardwareMap) {
-        super(hardwareMap, "intake");
+        super(hardwareMap, false, "intake");
         setDirection(DcMotorSimple.Direction.FORWARD);
     }
 

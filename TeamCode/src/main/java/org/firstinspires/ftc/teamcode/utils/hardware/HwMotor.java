@@ -2,13 +2,22 @@ package org.firstinspires.ftc.teamcode.utils.hardware;
 
 import androidx.annotation.NonNull;
 
+import com.pedropathing.ivy.commands.Infinite;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.math.calc.Integrator;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
+
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 public class HwMotor implements HwDevice {
     private double lastPower = 0;
@@ -130,6 +139,36 @@ public class HwMotor implements HwDevice {
             motor.setPower(0);
             motor.setMotorDisable();
         }
+    }
+
+    public Speaker<String> test() {
+        setPower(0.5);
+        Integrator current = new Integrator();
+        Integrator encoder = new Integrator();
+        double nominalCurrent = get().getCurrent(CurrentUnit.AMPS);
+        return new Speaker<>(c ->
+                new Sequential(
+                        new Race(
+                                new Wait(5000),
+                                new Infinite(() -> {
+                                    current.update(Math.abs(nominalCurrent - get().getCurrent(CurrentUnit.AMPS)));
+                                    encoder.update(Math.abs(this.encoder.getVelocity()));
+                                })
+                        ),
+                        Channels.send(c, () -> {
+                            if (current.getIntegral() > 0.08)
+                                return id + "MOTOR TEST PASS: Current draw normal.";
+                            else
+                                return id + "MOTOR TEST FAIL: Current draw too low!";
+                        }),
+                        Channels.send(c, () -> {
+                            if (encoder.getIntegral() > 15)
+                                return id + "MOTOR TEST PASS: Encoder counts normal.";
+                            else
+                                return id + "MOTOR TEST FAIL: Encoder counts too low!";
+                        })
+                )
+        );
     }
 
     @NonNull
