@@ -4,10 +4,11 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.math.projectile.ShooterMath;
+import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
 
 @Config
 public class TrackingThread {
-    private final ShooterMath shooterMath;
+    private final SimpleShooterMath shooterMath;
     private final Turret turret;
     private final Hood hood;
     private final Flywheel flywheel;
@@ -20,7 +21,7 @@ public class TrackingThread {
         this.hood = hood;
         this.turret = turret;
         this.flywheel = flywheel;
-        shooterMath = new ShooterMath(follower);
+        shooterMath = new SimpleShooterMath(follower);
         this.isTeleOp = isTeleOp;
         this.follower = follower;
     }
@@ -28,8 +29,9 @@ public class TrackingThread {
     public void update() {
         if (!trackHood && !trackTurret) return;
         if (isTeleOp) follower.update();
-        shooterMath.update(trackTurret, trackHood, flywheel.getLaunchVelocity());
+        shooterMath.update(trackTurret, trackHood);
         hood.updateTracking(shooterMath.getHoodPos());
         turret.setTargetPosition(shooterMath.getTurretPos());
+        flywheel.setVelocity(shooterMath.getFlywheelVelocity());
     }
 }

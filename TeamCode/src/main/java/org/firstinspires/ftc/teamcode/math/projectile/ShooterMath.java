@@ -70,8 +70,7 @@ public class ShooterMath {
                 if (!velocityCompensation) {
                     deltaAngle = angleTurretTo(currentPos, targetPos);
                     turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
-                } else if (velocityCompensation) {
-                    /*
+                } else {
                     Vector offset = targetPos.minus(projectedRobotPose).getAsVector();
                     Vector iHat = offset.normalize();
                     Vector jHat = new Vector();
@@ -91,11 +90,6 @@ public class ShooterMath {
                     double targetAngle = flywheelDirectionVector.transform(inverseRotMatrix).getTheta() + Math.PI;
                     deltaAngle = normalizeAnglePi(targetAngle - projectedRobotPose.getHeading());
                     deltaAngle = Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
-                    turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
-
-                     */
-
-                    deltaAngle = angleTurretTo(projectedRobotPose, targetPos);
                     turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
                 }
             }

@@ -18,6 +18,7 @@ public class Flywheel extends HwMotor {
     public static double NEAR_VELOCITY;
     public static double CLOSE_AUTO_VELOCITY;
     public static double UNSORTED_AUTO_VELOCITY;
+    public static double MAX_VELOCITY = 1400;
 
     private double targetVelocity;
     private final FlywheelController controller;
