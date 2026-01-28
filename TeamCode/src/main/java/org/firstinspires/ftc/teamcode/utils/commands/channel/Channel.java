@@ -17,6 +17,10 @@ public class Channel<T> {
         }
     }
 
+    public Deque<T> getStream() {
+        return stream;
+    }
+
     T receive() {
         return stream.poll();
     }

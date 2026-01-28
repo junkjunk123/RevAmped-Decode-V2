@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
+import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
@@ -25,6 +26,16 @@ public class AutomatedTest extends OpModeCommand {
                         robot.turret.test().subscribe(channel),
                         robot.table.test().subscribe(channel),
                         robot.flywheel.test().subscribe(channel)
+                ),
+                new Infinite(
+                        () -> {
+                            int i = -1;
+                            for (String line : channel.getStream()) {
+                                i++;
+                                telemetry.addData(String.valueOf(i), line);
+                            }
+                            telemetry.update();
+                        }
                 )
         );
     }
