@@ -19,6 +19,9 @@ public class DecodeTester extends SelectableOpMode {
                 l.add("PedroDrivePChecker", PedroDrivePChecker::new);
                 l.add("PedroPIDChecker", PedroPIDChecker::new);
             });
+            s.folder("Pre-Match Test", l -> {
+                l.add("AutomatedTest", AutomatedTest::new);
+            });
         });
     }
 }

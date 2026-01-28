@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.pedropathing.ivy.commands.Instant;
-import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 
 import org.firstinspires.ftc.teamcode.Robot;
@@ -16,6 +16,7 @@ public class AutomatedTest extends OpModeCommand {
         Channel<String> channel = Channels.stream();
 
         schedule(
+                new WaitUntil(() -> !opModeInInit()),
                 robot.popper.pop(),
                 robot.popper.neutral(),
                 new Instant(robot.hood::near),

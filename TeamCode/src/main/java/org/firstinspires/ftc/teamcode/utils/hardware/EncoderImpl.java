@@ -34,6 +34,10 @@ public class EncoderImpl implements Encoder {
         velocity.update();
     }
 
+    public double rawVelocity() {
+        return rawEncoder.getVelocity();
+    }
+
     public void resetPosition() {
         resetPosition(0);
     }

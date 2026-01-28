@@ -265,7 +265,7 @@ public class Table extends HwServo {
                 new Sequential(
                         new Race(
                                 new Wait(5000),
-                                new Infinite(() -> encoder.update(Math.abs(getEncoder().getVelocity())))
+                                new Infinite(() -> encoder.update(Math.abs(this.encoder.rawVelocity())))
                         ),
                         Channels.send(c, () -> {
                             if (encoder.getIntegral() > 15)
