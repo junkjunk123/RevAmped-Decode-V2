@@ -27,8 +27,7 @@ public class AutomatedTest extends OpModeCommand {
                         robot.table.test().subscribe(channel),
                         robot.flywheel.test().subscribe(channel)
                 ),
-                new Infinite(
-                        () -> {
+                new Infinite(() -> {
                             int i = -1;
                             for (String line : channel.getStream()) {
                                 i++;

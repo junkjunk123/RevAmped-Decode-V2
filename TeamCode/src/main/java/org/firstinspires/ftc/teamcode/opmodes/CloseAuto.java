@@ -36,6 +36,7 @@ public class CloseAuto extends OpModeCommand {
         DecodeLimelight limelight = new DecodeLimelight(hardwareMap);
         robot.tableCompartments.populate(new ArtifactColor[]{ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE});
         overallTimer = new ElapsedTime();
+        robot.turret.setTargetPosition(Turret.UNSORTED_AUTO_PRELOADS);
 
         schedule(
             new Infinite(robot::update),
@@ -43,6 +44,7 @@ public class CloseAuto extends OpModeCommand {
                     new WaitUntil(() -> !opModeInInit()),
                     new Instant(overallTimer::reset),
                     new Instant(() -> {
+                        robot.turret.setTargetPosition(0);
                         robot.flywheel.closeAuto();
                         robot.hood.near();
                         robot.intakeMotor.intakeSlow();
@@ -77,7 +79,6 @@ public class CloseAuto extends OpModeCommand {
                                 robot.shootAll()
                         );
                     }),
-                    new Wait(600),
                     intake(0),
                     new Parallel(
                             new Sequential(
@@ -132,20 +133,26 @@ public class CloseAuto extends OpModeCommand {
         int driveTimeout = iteration == 2 ? 4500 : 3000;
 
         return new Sequential(
-                new Instant(() -> {
-                    robot.turret.setTargetPosition(turretPos);
-                    robot.flywheel.stop();
-                    robot.intakeMotor.intake();
-                }),
                 new Parallel(
+                        new Sequential(
+                                new Wait(300),
+                                new Instant(() -> {
+                                    robot.turret.setTargetPosition(turretPos);
+                                    robot.intakeMotor.intake();
+                                    robot.flywheel.stop();
+                                })
+                        ),
                         robot.resetTable(),
-                        robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
+                        iteration == 0 ? new Sequential(
+                                new Wait(600),
+                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
+                        ) : robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                 )
         );
     }
 
     private ICommand shoot(int iteration) {
-        double flywheelOffset = iteration == 2 ? 10 : 0;
+        double flywheelOffset = iteration == 2 ? 20 : 0;
 
         double driveTimeout = switch (iteration) {
             case 0 -> 3000;
@@ -154,9 +161,9 @@ public class CloseAuto extends OpModeCommand {
         };
 
         ArtifactColor[] intookColors = switch (iteration) {
-            case 0 -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
+            case 0 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE};
             case 1 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.PURPLE, ArtifactColor.GREEN};
-            default -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE};
+            default -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
         };
 
         AtomicBoolean isSorting = new AtomicBoolean();
@@ -204,7 +211,6 @@ public class CloseAuto extends OpModeCommand {
         return new Parallel(
                 robot.drivetrain.followNext(d -> d.velocityCondition(4)),
                 new Instant(() -> {
-                    robot.turret.resetTurret();
                     robot.flywheel.stop();
                     robot.intakeMotor.stop();
                 }),
@@ -215,7 +221,13 @@ public class CloseAuto extends OpModeCommand {
                                 robot.popper.neutral(),
                                 robot.table.reset()
                         )
-                )
+                ),
+                robot.turret.resetTurret()
         );
+    }
+
+    @Override
+    public void initializeLoop() {
+        robot.update();
     }
 }

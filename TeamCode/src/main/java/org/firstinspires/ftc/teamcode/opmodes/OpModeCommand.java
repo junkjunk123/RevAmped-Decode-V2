@@ -11,7 +11,6 @@ public abstract class OpModeCommand extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Globals.init(telemetry);
         initialize();
-        waitForStart();
 
         while (opModeInInit()) {
             initializeLoop();

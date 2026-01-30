@@ -11,6 +11,8 @@ public class IntakeMotor extends HwMotor {
     public static float SHOOTING;
     public static float OUTTAKE_SLOW;
     public static float STOPPED;
+    public static float INTAKE_GATE;
+    public static float INTAKE_PRELOADS;
 
     public enum IntakeState {
         INTAKE,
@@ -18,6 +20,8 @@ public class IntakeMotor extends HwMotor {
         INTAKE_SLOW,
         SHOOTING,
         OUTTAKE_SLOW,
+        GATE,
+        PRELOADS,
         STOPPED
     }
     private IntakeState state = IntakeState.STOPPED;
@@ -55,6 +59,21 @@ public class IntakeMotor extends HwMotor {
     public void stop() {
         setPower(STOPPED);
         state = IntakeState.STOPPED;
+    }
+
+    public void intakeGate() {
+        setPower(INTAKE_GATE);
+        state = IntakeState.GATE;
+    }
+
+    public void intakePreloads() {
+        setPower(INTAKE_PRELOADS);
+        state = IntakeState.PRELOADS;
+    }
+
+    public void intakePreloads(double power) {
+        setPower(INTAKE_PRELOADS);
+        state = IntakeState.PRELOADS;
     }
 
     public String getState() {

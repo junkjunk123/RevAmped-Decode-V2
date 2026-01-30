@@ -29,7 +29,6 @@ public class Tele extends OpModeCommand {
     private Robot robot;
     private TeleOpStateHandler tsh;
 
-
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);

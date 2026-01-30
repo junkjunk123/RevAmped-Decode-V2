@@ -4,26 +4,22 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
-import org.firstinspires.ftc.teamcode.mechanisms.octocanum.OctocanumBack;
-import org.firstinspires.ftc.teamcode.mechanisms.octocanum.OctocanumFront;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
-import org.firstinspires.ftc.teamcode.utils.AllianceColor;
-import org.firstinspires.ftc.teamcode.utils.Globals;
 
 public class RobotConstants {
     public void build() {
         //IntakeMotor Constants
-        IntakeMotor.INTAKE = 1.0f; IntakeMotor.INTAKE_SLOW = 0.5f; IntakeMotor.OUTTAKE = -1.0f;
-        IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.5f;
+        IntakeMotor.INTAKE = 1.0f; IntakeMotor.INTAKE_SLOW = 0.65f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.INTAKE_GATE = 0.8f;
+        IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.5f;
 
         //Popper Constants
         Popper.POP = 127/255f; Popper.NEUTRAL = 24/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 875; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 680;
-        Flywheel.UNSORTED_AUTO_VELOCITY = 810;
+        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 900; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 750;
+        Flywheel.UNSORTED_AUTO_VELOCITY = 900;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants
@@ -31,13 +27,14 @@ public class RobotConstants {
 
         //HOOD POSITIONS FOR TELEOP
         Hood.FAR_PRESET = 177/255f; Hood.NEAR_PRESET = 46/255f; Hood.MEDIUM_PRESET = 141/255f;
+        Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
-        Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
+        Turret.AUTO_PRELOADS = 315; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
         Turret.UNSORTED_AUTO_PRELOADS = 73; Turret.UNSORTED_GATE = 496; Turret.UNSORTED_FINAL = 482;
 
-        Turret.TICKS_LIMIT = 817; Turret.RAD_LIMIT = Math.PI; Turret.updateFullRotation();
+        Turret.TICKS_LIMIT = 1226; Turret.RAD_LIMIT = 3.0 * Math.PI / 2.0; Turret.updateFullRotation();
 
         //Octocanum Constants
         //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;

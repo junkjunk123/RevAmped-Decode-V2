@@ -18,10 +18,12 @@ public class CloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose FIRST_INTAKE_START = new ColoredDecodePose(56, 89, Math.toRadians(180));
     public static ColoredDecodePose FIRST_INTAKE_END = new ColoredDecodePose(22, 83, Math.toRadians(180));
     public static ColoredDecodePose FIRST_SHOOT = new ColoredDecodePose(60, 102, Math.toRadians(240));
-    public static ColoredDecodePose SECOND_INTAKE_START = new ColoredDecodePose(53, 67, Math.toRadians(180));
-    public static ColoredDecodePose SECOND_INTAKE_END = new ColoredDecodePose(17, 58, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_INTAKE_ACTUAL_START = new ColoredDecodePose(53, 58);
+    public static ColoredDecodePose SECOND_INTAKE_START = new ColoredDecodePose(53, 75, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_INTAKE_END = new ColoredDecodePose(11, 58, Math.toRadians(180));
     public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(60, 102, Math.toRadians(240));
-    public static ColoredDecodePose THIRD_INTAKE_START = new ColoredDecodePose(52, 50, Math.toRadians(180));
+    public static ColoredDecodePose THIRD_INTAKE_ACTUAL_START = new ColoredDecodePose(52, 36);
+    public static ColoredDecodePose THIRD_INTAKE_START = new ColoredDecodePose(52, 54, Math.toRadians(180));
     public static ColoredDecodePose THIRD_INTAKE_END = new ColoredDecodePose(10, 36, Math.toRadians(180));
     public static ColoredDecodePose THIRD_SHOOT = new ColoredDecodePose(66, 108, Math.toRadians(240));
     public static ColoredDecodePose PARK = new ColoredDecodePose(52, 120, Math.toRadians(240));
@@ -56,7 +58,7 @@ public class CloseAutoPaths implements PathSupplier {
         FollowParameters intakeSecondSet = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(FIRST_SHOOT, SECOND_INTAKE_START))
                 .setLinearHeadingInterpolation(FIRST_SHOOT.getHeading(), SECOND_INTAKE_END.getHeading(), 0.8)
-                .addPath(ColoredDecodePose.makeBezier(SECOND_INTAKE_START, SECOND_INTAKE_END))
+                .addPath(ColoredDecodePose.makeBezier(SECOND_INTAKE_ACTUAL_START, SECOND_INTAKE_END))
                 .setConstantHeadingInterpolation(SECOND_INTAKE_END.getHeading())
                 .build()
         );
@@ -70,7 +72,7 @@ public class CloseAutoPaths implements PathSupplier {
         FollowParameters intakeThirdSet = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SECOND_SHOOT, THIRD_INTAKE_START))
                 .setLinearHeadingInterpolation(SECOND_SHOOT.getHeading(), THIRD_INTAKE_END.getHeading(), 0.8)
-                .addPath(ColoredDecodePose.makeBezier(THIRD_INTAKE_START, THIRD_INTAKE_END))
+                .addPath(ColoredDecodePose.makeBezier(THIRD_INTAKE_ACTUAL_START, THIRD_INTAKE_END))
                 .setConstantHeadingInterpolation(THIRD_INTAKE_END.getHeading())
                 .build()
         );

@@ -28,26 +28,6 @@ public class Turret extends HwMotor {
         FULL_ROTATION = TICKS_LIMIT / RAD_LIMIT * 2 * Math.PI;
     }
 
-    public static int AUTO_PRELOADS;
-    public static int AUTO_SET_1;
-    public static int AUTO_SET_2;
-    public static int AUTO_SET_3;
-    public static int FAR_AUTO;
-    public static int UNSORTED_AUTO_PRELOADS;
-    public static int UNSORTED_GATE;
-    public static int UNSORTED_FINAL;
-    public static double P;
-    public static double I;
-    public static double D;
-    public static double F;
-    public static double P_SECONDARY;
-    public static double I_SECONDARY;
-    public static double D_SECONDARY;
-    public static double F_SECONDARY;
-    public static int PIDF_SWITCH;
-    public static double MS_PER_REVOLUTION = 2000;
-    private final AtomicInteger distance = new AtomicInteger(0);
-
     public sealed interface MoveState permits MoveState.CloseAuto, MoveState.Deenergize, MoveState.MoveTo, MoveState.PresetState {
         Deenergize DEENERGIZE = new Deenergize();
         CloseAuto CLOSE_AUTO = new CloseAuto();
@@ -92,14 +72,33 @@ public class Turret extends HwMotor {
         }
     }
 
+    public static int AUTO_PRELOADS;
+    public static int AUTO_SET_1;
+    public static int AUTO_SET_2;
+    public static int AUTO_SET_3;
+    public static int FAR_AUTO;
+    public static int UNSORTED_AUTO_PRELOADS;
+    public static int UNSORTED_GATE;
+    public static int UNSORTED_FINAL;
+    public static double P;
+    public static double I;
+    public static double D;
+    public static double F;
+    public static double P_SECONDARY;
+    public static double I_SECONDARY;
+    public static double D_SECONDARY;
+    public static double F_SECONDARY;
+    public static int PIDF_SWITCH;
+    public static double MS_PER_REVOLUTION = 2000;
     public static int ticksPerRotation() {
         return (int) (TICKS_LIMIT * (Math.PI * 2 / RAD_LIMIT));
     }
-
     public final HwDigitalDevice limitSwitch;
     private final PIDFController controller;
     private final PIDFController secondaryController;
     private MoveState moveState = MoveState.PresetState.REST;
+    private final AtomicInteger distance = new AtomicInteger(0);
+    private boolean useSecondary = false;
 
     public Turret(HardwareMap hardwareMap) {
         super(hardwareMap, "turret");
@@ -146,6 +145,7 @@ public class Turret extends HwMotor {
         distance.set(Math.abs(target - getTargetPosition()));
         controller.setTargetPosition(target);
         secondaryController.setTargetPosition(target);
+        useSecondary = false;
     }
 
     public void move(MoveState moveState) {
@@ -197,13 +197,14 @@ public class Turret extends HwMotor {
 
         double error = getTargetPosition() - getPosition();
 
-        if (Math.abs(error) > PIDF_SWITCH) {
+        if (!useSecondary && Math.abs(error) > PIDF_SWITCH) {
             controller.updatePosition(getPosition());
             controller.updateFeedForwardInput(Math.signum(error));
             setPower(controller.run());
             return;
         }
 
+        useSecondary = true;
         secondaryController.updatePosition(getPosition());
         secondaryController.updateFeedForwardInput(Math.signum(error));
         setPower(secondaryController.run());

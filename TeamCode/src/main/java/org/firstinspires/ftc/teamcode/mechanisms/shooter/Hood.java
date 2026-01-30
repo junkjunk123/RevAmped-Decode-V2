@@ -16,6 +16,7 @@ public class Hood extends HwServo {
     public static float NEAR_PRESET;
     public static float FAR_PRESET;
     public static float MEDIUM_PRESET;
+    public static float UNSORTED_AUTO;
 
     public enum HoodState {
         REST,
@@ -49,6 +50,11 @@ public class Hood extends HwServo {
     public void medium() {
         setPosition(MEDIUM_PRESET);
         state = HoodState.MEDIUM;
+    }
+
+    public void unsortedAuto() {
+        setPosition(UNSORTED_AUTO);
+        state = HoodState.TRACKING;
     }
 
     public void updateTracking(double pos) {

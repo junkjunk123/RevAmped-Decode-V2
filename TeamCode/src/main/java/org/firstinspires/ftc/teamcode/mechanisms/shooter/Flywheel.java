@@ -28,7 +28,8 @@ public class Flywheel extends HwMotor {
         MEDIUM,
         NEAR,
         TRACKING,
-        STOPPED
+        STOPPED,
+        NO_PID
     }
     private FlywheelState state = FlywheelState.STOPPED;
 
@@ -44,7 +45,7 @@ public class Flywheel extends HwMotor {
     public void update() {
         super.update();
 
-        if (isRunning()) {
+        if (isRunning() && state != FlywheelState.NO_PID) {
             double power = controller.update(getVelocityImperial(), targetVelocity);
             setPower(power);
         }
@@ -89,6 +90,11 @@ public class Flywheel extends HwMotor {
     public void stop() {
         state = FlywheelState.STOPPED;
         setPower(0);
+    }
+
+    public void runAtPower(double power) {
+        state = FlywheelState.NO_PID;
+        setPower(power);
     }
 
     private void resetController() {
