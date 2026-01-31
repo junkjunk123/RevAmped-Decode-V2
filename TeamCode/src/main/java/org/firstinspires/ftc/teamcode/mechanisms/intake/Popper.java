@@ -58,7 +58,7 @@ public class Popper extends HwServo {
                 return stateMachine.runTransition(
                         new Sequential(
                                 new Instant(() -> setPosition(NEUTRAL)),
-                                new Wait(500)
+                                new Wait(250)
                         ),
                         PopperState.NEUTRAL
                 );
