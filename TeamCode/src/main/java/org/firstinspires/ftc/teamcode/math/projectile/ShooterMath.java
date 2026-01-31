@@ -29,9 +29,9 @@ public class ShooterMath {
     public static double LAUNCH_ZONE_HEIGHT = 58;
 
     public static double blueNegativeX = 15; //added 18 inch
-    public static double blueNegativeY = 133;
+    public static double blueNegativeY = 130;
     public static double redPositiveX = 119;
-    public static double redPositiveY = 133;
+    public static double redPositiveY = 130;
 
     public static double BALL_LAUNCH_MS = 100; //time through flywheel
 

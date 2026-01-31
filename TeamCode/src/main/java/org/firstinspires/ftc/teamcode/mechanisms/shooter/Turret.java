@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
@@ -28,9 +29,11 @@ public class Turret extends HwMotor {
         FULL_ROTATION = TICKS_LIMIT / RAD_LIMIT * 2 * Math.PI;
     }
 
-    public sealed interface MoveState permits MoveState.CloseAuto, MoveState.Deenergize, MoveState.MoveTo, MoveState.PresetState {
+    public sealed interface MoveState permits MoveState.CloseAuto, MoveState.Deenergize, MoveState.MoveTo, MoveState.PresetState, MoveState.SwitchReset {
         Deenergize DEENERGIZE = new Deenergize();
         CloseAuto CLOSE_AUTO = new CloseAuto();
+        SwitchReset SWITCH_RESET = new SwitchReset();
+
         enum PresetState implements MoveState {
             LEFT_135,
             LEFT_90,
@@ -70,6 +73,13 @@ public class Turret extends HwMotor {
                 return AUTO_PRELOADS;
             }
         }
+
+        final class SwitchReset implements MoveState {
+            @Override
+            public int target() {
+                return 10;
+            }
+        }
     }
 
     public static int AUTO_PRELOADS;
@@ -88,6 +98,10 @@ public class Turret extends HwMotor {
     public static double I_SECONDARY;
     public static double D_SECONDARY;
     public static double F_SECONDARY;
+    public static double P_RESET;
+    public static double I_RESET;
+    public static double D_RESET;
+    public static double F_RESET;
     public static int PIDF_SWITCH;
     public static double MS_PER_REVOLUTION = 2000;
     public static int ticksPerRotation() {
@@ -96,16 +110,20 @@ public class Turret extends HwMotor {
     public final HwDigitalDevice limitSwitch;
     private final PIDFController controller;
     private final PIDFController secondaryController;
+    private final PIDFController resetController;
     private MoveState moveState = MoveState.PresetState.REST;
     private final AtomicInteger distance = new AtomicInteger(0);
     private boolean useSecondary = false;
 
-    public Turret(HardwareMap hardwareMap) {
-        super(hardwareMap, "turret");
+    public Turret(HardwareMap hardwareMap, Encoder encoder) {
+        super(hardwareMap, false, "turret");
+        setEncoder(encoder);
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         secondaryController = new PIDFController(new PIDFCoefficients(P_SECONDARY, I_SECONDARY, D_SECONDARY, F_SECONDARY));
+        resetController = new PIDFController(new PIDFCoefficients(P_RESET, I_RESET, D_RESET, F_RESET));
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch").flip();
         updateTargetPosition(0);
+        resetController.setTargetPosition(0);
         setDirection(DcMotorSimple.Direction.REVERSE);
         setEncoderBase(getEncoder().getPosition());
         invalidateCache();
@@ -149,7 +167,8 @@ public class Turret extends HwMotor {
     }
 
     public void move(MoveState moveState) {
-        updateTargetPosition(moveState.target());
+        if (!(moveState instanceof MoveState.SwitchReset)) updateTargetPosition(moveState.target());
+        else updateTargetPosition(moveState.target() * (int) (-1 * Math.signum(getPosition())));
         this.moveState = moveState;
     }
 
@@ -173,10 +192,17 @@ public class Turret extends HwMotor {
 
     public ICommand resetTurret() {
         return new Race(
-                runToState(MoveState.PresetState.REST),
+                new Sequential(
+                        runToState(MoveState.SWITCH_RESET),
+                        new Wait(500)
+                ),
                 new Sequential(
                         new WaitUntil(limitSwitch::state),
-                        new Instant(this::resetPosition)
+                        new Instant(() -> {
+                            if (moveState instanceof MoveState.SwitchReset) resetPosition(moveState.target());
+                            else resetPosition();
+                            setTargetPosition(0);
+                        })
                 )
         );
     }
@@ -188,6 +214,10 @@ public class Turret extends HwMotor {
         );
     }
 
+    public double predictedMoveTime() {
+        return distance.get() / FULL_ROTATION * MS_PER_REVOLUTION;
+    }
+
     @Override
     public void update() {
         super.update();
@@ -197,17 +227,24 @@ public class Turret extends HwMotor {
 
         double error = getTargetPosition() - getPosition();
 
+        if (moveState instanceof MoveState.SwitchReset) {
+            setPower(updateController(resetController, error));
+            return;
+        }
+
         if (!useSecondary && Math.abs(error) > PIDF_SWITCH) {
-            controller.updatePosition(getPosition());
-            controller.updateFeedForwardInput(Math.signum(error));
-            setPower(controller.run());
+            setPower(updateController(secondaryController, error));
             return;
         }
 
         useSecondary = true;
-        secondaryController.updatePosition(getPosition());
-        secondaryController.updateFeedForwardInput(Math.signum(error));
-        setPower(secondaryController.run());
+        setPower(updateController(controller, error));
+    }
+
+    private double updateController(PIDFController controller, double error) {
+        controller.updatePosition(getPosition());
+        controller.updateFeedForwardInput(Math.signum(error));
+        return controller.run();
     }
 
     public ICommand prepareForLift() {

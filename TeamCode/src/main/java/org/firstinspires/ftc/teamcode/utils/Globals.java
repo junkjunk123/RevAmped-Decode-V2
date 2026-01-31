@@ -50,7 +50,7 @@ public final class Globals {
         Globals.allianceColor = allianceColor;
 
         if (allianceColor.equals(AllianceColor.Red) && Turret.FAR_AUTO > 0) {
-            Turret.AUTO_PRELOADS *= -1; Turret.AUTO_PRELOADS -= 25;
+            Turret.AUTO_PRELOADS *= -1;
             Turret.AUTO_SET_1 *= -1;
             Turret.AUTO_SET_2 *= -1;
             Turret.AUTO_SET_3 *= -1;

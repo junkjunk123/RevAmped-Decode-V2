@@ -17,7 +17,6 @@ public class AutomatedTest extends OpModeCommand {
         Channel<String> channel = Channels.stream();
 
         schedule(
-                new WaitUntil(() -> !opModeInInit()),
                 robot.popper.pop(),
                 robot.popper.neutral(),
                 new Instant(robot.hood::near),

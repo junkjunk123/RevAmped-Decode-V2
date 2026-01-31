@@ -127,7 +127,7 @@ public class Table extends HwServo {
                            useEncoder ? new Race(
                                    new Sequential(
                                            new Wait(accelTime.read()),
-                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 20)
                                    ),
                                    new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION))
                            ) : new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION - 150)),
@@ -186,7 +186,7 @@ public class Table extends HwServo {
                         useEncoder ? new Race(
                                 new Sequential(
                                         new Wait(accelTime.read()),
-                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 10)
+                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 20)
                                 ),
                                 new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
                         ) : new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)),

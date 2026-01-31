@@ -5,7 +5,6 @@
             <goBILDA5202SeriesMotor name="flywheel_left" port="1"/>
             <goBILDA5202SeriesMotor name="turret" port="3"/>
             <goBILDA5202SeriesMotor name="intake" port="0"/>
-            <DigitalDevice name="turret_switch" port="0"/>
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="motor_rb" port="0"/>
@@ -17,6 +16,7 @@
             <Servo name="table" port="1"/>
             <Servo name="table2" port="3"/>
             <Servo name="hood" port="2"/>
+            <DigitalDevice name="turret_switch" port="0"/>
         </LynxModule>
     </LynxUsbDevice>
     <EthernetDevice serialNumber="EthernetOverUsb:eth0:172.29.0.21" name="limelight" port="0" ipAddress="172.29.0.1" />

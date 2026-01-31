@@ -121,7 +121,6 @@ public class CloseAuto extends OpModeCommand {
     @Override
     public void end() {
         Drivetrain.startPose = robot.drivetrain.follower.getPose();
-        //Turret.startPos = robot.turret.getTargetPosition();
     }
 
     private ICommand intake(int iteration) {

@@ -70,7 +70,7 @@ public class Robot {
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         Globals.isTeleOp = pathSupplier == null;
         //octocanum = teleop ? new Octocanum(hardwareMap) : null;
-        turret = new Turret(hardwareMap);
+        turret = new Turret(hardwareMap, Encoder.fromMotor(drivetrain.leftFront));
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
         table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.leftRear));

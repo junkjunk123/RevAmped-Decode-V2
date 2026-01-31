@@ -36,7 +36,7 @@ public class HwMotor implements HwDevice {
         this.hardware = new DcMotorEx[] {HwDevice.init(hardwareMap, DcMotorEx.class, id)};
         this.id = id;
         this.encoder = initEncoder ? Encoder.fromMotor(get()) : null;
-        resetPosition();
+        if (encoder != null) resetPosition();
     }
 
     public HwMotor(HardwareMap hardwareMap, String... ids) {
@@ -47,7 +47,7 @@ public class HwMotor implements HwDevice {
         this.hardware = Arrays.stream(ids).map(s -> HwDevice.init(hardwareMap, DcMotorEx.class, s)).toArray(DcMotorEx[]::new);
         this.id = Arrays.toString(ids);
         this.encoder = initEncoder ? Encoder.fromMotor(get()) : null;
-        resetPosition();
+        if (encoder != null) resetPosition();
     }
 
     public void setPower(double power) {

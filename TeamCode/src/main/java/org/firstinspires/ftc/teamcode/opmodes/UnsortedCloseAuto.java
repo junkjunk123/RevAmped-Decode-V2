@@ -166,7 +166,6 @@ public class UnsortedCloseAuto extends OpModeCommand {
     @Override
     public void end() {
         Drivetrain.startPose = robot.drivetrain.follower.getPose();
-        //Turret.startPos = robot.turret.getTargetPosition();
     }
 
     public int getIntakeTimeout() {

@@ -25,8 +25,8 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(12, 59, Math.PI);
     public static ColoredDecodePose INTAKE_1_CONTROL = new ColoredDecodePose(50, 61, Math.PI);
     public static ColoredDecodePose SHOOT_POSE_CONTROL_1 = new ColoredDecodePose(32, 58, Math.PI);
-    public static ColoredDecodePose GATE = new ColoredDecodePose(11, 60, Math.toRadians(160));
-    public static ColoredDecodePose GATE1 = new ColoredDecodePose(12, 61, Math.toRadians(160));
+    public static ColoredDecodePose GATE = new ColoredDecodePose(12, 60, Math.toRadians(160));
+    public static ColoredDecodePose GATE1 = new ColoredDecodePose(13, 61, Math.toRadians(160));
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD_CONTROL = new ColoredDecodePose(55, 89, Math.PI);
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(17, 88, Math.PI);
     public static ColoredDecodePose PARK = new ColoredDecodePose(56, 111, Math.toRadians(220));

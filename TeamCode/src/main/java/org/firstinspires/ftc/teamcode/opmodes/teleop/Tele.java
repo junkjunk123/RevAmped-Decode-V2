@@ -16,10 +16,16 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.prompter.OptionPrompt;
+import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
+import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
 
 @Config
 @TeleOp(name = "DCTeleOp")
@@ -28,6 +34,7 @@ public class Tele extends OpModeCommand {
     private GamepadEx gamepad_2;
     private Robot robot;
     private TeleOpStateHandler tsh;
+    private Prompter prompter;
 
     @Override
     public void initialize() {
@@ -35,6 +42,10 @@ public class Tele extends OpModeCommand {
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
+        prompter = new Prompter(this, gamepad_1)
+                .prompt("alliance", new StatePrompt<>("Select alliance", AllianceColor.class))
+                .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
+                .thenDisplay("Good luck! I'm rooting for you. --- Havish");
         
         gamepad_1.left_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_1.right_trigger_button(f -> f.greaterThan(0.3f));
@@ -51,6 +62,10 @@ public class Tele extends OpModeCommand {
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
+                new Instant(() -> {
+                    Globals.allianceColor = prompter.getOrDefault("alliance", Globals.allianceColor);
+                    Globals.randomizationState = prompter.getOrDefault("randomization", Globals.randomizationState);
+                }),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.INTAKE)
                 /* ,
                 tsh.runTransition(
@@ -64,6 +79,11 @@ public class Tele extends OpModeCommand {
                 ), RobotStateHandler.CycleState.INTAKE)
                  */
         ));
+    }
+
+    @Override
+    public void initializeLoop() {
+        prompter.run();
     }
 
     @Override
@@ -174,10 +194,6 @@ public class Tele extends OpModeCommand {
         }
 
         // Telemetry
-        telemetry.addData("currentState", tsh.currentState());
-        telemetry.addData("tableMoving", robot.table.pendingState() != robot.table.getState());
-        telemetry.addData("tableVel", robot.table.getEncoder().getVelocity());
-        telemetry.addData("position", robot.drivetrain.follower.getPose());
         telemetry.update();
     }
 

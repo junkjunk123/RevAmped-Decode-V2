@@ -31,8 +31,9 @@ public class RobotConstants {
 
         //Turret Constants
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
-        Turret.AUTO_PRELOADS = 315; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
-        Turret.UNSORTED_AUTO_PRELOADS = 73; Turret.UNSORTED_GATE = 496; Turret.UNSORTED_FINAL = 482;
+        Turret.P_RESET = 0.0022; Turret.F_RESET = 0.09;
+        Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
+        Turret.UNSORTED_AUTO_PRELOADS = 93; Turret.UNSORTED_GATE = 496; Turret.UNSORTED_FINAL = 482;
 
         Turret.TICKS_LIMIT = 1226; Turret.RAD_LIMIT = 3.0 * Math.PI / 2.0; Turret.updateFullRotation();
 
