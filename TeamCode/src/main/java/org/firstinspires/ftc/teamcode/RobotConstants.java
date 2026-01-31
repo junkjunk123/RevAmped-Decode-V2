@@ -15,7 +15,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.5f;
 
         //Popper Constants
-        Popper.POP = 127/255f; Popper.NEUTRAL = 24/255f; Popper.BLOCK = 111/255f;
+        Popper.POP = 127/255f; Popper.NEUTRAL = 25/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 900; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 750;
@@ -35,7 +35,7 @@ public class RobotConstants {
         Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
         Turret.UNSORTED_AUTO_PRELOADS = 93; Turret.UNSORTED_GATE = 496; Turret.UNSORTED_FINAL = 482;
 
-        Turret.TICKS_LIMIT = 1226; Turret.RAD_LIMIT = 3.0 * Math.PI / 2.0; Turret.updateFullRotation();
+        Turret.TICKS_LIMIT = 613; Turret.RAD_LIMIT = 3.0 * Math.PI / 4.0; Turret.updateFullRotation();
 
         //Octocanum Constants
         //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
