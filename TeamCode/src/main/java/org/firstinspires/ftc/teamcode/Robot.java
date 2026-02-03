@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.CloseAuto;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
@@ -235,7 +236,10 @@ public class Robot {
 
     public ICommand resetShooter() {
         return new Parallel(
-                turret.resetTurret(),
+                new Lazy(() -> {
+                    if (TrackingThread.trackTurret) return turret.resetTurret();
+                    else return Commands.NOOP;
+                }),
                 new Instant(() -> {
                     flywheel.stop();
                     hood.rest();

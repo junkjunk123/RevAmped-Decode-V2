@@ -172,6 +172,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
         return 3000;
     }
 
+
     public int getShootTimeout() {
         return 3000;
     }

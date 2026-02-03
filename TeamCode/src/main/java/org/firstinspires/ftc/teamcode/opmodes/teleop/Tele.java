@@ -9,6 +9,7 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.math.projectile.ShooterMath;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -23,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.prompter.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
@@ -62,10 +64,7 @@ public class Tele extends OpModeCommand {
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
-                new Instant(() -> {
-                    Globals.allianceColor = prompter.getOrDefault("alliance", Globals.allianceColor);
-                    Globals.randomizationState = prompter.getOrDefault("randomization", Globals.randomizationState);
-                }),
+                new Instant(() -> Globals.randomizationState = prompter.getOrDefault("randomization", Globals.randomizationState)),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.INTAKE)
                 /* ,
                 tsh.runTransition(
@@ -83,6 +82,7 @@ public class Tele extends OpModeCommand {
 
     @Override
     public void initializeLoop() {
+        telemetry.addData("alliance", Globals.allianceColor);
         prompter.run();
     }
 
@@ -120,7 +120,10 @@ public class Tele extends OpModeCommand {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(robot.flywheel::stop),
                     robot.resetTable(),
-                    robot.turret.resetTurret()
+                    new Lazy(() -> {
+                        if (TrackingThread.trackTurret) return robot.turret.resetTurret();
+                        else return Commands.NOOP;
+                    })
             ), RobotStateHandler.CycleState.INTAKE));
         }
 
@@ -193,7 +196,14 @@ public class Tele extends OpModeCommand {
             schedule(tsh.task(robot.popper.neutral(), RobotStateHandler.CycleState.INTAKE));
         }
 
+        if (gamepad_2.dpad_right.isRisingEdge()) {
+            ShooterMath.APRIL_TAG_POSE_BLUE = ShooterMath.APRIL_TAG_POSE_BLUE.rotate(180,
+                    false);
+            ShooterMath.APRIL_TAG_POSE_RED = ShooterMath.APRIL_TAG_POSE_RED.rotate(180, false);
+        }
+
         // Telemetry
+        telemetry.addData("alliance", Globals.allianceColor);
         telemetry.update();
     }
 
