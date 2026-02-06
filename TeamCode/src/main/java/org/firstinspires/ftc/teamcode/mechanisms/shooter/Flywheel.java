@@ -34,6 +34,14 @@ public class Flywheel extends HwMotor {
     private FlywheelState state = FlywheelState.STOPPED;
 
     public Flywheel(HardwareMap hardwareMap) {
+        super(hardwareMap, "flywheel_right", "flywheel_left");
+        setEncoder(Encoder.fromMotor(get()).reverse());
+        resetPosition();
+        hardware[0].setDirection(DcMotorSimple.Direction.REVERSE);
+        hardware[1].setDirection(DcMotorSimple.Direction.FORWARD);
+        controller = new FlywheelController();
+    }
+    public Flywheel(HardwareMap hardwareMap, boolean threeMotor){
         super(hardwareMap, "flywheel_right", "flywheel_left","turret");
         setEncoder(Encoder.fromMotor(get()).reverse());
         resetPosition();
