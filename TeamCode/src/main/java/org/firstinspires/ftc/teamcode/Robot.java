@@ -42,8 +42,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import smile.stat.Hypothesis;
-
 public class Robot {
     public static Robot INSTANCE;
     public final Drivetrain drivetrain;
@@ -63,25 +61,18 @@ public class Robot {
     private CycleState robotState = CycleState.INTAKE;
 
     public Robot(HardwareMap hardwareMap) {
-        this(hardwareMap, null,false);
+        this(hardwareMap, null);
     }
-    public Robot(HardwareMap hardwareMap, boolean testing){this(hardwareMap,null,true);}
-    public Robot(HardwareMap hardwareMap, PathSupplier pathSupplier){this(hardwareMap, pathSupplier, false);}
 
-    public Robot(HardwareMap hardwareMap, PathSupplier pathSupplier,boolean testing) {
+    public Robot(HardwareMap hardwareMap, PathSupplier pathSupplier) {
         this.hardwareMap = hardwareMap;
         hubs = hardwareMap.getAll(LynxModule.class);
         setBulkReadMode(LynxModule.BulkCachingMode.MANUAL);
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         Globals.isTeleOp = pathSupplier == null;
         //octocanum = teleop ? new Octocanum(hardwareMap) : null;
-        if (testing){
-            flywheel = new Flywheel(hardwareMap,true);
-            turret = new Turret(hardwareMap, Encoder.fromMotor(drivetrain.leftFront),true);
-        } else {
-            flywheel = new Flywheel(hardwareMap);
-            turret = new Turret(hardwareMap, Encoder.fromMotor(drivetrain.leftFront));
-        }
+        turret = new Turret(hardwareMap, Encoder.fromMotor(drivetrain.leftFront));
+        flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
         table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.leftRear));
         popper = new Popper(hardwareMap);

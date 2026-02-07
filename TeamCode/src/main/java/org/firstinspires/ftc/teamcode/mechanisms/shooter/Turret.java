@@ -116,19 +116,6 @@ public class Turret extends HwMotor {
     private boolean useSecondary = false;
 
     public Turret(HardwareMap hardwareMap, Encoder encoder) {
-        super(hardwareMap, false, "turret");
-        setEncoder(encoder);
-        controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
-        secondaryController = new PIDFController(new PIDFCoefficients(P_SECONDARY, I_SECONDARY, D_SECONDARY, F_SECONDARY));
-        resetController = new PIDFController(new PIDFCoefficients(P_RESET, I_RESET, D_RESET, F_RESET));
-        limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch").flip();
-        updateTargetPosition(0);
-        resetController.setTargetPosition(0);
-        setDirection(DcMotorSimple.Direction.REVERSE);
-        setEncoderBase(getEncoder().getPosition());
-        invalidateCache();
-    }
-    public Turret(HardwareMap hardwareMap, Encoder encoder, boolean testing){
         super(hardwareMap, false, "motor_rb");
         setEncoder(encoder);
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
