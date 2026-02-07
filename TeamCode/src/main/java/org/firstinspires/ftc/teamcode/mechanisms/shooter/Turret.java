@@ -116,7 +116,7 @@ public class Turret extends HwMotor {
     private boolean useSecondary = false;
 
     public Turret(HardwareMap hardwareMap, Encoder encoder) {
-        super(hardwareMap, false, "motor_rb");
+        super(hardwareMap, false, "turret");
         setEncoder(encoder);
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         secondaryController = new PIDFController(new PIDFCoefficients(P_SECONDARY, I_SECONDARY, D_SECONDARY, F_SECONDARY));
