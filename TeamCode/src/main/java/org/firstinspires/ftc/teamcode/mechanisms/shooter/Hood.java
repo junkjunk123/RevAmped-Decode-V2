@@ -69,4 +69,5 @@ public class Hood extends HwServo {
     public String getState() {
         return state.name();
     }
+    public HoodState getCurrentState(){return state;}
 }

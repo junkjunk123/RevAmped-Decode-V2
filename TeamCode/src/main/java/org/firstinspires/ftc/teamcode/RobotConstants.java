@@ -18,7 +18,7 @@ public class RobotConstants {
         Popper.POP = 127/255f; Popper.NEUTRAL = 25/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 900; Flywheel.FAR_VELOCITY = 1140; Flywheel.CLOSE_AUTO_VELOCITY = 750;
+        Flywheel.NEAR_VELOCITY = 725; Flywheel.MEDIUM_VELOCITY = 900; Flywheel.FAR_VELOCITY = 1075; Flywheel.CLOSE_AUTO_VELOCITY = 750;
         Flywheel.UNSORTED_AUTO_VELOCITY = 900;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 

@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
@@ -167,10 +168,18 @@ public class Tele extends OpModeCommand {
                     () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
                     new Sequential(
                             tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                            tsh.runTransition(new Sequential(
-                                    robot.shootAll(),
+                            tsh.runTransition(new Conditional(
+                                    () -> robot.hood.getCurrentState() == Hood.HoodState.FAR,
+                                    //is shooting far
+                                    new Sequential(
+                                    robot.shootAll(10),
                                     robot.resetAfterShooting()
-                            ), RobotStateHandler.CycleState.INTAKE)
+                                    ),
+                                    //not shooting far
+                                    new Sequential(
+                                            robot.shootAll(),
+                                            robot.resetAfterShooting())
+                                    ), RobotStateHandler.CycleState.INTAKE)
                     ),
                     Commands.NOOP
             ));
