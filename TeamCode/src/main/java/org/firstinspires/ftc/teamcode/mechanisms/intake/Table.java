@@ -76,6 +76,7 @@ public class Table extends HwServo {
     public static float SHOOT_INCREMENT;
     public static double MS_PER_REVOLUTION = 750;
     public static double SLOW_SHOOT_DELAY = 25;
+    private final int velocityThreshold = 20;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
     private final EncoderImpl encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
@@ -127,7 +128,7 @@ public class Table extends HwServo {
                            useEncoder ? new Race(
                                    new Sequential(
                                            new Wait(accelTime.read()),
-                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 20)
+                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < velocityThreshold)
                                    ),
                                    new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION))
                            ) : new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION - 150)),
@@ -186,7 +187,7 @@ public class Table extends HwServo {
                         useEncoder ? new Race(
                                 new Sequential(
                                         new Wait(accelTime.read()),
-                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < 20)
+                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < velocityThreshold)
                                 ),
                                 new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
                         ) : new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)),

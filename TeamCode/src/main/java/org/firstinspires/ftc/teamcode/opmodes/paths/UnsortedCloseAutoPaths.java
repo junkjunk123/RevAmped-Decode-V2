@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 
 @Configurable
 public class UnsortedCloseAutoPaths implements PathSupplier {
-    public static ColoredDecodePose START_POSE = new ColoredDecodePose(14, 114, 0);
+    public static ColoredDecodePose START_POSE = new ColoredDecodePose(14, 115, 0);
     public static ColoredDecodePose FIRST_SHOOT_POSE = new ColoredDecodePose(59, 80, Math.PI);
     public static ColoredDecodePose CONTROL_POINT_1 = new ColoredDecodePose(50, 98, Math.PI);
     public static ColoredDecodePose SHOOT_POSE = new ColoredDecodePose(57, 78, Math.PI);
@@ -27,6 +27,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose SHOOT_POSE_CONTROL_1 = new ColoredDecodePose(32, 58, Math.PI);
     public static ColoredDecodePose GATE = new ColoredDecodePose(12, 60, Math.toRadians(160));
     public static ColoredDecodePose GATE1 = new ColoredDecodePose(13, 61, Math.toRadians(160));
+    public static ColoredDecodePose GATE2 = new ColoredDecodePose(13, 62, Math.toRadians(160));
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD_CONTROL = new ColoredDecodePose(55, 89, Math.PI);
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(17, 88, Math.PI);
     public static ColoredDecodePose PARK = new ColoredDecodePose(56, 111, Math.toRadians(220));
@@ -87,6 +88,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     private static Function<Integer, FollowParameters> getIntakeToGate(Follower follower) {
         Function<Integer, ColoredDecodePose> getGatePose = i -> {
             if (i == 0) return GATE;
+            if (i == 2) return GATE2;
             else return GATE1;
         };
 

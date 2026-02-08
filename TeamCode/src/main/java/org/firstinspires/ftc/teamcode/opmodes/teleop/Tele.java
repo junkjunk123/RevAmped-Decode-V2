@@ -9,11 +9,13 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.math.projectile.ShooterMath;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
@@ -23,6 +25,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.prompter.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
@@ -79,6 +82,7 @@ public class Tele extends OpModeCommand {
 
     @Override
     public void initializeLoop() {
+        telemetry.addData("alliance", Globals.allianceColor);
         prompter.run();
     }
 
@@ -120,7 +124,10 @@ public class Tele extends OpModeCommand {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(robot.flywheel::stop),
                     robot.resetTable(),
-                    robot.turret.resetTurret()
+                    new Lazy(() -> {
+                        if (TrackingThread.trackTurret) return robot.turret.resetTurret();
+                        else return Commands.NOOP;
+                    })
             ), RobotStateHandler.CycleState.INTAKE));
         }
 
@@ -164,10 +171,18 @@ public class Tele extends OpModeCommand {
                     () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
                     new Sequential(
                             tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                            tsh.runTransition(new Sequential(
-                                    robot.shootAll(),
+                            tsh.runTransition(new Conditional(
+                                    () -> robot.hood.getCurrentState() == Hood.HoodState.FAR,
+                                    //is shooting far
+                                    new Sequential(
+                                    robot.shootAll(10),
                                     robot.resetAfterShooting()
-                            ), RobotStateHandler.CycleState.INTAKE)
+                                    ),
+                                    //not shooting far
+                                    new Sequential(
+                                            robot.shootAll(),
+                                            robot.resetAfterShooting())
+                                    ), RobotStateHandler.CycleState.INTAKE)
                     ),
                     Commands.NOOP
             ));
@@ -193,7 +208,14 @@ public class Tele extends OpModeCommand {
             schedule(tsh.task(robot.popper.neutral(), RobotStateHandler.CycleState.INTAKE));
         }
 
+        if (gamepad_2.dpad_right.isRisingEdge()) {
+            ShooterMath.APRIL_TAG_POSE_BLUE = ShooterMath.APRIL_TAG_POSE_BLUE.rotate(180,
+                    false);
+            ShooterMath.APRIL_TAG_POSE_RED = ShooterMath.APRIL_TAG_POSE_RED.rotate(180, false);
+        }
+
         // Telemetry
+        telemetry.addData("alliance", Globals.allianceColor);
         telemetry.update();
     }
 
