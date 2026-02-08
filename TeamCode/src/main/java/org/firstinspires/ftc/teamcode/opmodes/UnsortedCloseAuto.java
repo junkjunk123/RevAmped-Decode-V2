@@ -32,7 +32,10 @@ public class UnsortedCloseAuto extends OpModeCommand {
         robot.hood.unsortedAuto();
 
         schedule(
-                new Infinite(robot::update),
+                new Infinite(() -> {
+                    robot.update();
+                    Drivetrain.startPose = robot.drivetrain.follower.getPose();
+                }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(overallTimer::reset),
@@ -165,7 +168,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
 
     @Override
     public void end() {
-        Drivetrain.startPose = robot.drivetrain.follower.getPose();
+        //Drivetrain.startPose = robot.drivetrain.follower.getPose();
     }
 
     public int getIntakeTimeout() {

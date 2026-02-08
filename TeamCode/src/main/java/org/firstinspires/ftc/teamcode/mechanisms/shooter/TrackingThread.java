@@ -14,8 +14,8 @@ public class TrackingThread {
     private final Flywheel flywheel;
     private final Follower follower;
     private final boolean isTeleOp;
-    public static boolean trackHood;
-    public static boolean trackTurret;
+    public static boolean trackHood = true;
+    public static boolean trackTurret = true;
 
     public TrackingThread(Follower follower, Turret turret, Flywheel flywheel, Hood hood, boolean isTeleOp) {
         this.hood = hood;

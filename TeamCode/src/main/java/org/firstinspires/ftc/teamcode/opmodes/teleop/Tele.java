@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.math.projectile.ShooterMath;
+import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -83,6 +84,7 @@ public class Tele extends OpModeCommand {
     @Override
     public void initializeLoop() {
         telemetry.addData("alliance", Globals.allianceColor);
+        telemetry.addData("startPose", Drivetrain.startPose);
         prompter.run();
     }
 
@@ -208,13 +210,8 @@ public class Tele extends OpModeCommand {
             schedule(tsh.task(robot.popper.neutral(), RobotStateHandler.CycleState.INTAKE));
         }
 
-        if (gamepad_2.dpad_right.isRisingEdge()) {
-            ShooterMath.APRIL_TAG_POSE_BLUE = ShooterMath.APRIL_TAG_POSE_BLUE.rotate(180,
-                    false);
-            ShooterMath.APRIL_TAG_POSE_RED = ShooterMath.APRIL_TAG_POSE_RED.rotate(180, false);
-        }
-
         // Telemetry
+        telemetry.addData("startPose", Drivetrain.startPose);
         telemetry.addData("alliance", Globals.allianceColor);
         telemetry.update();
     }

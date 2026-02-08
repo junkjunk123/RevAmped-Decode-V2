@@ -9,6 +9,8 @@ import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.velocit
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.RAD_LIMIT;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.TICKS_LIMIT;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
+import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
@@ -59,6 +61,11 @@ public class SimpleShooterMath {
     }
 
     public void update(boolean trackTurret, boolean trackHood) {
+        Pose targetPos1 = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
+        //Pose currentPos1 = follower.getPose();
+        //telemetry.addData("pose", currentPos1);
+        //telemetry.addData("offsets", getDispVector(targetPos1, currentPos1));
+        telemetry.addData("target", targetPos1);
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
             Pose currentPos = follower.getPose();

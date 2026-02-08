@@ -50,14 +50,12 @@ public class Drivetrain {
         rightRear = motors.get(3);
         Globals.isTeleOp = true;
         follower.startTeleOpDrive();
-        follower.update();
     }
 
     public Drivetrain(HardwareMap hardwareMap, PathSupplier paths) {
         follower = Constants.createFollower(hardwareMap);
         this.paths = new ArrayDeque<>(paths.paths(follower));
-        startPose = paths.startPose();
-        follower.setStartingPose(startPose);
+        follower.setStartingPose(paths.startPose());
         motors = ((Mecanum) follower.drivetrain).getMotors();
         leftFront = motors.get(0);
         leftRear = motors.get(1);

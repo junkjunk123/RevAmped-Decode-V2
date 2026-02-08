@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
@@ -39,7 +40,12 @@ public class CloseAuto extends OpModeCommand {
         robot.turret.setTargetPosition(Turret.UNSORTED_AUTO_PRELOADS);
 
         schedule(
-            new Infinite(robot::update),
+            new Infinite(() -> {
+                robot.update();
+                Pose pose = robot.drivetrain.follower.getPose();
+                if (pose.distanceFrom(new Pose()) > 0.01)
+                    Drivetrain.startPose = robot.drivetrain.follower.getPose();
+            }),
             new Sequential(
                     new WaitUntil(() -> !opModeInInit()),
                     new Instant(overallTimer::reset),
@@ -120,7 +126,7 @@ public class CloseAuto extends OpModeCommand {
 
     @Override
     public void end() {
-        Drivetrain.startPose = robot.drivetrain.follower.getPose();
+        //Drivetrain.startPose = robot.drivetrain.follower.getPose();
     }
 
     private ICommand intake(int iteration) {
