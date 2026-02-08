@@ -43,7 +43,6 @@ public class Tele extends OpModeCommand {
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
         prompter = new Prompter(this, gamepad_1)
-                .prompt("alliance", new StatePrompt<>("Select alliance", AllianceColor.class))
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
                 .thenDisplay("Good luck! I'm rooting for you. --- Havish");
         
@@ -62,10 +61,7 @@ public class Tele extends OpModeCommand {
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
-                new Instant(() -> {
-                    Globals.allianceColor = prompter.getOrDefault("alliance", Globals.allianceColor);
-                    Globals.randomizationState = prompter.getOrDefault("randomization", Globals.randomizationState);
-                }),
+                new Instant(() -> Globals.randomizationState = prompter.getOrDefault("randomization", Globals.randomizationState)),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.INTAKE)
                 /* ,
                 tsh.runTransition(
@@ -93,11 +89,15 @@ public class Tele extends OpModeCommand {
         gamepad_2.update();
 
         // Schedule commands based on triggers
-        if (gamepad_1.a.isRisingEdge()) schedule(new Instant(() -> {
+        if (gamepad_1.a.isRisingEdge()) {
             TrackingThread.trackTurret = !TrackingThread.trackTurret;
             TrackingThread.trackHood = !TrackingThread.trackHood;
-        }));
-        if (gamepad_1.y.isRisingEdge()) schedule(new Instant(() -> tsh.setForce(!tsh.isForce())));
+        }
+        
+        if (gamepad_1.y.isRisingEdge()) {
+            tsh.setForce(!tsh.isForce());
+        }
+
         if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
@@ -125,8 +125,8 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.y.isRisingEdge()) schedule(robot.sort());
-        if (gamepad_2.right_trigger_button.isRisingEdge()) schedule(new Instant(robot.intakeMotor::outtake));
-        if (gamepad_2.a.isRisingEdge()) schedule(new Instant(robot.intakeMotor::stop));
+        if (gamepad_2.right_trigger_button.isRisingEdge()) robot.intakeMotor.outtake();
+        if (gamepad_2.a.isRisingEdge()) robot.intakeMotor.stop();
         if (gamepad_2.right_bumper.isRisingEdge()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),

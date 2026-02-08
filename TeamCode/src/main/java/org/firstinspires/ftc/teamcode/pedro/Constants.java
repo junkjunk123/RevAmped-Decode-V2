@@ -15,10 +15,6 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadConstants;
-import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
-
 public class Constants {
     public static double DEFAULT_PROPORTIONAL = 0.25;
     public static double SAFE_PROPORTIONAL = 0.15;
