@@ -7,6 +7,7 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.math.projectile.ShooterMath;
@@ -48,12 +49,13 @@ public class Tele extends OpModeCommand {
         prompter = new Prompter(this, gamepad_1)
                 .prompt("alliance", new StatePrompt<>("Select alliance", AllianceColor.class))
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
-                .thenDisplay("Good luck! I'm rooting for you. --- Havish");
+                .thenDisplay("Good luck! We'r rooting for you. --- Havish & Eric");
         
         gamepad_1.left_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_1.right_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_2.left_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_2.right_trigger_button(f -> f.greaterThan(0.3f));
+        //robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // Schedule robot update loop
         schedule(new Infinite(() -> {
