@@ -6,6 +6,7 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -164,7 +165,16 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL)) {
             schedule(tsh.runTransition(
                     new Parallel(
-                            new Instant(() -> {robot.intakeMotor.outtake();}),
+                            new Instant(() -> robot.intakeMotor.outtake()),
+                            //stops intake after 500 ms (doesn't do anything if the robot is trying to shoot)
+                            new Race(
+                                new WaitUntil(() -> tsh.atState(RobotStateHandler.CycleState.SHOOT)),
+                                new Sequential(
+                                        new Wait(500),
+                                        new Instant(() -> robot.intakeMotor.stop())
+                                )
+                            ),
+                            //new Instant(() -> {robot.intakeMotor.outtake();}),
                             robot.popper.pop(),
                             new Conditional(
                                     robot.flywheel::isStopped,
