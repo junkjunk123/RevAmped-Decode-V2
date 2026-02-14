@@ -3,10 +3,13 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.math.projectile.ShooterMath;
@@ -39,6 +42,7 @@ public class Tele extends OpModeCommand {
     private Robot robot;
     private TeleOpStateHandler tsh;
     private Prompter prompter;
+    private boolean teleReset = false;
 
     @Override
     public void initialize() {
@@ -48,12 +52,13 @@ public class Tele extends OpModeCommand {
         gamepad_2 = new GamepadEx(gamepad2);
         prompter = new Prompter(this, gamepad_1)
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
-                .thenDisplay("Good luck! I'm rooting for you. --- Havish");
+                .thenDisplay("Good luck! We're rooting for you. --- Havish & Eric");
         
         gamepad_1.left_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_1.right_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_2.left_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_2.right_trigger_button(f -> f.greaterThan(0.3f));
+        //robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // Schedule robot update loop
         schedule(new Infinite(() -> {
@@ -90,6 +95,18 @@ public class Tele extends OpModeCommand {
 
     @Override
     public void execute() {
+        if (!teleReset){
+            schedule(
+            new Sequential(
+                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                tsh.runTransition(
+                    new Sequential(
+                        robot.shootAll(),
+                        robot.resetAfterShooting()
+                    ), RobotStateHandler.CycleState.INTAKE))
+            );
+            teleReset = true;
+        }
         // Update switches
         gamepad_1.update();
         gamepad_2.update();
@@ -153,10 +170,16 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL)) {
             schedule(tsh.runTransition(
                     new Parallel(
-                            new Instant(() -> {
-                                //robot.tableCompartments.intakeThread.updateColors();
-                                robot.intakeMotor.stop();
-                            }),
+                            new Instant(() -> robot.intakeMotor.outtake()),
+                            //stops intake after 500 ms (doesn't do anything if the robot is trying to shoot)
+                            new Race(
+                                new WaitUntil(() -> tsh.atState(RobotStateHandler.CycleState.SHOOT)),
+                                new Sequential(
+                                        new Wait(500),
+                                        new Instant(() -> robot.intakeMotor.stop())
+                                )
+                            ),
+                            //new Instant(() -> {robot.intakeMotor.outtake();}),
                             robot.popper.pop(),
                             new Conditional(
                                     robot.flywheel::isStopped,
@@ -213,6 +236,7 @@ public class Tele extends OpModeCommand {
         // Telemetry
         telemetry.addData("startPose", Drivetrain.startPose);
         telemetry.addData("alliance", Globals.allianceColor);
+        telemetry.addData("tele reset",teleReset);
         telemetry.update();
     }
 

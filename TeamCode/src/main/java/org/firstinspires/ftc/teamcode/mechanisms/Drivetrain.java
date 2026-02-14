@@ -272,4 +272,10 @@ public class Drivetrain {
     public void setPower(double power) {
         apply(m -> m.setPower(power));
     }
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior){
+        leftFront.setZeroPowerBehavior(behavior);
+        leftRear.setZeroPowerBehavior(behavior);
+        rightFront.setZeroPowerBehavior(behavior);
+        rightRear.setZeroPowerBehavior(behavior);
+    }
 }
