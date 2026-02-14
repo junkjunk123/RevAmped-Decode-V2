@@ -44,7 +44,7 @@ public class Turret extends HwMotor {
             RIGHT_135;
 
             public int target() {
-                return (ordinal() - REST.ordinal()) * Turret.ticksPerRotation() / values().length;
+                return (ordinal() - REST.ordinal()) * Turret.ticksPerRotation() / 8;
             }
 
             public PresetState next() {
@@ -124,8 +124,9 @@ public class Turret extends HwMotor {
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch").flip();
         updateTargetPosition(0);
         resetController.setTargetPosition(0);
-        setDirection(DcMotorSimple.Direction.REVERSE);
+        setDirection(DcMotorSimple.Direction.FORWARD);
         setEncoderBase(getEncoder().getPosition());
+
         invalidateCache();
     }
 

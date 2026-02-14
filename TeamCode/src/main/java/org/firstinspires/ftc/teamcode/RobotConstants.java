@@ -19,7 +19,7 @@ public class RobotConstants {
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 652; Flywheel.MEDIUM_VELOCITY = 810; Flywheel.FAR_VELOCITY = 967; Flywheel.CLOSE_AUTO_VELOCITY = 750;
-        Flywheel.UNSORTED_AUTO_VELOCITY = 900;
+        Flywheel.UNSORTED_AUTO_VELOCITY = 810;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants
@@ -33,10 +33,9 @@ public class RobotConstants {
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
         Turret.P_RESET = 0.0022; Turret.F_RESET = 0.09;
         Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
-        Turret.UNSORTED_AUTO_PRELOADS = 93; Turret.UNSORTED_GATE = 496; Turret.UNSORTED_FINAL = 482;
+        Turret.UNSORTED_AUTO_PRELOADS = 124; Turret.UNSORTED_GATE = 663; Turret.UNSORTED_FINAL = 645;
 
-        Turret.TICKS_LIMIT = 819; Turret.RAD_LIMIT = 3.0 * Math.PI / 4.0; Turret.updateFullRotation();
-
+        Turret.TICKS_LIMIT = 810; Turret.RAD_LIMIT = 3.0 * Math.PI / 4.0; Turret.updateFullRotation();
         //Octocanum Constants
         //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
         //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
