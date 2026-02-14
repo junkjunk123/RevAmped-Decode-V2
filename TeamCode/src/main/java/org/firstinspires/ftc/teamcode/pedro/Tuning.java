@@ -365,8 +365,8 @@ class OffsetsTuner extends OpMode {
         telemetryM.debug("Total Angle: " + follower.getTotalHeading());
 
         telemetryM.debug("The following values are the offsets in inches that should be applied to your localizer.");
-        telemetryM.debug("strafeX: " + -follower.getPose().getX() / 2.0);
-        telemetryM.debug("forwardY: " + -follower.getPose().getY() / 2.0);
+        telemetryM.debug("strafeX: " + ((72.0-follower.getPose().getX()) / 2.0));
+        telemetryM.debug("forwardY: " + ((72.0-follower.getPose().getY()) / 2.0));
         telemetryM.update(telemetry);
 
         draw();
