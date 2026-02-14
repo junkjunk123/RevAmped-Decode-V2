@@ -76,8 +76,8 @@ public class SimpleShooterMath {
                 if (!velocityCompensation) {
                     deltaAngle = angleTurretTo(displacement);
                 } else {
-                    Pose currentVelocity = follower.
-                    deltaAngle = angleTurretTo(iterateOffset(targetPos, currentPos));
+                    Pose currentVelocity = pinpoint.getVelocity();
+                    deltaAngle = angleTurretTo(iterateOffset(targetPos, currentPos, currentVelocity));
                 }
                 turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
             }
