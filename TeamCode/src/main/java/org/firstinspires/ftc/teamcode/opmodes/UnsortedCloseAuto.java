@@ -28,7 +28,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
         robot = new Robot(hardwareMap, new UnsortedCloseAutoPaths());
         robot.turret.setTargetPosition(Turret.UNSORTED_AUTO_PRELOADS);
         robot.popper.popCommandless();
-        robot.table.setPosition(Table.BALL1);
+        robot.table.setStateCommandless(Table.RelativeState.BALL0);
         robot.hood.unsortedAuto();
 
         schedule(
@@ -50,6 +50,8 @@ public class UnsortedCloseAuto extends OpModeCommand {
                         shootFromGate(1),
                         intakeFromGate(2),
                         shootFromGate(2),
+                        intakeFromGate(3),
+                        shootFromGate(3),
                         intakePreload(false),
                         shootPreload(false),
                         park()
@@ -82,7 +84,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
         return new Sequential(
                 //new Instant(robot.intakeMotor::stop),
                 robot.popper.neutral(),
-                new Instant(() -> robot.table.setPosition(Table.BALL1)),
+                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL0)),
                 new Wait(650)
         );
     }
@@ -104,11 +106,12 @@ public class UnsortedCloseAuto extends OpModeCommand {
                                                 new Wait(600)
                                         )
                                 ),
-                                robot.popper.pop()
+                                robot.popper.pop(),
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.80)),
+                                robot.autoFastShoot()
                         )
-                ),
-                robot.autoFastShoot(),
-                new Wait(150)
+                )
+                //new Wait(150)
         );
     }
 
@@ -128,10 +131,8 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 }),
                 new Parallel(
                         resetTable(),
-                        new Sequential(
-                                isFirst ? Commands.NOOP : new Wait(450),
-                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), getIntakeTimeout())
-                        ),
+                        robot.drivetrain.followNext(d -> d.tValueCondition(0.8) &&
+                                d.velocityCondition(), getIntakeTimeout()),
                         isFirst ? new Instant(() -> robot.flywheel.unsortedAuto()) : Commands.NOOP
                 )
         );
@@ -143,14 +144,18 @@ public class UnsortedCloseAuto extends OpModeCommand {
                         robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), getShootTimeout()),
                         isFirst ? new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
-                                robot.popper.pop()
+                                robot.popper.pop(),
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.80)),
+                                robot.autoFastShoot()
                         ) : new Sequential(
                                 new Wait(200),
                                 new Instant(() -> robot.intakeMotor.outtakeSlow()),
                                 new Wait(100),
                                 new Instant(() -> robot.intakeMotor.intake()),
                                 new Wait(150),
-                                robot.popper.pop()
+                                robot.popper.pop(),
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.80)),
+                                robot.autoFastShoot()
                         ),
                         new Instant(() -> {
                             if (isFirst) {
@@ -161,8 +166,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                                 robot.hood.near();
                             }
                         })
-                ),
-                robot.autoFastShoot()
+                )
         );
     }
 
@@ -201,7 +205,6 @@ public class UnsortedCloseAuto extends OpModeCommand {
 
     @Override
     public void execute() {
-        telemetry.addData("tableVel", robot.table.getEncoder().getVelocity());
         telemetry.update();
     }
 

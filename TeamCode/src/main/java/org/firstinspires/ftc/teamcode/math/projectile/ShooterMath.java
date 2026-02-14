@@ -15,8 +15,6 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
-import org.firstinspires.ftc.teamcode.math.calc.Angle;
-import org.firstinspires.ftc.teamcode.math.calc.PoseDifferentiator;
 import org.firstinspires.ftc.teamcode.math.calc.Vector3D;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
@@ -28,10 +26,10 @@ public class ShooterMath {
     public static Pose APRIL_TAG_POSE_BLUE;
     public static double LAUNCH_ZONE_HEIGHT = 58;
 
-    public static double blueNegativeX = 15; //added 18 inch
-    public static double blueNegativeY = 130;
-    public static double redPositiveX = 119;
-    public static double redPositiveY = 130;
+    public static double blueX = 12; //added 18 inch
+    public static double blueY = 127;
+    public static double redX = 119;
+    public static double redY = 130;
 
     public static double BALL_LAUNCH_MS = 100; //time through flywheel
 
@@ -43,8 +41,8 @@ public class ShooterMath {
 
     public ShooterMath(Follower follower) {
         this.follower = follower;
-        APRIL_TAG_POSE_BLUE = new Pose(blueNegativeX, blueNegativeY);
-        APRIL_TAG_POSE_RED = new Pose(redPositiveX, redPositiveY);
+        APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
+        APRIL_TAG_POSE_RED = new Pose(redX, redY);
     }
 
     public void update(boolean trackTurret, boolean trackHood, double flywheelVelocity) {

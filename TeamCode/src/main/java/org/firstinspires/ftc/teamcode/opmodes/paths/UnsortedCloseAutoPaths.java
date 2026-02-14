@@ -81,7 +81,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
 
         return List.of(shootPreloads, intakeFirstSet, shootFirstSet, intakeToGate.apply(0), shootFromGate.get(),
                 intakeToGate.apply(1), shootFromGate.get(), intakeToGate.apply(2), shootFromGate.get(),
-                intakeFinalPresets, shootFinalPresets);
+                intakeToGate.apply(3), shootFromGate.get(), intakeFinalPresets, shootFinalPresets);
     }
 
     @NonNull
@@ -92,7 +92,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
             else return GATE1;
         };
 
-        return i -> new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+        return i -> new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, INTAKE_1_CONTROL, getGatePose.apply(i)))
                 .setLinearHeadingInterpolation(SHOOT_POSE.getHeading(), GATE.getHeading(), 0.8)
                 .build()

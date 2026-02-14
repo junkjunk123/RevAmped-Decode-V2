@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.math.projectile;
 import static org.firstinspires.ftc.teamcode.math.calc.Angle.normalizeAnglePi;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.BALL_LAUNCH_MS;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueNegativeX;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueNegativeY;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redPositiveX;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redPositiveY;
+import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueX;
+import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueY;
+import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redX;
+import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redY;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.velocityCompensation;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.RAD_LIMIT;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.TICKS_LIMIT;
@@ -13,7 +13,7 @@ import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.math.MathFunctions;
+import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.util.Range;
@@ -26,7 +26,7 @@ import smile.interpolation.BilinearInterpolation;
 import smile.interpolation.Interpolation2D;
 
 public class SimpleShooterMath {
-    private final Follower follower;
+    private final Localizer pinpoint;
     public static Pose APRIL_TAG_POSE_RED;
     public static Pose APRIL_TAG_POSE_BLUE;
     private int turretPos;
@@ -40,10 +40,10 @@ public class SimpleShooterMath {
     public static double HOOD_0_DEG = 28.9;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
 
-    public SimpleShooterMath(Follower follower) {
-        this.follower = follower;
-        APRIL_TAG_POSE_BLUE = new Pose(blueNegativeX, blueNegativeY);
-        APRIL_TAG_POSE_RED = new Pose(redPositiveX, redPositiveY);
+    public SimpleShooterMath(Localizer pinpoint) {
+        this.pinpoint = pinpoint;
+        APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
+        APRIL_TAG_POSE_RED = new Pose(redX, redY);
 
         double[][] hoodSine = {
                 { 0.4925446801631296, 0.5199946813957746, 0.6379734257885634 },
@@ -51,8 +51,8 @@ public class SimpleShooterMath {
         };
 
         double[][] flywheelVel = {
-                { 700.0, 725.0, 925.0 },
-                { 850.0, 875.0, 950.0 }
+                { 630.0, 652.0, 832.5 },
+                { 765.0, 787.5, 855.0 }
         };
 
         double[][] airTime = {
@@ -68,7 +68,7 @@ public class SimpleShooterMath {
     public void update(boolean trackTurret, boolean trackHood) {
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
-            Pose currentPos = follower.getPose();
+            Pose currentPos = pinpoint.getPose();
             Vector displacement = getDispVector(targetPos, currentPos);
 
             if (trackTurret) {
@@ -103,7 +103,7 @@ public class SimpleShooterMath {
 
     private double angleTurretTo(Vector offset) {
         double targetAngle = offset.getTheta() + Math.PI;
-        double currentAngle = follower.getPose().getHeading();
+        double currentAngle = pinpoint.getPose().getHeading();
         double deltaAngle = normalizeAnglePi(targetAngle - currentAngle);
         return Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
     }
