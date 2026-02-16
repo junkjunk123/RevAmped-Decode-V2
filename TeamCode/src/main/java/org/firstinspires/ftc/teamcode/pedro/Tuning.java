@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.SquIDBrakingController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1211,6 +1212,7 @@ class Line extends OpMode {
         if (!follower.isBusy()) {
             if (forward) {
                 forward = false;
+                /*
                 follower.vectorCalculator.predictiveBrakingController.setCoefficients(
                         new PredictiveBrakingCoefficients(
                                 0.3,
@@ -1218,12 +1220,20 @@ class Line extends OpMode {
                                 0.00125
                         )
                 );
+                 */
+                follower.vectorCalculator.predictiveBrakingController = new SquIDBrakingController(
+                        new PredictiveBrakingCoefficients(
+                                0.6,
+                                0.090,
+                                0.00125
+                        )
+                );
                 follower.followPath(backwards);
             } else {
                 forward = true;
-                follower.vectorCalculator.predictiveBrakingController.setCoefficients(
+                follower.vectorCalculator.predictiveBrakingController = new SquIDBrakingController(
                         new PredictiveBrakingCoefficients(
-                                0.15,
+                                0.4,
                                 0.090,
                                 0.00125
                         )
