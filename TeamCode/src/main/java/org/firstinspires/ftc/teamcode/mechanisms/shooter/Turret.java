@@ -89,6 +89,11 @@ public class Turret extends HwMotor {
     public static int FAR_AUTO;
     public static int UNSORTED_AUTO_PRELOADS;
     public static int UNSORTED_GATE;
+    public static int UNSORTED_SET_1;
+    public static int UNSORTED_SET_2;
+    public static int UNSORTED_SET_3;
+    public static int UNSORTED_SET_4;
+    public static int UNSORTED_SET_5;
     public static int UNSORTED_FINAL;
     public static double P;
     public static double I;
@@ -268,5 +273,16 @@ public class Turret extends HwMotor {
 
     public PIDFController getSecondaryController() {
         return secondaryController;
+    }
+
+    public void unsortedAutoSet(int setNum) {
+        switch (setNum + 1) {
+            case 1 -> setTargetPosition(UNSORTED_SET_1);
+            case 2 -> setTargetPosition(UNSORTED_SET_2);
+            case 3 -> setTargetPosition(UNSORTED_SET_3);
+            case 4 -> setTargetPosition(UNSORTED_SET_4);
+            case 5 -> setTargetPosition(UNSORTED_SET_5);
+            default -> setTargetPosition(UNSORTED_AUTO_PRELOADS);
+        }
     }
 }

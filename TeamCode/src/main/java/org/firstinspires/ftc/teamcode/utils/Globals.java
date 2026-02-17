@@ -58,6 +58,11 @@ public final class Globals {
             Turret.UNSORTED_FINAL *= -1;
             Turret.UNSORTED_GATE *= -1;
             Turret.UNSORTED_AUTO_PRELOADS *= -1;
+            Turret.UNSORTED_SET_1 *= -1;
+            Turret.UNSORTED_SET_2 *= -1;
+            Turret.UNSORTED_SET_3 *= -1;
+            Turret.UNSORTED_SET_4 *= -1;
+            Turret.UNSORTED_SET_5 *= -1;
         } else if (allianceColor.equals(AllianceColor.Blue)) {
             Turret.AUTO_PRELOADS = Turret.AUTO_PRELOADS >= 0? Turret.AUTO_PRELOADS : Math.abs(Turret.AUTO_PRELOADS + 25);
             Turret.AUTO_SET_1 = Math.abs(Turret.AUTO_SET_1);
@@ -67,6 +72,11 @@ public final class Globals {
             Turret.UNSORTED_FINAL = Math.abs(Turret.UNSORTED_FINAL);
             Turret.UNSORTED_GATE = Math.abs(Turret.UNSORTED_GATE);
             Turret.UNSORTED_AUTO_PRELOADS = Math.abs(Turret.UNSORTED_AUTO_PRELOADS);
+            Turret.UNSORTED_SET_1 = Math.abs(Turret.UNSORTED_SET_1);
+            Turret.UNSORTED_SET_2 = Math.abs(Turret.UNSORTED_SET_2);
+            Turret.UNSORTED_SET_3 = Math.abs(Turret.UNSORTED_SET_3);
+            Turret.UNSORTED_SET_4 = Math.abs(Turret.UNSORTED_SET_4);
+            Turret.UNSORTED_SET_5 = Math.abs(Turret.UNSORTED_SET_5);
         }
     }
 }

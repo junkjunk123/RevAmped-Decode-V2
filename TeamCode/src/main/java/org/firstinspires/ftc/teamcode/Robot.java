@@ -189,7 +189,7 @@ public class Robot {
 
                     return new Sequential(
                             new Instant(() -> table.setPosition(pos)),
-                            new Wait(850)
+                            new Wait(650)
                     );
                 })
         );

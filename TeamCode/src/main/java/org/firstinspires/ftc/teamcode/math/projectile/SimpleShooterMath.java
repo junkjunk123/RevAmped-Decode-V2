@@ -127,8 +127,7 @@ public class SimpleShooterMath {
 
         Pose currentIteration = targetPos.minus(currentPos);
         for (int i = 0; i < 10; i++) {
-            Pose disp = currentIteration.minus(currentPos);
-            double shotTime = airTime.interpolate(disp.getX(), disp.getY());
+            double shotTime = airTime.interpolate(Math.abs(currentIteration.getX()), Math.abs(currentIteration.getY()));
             currentIteration = targetPos.minus(RobotKinematicsCalculator.getProjectedPoseWithConstantVelocity(
                     currentPos,
                     shotTime,

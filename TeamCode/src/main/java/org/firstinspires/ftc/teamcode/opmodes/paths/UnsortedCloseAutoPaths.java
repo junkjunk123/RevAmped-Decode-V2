@@ -25,9 +25,13 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose SHOOT_POSE = new ColoredDecodePose(56, 78, Math.PI);
     public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(12, 59, Math.PI);
     public static ColoredDecodePose INTAKE_1_CONTROL = new ColoredDecodePose(44,56, Math.PI);
-    public static ColoredDecodePose GATE = new ColoredDecodePose(18.5, 65, Math.toRadians(203));
-    public static ColoredDecodePose INTAKE = new ColoredDecodePose(15, 60, Math.toRadians(150));
-    public static ColoredDecodePose INTAKE_SHIFTED_FINAL = new ColoredDecodePose(15, 62, Math.toRadians(150));
+    public static ColoredDecodePose GATE = new ColoredDecodePose(19.5, 65, Math.toRadians(203));
+    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(19.5, 64, Math.toRadians(203));
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(19.5, 64.5, Math.toRadians(203));
+    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(19.5, 65.5, Math.toRadians(203));
+    public static ColoredDecodePose INTAKE = new ColoredDecodePose(14, 62, Math.toRadians(150));
+    public static ColoredDecodePose INTAKE_SHIFTED_SECOND = new ColoredDecodePose(14, 63, Math.toRadians(150));
+    public static ColoredDecodePose INTAKE_SHIFTED_FINAL = new ColoredDecodePose(14, 64, Math.toRadians(150));
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD_CONTROL = new ColoredDecodePose(52, 84, Math.PI);
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(18, 84, Math.PI);
     public static ColoredDecodePose PARK = new ColoredDecodePose(53, 112, Math.toRadians(220));
@@ -66,9 +70,8 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
         Function<Integer, FollowParameters> intakeToGate = getIntakeToGate(follower);
 
         Function<Integer, FollowParameters> gateToIntake = i -> new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(GATE, i > 1 ? INTAKE : INTAKE_SHIFTED_FINAL))
-                .setLinearHeadingInterpolation(GATE.getHeading(), i > 1 ? INTAKE.getHeading() :
-                        INTAKE_SHIFTED_FINAL.getHeading(), 0.5)
+                .addPath(ColoredDecodePose.makeBezier(GATE, getIntakePose(i)))
+                .setConstantHeadingInterpolation(getIntakePose(i).getHeading())
                 .setNoDeceleration()
                 .build()
         );
@@ -97,9 +100,28 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     @NonNull
     private static Function<Integer, FollowParameters> getIntakeToGate(Follower follower) {
         return i -> new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, GATE))
+                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, getGatePose(i)))
                 .setTangentHeadingInterpolation()
                 .build()
         );
+    }
+
+    private static ColoredDecodePose getIntakePose(int iteration) {
+        return switch (iteration) {
+            case 0 -> INTAKE;
+            case 1 -> INTAKE_SHIFTED_SECOND;
+            case 2,3 -> INTAKE_SHIFTED_FINAL;
+            default -> throw new IllegalStateException("Unexpected value: " + iteration);
+        };
+    }
+
+    private static ColoredDecodePose getGatePose(int iteration) {
+        return switch (iteration) {
+            case 0 -> GATE;
+            case 1 -> GATE_1;
+            case 2 -> GATE_2;
+            case 3 -> GATE_3;
+            default -> throw new IllegalStateException("Unexpected value: " + iteration);
+        };
     }
 }

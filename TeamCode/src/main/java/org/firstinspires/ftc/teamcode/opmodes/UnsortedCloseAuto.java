@@ -70,7 +70,6 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 new Instant(() -> {
                     robot.flywheel.stop();
                     robot.intakeMotor.stop();
-                    if (iteration == 2) robot.turret.setTargetPosition(Turret.UNSORTED_GATE + 15);
                 }),
                 new Parallel(
                         new Sequential(
@@ -79,14 +78,19 @@ public class UnsortedCloseAuto extends OpModeCommand {
                         ),
                         new Sequential(
                                 robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), getIntakeTimeout()),
+                                new Instant(() -> robot.turret.unsortedAutoSet(iteration + 1)),
                                 robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), 500)
                         ),
                         new Sequential(
-                                new Wait(400),
-                                new Instant(() -> robot.intakeMotor.intakeGate())
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
+                                new Instant(() -> {
+                                    robot.intakeMotor.intakeGate();
+                                    robot.turret.setTargetPosition(robot.turret.getTargetPosition() -
+                                            250 * (int) Math.signum(robot.turret.getTargetPosition()));
+                                })
                         )
                 ),
-                iteration != 0 ? new Wait(1200) : new Wait(700)
+                iteration != 0 ? new Wait(1200) : new Wait(900)
         );
     }
 
@@ -103,7 +107,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
         return new Sequential(
                 //new Instant(robot.intakeMotor::stop),
                 new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL2)),
-                new Wait(650),
+                new Wait(350),
                 robot.popper.neutral()
         );
     }
@@ -121,7 +125,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                                 new Parallel(
                                         robot.popper.neutral(),
                                         new Sequential(
-                                                new Wait(300),
+                                                new Wait(450),
                                                 new Instant(robot.intakeMotor::intake),
                                                 new Wait(400)
                                         )
@@ -138,10 +142,8 @@ public class UnsortedCloseAuto extends OpModeCommand {
         return new Sequential(
                 new Instant(() -> {
                     if (isFirst) {
-                        robot.turret.setTargetPosition(Turret.UNSORTED_GATE);
                         robot.flywheel.stop();
-                    }
-                    else {
+                    } else {
                         robot.turret.setTargetPosition(Turret.UNSORTED_FINAL);
                         robot.flywheel.stop();
                     }
@@ -150,12 +152,13 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 }),
                 new Parallel(
                         isFirst ? resetTable() : resetTableFinal(),
+                        robot.drivetrain.followNext(d -> d.tValueCondition(0.8) &&
+                                d.velocityCondition(), getIntakeTimeout()),
+                        isFirst ? new Instant(() -> robot.flywheel.unsortedAuto()) : Commands.NOOP,
                         new Sequential(
-                                new Wait(200),
-                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) &&
-                                        d.velocityCondition(), getIntakeTimeout())
-                        ),
-                        isFirst ? new Instant(() -> robot.flywheel.unsortedAuto()) : Commands.NOOP
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
+                                new Instant(() -> robot.turret.unsortedAutoSet(0))
+                        )
                 )
         );
     }
