@@ -10,6 +10,7 @@ import com.pedropathing.math.Matrix;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,6 +71,7 @@ public final class TeleOpStateHandler {
     private final Consumer<RobotStateHandler.Message> mutator;
     private final AtomicInteger abortCounter = new AtomicInteger();
     private boolean force;
+    private long transitionStartNanos;
 
     public TeleOpStateHandler(
             RobotStateHandler.CycleState initial,
@@ -99,8 +101,17 @@ public final class TeleOpStateHandler {
     }
 
     public void abortTransition() {
-        if (current instanceof Transition)
+        if (current instanceof Transition t) {
+            DecodeLogger.get().warn("state", "STATE_TRANSITION_ABORT",
+                    "from", t.from().toString(),
+                    "to", t.to().toString());
             abortCounter.incrementAndGet();
+            if (queued != null) {
+                DecodeLogger.get().debug("state", "STATE_TRANSITION_QUEUE_CLEARED",
+                        "queuedTo", queued.next().toString());
+                queued = null;
+            }
+        }
     }
 
     public ICommand runTransition(
@@ -153,7 +164,13 @@ public final class TeleOpStateHandler {
         return new Race(
                 new Sequential(
                         new Instant(() ->
-                                current = new Transition(currentState(), next, command)
+                        {
+                            DecodeLogger.get().info("state", "STATE_TRANSITION_START",
+                                    "from", currentState().toString(),
+                                    "to", next.toString());
+                            transitionStartNanos = System.nanoTime();
+                            current = new Transition(currentState(), next, command);
+                        }
                         ),
                         command,
                         new Instant(() -> setState(next)),
@@ -177,7 +194,12 @@ public final class TeleOpStateHandler {
     ) {
         return new Instant(() -> {
             if (current instanceof Transition t && queued == null)
-                if (force || valid(t.to(), next)) queued = new TransitionRequest(command, next, force);
+                if (force || valid(t.to(), next)) {
+                    queued = new TransitionRequest(command, next, force);
+                    DecodeLogger.get().debug("state", "STATE_TRANSITION_QUEUE",
+                            "to", next.toString(),
+                            "force", force);
+                }
             }
         );
     }
@@ -195,6 +217,15 @@ public final class TeleOpStateHandler {
     }
 
     private void setState(RobotStateHandler.CycleState state) {
+        if (current instanceof Transition t) {
+            long durationMs = transitionStartNanos == 0
+                    ? -1
+                    : (System.nanoTime() - transitionStartNanos) / 1_000_000L;
+            DecodeLogger.get().info("state", "STATE_TRANSITION_COMPLETE",
+                    "from", t.from().toString(),
+                    "to", state.toString(),
+                    "durationMs", durationMs);
+        }
         current = state;
         mutator.accept(state);
     }

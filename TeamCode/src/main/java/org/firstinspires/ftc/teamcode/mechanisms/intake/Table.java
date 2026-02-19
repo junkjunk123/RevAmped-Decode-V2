@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -77,7 +78,7 @@ public class Table extends HwServo {
     public static double MS_PER_REVOLUTION = 750;
     public static double SLOW_SHOOT_DELAY = 25;
     private final int velocityThreshold = 20;
-    private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
+    private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1, "table");
     private final EncoderImpl encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
     private final HwServo tableServo2;
@@ -118,13 +119,11 @@ public class Table extends HwServo {
         AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
         AtomicReadOnce<Double> accelTime = getAccelerationTime(true);
         return new Lazy(() -> {
-           if (atPos(stateVal.read().target())) return Commands.NOOP;
+           RelativeState targetState = stateVal.read();
+           if (atPos(targetState.target())) return Commands.NOOP;
            return stateHandler.runTransition(
                    new Sequential(
-                           new Instant(() -> {
-                               distance.set(Math.abs(stateVal.read().target() - getPosition()));
-                               setPosition(stateVal.read().target());
-                           }),
+                           new Instant(() -> setRelativeStateAndLog(targetState)),
                            useEncoder ? new Race(
                                    new Sequential(
                                            new Wait(accelTime.read()),
@@ -134,15 +133,19 @@ public class Table extends HwServo {
                            ) : new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION - 150)),
                            new Instant(() -> atRelativeState = true)
                    ),
-                   stateVal::read
+                   () -> targetState
            );
         });
     }
 
     public void setStateCommandless(RelativeState relativeState) {
+        RelativeState previous = stateHandler.getCurrentState();
         stateHandler.setCurrentState(relativeState);
-        setPosition(relativeState.target());
+        boolean moved = setPosition(relativeState.target());
         atRelativeState = true;
+        if (moved || previous != relativeState) {
+            logRelativeState(relativeState);
+        }
     }
 
     public ICommand setRelativeState(RelativeState relativeState) {
@@ -282,5 +285,17 @@ public class Table extends HwServo {
                         })
                 )
         );
+    }
+
+    private void setRelativeStateAndLog(RelativeState state) {
+        distance.set(Math.abs(state.target() - getPosition()));
+        setPosition(state.target());
+        logRelativeState(state);
+    }
+
+    private void logRelativeState(RelativeState state) {
+        DecodeLogger.get().info("table", "TABLE_STATE_SET",
+                "state", state.name(),
+                "pos", state.target());
     }
 }

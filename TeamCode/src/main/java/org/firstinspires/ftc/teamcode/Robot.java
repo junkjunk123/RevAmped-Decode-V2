@@ -36,6 +36,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -80,6 +81,12 @@ public class Robot {
         intakeColor = new ColorManager(hardwareMap);
         //intakeDistance = new IntakeDistance(hardwareMap);
         intakeDistance = null;
+        if (intakeDistance == null) {
+            DecodeLogger.get().warn("hw", "SUBSYSTEM_DISABLED", "subsystem", "intakeDistance");
+        }
+        if (intakeColor.allSensors.isEmpty()) {
+            DecodeLogger.get().warn("hw", "SUBSYSTEM_DISABLED", "subsystem", "colorManager");
+        }
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
         tableCompartments = new TableCompartmentManager(intakeColor);

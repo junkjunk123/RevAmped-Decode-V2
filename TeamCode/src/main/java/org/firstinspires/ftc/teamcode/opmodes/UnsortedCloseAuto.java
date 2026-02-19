@@ -19,10 +19,14 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.paths.UnsortedCloseAutoPaths;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 public class UnsortedCloseAuto extends OpModeCommand {
+    private static final double TELEMETRY_PERIOD_MS = 100.0;
     private Robot robot;
     private final ElapsedTime overallTimer = new ElapsedTime();
+    private final ElapsedTime telemetryTimer = new ElapsedTime();
+    private String currentStep = "INIT";
 
     @Override
     public void initialize() {
@@ -40,27 +44,27 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(overallTimer::reset),
-                        new Instant(() -> robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 40)),
-                        new Deadline(
+                        step("PRELOAD_SETUP", new Instant(() -> robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 40))),
+                        step("PRELOAD_DRIVE", new Deadline(
                                 new Sequential(
                                         new WaitUntil(() -> robot.drivetrain.tValueCondition(0.4)),
                                         robot.autoFastShoot()
                                 ),
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000)
-                        ),
-                        intakePreload(true),
-                        shootPreload(true),
-                        intakeFromGate(0),
-                        shootFromGate(0),
-                        intakeFromGate(1),
-                        shootFromGate(1),
-                        intakeFromGate(2),
-                        shootFromGate(2),
-                        intakeFromGate(3),
-                        shootFromGate(3),
-                        intakePreload(false),
-                        shootPreload(false),
-                        park()
+                        )),
+                        step("INTAKE_PRELOAD_1", intakePreload(true)),
+                        step("SHOOT_PRELOAD_1", shootPreload(true)),
+                        step("INTAKE_GATE_0", intakeFromGate(0)),
+                        step("SHOOT_GATE_0", shootFromGate(0)),
+                        step("INTAKE_GATE_1", intakeFromGate(1)),
+                        step("SHOOT_GATE_1", shootFromGate(1)),
+                        step("INTAKE_GATE_2", intakeFromGate(2)),
+                        step("SHOOT_GATE_2", shootFromGate(2)),
+                        step("INTAKE_GATE_3", intakeFromGate(3)),
+                        step("SHOOT_GATE_3", shootFromGate(3)),
+                        step("INTAKE_PRELOAD_2", intakePreload(false)),
+                        step("SHOOT_PRELOAD_2", shootPreload(false)),
+                        step("PARK", park())
                 )
         );
     }
@@ -237,11 +241,30 @@ public class UnsortedCloseAuto extends OpModeCommand {
 
     @Override
     public void execute() {
-        telemetry.update();
+        if (telemetryTimer.milliseconds() >= TELEMETRY_PERIOD_MS) {
+            telemetry.addData("autoStep", currentStep);
+            telemetry.addData("pathIndex", robot.drivetrain.getPathIndex());
+            telemetry.addData("pathsRemaining", robot.drivetrain.getRemainingPaths());
+            telemetry.update();
+            telemetryTimer.reset();
+        }
     }
 
     @Override
     public void initializeLoop() {
         robot.update();
+    }
+
+    private ICommand step(String name, ICommand command) {
+        return new Sequential(
+                new Instant(() -> {
+                    currentStep = name;
+                    DecodeLogger.get().info("auto", "AUTO_STEP_START", "step", name);
+                }),
+                command,
+                new Instant(() -> DecodeLogger.get().info("auto", "AUTO_STEP_COMPLETE",
+                        "step", name,
+                        "elapsedSec", overallTimer.seconds()))
+        );
     }
 }

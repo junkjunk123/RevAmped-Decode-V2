@@ -3,6 +3,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 public class IntakeMotor extends HwMotor {
     public static float INTAKE;
@@ -32,48 +33,39 @@ public class IntakeMotor extends HwMotor {
     }
 
     public void intake() {
-        setPower(INTAKE);
-        state = IntakeState.INTAKE;
+        setState(IntakeState.INTAKE, INTAKE);
     }
 
     public void outtake() {
-        setPower(OUTTAKE);
-        state = IntakeState.OUTTAKE;
+        setState(IntakeState.OUTTAKE, OUTTAKE);
     }
 
     public void intakeSlow() {
-        setPower(INTAKE_SLOW);
-        state = IntakeState.INTAKE_SLOW;
+        setState(IntakeState.INTAKE_SLOW, INTAKE_SLOW);
     }
 
     public void shooting() {
-        setPower(SHOOTING);
-        state = IntakeState.SHOOTING;
+        setState(IntakeState.SHOOTING, SHOOTING);
     }
 
     public void outtakeSlow() {
-        setPower(OUTTAKE_SLOW);
-        state = IntakeState.OUTTAKE_SLOW;
+        setState(IntakeState.OUTTAKE_SLOW, OUTTAKE_SLOW);
     }
 
     public void stop() {
-        setPower(STOPPED);
-        state = IntakeState.STOPPED;
+        setState(IntakeState.STOPPED, STOPPED);
     }
 
     public void intakeGate() {
-        setPower(INTAKE_GATE);
-        state = IntakeState.GATE;
+        setState(IntakeState.GATE, INTAKE_GATE);
     }
 
     public void intakePreloads() {
-        setPower(INTAKE_PRELOADS);
-        state = IntakeState.PRELOADS;
+        setState(IntakeState.PRELOADS, INTAKE_PRELOADS);
     }
 
     public void intakePreloads(double power) {
-        setPower(INTAKE_PRELOADS);
-        state = IntakeState.PRELOADS;
+        setState(IntakeState.PRELOADS, power);
     }
 
     public String getState() {
@@ -82,5 +74,16 @@ public class IntakeMotor extends HwMotor {
 
     public boolean atState(IntakeState state) {
         return state == this.state;
+    }
+
+    private void setState(IntakeState nextState, double power) {
+        boolean changed = state != nextState || Math.abs(getPower() - power) > 0.001;
+        setPower(power);
+        state = nextState;
+        if (changed) {
+            DecodeLogger.get().info("intake", "INTAKE_STATE_SET",
+                    "state", nextState.name(),
+                    "power", power);
+        }
     }
 }

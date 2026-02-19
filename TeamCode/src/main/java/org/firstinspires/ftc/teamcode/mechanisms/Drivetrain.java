@@ -5,8 +5,11 @@ import com.pedropathing.ftc.drivetrains.Mecanum;
 import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -19,15 +22,19 @@ import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 import java.util.ArrayDeque;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Drivetrain {
+    private static final double PATH_COMPLETE_DISTANCE_THRESHOLD = 6.0;
     public final Follower follower;
     private ArrayDeque<FollowParameters> paths;
+    private int pathIndex;
     public static Pose startPose = CloseAutoPaths.START_POSE.getPose(AllianceColor.Red);
     private final List<DcMotorEx> motors;
     public final DcMotorEx leftFront;
@@ -66,7 +73,11 @@ public class Drivetrain {
     }
 
     public void followNext() {
-        if (!paths.isEmpty()) {
+        if (paths != null && !paths.isEmpty()) {
+            pathIndex++;
+            DecodeLogger.get().info("drive", "AUTO_PATH_START",
+                    "pathIndex", pathIndex,
+                    "remaining", paths.size() - 1);
             paths.poll().follow(follower);
         } else {
             BezierPoint point = new BezierPoint(follower.getPose());
@@ -77,7 +88,12 @@ public class Drivetrain {
     }
 
     public void followLast() {
-        if (!paths.isEmpty()) {
+        if (paths != null && !paths.isEmpty()) {
+            pathIndex++;
+            DecodeLogger.get().info("drive", "AUTO_PATH_START",
+                    "pathIndex", pathIndex,
+                    "remaining", paths.size() - 1,
+                    "direction", "last");
             paths.pollLast().follow(follower);
         } else {
             BezierPoint point = new BezierPoint(follower.getPose());
@@ -103,17 +119,33 @@ public class Drivetrain {
                 .setDone(() -> isDone.apply(this));
     }
 
-    public Race followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return new Race(
-                followNext(isDone),
-                new Wait(timeout)
+    public ICommand followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
+        AtomicBoolean completed = new AtomicBoolean(false);
+        return new Sequential(
+                new Race(
+                        followNext(d -> {
+                            boolean done = isDone.apply(d);
+                            if (done) completed.set(true);
+                            return done;
+                        }),
+                        new Wait(timeout)
+                ),
+                new Instant(() -> logPathOutcome(completed.get()))
         );
     }
 
-    public Race followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
-        return new Race(
-                followLast(isDone),
-                new Wait(timeout)
+    public ICommand followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
+        AtomicBoolean completed = new AtomicBoolean(false);
+        return new Sequential(
+                new Race(
+                        followLast(d -> {
+                            boolean done = isDone.apply(d);
+                            if (done) completed.set(true);
+                            return done;
+                        }),
+                        new Wait(timeout)
+                ),
+                new Instant(() -> logPathOutcome(completed.get()))
         );
     }
 
@@ -122,6 +154,7 @@ public class Drivetrain {
      * @return the distance to the target position
      */
     public double distanceFromTarget() {
+        if (follower.getCurrentPathChain() == null) return Double.POSITIVE_INFINITY;
         return follower.getPose().distanceFrom(follower.getCurrentPathChain().endPoint());
     }
 
@@ -267,6 +300,31 @@ public class Drivetrain {
 
     public void updateLocalization() {
         follower.poseTracker.update();
+    }
+
+    public int getPathIndex() {
+        return pathIndex;
+    }
+
+    public int getRemainingPaths() {
+        return paths == null ? 0 : paths.size();
+    }
+
+    private void logPathOutcome(boolean conditionMet) {
+        double distance = distanceFromTarget();
+        double tValue = follower.getCurrentPathChain() != null ? follower.getCurrentTValue() : -1;
+        if (conditionMet || distance <= PATH_COMPLETE_DISTANCE_THRESHOLD) {
+            DecodeLogger.get().info("drive", "AUTO_PATH_COMPLETE",
+                    "pathIndex", pathIndex,
+                    "tValue", tValue,
+                    "distFromTarget", distance);
+            return;
+        }
+
+        DecodeLogger.get().warn("drive", "AUTO_PATH_TIMEOUT",
+                "pathIndex", pathIndex,
+                "tValue", tValue,
+                "distFromTarget", distance);
     }
 
     public void setPower(double power) {
