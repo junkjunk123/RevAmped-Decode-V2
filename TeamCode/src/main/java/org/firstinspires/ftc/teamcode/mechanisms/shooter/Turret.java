@@ -24,12 +24,15 @@ import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleSupplier;
 
 @Config
 public class Turret extends HwMotor {
+    private static final int TARGET_LOG_DELTA_TICKS = 15;
+    private static final long TARGET_LOG_PERIOD_NANOS = 100_000_000L;
     public static double RAD_LIMIT;
     public static double TICKS_LIMIT;
     public static double FULL_ROTATION;
@@ -161,6 +164,10 @@ public class Turret extends HwMotor {
     private MoveState moveState = MoveState.PresetState.REST;
     private final AtomicInteger distance = new AtomicInteger(0);
     private boolean useSecondary = false;
+    private boolean lastLimitState;
+    private int lastLoggedTarget = Integer.MIN_VALUE;
+    private MoveState lastLoggedMoveState;
+    private long lastTargetLogNanos;
     private DoubleSupplier limelightError;
 
     public Turret(HardwareMap hardwareMap, Encoder encoder) {
@@ -224,6 +231,7 @@ public class Turret extends HwMotor {
         if (!(moveState instanceof MoveState.SwitchReset)) updateTargetPosition(moveState.target());
         else updateTargetPosition(moveState.target() * (int) (-1 * Math.signum(getPosition())));
         this.moveState = moveState;
+        logTargetIfNeeded(moveState);
     }
 
     public MoveState getMoveState() {
@@ -276,6 +284,13 @@ public class Turret extends HwMotor {
     public void update() {
         super.update();
         limitSwitch.update();
+        boolean limitState = limitSwitch.state();
+        if (limitState && !lastLimitState) {
+            DecodeLogger.get().warn("turret", "TURRET_LIMIT_SWITCH",
+                    "triggered", true,
+                    "pos", getPosition());
+        }
+        lastLimitState = limitState;
         trackController.setCoefficients(new PIDFCoefficients(P, I, TRACK_D, F));
 
         if (deenergized()) return;
@@ -346,6 +361,37 @@ public class Turret extends HwMotor {
             case 5 -> setTargetPosition(UNSORTED_SET_5);
             default -> setTargetPosition(UNSORTED_AUTO_PRELOADS);
         }
+    }
+
+    private void logTargetIfNeeded(MoveState nextState) {
+        int target = getTargetPosition();
+        boolean stateChanged = !sameMoveState(lastLoggedMoveState, nextState);
+        boolean targetChanged = Math.abs(target - lastLoggedTarget) >= TARGET_LOG_DELTA_TICKS;
+        long nowNanos = System.nanoTime();
+        if (!stateChanged && !targetChanged) return;
+        if (!stateChanged && nowNanos - lastTargetLogNanos < TARGET_LOG_PERIOD_NANOS) return;
+
+        DecodeLogger.get().info("turret", "TURRET_TARGET_SET",
+                "target", target,
+                "currentPos", getPosition(),
+                "state", describeMoveState(nextState));
+
+        lastLoggedTarget = target;
+        lastLoggedMoveState = nextState;
+        lastTargetLogNanos = nowNanos;
+    }
+
+    private static boolean sameMoveState(MoveState a, MoveState b) {
+        if (a == b) return true;
+        if (a == null || b == null) return false;
+        if (a instanceof MoveState.MoveTo && b instanceof MoveState.MoveTo) return true;
+        return a.getClass().equals(b.getClass());
+    }
+
+    private static String describeMoveState(MoveState moveState) {
+        if (moveState instanceof MoveState.PresetState preset) return preset.name();
+        if (moveState instanceof MoveState.MoveTo) return "MOVE_TO";
+        return moveState.getClass().getSimpleName();
     }
 
     @Override

@@ -3,31 +3,103 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 public abstract class OpModeCommand extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Globals.init(telemetry);
-        initialize();
+        DecodeLogger.init(telemetry, this.getClass().getSimpleName(), true);
+        DecodeLogger logger = DecodeLogger.get();
+        boolean stopLogged = false;
+        try {
+            Globals.init(telemetry);
+            logger.setPhase("init");
+            logger.info("opmode", "OPMODE_INIT",
+                    "opmode", this.getClass().getSimpleName(),
+                    "alliance", Globals.allianceColor.name(),
+                    "runId", logger.runId());
+            initialize();
 
-        while (opModeInInit()) {
-            initializeLoop();
-        }
-
-        waitForStart();
-
-        onStart();
-
-        while (opModeIsActive()) {
-            execute();
-            Scheduler.getInstance().execute();
-
-            if (isStopRequested()) {
-                reset();
-                end();
+            while (opModeInInit()) {
+                initializeLoop();
+                logger.flush();
             }
+
+            waitForStart();
+            if (isStopRequested()) {
+                logger.setPhase("stop");
+                logger.info("opmode", "OPMODE_STOP",
+                        "matchTimeSec", logger.matchTimeSec(),
+                        "beforeStart", true);
+                stopLogged = true;
+                return;
+            }
+
+            logger.markStart();
+            logger.setPhase("start");
+            logger.info("opmode", "OPMODE_START", "opmode", this.getClass().getSimpleName());
+            onStart();
+
+            ElapsedTime loopTimer = new ElapsedTime();
+            int loopSamplesSinceLog = 0;
+            logger.setPhase("loop");
+            while (opModeIsActive()) {
+                loopTimer.reset();
+                try {
+                    execute();
+                    Scheduler.getInstance().execute();
+                } catch (Exception e) {
+                    logger.error("opmode", "OPMODE_EXCEPTION",
+                            "exception", e.getClass().getSimpleName(),
+                            "message", e.getMessage());
+                    logger.forceFlush();
+                    throw e;
+                }
+
+                double loopMs = loopTimer.milliseconds();
+                if (++loopSamplesSinceLog >= 10) {
+                    logger.debug("opmode", "LOOP_MS", "ms", loopMs);
+                    loopSamplesSinceLog = 0;
+                }
+                if (loopMs > 50) {
+                    logger.warn("opmode", "LOOP_SLOW", "ms", loopMs, "threshold", 50);
+                }
+                logger.flush();
+
+                if (isStopRequested()) {
+                    logger.setPhase("stop");
+                    logger.info("opmode", "OPMODE_STOP", "matchTimeSec", logger.matchTimeSec());
+                    logger.forceFlush();
+                    stopLogged = true;
+                    break;
+                }
+            }
+        } finally {
+            if (!stopLogged) {
+                logger.setPhase("stop");
+                logger.info("opmode", "OPMODE_STOP", "matchTimeSec", logger.matchTimeSec());
+            }
+            try {
+                reset();
+            } catch (Exception e) {
+                logger.error("opmode", "OPMODE_EXCEPTION",
+                        "hook", "reset",
+                        "exception", e.getClass().getSimpleName(),
+                        "message", e.getMessage());
+            }
+            try {
+                end();
+            } catch (Exception e) {
+                logger.error("opmode", "OPMODE_EXCEPTION",
+                        "hook", "end",
+                        "exception", e.getClass().getSimpleName(),
+                        "message", e.getMessage());
+            }
+            logger.forceFlush();
+            logger.close();
         }
     }
 

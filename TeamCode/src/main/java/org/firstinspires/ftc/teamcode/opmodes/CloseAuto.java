@@ -26,12 +26,15 @@ import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Functional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
-
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloseAuto extends OpModeCommand {
+    private static final double TELEMETRY_PERIOD_MS = 100.0;
     private Robot robot;
     private ElapsedTime overallTimer;
+    private final ElapsedTime telemetryTimer = new ElapsedTime();
+    private String currentStep = "INIT";
     private static boolean testSlowShoot = false;
     protected boolean shouldPush = true;
 
@@ -59,7 +62,7 @@ public class CloseAuto extends OpModeCommand {
                         robot.intakeMotor.intakeSlow();
                         limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
                     }),
-                    new Race(
+                    step("PRELOAD_DRIVE_AND_DETECT", new Race(
                             robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
                             new Sequential(
                                     !testSlowShoot ? new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null) :
@@ -67,65 +70,71 @@ public class CloseAuto extends OpModeCommand {
                                     new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
                                     new Infinite(() -> {})
                             )
-                    ),
-                    new Lazy(() -> {
+                    )),
+                    step("DETECTION_FALLBACK", new Lazy(() -> {
                         if (Globals.randomizationState != null) return Commands.NOOP;
                         return new Race(
                                 new Functional(() -> {
                                 }, limelight::update, () -> Globals.randomizationState != null),
                                 new Wait(4000)
                         );
-                    }),
-                    new Instant(() -> {
+                    })),
+                    step("FINALIZE_DETECTION", new Instant(() -> {
                         limelight.close();
                         robot.turret.setTargetPosition(Turret.AUTO_PRELOADS);
                         robot.intakeMotor.intakeSlow();
-                    }),
-                    new Lazy(() -> {
+                    })),
+                    step("PRELOAD_SHOOT", new Lazy(() -> {
                         if (Globals.randomizationState != null)
                             return robot.sortAndShootAuto();
                         return new Sequential(
                                 robot.popper.pop(),
                                 robot.autoFastShoot()
                         );
-                    }),
-                    intake(0),
-                    new Parallel(
+                    })),
+                    step("INTAKE_0", intake(0)),
+                    step("SHOOT_0", new Parallel(
                             new Sequential(
                                     new Instant(robot.intakeMotor::outtakeSlow),
                                     new Wait(200),
                                     new Instant(robot.intakeMotor::intake)
                             ),
                             shoot(0)
-                    ),
-                    intake(1),
-                    new Parallel(
+                    )),
+                    step("INTAKE_1", intake(1)),
+                    step("SHOOT_1", new Parallel(
                             new Sequential(
                                     new Instant(robot.intakeMotor::outtakeSlow),
                                     new Wait(200),
                                     new Instant(robot.intakeMotor::intake)
                             ),
                             shoot(1)
-                    ),
-                    intake(2),
-                    new Parallel(
+                    )),
+                    step("INTAKE_2", intake(2)),
+                    step("SHOOT_2", new Parallel(
                             new Sequential(
                                     new Instant(robot.intakeMotor::outtakeSlow),
                                     new Wait(200),
                                     new Instant(robot.intakeMotor::intake)
                             ),
                             shoot(2)
-                    ),
-                    park()
+                    )),
+                    step("PARK", park())
             )
         );
     }
 
     @Override
     public void execute() {
-        telemetry.addData("limelightDetected", Globals.randomizationState != null);
-        if (Globals.randomizationState != null) telemetry.addData("motif", Globals.randomizationState);
-        telemetry.update();
+        if (telemetryTimer.milliseconds() >= TELEMETRY_PERIOD_MS) {
+            telemetry.addData("autoStep", currentStep);
+            telemetry.addData("pathIndex", robot.drivetrain.getPathIndex());
+            telemetry.addData("pathsRemaining", robot.drivetrain.getRemainingPaths());
+            telemetry.addData("limelightDetected", Globals.randomizationState != null);
+            if (Globals.randomizationState != null) telemetry.addData("motif", Globals.randomizationState);
+            telemetry.update();
+            telemetryTimer.reset();
+        }
     }
 
     @Override
@@ -259,5 +268,18 @@ public class CloseAuto extends OpModeCommand {
     @Override
     public void initializeLoop() {
         robot.update();
+    }
+
+    private ICommand step(String name, ICommand command) {
+        return new Sequential(
+                new Instant(() -> {
+                    currentStep = name;
+                    DecodeLogger.get().info("auto", "AUTO_STEP_START", "step", name);
+                }),
+                command,
+                new Instant(() -> DecodeLogger.get().info("auto", "AUTO_STEP_COMPLETE",
+                        "step", name,
+                        "elapsedSec", overallTimer.seconds()))
+        );
     }
 }

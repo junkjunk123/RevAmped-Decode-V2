@@ -4,9 +4,12 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 @Config
 public class Hood extends HwServo {
+    private static final long TRACKING_LOG_PERIOD_NANOS = 150_000_000L;
+    private static final double TRACKING_LOG_DELTA = 0.02;
     public static float HOOD_MIN_RAD;
     public static float HOOD_MAX_RAD;
     public static float HOOD_MIN_POS;
@@ -29,6 +32,8 @@ public class Hood extends HwServo {
     }
 
     private HoodState state = HoodState.REST;
+    private double lastTrackingLogPos = Double.NaN;
+    private long lastTrackingLogNanos;
 
     public Hood(HardwareMap hwMap) {
         super(hwMap, "hood");
@@ -36,18 +41,15 @@ public class Hood extends HwServo {
     }
 
     public void rest() {
-        setPosition(REST);
-        state = HoodState.REST;
+        setState(REST, HoodState.REST);
     }
 
     public void near() {
-        setPosition(NEAR_PRESET);
-        state = HoodState.NEAR;
+        setState(NEAR_PRESET, HoodState.NEAR);
     }
 
     public void far() {
-        setPosition(FAR_PRESET);
-        state = HoodState.FAR;
+        setState(FAR_PRESET, HoodState.FAR);
     }
 
     public void corner() {
@@ -57,18 +59,20 @@ public class Hood extends HwServo {
 
 
     public void medium() {
-        setPosition(MEDIUM_PRESET);
-        state = HoodState.MEDIUM;
+        setState(MEDIUM_PRESET, HoodState.MEDIUM);
     }
 
     public void unsortedAuto() {
-        setPosition(UNSORTED_AUTO);
-        state = HoodState.TRACKING;
+        setState(UNSORTED_AUTO, HoodState.TRACKING);
     }
 
     public void updateTracking(double pos) {
-        setPosition(pos);
+        boolean moved = setPosition(pos);
+        boolean stateChanged = state != HoodState.TRACKING;
         state = HoodState.TRACKING;
+        if (shouldLogTracking(pos, moved, stateChanged)) {
+            DecodeLogger.get().debug("hood", "HOOD_STATE_SET", "state", state.name(), "pos", pos);
+        }
     }
 
     public boolean atState(HoodState state) {
@@ -79,4 +83,32 @@ public class Hood extends HwServo {
         return state.name();
     }
     public HoodState getCurrentState(){return state;}
+
+    private void setState(double targetPosition, HoodState nextState) {
+        boolean moved = setPosition(targetPosition);
+        boolean stateChanged = state != nextState;
+        state = nextState;
+        if (moved || stateChanged) {
+            DecodeLogger.get().info("hood", "HOOD_STATE_SET", "state", nextState.name());
+        }
+    }
+
+    private boolean shouldLogTracking(double pos, boolean moved, boolean stateChanged) {
+        if (stateChanged) {
+            lastTrackingLogPos = pos;
+            lastTrackingLogNanos = System.nanoTime();
+            return true;
+        }
+        if (!moved) return false;
+
+        long nowNanos = System.nanoTime();
+        boolean movedEnough = Double.isNaN(lastTrackingLogPos)
+                || Math.abs(pos - lastTrackingLogPos) >= TRACKING_LOG_DELTA;
+        if (!movedEnough) return false;
+        if (nowNanos - lastTrackingLogNanos < TRACKING_LOG_PERIOD_NANOS) return false;
+
+        lastTrackingLogPos = pos;
+        lastTrackingLogNanos = nowNanos;
+        return true;
+    }
 }

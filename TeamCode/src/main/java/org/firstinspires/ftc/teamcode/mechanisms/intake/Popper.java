@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 public class Popper extends HwServo {
     public static float NEUTRAL;
@@ -21,7 +22,7 @@ public class Popper extends HwServo {
         NEUTRAL,
         POP
     }
-    private final StateMachine<PopperState> stateMachine = new SimpleStateMachine<>(PopperState.NEUTRAL);
+    private final StateMachine<PopperState> stateMachine = new SimpleStateMachine<>(PopperState.NEUTRAL, "popper");
 
     public Popper(HardwareMap hwMap) {
         super(hwMap, "popper");
@@ -32,7 +33,7 @@ public class Popper extends HwServo {
             if (!movingToState(PopperState.POP)) {
                 return stateMachine.runTransition(
                         new Sequential(
-                                new Instant(() -> setPosition(POP)),
+                                new Instant(() -> setStateAndLog(POP, PopperState.POP, null)),
                                 new Wait(250)
                         ),
                         PopperState.POP
@@ -45,7 +46,7 @@ public class Popper extends HwServo {
 
     public ICommand block() {
         return new Sequential(
-                new Instant(() -> setPosition(BLOCK)),
+                new Instant(() -> setStateAndLog(BLOCK, PopperState.POP, "BLOCK")),
                 new Wait(250),
                 new Instant(() -> stateMachine.setCurrentState(PopperState.POP))
         );
@@ -64,7 +65,7 @@ public class Popper extends HwServo {
             if (!movingToState(PopperState.NEUTRAL)) {
                 return stateMachine.runTransition(
                         new Sequential(
-                                new Instant(() -> setPosition(NEUTRAL)),
+                                new Instant(() -> setStateAndLog(NEUTRAL, PopperState.NEUTRAL, null)),
                                 new Wait(500)
                         ),
                         PopperState.NEUTRAL
@@ -84,11 +85,23 @@ public class Popper extends HwServo {
     }
 
     public void popCommandless() {
-        setPosition(POP);
+        setStateAndLog(POP, PopperState.POP, "COMMANDLESS");
         stateMachine.setCurrentState(PopperState.POP);
     }
 
     public String getState() {
         return stateMachine.getPendingState().name();
+    }
+
+    private void setStateAndLog(double position, PopperState nextState, String mode) {
+        boolean moved = setPosition(position);
+        boolean stateChanged = !stateMachine.getPendingState().equals(nextState);
+        if (!moved && !stateChanged) return;
+
+        if (mode == null) {
+            DecodeLogger.get().info("popper", "POPPER_STATE_SET", "state", nextState.name());
+        } else {
+            DecodeLogger.get().info("popper", "POPPER_STATE_SET", "state", nextState.name(), "mode", mode);
+        }
     }
 }

@@ -14,6 +14,7 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
@@ -32,17 +33,21 @@ import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
 
 @Config
 @TeleOp(name = "DCTeleOp")
 public class Tele extends OpModeCommand {
+    private static final double TELEMETRY_PERIOD_MS = 100.0;
     private GamepadEx gamepad_1;
     private GamepadEx gamepad_2;
     private Robot robot;
     private TeleOpStateHandler tsh;
     private Prompter prompter;
+    private final ElapsedTime telemetryTimer = new ElapsedTime();
+    private double lastLoopMs;
 
     @Override
     public void initialize() {
@@ -71,6 +76,7 @@ public class Tele extends OpModeCommand {
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
+                new Instant(() -> Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState)),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                 tsh.runTransition(
                     new Sequential(
@@ -93,6 +99,7 @@ public class Tele extends OpModeCommand {
 
     @Override
     public void execute() {
+        long loopStartNanos = System.nanoTime();
         // Update switches
         gamepad_1.update();
         gamepad_2.update();
@@ -101,6 +108,9 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.a.isRisingEdge()) {
             TrackingThread.trackTurret = !TrackingThread.trackTurret;
             TrackingThread.trackHood = !TrackingThread.trackHood;
+            DecodeLogger.get().info("tracking", "TRACKING_TOGGLE",
+                    "trackTurret", TrackingThread.trackTurret,
+                    "trackHood", TrackingThread.trackHood);
         }
 
         if (gamepad_1.y.isRisingEdge()) {
@@ -140,6 +150,11 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
 
+        if (gamepad_1.right_trigger_button.isTrue())
+            robot.turret.finetune((int) (gamepad1.right_trigger * 20));
+
+        if (gamepad_1.left_trigger_button.isTrue())
+            robot.turret.finetune(-(int) (gamepad1.left_trigger * 20));
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(robot.flywheel::stop),
@@ -281,10 +296,23 @@ public class Tele extends OpModeCommand {
             robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        // Telemetry
-        telemetry.addData("alliance", Globals.allianceColor);
-        telemetry.addData("holdPose", robot.drivetrain.isHoldingPose());
-        telemetry.update();
+        lastLoopMs = (System.nanoTime() - loopStartNanos) / 1_000_000.0;
+        if (telemetryTimer.milliseconds() >= TELEMETRY_PERIOD_MS) {
+            telemetry.addData("alliance", Globals.allianceColor);
+            telemetry.addData("holdPose", robot.drivetrain.isHoldingPose());
+            telemetry.addData("cycleState", tsh.currentState().toString());
+            telemetry.addData("flywheelTarget", "%.1f", robot.flywheel.getTargetVelocity());
+            telemetry.addData("flywheelVel", "%.1f", robot.flywheel.getVelocityImperial());
+            telemetry.addData("flywheelError", "%.1f", robot.flywheel.getError());
+            telemetry.addData("turretTarget", robot.turret.getTargetPosition());
+            telemetry.addData("turretPos", robot.turret.getPosition());
+            telemetry.addData("hoodState", robot.hood.getState());
+            telemetry.addData("popperState", robot.popper.getState());
+            telemetry.addData("intakeState", robot.intakeMotor.getState());
+            telemetry.addData("loopMsExecute", "%.2f", lastLoopMs);
+            telemetry.update();
+            telemetryTimer.reset();
+        }
     }
 
     @Override
