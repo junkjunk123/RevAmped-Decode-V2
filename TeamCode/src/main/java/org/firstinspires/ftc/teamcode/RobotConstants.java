@@ -12,7 +12,7 @@ public class RobotConstants {
     public void build() {
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.INTAKE_SLOW = 0.65f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.INTAKE_GATE = 1.0f;
-        IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.5f;
+        IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
         Popper.POP = 127/255f; Popper.NEUTRAL = 25/255f; Popper.BLOCK = 111/255f;
@@ -33,8 +33,8 @@ public class RobotConstants {
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
         Turret.P_RESET = 0.0022; Turret.F_RESET = 0.09;
         Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
-        Turret.UNSORTED_AUTO_PRELOADS = 88; Turret.UNSORTED_GATE = 665; Turret.UNSORTED_FINAL = 740;
-        Turret.UNSORTED_SET_1 = Turret.UNSORTED_GATE - 8; Turret.UNSORTED_SET_2 = Turret.UNSORTED_GATE + 5;
+        Turret.UNSORTED_AUTO_PRELOADS = 88; Turret.UNSORTED_GATE = 665; Turret.UNSORTED_FINAL = 780;
+        Turret.UNSORTED_SET_1 = Turret.UNSORTED_GATE - 3; Turret.UNSORTED_SET_2 = Turret.UNSORTED_GATE + 5;
         Turret.UNSORTED_SET_3 = Turret.UNSORTED_SET_4 = Turret.UNSORTED_SET_5 = Turret.UNSORTED_GATE + 10;
 
         Turret.TICKS_LIMIT = 810; Turret.RAD_LIMIT = 3.0 * Math.PI / 4.0; Turret.updateFullRotation();

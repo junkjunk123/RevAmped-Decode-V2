@@ -109,6 +109,10 @@ public class ColoredDecodePose implements FuturePose {
         if (color == AllianceColor.Blue) red = red.plus(offset);
         return this;
     }
+
+    public static double getTangentHeading(ColoredDecodePose pose1, ColoredDecodePose pose2) {
+        return Math.atan2(pose2.getPose().getY() - pose1.getPose().getY(), pose2.getPose().getX() - pose1.getPose().getX());
+    }
     
     @Override
     public boolean initialized() {
