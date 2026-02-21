@@ -14,6 +14,7 @@ import java.util.List;
 @Config
 public class CloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(34.5, 136, Math.toRadians(-90));
+    public static ColoredDecodePose PARTNER_PUSH = new ColoredDecodePose(24, 125, Math.toRadians(232));
     public static ColoredDecodePose SHOOT_PRELOADS = new ColoredDecodePose(60, 102, Math.toRadians(249));
     public static ColoredDecodePose FIRST_INTAKE_START = new ColoredDecodePose(56, 89, Math.toRadians(180));
     public static ColoredDecodePose FIRST_INTAKE_END = new ColoredDecodePose(22, 83, Math.toRadians(180));
@@ -35,9 +36,15 @@ public class CloseAutoPaths implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
+        FollowParameters partnerPush = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(START_POSE, PARTNER_PUSH))
+                .setLinearHeadingInterpolation(START_POSE.getHeading(), PARTNER_PUSH.getHeading())
+                .build()
+        );
+
         FollowParameters initialShoot = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(START_POSE, SHOOT_PRELOADS))
-                .setLinearHeadingInterpolation(START_POSE.getHeading(), SHOOT_PRELOADS.getHeading())
+                .addPath(ColoredDecodePose.makeBezier(PARTNER_PUSH, FIRST_SHOOT))
+                .setLinearHeadingInterpolation(PARTNER_PUSH.getHeading(), FIRST_SHOOT.getHeading())
                 .build()
         );
 
@@ -89,6 +96,7 @@ public class CloseAutoPaths implements PathSupplier {
                 .build()
         );
 
-        return List.of(initialShoot, intakeFirstSet, shootFirstSet, intakeSecondSet, shootSecondSet, intakeThirdSet, shootThirdSet, park);
+        return List.of(partnerPush, initialShoot, intakeFirstSet, shootFirstSet, intakeSecondSet,
+                shootSecondSet, intakeThirdSet, shootThirdSet, park);
     }
 }

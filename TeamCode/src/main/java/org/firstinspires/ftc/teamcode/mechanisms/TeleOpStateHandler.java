@@ -216,7 +216,7 @@ public final class TeleOpStateHandler {
         });
     }
 
-    private void setState(RobotStateHandler.CycleState state) {
+    public void setState(RobotStateHandler.CycleState state) {
         if (current instanceof Transition t) {
             long durationMs = transitionStartNanos == 0
                     ? -1

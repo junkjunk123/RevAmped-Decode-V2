@@ -60,12 +60,15 @@ public class CloseAuto extends OpModeCommand {
                         robot.intakeMotor.intakeSlow();
                         limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
                     }),
-                    step("PRELOAD_DRIVE_AND_DETECT", new Race(
+                    step("PRELOAD_DRIVE_AND_DETECT", new Sequential(
                             robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
-                            new Sequential(
-                                    new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
-                                    new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
-                                    new Infinite(() -> {})
+                            new Race(
+                                    robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
+                                    new Sequential(
+                                            new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
+                                            new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
+                                            new Infinite(() -> {})
+                                    )
                             )
                     )),
                     step("DETECTION_FALLBACK", new Lazy(() -> {

@@ -40,11 +40,14 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 new Infinite(() -> {
                     robot.update();
                     Drivetrain.startPose = robot.drivetrain.follower.getPose();
+                    telemetry.addData("turret target", robot.turret.getTargetPosition());
+                    telemetry.addData("turret encoder", robot.turret.getPosition());
+                    telemetry.update();
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(overallTimer::reset),
-                        step("PRELOAD_SETUP", new Instant(() -> robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 40))),
+                        step("PRELOAD_SETUP", new Instant(() -> robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 70))),
                         step("PRELOAD_DRIVE", new Deadline(
                                 new Sequential(
                                         new WaitUntil(() -> robot.drivetrain.tValueCondition(0.4)),
@@ -82,8 +85,10 @@ public class UnsortedCloseAuto extends OpModeCommand {
                         ),
                         new Sequential(
                                 robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), getIntakeTimeout()),
-                                new Instant(() -> robot.turret.unsortedAutoSet(iteration + 1)),
-                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), 500)
+                                new Instant(() -> {
+                                    robot.turret.unsortedAutoSet(iteration + 1);
+                                    robot.flywheel.unsortedAuto();
+                                })
                         ),
                         new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
@@ -107,7 +112,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
         );
     }
 
-    private ICommand resetTableFinal() {
+    private ICommand doubleResetTable() {
         return new Sequential(
                 //new Instant(robot.intakeMotor::stop),
                 new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL2)),
@@ -120,18 +125,14 @@ public class UnsortedCloseAuto extends OpModeCommand {
         return new Parallel(
                 robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), getShootTimeout()),
                 new Sequential(
-                        new Wait(200),
-                        new Instant(() -> {
-                            robot.flywheel.unsortedAuto();
-                            robot.intakeMotor.outtakeSlow();
-                        }),
+                        new Instant(() -> robot.intakeMotor.outtakeSlow()),
                         new Sequential(
                                 new Parallel(
                                         robot.popper.neutral(),
                                         new Sequential(
-                                                new Wait(450),
+                                                new Wait(300),
                                                 new Instant(robot.intakeMotor::intake),
-                                                new Wait(400)
+                                                new Wait(300)
                                         )
                                 ),
                                 robot.popper.pop(),
@@ -145,17 +146,15 @@ public class UnsortedCloseAuto extends OpModeCommand {
     private ICommand intakePreload(boolean isFirst) {
         return new Sequential(
                 new Instant(() -> {
-                    if (isFirst) {
-                        robot.flywheel.stop();
-                    } else {
+                    if (!isFirst) {
                         robot.turret.setTargetPosition(Turret.UNSORTED_FINAL);
-                        robot.flywheel.stop();
+                        robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 10);
                     }
 
                     robot.intakeMotor.intake();
                 }),
                 new Parallel(
-                        isFirst ? resetTable() : resetTableFinal(),
+                        doubleResetTable(),
                         robot.drivetrain.followNext(d -> d.tValueCondition(0.8) &&
                                 d.velocityCondition(), getIntakeTimeout()),
                         isFirst ? new Instant(() -> robot.flywheel.unsortedAuto()) : Commands.NOOP,
@@ -182,7 +181,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                         robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), getShootTimeout()),
                         preloadShootArmActions(true)
                 ) : new Deadline(
-                        preloadShootArmActions(true),
+                        preloadShootArmActions(false),
                         robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), getShootTimeout())
                 )
         );
@@ -201,7 +200,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 new Instant(() -> robot.intakeMotor.intake()),
                 new Wait(150),
                 robot.popper.pop(),
-                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.50)),
+                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.80)),
                 robot.autoFastShoot()
         );
     }

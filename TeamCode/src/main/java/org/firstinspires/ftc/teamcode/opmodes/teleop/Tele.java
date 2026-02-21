@@ -158,7 +158,6 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_1.left_trigger_button.isTrue())
             robot.turret.finetune(-(int) (gamepad1.left_trigger * 20));
-
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(robot.flywheel::stop),
@@ -171,8 +170,11 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.y.isRisingEdge()) schedule(robot.sort());
-        if (gamepad_2.right_trigger_button.isRisingEdge()) robot.intakeMotor.outtake();
-        if (gamepad_2.a.isRisingEdge()) robot.intakeMotor.stop();
+        if (gamepad_2.right_trigger_button.isRisingEdge()) {
+            if (robot.intakeMotor.atState(IntakeMotor.IntakeState.OUTTAKE)) robot.intakeMotor.stop();
+            else robot.intakeMotor.outtake();
+        }
+        if (gamepad_2.a.isRisingEdge()) tsh.setState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT);
         if (gamepad_2.right_bumper.isRisingEdge()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
@@ -191,7 +193,6 @@ public class Tele extends OpModeCommand {
             schedule(tsh.runTransition(
                     new Parallel(
                             new Instant(() -> robot.intakeMotor.outtake()),
-                            //stops intake after 500 ms (doesn't do anything if the robot is trying to shoot)
                             new Race(
                                 new WaitUntil(() -> tsh.atState(RobotStateHandler.CycleState.SHOOT)),
                                 new Sequential(
@@ -199,7 +200,6 @@ public class Tele extends OpModeCommand {
                                         new Instant(() -> robot.intakeMotor.stop())
                                 )
                             ),
-                            //new Instant(() -> {robot.intakeMotor.outtake();}),
                             robot.popper.pop(),
                             new Conditional(
                                     robot.flywheel::isStopped,
@@ -218,16 +218,18 @@ public class Tele extends OpModeCommand {
                             tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                             tsh.runTransition(new Conditional(
                                     () -> robot.hood.getCurrentState() == Hood.HoodState.FAR,
-                                    //is shooting far
                                     new Sequential(
-                                    robot.shootAll(10),
-                                    robot.resetAfterShooting()
+                                        robot.shootAll(25),
+                                        robot.resetAfterShooting()
                                     ),
-                                    //not shooting far
                                     new Sequential(
-                                            robot.shootAll(),
-                                            robot.resetAfterShooting())
-                                    ), RobotStateHandler.CycleState.INTAKE)
+                                            new Race(
+                                                    new WaitUntil(gamepad_2.x::isRisingEdge),
+                                                    robot.shootAll()
+                                            ),
+                                            robot.resetAfterShooting()
+                                    )
+                            ), RobotStateHandler.CycleState.INTAKE)
                     ),
                     Commands.NOOP
             ));

@@ -51,8 +51,8 @@ public class SimpleShooterMath {
         };
 
         double[][] flywheelVel = {
-                { 630.0, 652.0, 832.5 },
-                { 765.0, 787.5, 855.0 }
+                { 567.0, 586.8, 749.25 },
+                { 688.5, 708.5, 769.5 }
         };
 
         double[][] airTime = {
