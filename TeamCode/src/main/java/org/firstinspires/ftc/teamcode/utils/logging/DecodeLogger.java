@@ -36,6 +36,7 @@ public final class DecodeLogger {
     private boolean closed;
     private boolean inFailover;
     private int loopsSinceFlush;
+    private Level minEnabledLevel = Level.ERROR;
 
     private DecodeLogger(boolean noOp) {
         this.noOp = noOp;
@@ -48,26 +49,44 @@ public final class DecodeLogger {
     }
 
     public static synchronized void init(Telemetry dsTelemetry, String opModeName, boolean enableFileSink) {
+        init(dsTelemetry, opModeName, LogProfile.PRACTICE, enableFileSink);
+    }
+
+    public static synchronized void init(Telemetry dsTelemetry, String opModeName, LogProfile profile) {
+        init(dsTelemetry, opModeName, profile, true);
+    }
+
+    private static synchronized void init(Telemetry dsTelemetry, String opModeName, LogProfile profile, boolean enableFileSink) {
         if (instance != null && !instance.noOp) {
             instance.close();
         }
 
+        LogProfile activeProfile = profile == null ? LogProfile.PRACTICE : profile;
         RunContext runContext = new RunContext(opModeName);
         DecodeLogger logger = new DecodeLogger(runContext);
 
         if (dsTelemetry != null) {
-            logger.addSink(new TelemetrySink(dsTelemetry, Level.INFO, 100));
+            logger.addSink(new TelemetrySink(
+                    dsTelemetry,
+                    activeProfile.telemetryMinLevel(),
+                    activeProfile.telemetryUpdateMs()
+            ));
         }
 
-        try {
-            logger.addSink(new DashboardSink(Level.DEBUG, 100));
-        } catch (Exception ignored) {
-            // Dashboard is optional during init.
-        }
-
-        if (enableFileSink) {
+        if (activeProfile.dashboardEnabled()) {
             try {
-                logger.addSink(new FileSink(runContext.getRunId(), Level.DEBUG));
+                logger.addSink(new DashboardSink(
+                        activeProfile.dashboardMinLevel(),
+                        activeProfile.dashboardUpdateMs()
+                ));
+            } catch (Exception ignored) {
+                // Dashboard is optional during init.
+            }
+        }
+
+        if (enableFileSink && activeProfile.fileEnabled()) {
+            try {
+                logger.addSink(new FileSink(runContext.getRunId(), activeProfile.fileMinLevel()));
             } catch (Exception ignored) {
                 // File sink is optional during init.
             }
@@ -102,6 +121,7 @@ public final class DecodeLogger {
 
     public synchronized void event(Level level, String subsystem, String event, Map<String, Object> fields) {
         if (noOp || closed) return;
+        if (level.ordinal() < minEnabledLevel.ordinal()) return;
 
         LogEvent logEvent = createEvent(level, subsystem, event, fields);
         if (level.ordinal() >= Level.WARN.ordinal()) {
@@ -183,6 +203,9 @@ public final class DecodeLogger {
 
     private void addSink(LogSink sink) {
         sinks.add(new SinkState(sink));
+        if (sink.minLevel().ordinal() < minEnabledLevel.ordinal()) {
+            minEnabledLevel = sink.minLevel();
+        }
     }
 
     private LogEvent createEvent(Level level, String subsystem, String event, Map<String, Object> fields) {

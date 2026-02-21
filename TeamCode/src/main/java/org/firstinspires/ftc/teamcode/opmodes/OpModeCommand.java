@@ -7,11 +7,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
+import org.firstinspires.ftc.teamcode.utils.logging.LogProfile;
+import org.firstinspires.ftc.teamcode.utils.logging.LogProfileStore;
 
 public abstract class OpModeCommand extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        DecodeLogger.init(telemetry, this.getClass().getSimpleName(), true);
+        LogProfile logProfile = LogProfileStore.load();
+        DecodeLogger.init(telemetry, this.getClass().getSimpleName(), logProfile);
         DecodeLogger logger = DecodeLogger.get();
         boolean stopLogged = false;
         try {
@@ -20,11 +23,14 @@ public abstract class OpModeCommand extends LinearOpMode {
             logger.info("opmode", "OPMODE_INIT",
                     "opmode", this.getClass().getSimpleName(),
                     "alliance", Globals.allianceColor.name(),
-                    "runId", logger.runId());
+                    "runId", logger.runId(),
+                    "logProfile", logProfile.name());
             initialize();
 
             while (opModeInInit()) {
+                telemetry.addData("loggingProfile", logProfile.name());
                 initializeLoop();
+                telemetry.update();
                 logger.flush();
             }
 
@@ -45,6 +51,7 @@ public abstract class OpModeCommand extends LinearOpMode {
 
             ElapsedTime loopTimer = new ElapsedTime();
             int loopSamplesSinceLog = 0;
+            int loopDebugPeriod = logProfile.loopMsSampleEveryLoops();
             logger.setPhase("loop");
             while (opModeIsActive()) {
                 loopTimer.reset();
@@ -60,8 +67,10 @@ public abstract class OpModeCommand extends LinearOpMode {
                 }
 
                 double loopMs = loopTimer.milliseconds();
-                if (++loopSamplesSinceLog >= 10) {
-                    logger.debug("opmode", "LOOP_MS", "ms", loopMs);
+                if (loopDebugPeriod > 0 && ++loopSamplesSinceLog >= loopDebugPeriod) {
+                    logger.debug("opmode", "LOOP_MS",
+                            "ms", loopMs,
+                            "profile", logProfile.name());
                     loopSamplesSinceLog = 0;
                 }
                 if (loopMs > 50) {
