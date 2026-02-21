@@ -250,7 +250,7 @@ public class Robot {
     public ICommand resetAfterShooting() {
         return new Parallel(
                 resetShooter(),
-                resetTable()
+                resetTableTeleOp()
         );
     }
 
@@ -260,6 +260,15 @@ public class Robot {
                 popper.neutral(),
                 table.reset(),
                 new Instant(intakeMotor::intake)
+        );
+    }
+
+    public ICommand resetTableTeleOp() {
+        return new Sequential(
+                new Instant(intakeMotor::stop),
+                table.reset(),
+                new Instant(intakeMotor::intake),
+                popper.neutral()
         );
     }
 

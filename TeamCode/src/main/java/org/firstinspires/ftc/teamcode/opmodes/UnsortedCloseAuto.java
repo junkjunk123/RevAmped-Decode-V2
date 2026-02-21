@@ -144,7 +144,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 new Instant(() -> {
                     if (!isFirst) {
                         robot.turret.setTargetPosition(Turret.UNSORTED_FINAL);
-                        robot.flywheel.stop();
+                        robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 10);
                     }
 
                     robot.intakeMotor.intake();

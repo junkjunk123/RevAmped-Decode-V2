@@ -56,6 +56,7 @@ public class CloseAuto extends OpModeCommand {
                         robot.intakeMotor.intakeSlow();
                         limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
                     }),
+                    robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
                     new Race(
                             robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
                             new Sequential(

@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 @Configurable
 public class UnsortedCloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(31.5, 134, -Math.PI / 2);
-    public static ColoredDecodePose FIRST_SHOOT_POSE = new ColoredDecodePose(56, 80, Math.toRadians(-109));
+    public static ColoredDecodePose FIRST_SHOOT_POSE = new ColoredDecodePose(56, 80, Math.toRadians(-60));
     public static ColoredDecodePose CONTROL_POINT_1 = new ColoredDecodePose(31.5, 123, Math.toRadians(-66));
     public static ColoredDecodePose SHOOT_POSE = new ColoredDecodePose(56, 78, Math.toRadians(204));
     public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(12, 59, Math.PI);
@@ -44,7 +44,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     public List<FollowParameters> paths(Follower follower) {
         FollowParameters shootPreloads = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(START_POSE, CONTROL_POINT_1, FIRST_SHOOT_POSE))
-                .setTangentHeadingInterpolation()
+                .setConstantHeadingInterpolation(FIRST_SHOOT_POSE.getHeading())
                 .build()
         );
 

@@ -194,7 +194,7 @@ public final class TeleOpStateHandler {
         });
     }
 
-    private void setState(RobotStateHandler.CycleState state) {
+    public void setState(RobotStateHandler.CycleState state) {
         current = state;
         mutator.accept(state);
     }

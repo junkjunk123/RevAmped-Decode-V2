@@ -18,8 +18,8 @@ public class RobotConstants {
         Popper.POP = 127/255f; Popper.NEUTRAL = 25/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 652; Flywheel.MEDIUM_VELOCITY = 810; Flywheel.FAR_VELOCITY = 967; Flywheel.CLOSE_AUTO_VELOCITY = 750;
-        Flywheel.UNSORTED_AUTO_VELOCITY = 810;
+        Flywheel.NEAR_VELOCITY = 619; Flywheel.MEDIUM_VELOCITY = 770; Flywheel.FAR_VELOCITY = 919; Flywheel.CLOSE_AUTO_VELOCITY = 713;
+        Flywheel.UNSORTED_AUTO_VELOCITY = 770;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants
@@ -33,7 +33,7 @@ public class RobotConstants {
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
         Turret.P_RESET = 0.0022; Turret.F_RESET = 0.09;
         Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
-        Turret.UNSORTED_AUTO_PRELOADS = 88; Turret.UNSORTED_GATE = 665; Turret.UNSORTED_FINAL = 780;
+        Turret.UNSORTED_AUTO_PRELOADS = 80; Turret.UNSORTED_GATE = 665; Turret.UNSORTED_FINAL = 780;
         Turret.UNSORTED_SET_1 = Turret.UNSORTED_GATE - 3; Turret.UNSORTED_SET_2 = Turret.UNSORTED_GATE + 5;
         Turret.UNSORTED_SET_3 = Turret.UNSORTED_SET_4 = Turret.UNSORTED_SET_5 = Turret.UNSORTED_GATE + 10;
 
