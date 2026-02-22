@@ -14,7 +14,7 @@ public class TrackingThread {
     private final Flywheel flywheel;
     private final Localizer pinpoint;
     private final boolean isTeleOp;
-    public static boolean trackHood = true;
+    public static boolean trackHood = false;
     public static boolean trackTurret = true;
 
     public TrackingThread(Follower pinpoint, Turret turret, Flywheel flywheel, Hood hood, boolean isTeleOp) {
