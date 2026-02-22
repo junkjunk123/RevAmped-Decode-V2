@@ -26,10 +26,10 @@ public class ShooterMath {
     public static Pose APRIL_TAG_POSE_BLUE;
     public static double LAUNCH_ZONE_HEIGHT = 58;
 
-    public static double blueX = 12; //added 18 inch
-    public static double blueY = 127;
-    public static double redX = 119;
-    public static double redY = 130;
+    public static double blueX = 1; //added 18 inch
+    public static double blueY = 135;
+    public static double redX = 132;
+    public static double redY = 135;
 
     public static double BALL_LAUNCH_MS = 100; //time through flywheel
 
