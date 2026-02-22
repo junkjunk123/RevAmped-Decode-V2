@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "FTC: Compile Project (Debug Java)",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": [
+        ":TeamCode:compileDebugJavaWithJavac"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "FTC: Compile + Push to Control Hub (installDebug)",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": [
+        ":TeamCode:installDebug"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}
