@@ -100,10 +100,6 @@ public class Tele extends OpModeCommand {
 
     @Override
     public void execute() {
-//        if (!teleReset){
-//
-//            teleReset = true;
-//        }
         // Update switches
         gamepad_1.update();
         gamepad_2.update();
@@ -111,7 +107,7 @@ public class Tele extends OpModeCommand {
         // Schedule commands based on triggers
         if (gamepad_1.a.isRisingEdge()) {
             TrackingThread.trackTurret = !TrackingThread.trackTurret;
-            TrackingThread.trackHood = !TrackingThread.trackHood;
+            TrackingThread.trackHood = false;
         }
 
         if (gamepad_1.y.isRisingEdge()) {

@@ -34,8 +34,8 @@ public class RobotConstants {
         Turret.P_RESET = 0.0022; Turret.F_RESET = 0.09;
         Turret.AUTO_PRELOADS = 340; Turret.AUTO_SET_1 = 370; Turret.AUTO_SET_2 = 370; Turret.AUTO_SET_3 = 405; Turret.FAR_AUTO = 410;
         Turret.UNSORTED_AUTO_PRELOADS = 80; Turret.UNSORTED_GATE = 665; Turret.UNSORTED_FINAL = 780;
-        Turret.UNSORTED_SET_1 = Turret.UNSORTED_GATE - 3; Turret.UNSORTED_SET_2 = Turret.UNSORTED_GATE + 5;
-        Turret.UNSORTED_SET_3 = Turret.UNSORTED_SET_4 = Turret.UNSORTED_SET_5 = Turret.UNSORTED_GATE + 10;
+        Turret.UNSORTED_SET_1 = Turret.UNSORTED_GATE - 3; Turret.UNSORTED_SET_2 = Turret.UNSORTED_GATE;
+        Turret.UNSORTED_SET_3 = Turret.UNSORTED_SET_4 = Turret.UNSORTED_SET_5 = Turret.UNSORTED_GATE;
 
         Turret.TICKS_LIMIT = 810; Turret.RAD_LIMIT = 3.0 * Math.PI / 4.0; Turret.updateFullRotation();
         //Octocanum Constants

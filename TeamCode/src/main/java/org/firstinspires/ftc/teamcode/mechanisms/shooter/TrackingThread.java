@@ -30,8 +30,8 @@ public class TrackingThread {
         if (!trackHood && !trackTurret) return;
         if (isTeleOp) pinpoint.update();
         shooterMath.update(trackTurret, trackHood);
-        hood.updateTracking(shooterMath.getHoodPos());
-        turret.setTargetPosition(shooterMath.getTurretPos());
-        flywheel.setVelocity(shooterMath.getFlywheelVelocity());
+        if (trackHood) hood.updateTracking(shooterMath.getHoodPos());
+        if (trackTurret) turret.setTargetPosition(shooterMath.getTurretPos());
+        if (trackHood) flywheel.setVelocity(shooterMath.getFlywheelVelocity());
     }
 }
