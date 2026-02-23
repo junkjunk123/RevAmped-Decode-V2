@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.Arrays;
 
@@ -72,9 +73,9 @@ public class SimpleShooterMath {
                 )
                 .toArray(double[][]::new);
 
-        velocityInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, flywheelVel);
-        hoodInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, hoodSine);
-        this.airTime = new BilinearInterpolation(DIST_X, DIST_Y, airTime);
+        velocityInterpolation = new BilinearInterpolation(DIST_Y, DIST_X, flywheelVel);
+        hoodInterpolation = new BilinearInterpolation(DIST_Y, DIST_X, hoodSine);
+        this.airTime = new BilinearInterpolation(DIST_Y, DIST_X, airTime);
     }
 
     public void update(boolean trackTurret, boolean trackHood) {

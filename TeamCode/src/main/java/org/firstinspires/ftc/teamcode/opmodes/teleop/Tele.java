@@ -107,7 +107,7 @@ public class Tele extends OpModeCommand {
         // Schedule commands based on triggers
         if (gamepad_1.a.isRisingEdge()) {
             TrackingThread.trackTurret = !TrackingThread.trackTurret;
-            TrackingThread.trackHood = false;
+            TrackingThread.trackHood = !TrackingThread.trackHood;
         }
 
         if (gamepad_1.y.isRisingEdge()) {
