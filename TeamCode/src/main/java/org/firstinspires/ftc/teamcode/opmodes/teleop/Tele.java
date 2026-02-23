@@ -175,13 +175,6 @@ public class Tele extends OpModeCommand {
             schedule(tsh.runTransition(
                     new Parallel(
                             new Instant(() -> robot.intakeMotor.outtake()),
-                            new Race(
-                                new WaitUntil(() -> tsh.atState(RobotStateHandler.CycleState.SHOOT)),
-                                new Sequential(
-                                        new Wait(500),
-                                        new Instant(() -> robot.intakeMotor.stop())
-                                )
-                            ),
                             robot.popper.pop(),
                             new Conditional(
                                     robot.flywheel::isStopped,

@@ -98,9 +98,9 @@ public class SimpleShooterMath {
             if (trackHood) {
                 double xDist = Math.abs(displacement.getXComponent());
                 double yDist = Math.abs(displacement.getYComponent());
-                flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
+                flywheelVelocity = velocityInterpolation.interpolate(xDist-10, yDist-10);
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Flywheel.MAX_VELOCITY);
-                double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
+                double hoodSine = hoodInterpolation.interpolate(xDist-10, yDist-10);
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
