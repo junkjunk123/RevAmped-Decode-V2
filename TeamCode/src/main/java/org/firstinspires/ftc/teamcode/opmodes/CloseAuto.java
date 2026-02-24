@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPaths;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Functional;
@@ -30,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CloseAuto extends OpModeCommand {
     private Robot robot;
     private ElapsedTime overallTimer;
+    private static boolean testSlowShoot = true;
 
     @Override
     public void initialize() {
@@ -43,8 +46,7 @@ public class CloseAuto extends OpModeCommand {
             new Infinite(() -> {
                 robot.update();
                 Pose pose = robot.drivetrain.follower.getPose();
-                if (pose.distanceFrom(new Pose()) > 0.01)
-                    Drivetrain.startPose = robot.drivetrain.follower.getPose();
+                if (pose.distanceFrom(new Pose()) > 0.01) Drivetrain.startPose = robot.drivetrain.follower.getPose();
             }),
             new Sequential(
                     new WaitUntil(() -> !opModeInInit()),
@@ -60,7 +62,8 @@ public class CloseAuto extends OpModeCommand {
                     new Race(
                             robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
                             new Sequential(
-                                    new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
+                                    !testSlowShoot ? new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null) :
+                                            new Instant(() -> Globals.randomizationState = RandomizationState.PPG),
                                     new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
                                     new Infinite(() -> {})
                             )
@@ -83,7 +86,7 @@ public class CloseAuto extends OpModeCommand {
                             return robot.sortAndShootAuto();
                         return new Sequential(
                                 robot.popper.pop(),
-                                robot.shootAll()
+                                robot.autoFastShoot()
                         );
                     }),
                     intake(0),

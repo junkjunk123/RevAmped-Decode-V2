@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.math.projectile;
 import static org.firstinspires.ftc.teamcode.math.calc.Angle.normalizeAnglePi;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.BALL_LAUNCH_MS;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueX;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueY;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redX;
@@ -9,9 +8,7 @@ import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.velocit
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.RAD_LIMIT;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.TICKS_LIMIT;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
-import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Matrix;
@@ -21,7 +18,6 @@ import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
-import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.Arrays;
 
@@ -38,8 +34,8 @@ public class SimpleShooterMath {
     private final Interpolation2D velocityInterpolation;
     private final Interpolation2D hoodInterpolation;
     private final Interpolation2D airTime;
-    private static final double[] DIST_X = {24.0, 60.0, 96.0};
-    private static final double[] DIST_Y = {15.0, 39.0, 63.0};
+    private static final double[] DIST_Y = {24.0, 60.0, 96.0};
+    private static final double[] DIST_X = {15.0, 39.0, 63.0};
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
 
@@ -73,9 +69,9 @@ public class SimpleShooterMath {
                 )
                 .toArray(double[][]::new);
 
-        velocityInterpolation = new BilinearInterpolation(DIST_Y, DIST_X, flywheelVel);
-        hoodInterpolation = new BilinearInterpolation(DIST_Y, DIST_X, hoodSine);
-        this.airTime = new BilinearInterpolation(DIST_Y, DIST_X, airTime);
+        velocityInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, flywheelVel);
+        hoodInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, hoodSine);
+        this.airTime = new BilinearInterpolation(DIST_X, DIST_Y, airTime);
     }
 
     public void update(boolean trackTurret, boolean trackHood) {

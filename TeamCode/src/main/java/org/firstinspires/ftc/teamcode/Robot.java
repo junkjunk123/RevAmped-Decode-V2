@@ -199,21 +199,7 @@ public class Robot {
         AtomicReference<float[]> shootSequence = new AtomicReference<>();
         return new Conditional(
                 () -> delay.get() < 10,
-                new Sequential(
-                        new Instant(intakeMotor::intake),
-                        new Lazy(() -> {
-                            float pos = switch (table.getState()) {
-                                case BALL0 -> Table.BALL0_END;
-                                case BALL1 -> Table.BALL1_END;
-                                case BALL2 -> Table.BALL2_END;
-                            };
-
-                            return new Sequential(
-                                new Instant(() -> table.setPosition(pos)),
-                                new Wait(1250)
-                            );
-                        })
-                ),
+                autoFastShoot(),
                 new Sequential(
                         new Instant(() -> {
                             intakeMotor.intake();
