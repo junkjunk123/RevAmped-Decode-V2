@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import static org.firstinspires.ftc.teamcode.utils.ArtifactColor.GREEN;
+import static org.firstinspires.ftc.teamcode.utils.ArtifactColor.PURPLE;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.commands.Infinite;
@@ -53,6 +56,7 @@ public class Tele extends OpModeCommand {
         gamepad_2 = new GamepadEx(gamepad2);
         prompter = new Prompter(this, gamepad_1)
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
+                .onComplete(() -> Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState))
                 .thenDisplay("Good luck! We're rooting for you. --- Havish & Eric");
         
         gamepad_1.left_trigger_button(f -> f.greaterThan(0.3f));
@@ -71,30 +75,20 @@ public class Tele extends OpModeCommand {
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
-                new Instant(() -> Globals.randomizationState = prompter.getOrDefault("randomization", Globals.randomizationState)),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                 tsh.runTransition(
                     new Sequential(
                         robot.shootAll(),
                         robot.resetAfterShooting()
                     ), RobotStateHandler.CycleState.INTAKE)
-                /* ,
-                tsh.runTransition(
-                        new Sequential(robot.popper.pop()),
-                        RobotStateHandler.CycleState.DRIVE_TO_SHOOT
-                ),
-                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                tsh.runTransition(new Sequential(
-                        robot.shootAll(),
-                        robot.resetAfterShooting()
-                ), RobotStateHandler.CycleState.INTAKE)
-                 */
-        ));
+            )
+        );
     }
 
     @Override
     public void initializeLoop() {
         telemetry.addData("alliance", Globals.allianceColor);
+        telemetry.addData("randomizationState", Globals.randomizationState);
         prompter.run();
     }
 
@@ -206,18 +200,41 @@ public class Tele extends OpModeCommand {
                                     )
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
-                    Commands.NOOP
+                    tsh.task(
+                            new Sequential(
+                                    new Instant(() -> {
+                                            robot.tableCompartments.populate(PURPLE, PURPLE, GREEN);
+                                            robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
+                                    }),
+                                    robot.sort()
+                            ),
+                            new int[] {1, 0, 0}
+                    )
             ));
         }
 
         if (gamepad_2.dpad_down.isRisingEdge()) {
-            schedule(new Sequential(
-                    tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                    tsh.runTransition(new Sequential(
-                            robot.shootAll(Table.SLOW_SHOOT_DELAY),
-                            robot.resetAfterShooting()
-                    ), RobotStateHandler.CycleState.INTAKE)
-            ));
+            schedule(new Conditional(
+                    () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
+                    new Sequential(
+                            tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                            tsh.runTransition(new Sequential(
+                                    robot.shootAll(Table.SLOW_SHOOT_DELAY),
+                                    robot.resetAfterShooting()
+                            ), RobotStateHandler.CycleState.INTAKE)
+                    ),
+                    tsh.task(
+                            new Sequential(
+                                    new Instant(() -> {
+                                        robot.tableCompartments.populate(GREEN, PURPLE, PURPLE);
+                                        robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
+                                    }),
+                                    robot.sort()
+                            ),
+                            new int[] {1, 0, 0}
+                    )
+                )
+            );
         }
 
         if (gamepad_2.left_trigger_button.isRisingEdge()) {
@@ -231,7 +248,30 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_right.isRisingEdge()) {
-            robot.drivetrain.follower.setPose(new ColoredDecodePose(72, 130.5, Math.PI).getPose());
+            if (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT))
+                robot.drivetrain.follower.setPose(new ColoredDecodePose(72, 130.5, Math.PI).getPose());
+            else schedule(
+                    tsh.task(
+                            new Sequential(
+                                    new Instant(() -> {
+                                        robot.tableCompartments.populate(PURPLE, GREEN, PURPLE);
+                                        robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
+                                    }),
+                                    robot.sort()
+                            ),
+                            new int[] {1, 0, 0}
+                    )
+            );
+        }
+
+        if (gamepad_1.right_trigger_button.isRisingEdge()) {
+            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        } else if (gamepad_1.right_trigger_button.isFallingEdge()) {
+            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
+
+        if (gamepad_1.left_trigger_button.isRisingEdge()) {
+            schedule(robot.drivetrain.holdPose());
         }
 
         // Telemetry

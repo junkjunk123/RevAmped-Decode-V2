@@ -29,7 +29,7 @@ public class Turret extends HwMotor {
         FULL_ROTATION = TICKS_LIMIT / RAD_LIMIT * 2 * Math.PI;
     }
 
-    public sealed interface MoveState permits MoveState.CloseAuto, MoveState.Deenergize, MoveState.MoveTo, MoveState.PresetState, MoveState.SwitchReset {
+    public sealed interface MoveState permits MoveState.CloseAuto, MoveState.Deenergize, MoveState.MoveTo, MoveState.PresetState, MoveState.SwitchReset, MoveState.Track {
         Deenergize DEENERGIZE = new Deenergize();
         CloseAuto CLOSE_AUTO = new CloseAuto();
         SwitchReset SWITCH_RESET = new SwitchReset();
@@ -61,6 +61,8 @@ public class Turret extends HwMotor {
         int target();
 
         record MoveTo(int target) implements MoveState {}
+        record
+        Track(int target) implements MoveState {}
         final class Deenergize implements MoveState {
             @Override
             public int target() {
@@ -107,6 +109,7 @@ public class Turret extends HwMotor {
     public static double I_RESET;
     public static double D_RESET;
     public static double F_RESET;
+    public static double TRACK_D;
     public static int PIDF_SWITCH;
     public static double MS_PER_REVOLUTION = 2000;
     public static int ticksPerRotation() {
@@ -116,6 +119,7 @@ public class Turret extends HwMotor {
     private final PIDFController controller;
     private final PIDFController secondaryController;
     private final PIDFController resetController;
+    private final PIDFController trackController;
     private MoveState moveState = MoveState.PresetState.REST;
     private final AtomicInteger distance = new AtomicInteger(0);
     private boolean useSecondary = false;
@@ -126,12 +130,12 @@ public class Turret extends HwMotor {
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         secondaryController = new PIDFController(new PIDFCoefficients(P_SECONDARY, I_SECONDARY, D_SECONDARY, F_SECONDARY));
         resetController = new PIDFController(new PIDFCoefficients(P_RESET, I_RESET, D_RESET, F_RESET));
+        trackController = new PIDFController(new PIDFCoefficients(P, I, TRACK_D, F));
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch").flip();
         updateTargetPosition(0);
         resetController.setTargetPosition(0);
         setDirection(DcMotorSimple.Direction.FORWARD);
         setEncoderBase(getEncoder().getPosition());
-
         invalidateCache();
     }
 
@@ -169,6 +173,7 @@ public class Turret extends HwMotor {
         distance.set(Math.abs(target - getTargetPosition()));
         controller.setTargetPosition(target);
         secondaryController.setTargetPosition(target);
+        trackController.setTargetPosition(target);
         useSecondary = false;
     }
 
@@ -228,6 +233,7 @@ public class Turret extends HwMotor {
     public void update() {
         super.update();
         limitSwitch.update();
+        trackController.setCoefficients(new PIDFCoefficients(P, I, TRACK_D, F));
 
         if (deenergized()) return;
 
@@ -235,6 +241,12 @@ public class Turret extends HwMotor {
 
         if (moveState instanceof MoveState.SwitchReset) {
             setPower(updateController(resetController, error));
+            return;
+        }
+
+        if (moveState instanceof MoveState.Track) {
+            updateController(trackController, error);
+            setPower(trackController.run());
             return;
         }
 

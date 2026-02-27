@@ -14,8 +14,8 @@ public class TrackingThread {
     private final Flywheel flywheel;
     private final Localizer pinpoint;
     private final boolean isTeleOp;
-    public static boolean trackHood = true;
-    public static boolean trackTurret = true;
+    public static boolean trackHood = false;
+    public static boolean trackTurret = false;
 
     public TrackingThread(Follower pinpoint, Turret turret, Flywheel flywheel, Hood hood, boolean isTeleOp) {
         this.hood = hood;
@@ -31,7 +31,7 @@ public class TrackingThread {
         if (isTeleOp) pinpoint.update();
         shooterMath.update(trackTurret, trackHood);
         if (trackHood) hood.updateTracking(shooterMath.getHoodPos());
-        if (trackTurret) turret.setTargetPosition(shooterMath.getTurretPos());
+        if (trackTurret) turret.move(new Turret.MoveState.Track(shooterMath.getTurretPos()));
         if (trackHood) flywheel.setVelocity(shooterMath.getFlywheelVelocity());
     }
 }

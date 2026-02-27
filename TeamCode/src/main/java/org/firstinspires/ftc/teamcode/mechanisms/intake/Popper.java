@@ -52,6 +52,14 @@ public class Popper extends HwServo {
         );
     }
 
+    public ICommand blockFromPop() {
+        return new Sequential(
+                new Instant(() -> setPosition(BLOCK)),
+                new Wait(150),
+                new Instant(() -> stateMachine.setCurrentState(PopperState.POP))
+        );
+    }
+
     public ICommand neutral() {
         return new Lazy(() -> {
             if (!movingToState(PopperState.NEUTRAL)) {

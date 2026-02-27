@@ -32,13 +32,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CloseAuto extends OpModeCommand {
     private Robot robot;
     private ElapsedTime overallTimer;
-    private static boolean testSlowShoot = true;
+    private static boolean testSlowShoot = false;
 
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap, new CloseAutoPaths());
         DecodeLimelight limelight = new DecodeLimelight(hardwareMap);
-        robot.tableCompartments.populate(new ArtifactColor[]{ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE});
+        robot.tableCompartments.populate(ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE);
         overallTimer = new ElapsedTime();
         robot.turret.setTargetPosition(Turret.UNSORTED_AUTO_PRELOADS);
 
@@ -151,12 +151,21 @@ public class CloseAuto extends OpModeCommand {
                                     robot.flywheel.stop();
                                 })
                         ),
-                        robot.resetTable(),
+                        iteration == 2 ? robot.resetTable() : resetTableBlock(),
                         iteration == 0 ? new Sequential(
                                 new Wait(600),
                                 robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                         ) : robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                 )
+        );
+    }
+
+    private ICommand resetTableBlock() {
+        return new Sequential(
+                //new Instant(robot.intakeMotor::stop),
+                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL0)),
+                new Wait(650),
+                robot.popper.blockFromPop()
         );
     }
 
@@ -170,7 +179,7 @@ public class CloseAuto extends OpModeCommand {
         };
 
         ArtifactColor[] intookColors = switch (iteration) {
-            case 0 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE};
+            case 0 -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
             case 1 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.PURPLE, ArtifactColor.GREEN};
             default -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
         };
@@ -180,6 +189,7 @@ public class CloseAuto extends OpModeCommand {
                 new Instant(() -> isSorting.set(iteration != 2 && Globals.randomizationState != null)),
                 new Parallel(
                         robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), driveTimeout),
+                        iteration != 2 ? robot.popper.neutral() : Commands.NOOP,
                         new Conditional(
                                 () -> iteration == 0,
                                 Commands.NOOP,

@@ -5,8 +5,11 @@ import com.pedropathing.ftc.drivetrains.Mecanum;
 import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Race;
+import com.pedropathing.ivy.groups.Sequential;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -39,6 +42,8 @@ public class Drivetrain {
     public static float MAGNITUDE_ZERO = 0.15f;
     public static float ANGLE_ZERO = (float) Math.tan(Math.toRadians(15));
     public static float MAX_POWER = 1.0f;
+    public boolean canShoot = true;
+    private boolean holdingPose;
 
     public Drivetrain(HardwareMap hardwareMap) {
         follower = Constants.createFollower(hardwareMap);
@@ -85,6 +90,24 @@ public class Drivetrain {
             path.setConstantHeadingInterpolation(follower.getHeading());
             follower.followPath(path);
         }
+    }
+
+    public ICommand holdPose() {
+        return new Sequential(
+                new Instant(() -> {
+                    follower.update();
+                    follower.holdPoint(new BezierPoint(follower.getPose()), follower.getHeading(), false);
+                    canShoot = false;
+                    holdingPose = true;
+                }),
+                new Wait(350),
+                new Instant(() -> canShoot = true)
+        );
+    }
+
+    public void stopHoldPose() {
+        holdingPose = false;
+        follower.startTeleOpDrive();
     }
 
     public void skip(int i) {
@@ -261,7 +284,7 @@ public class Drivetrain {
     }
 
     public void update() {
-        if (!Globals.isTeleOp)
+        if (!Globals.isTeleOp || holdingPose)
             follower.update();
     }
 

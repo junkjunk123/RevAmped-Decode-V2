@@ -27,7 +27,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
-import org.firstinspires.ftc.teamcode.opmodes.CloseAuto;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
@@ -37,7 +36,6 @@ import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -128,9 +126,9 @@ public class Robot {
 
     public void setRobotState(Message message) {
         if (message instanceof DriveMessage driveState)
-            CycleState.DRIVE_TO_SHOOT.INSTANCE = driveState.driveState;
+            CycleState.DRIVE_TO_SHOOT.INSTANCE = driveState.driveState();
         else if (message instanceof IntakeMessage intakeMessage)
-            CycleState.INTAKE.INSTANCE = intakeMessage.intakeState;
+            CycleState.INTAKE.INSTANCE = intakeMessage.intakeState();
         else if (message instanceof CycleState.Intake)
             CycleState.INTAKE.INSTANCE = RobotStateHandler.IntakeState.INTAKING;
         robotState = message.cycleState();
@@ -152,8 +150,9 @@ public class Robot {
 
     public ICommand shootAll() {
         return new Sequential(
+                new WaitUntil(() -> drivetrain.canShoot),
                 new Instant(intakeMotor::intake),
-                table.fullRotation()
+                table.shoot()
         );
     }
 
@@ -163,6 +162,7 @@ public class Robot {
                 () -> delay.get() < 10,
                 shootAll(),
                 new Sequential(
+                        new WaitUntil(() -> drivetrain.canShoot),
                         new Instant(() -> {
                             intakeMotor.intakeSlow();
                             shootSequence.set(table.getState().getShootStates());
@@ -235,6 +235,7 @@ public class Robot {
 
     public ICommand resetAfterShooting() {
         return new Parallel(
+                new Instant(drivetrain::stopHoldPose),
                 resetShooter(),
                 resetTableTeleOp()
         );

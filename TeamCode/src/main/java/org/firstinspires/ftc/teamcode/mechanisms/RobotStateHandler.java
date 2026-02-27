@@ -13,8 +13,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class RobotStateHandler {
@@ -22,36 +20,24 @@ public class RobotStateHandler {
         CycleState cycleState();
     }
 
-    public static class DriveMessage implements Message {
+    public record DriveMessage(DriveState driveState) implements Message {
         public static DriveMessage PASSIVE = new DriveMessage(DriveState.PASSIVE);
         public static DriveMessage AUTO_TRACKING = new DriveMessage(DriveState.AUTO_TRACKING);
 
-        public final DriveState driveState;
-
-        public DriveMessage(DriveState driveState) {
-            this.driveState = driveState;
-        }
-
         @Override
         public CycleState cycleState() {
-            return CycleState.DRIVE_TO_SHOOT;
-        }
+                return CycleState.DRIVE_TO_SHOOT;
+            }
     }
 
-    public static class IntakeMessage implements Message {
+    public record IntakeMessage(IntakeState intakeState) implements Message {
         public static IntakeMessage INTAKING = new IntakeMessage(IntakeState.INTAKING);
         public static IntakeMessage SORTING = new IntakeMessage(IntakeState.SORTING);
 
-        public final IntakeState intakeState;
-
-        public IntakeMessage(IntakeState intakeState) {
-            this.intakeState = intakeState;
-        }
-
         @Override
         public CycleState cycleState() {
-            return CycleState.INTAKE;
-        }
+                return CycleState.INTAKE;
+            }
     }
 
     public non-sealed interface CycleState extends TeleOpStateHandler.GraphElement, Message {
@@ -160,6 +146,9 @@ public class RobotStateHandler {
 
     public static TeleOpStateHandler createTeleOpStateHandler(Robot robot) {
         List<CycleState> stateMap = List.of(CycleState.INTAKE, CycleState.DRIVE_TO_SHOOT, CycleState.SHOOT);
-        return new TeleOpStateHandler(CycleState.INTAKE, stateMap, robot::setRobotState);
+        return new TeleOpStateHandler(CycleState.INTAKE, stateMap, c -> {
+            if (c.equals(CycleState.INTAKE)) robot.setRobotState(IntakeMessage.INTAKING);
+            else robot.setRobotState(c);
+        });
     }
 }

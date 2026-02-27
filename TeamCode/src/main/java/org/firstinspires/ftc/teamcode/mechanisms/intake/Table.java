@@ -10,7 +10,6 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.math.calc.Integrator;
-import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
 import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
@@ -24,7 +23,6 @@ import org.firstinspires.ftc.teamcode.utils.hardware.EncoderImpl;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Table extends HwServo {
@@ -55,6 +53,20 @@ public class Table extends HwServo {
             }
         }
 
+        public float getFullRotation() {
+            switch (this) {
+                case BALL0 -> {
+                    return BALL0_END;
+                }
+                case BALL1 -> {
+                    return BALL1_END;
+                }
+                default -> {
+                    return BALL2_END;
+                }
+            }
+        }
+
         public RelativeState next() {
             return values()[(ordinal() + 1) % values().length];
         }
@@ -76,7 +88,8 @@ public class Table extends HwServo {
     public static float SHOOT_INCREMENT;
     public static double MS_PER_REVOLUTION = 750;
     public static double SLOW_SHOOT_DELAY = 25;
-    private final int velocityThreshold = 20;
+    private final int VELOCITY_THRESHOLD = 20;
+    private final int VELOCITY_THRESHOLD_2 = 15;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
     private final EncoderImpl encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
@@ -128,7 +141,7 @@ public class Table extends HwServo {
                            useEncoder ? new Race(
                                    new Sequential(
                                            new Wait(accelTime.read()),
-                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < velocityThreshold)
+                                           new WaitUntil(() -> Math.abs(encoder.getVelocity()) < VELOCITY_THRESHOLD)
                                    ),
                                    new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION))
                            ) : new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION - 150)),
@@ -168,6 +181,21 @@ public class Table extends HwServo {
         });
     }
 
+    public ICommand shoot() {
+        AtomicReadOnce<RelativeState> reader = pendingStateReader();
+        return new Sequential(
+                new Instant(() -> setPosition(reader.read().getFullRotation())),
+                new Race(
+                        new Wait(1000),
+                        new Sequential(
+                                new Wait(600),
+                                new WaitUntil(() -> encoder.getVelocity() < VELOCITY_THRESHOLD_2)
+                        )
+                ),
+                new Instant(() -> atRelativeState = false)
+        );
+    }
+
     public ICommand setPos(float pos) {
         return setPos(() -> pos);
     }
@@ -187,7 +215,7 @@ public class Table extends HwServo {
                         useEncoder ? new Race(
                                 new Sequential(
                                         new Wait(accelTime.read()),
-                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < velocityThreshold)
+                                        new WaitUntil(() -> Math.abs(encoder.getVelocity()) < VELOCITY_THRESHOLD)
                                 ),
                                 new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION))
                         ) : new Wait(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION)),
