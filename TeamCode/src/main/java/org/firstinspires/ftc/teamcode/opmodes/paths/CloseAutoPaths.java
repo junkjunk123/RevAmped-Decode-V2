@@ -36,15 +36,9 @@ public class CloseAutoPaths implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-        FollowParameters partnerPush = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(START_POSE, PARTNER_PUSH))
-                .setLinearHeadingInterpolation(START_POSE.getHeading(), PARTNER_PUSH.getHeading())
-                .build()
-        );
-
         FollowParameters initialShoot = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(PARTNER_PUSH, FIRST_SHOOT))
-                .setLinearHeadingInterpolation(PARTNER_PUSH.getHeading(), FIRST_SHOOT.getHeading())
+                .addPath(ColoredDecodePose.makeBezier(START_POSE, FIRST_SHOOT))
+                .setLinearHeadingInterpolation(START_POSE.getHeading(), FIRST_SHOOT.getHeading())
                 .build()
         );
 
@@ -90,13 +84,25 @@ public class CloseAutoPaths implements PathSupplier {
                 .build()
         );
 
+        FollowParameters goToStart = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(THIRD_SHOOT, START_POSE))
+                .setConstantHeadingInterpolation(START_POSE.getHeading())
+                .build()
+        );
+
+        FollowParameters partnerPush = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(START_POSE, PARTNER_PUSH))
+                .setLinearHeadingInterpolation(START_POSE.getHeading(), PARTNER_PUSH.getHeading())
+                .build()
+        );
+
         FollowParameters park = new FollowParameters(Constants.SAFE_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(THIRD_SHOOT, PARK))
+                .addPath(ColoredDecodePose.makeBezier(PARTNER_PUSH, PARK))
                 .setConstantHeadingInterpolation(THIRD_SHOOT.getHeading())
                 .build()
         );
 
-        return List.of(partnerPush, initialShoot, intakeFirstSet, shootFirstSet, intakeSecondSet,
-                shootSecondSet, intakeThirdSet, shootThirdSet, park);
+        return List.of(initialShoot, intakeFirstSet, shootFirstSet, intakeSecondSet,
+                shootSecondSet, intakeThirdSet, shootThirdSet, goToStart, partnerPush, park);
     }
 }

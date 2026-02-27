@@ -58,7 +58,6 @@ public class CloseAuto extends OpModeCommand {
                         robot.intakeMotor.intakeSlow();
                         limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
                     }),
-                    robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
                     new Race(
                             robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
                             new Sequential(
@@ -228,7 +227,11 @@ public class CloseAuto extends OpModeCommand {
 
     public ICommand park() {
         return new Parallel(
-                robot.drivetrain.followNext(d -> d.velocityCondition(4)),
+                new Sequential(
+                        robot.drivetrain.followNext(d -> d.velocityCondition(4)),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(4)),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(4))
+                ),
                 new Instant(() -> {
                     robot.flywheel.stop();
                     robot.intakeMotor.stop();
