@@ -228,9 +228,16 @@ public class CloseAuto extends OpModeCommand {
     public ICommand park() {
         return new Parallel(
                 new Sequential(
-                        robot.drivetrain.followNext(d -> d.velocityCondition(4)),
-                        robot.drivetrain.followNext(d -> d.velocityCondition(4)),
-                        robot.drivetrain.followNext(d -> d.velocityCondition(4))
+                        new Conditional(
+                                () -> overallTimer.seconds() > 29,
+                                robot.drivetrain.followLast(d -> d.velocityCondition(4)),
+                                robot.drivetrain.followNext(d -> d.velocityCondition(4))
+                        ),
+                        new Conditional(
+                                () -> overallTimer.seconds() > 29,
+                                robot.drivetrain.followLast(d -> d.velocityCondition(4)),
+                                robot.drivetrain.followNext(d -> d.velocityCondition(4))
+                        )
                 ),
                 new Instant(() -> {
                     robot.flywheel.stop();

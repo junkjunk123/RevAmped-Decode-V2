@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.paths;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
@@ -86,23 +87,25 @@ public class CloseAutoPaths implements PathSupplier {
 
         FollowParameters goToStart = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(THIRD_SHOOT, START_POSE))
-                .setConstantHeadingInterpolation(START_POSE.getHeading())
+                .setLinearHeadingInterpolation(THIRD_SHOOT.getHeading(), PARTNER_PUSH.getHeading())
                 .build()
         );
 
-        FollowParameters partnerPush = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters park = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(START_POSE, PARTNER_PUSH))
-                .setLinearHeadingInterpolation(START_POSE.getHeading(), PARTNER_PUSH.getHeading())
+                .setConstantHeadingInterpolation(PARTNER_PUSH.getHeading())
+                .addPath(ColoredDecodePose.makeBezier(PARTNER_PUSH, PARK))
+                .setConstantHeadingInterpolation(PARTNER_PUSH.getHeading())
                 .build()
         );
 
-        FollowParameters park = new FollowParameters(Constants.SAFE_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(PARTNER_PUSH, PARK))
-                .setConstantHeadingInterpolation(THIRD_SHOOT.getHeading())
+        FollowParameters parkNoPush = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(new BezierLine(follower::getPose, PARTNER_PUSH))
+                .setConstantHeadingInterpolation(PARTNER_PUSH.getHeading())
                 .build()
         );
 
         return List.of(initialShoot, intakeFirstSet, shootFirstSet, intakeSecondSet,
-                shootSecondSet, intakeThirdSet, shootThirdSet, goToStart, partnerPush, park);
+                shootSecondSet, intakeThirdSet, shootThirdSet, goToStart, park, parkNoPush);
     }
 }
