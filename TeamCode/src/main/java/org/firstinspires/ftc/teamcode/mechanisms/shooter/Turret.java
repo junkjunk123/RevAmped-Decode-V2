@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
@@ -12,7 +13,12 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.math.calc.Integrator;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.Loop;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
@@ -301,5 +307,44 @@ public class Turret extends HwMotor {
             case 5 -> setTargetPosition(UNSORTED_SET_5);
             default -> setTargetPosition(UNSORTED_AUTO_PRELOADS);
         }
+    }
+
+    @Override
+    public Speaker<String> test() {
+        setPower(0.3);
+        Integrator current = new Integrator();
+        Integrator encoder = new Integrator();
+        double nominalCurrent = get().getCurrent(CurrentUnit.AMPS);
+        return new Speaker<>(c ->
+                new Sequential(
+                        new Race(
+                                new Wait(2000),
+                                new Infinite(() -> {
+                                    current.update(Math.abs(nominalCurrent - get().getCurrent(CurrentUnit.AMPS)));
+                                    encoder.update(Math.abs(getEncoder().getVelocity()));
+                                }),
+                                new Loop(
+                                        new Sequential(
+                                                new Wait(500),
+                                                new Instant(() -> setPower(-0.3))
+                                        ),
+                                        4
+                                )
+                        ),
+                        new Instant(() -> setPower(0)),
+                        Channels.send(c, () -> {
+                            if (current.getIntegral() > 0.08)
+                                return this + "MOTOR TEST PASS: Current draw normal.";
+                            else
+                                return this + "MOTOR TEST FAIL: Current draw too low!";
+                        }),
+                        Channels.send(c, () -> {
+                            if (encoder.getIntegral() > 15)
+                                return this + "MOTOR TEST PASS: Encoder counts normal.";
+                            else
+                                return this + "MOTOR TEST FAIL: Encoder counts too low!";
+                        })
+                )
+        );
     }
 }

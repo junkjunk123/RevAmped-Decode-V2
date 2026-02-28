@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 public class UnsortedCloseAuto extends OpModeCommand {
     private Robot robot;
     private final ElapsedTime overallTimer = new ElapsedTime();
+    private boolean transferredData = false;
 
     @Override
     public void initialize() {
@@ -216,6 +217,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
 
     @Override
     public void end() {
+        if (!transferredData) Globals.turretStartPos = robot.turret.getPosition();
         //Drivetrain.startPose = robot.drivetrain.follower.getPose();
     }
 
@@ -235,6 +237,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                     robot.flywheel.stop();
                     robot.intakeMotor.stop();
                     Globals.turretStartPos = robot.turret.getPosition();
+                    transferredData = true;
                 }),
                 new Conditional(
                         () -> robot.popper.atState(Popper.PopperState.NEUTRAL),

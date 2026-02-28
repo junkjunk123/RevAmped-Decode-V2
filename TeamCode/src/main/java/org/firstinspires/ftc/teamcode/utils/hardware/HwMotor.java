@@ -155,6 +155,7 @@ public class HwMotor implements HwDevice {
                                     encoder.update(Math.abs(this.encoder.getVelocity()));
                                 })
                         ),
+                        new Instant(() -> setPower(0)),
                         Channels.send(c, () -> {
                             if (current.getIntegral() > 0.08)
                                 return id + "MOTOR TEST PASS: Current draw normal.";

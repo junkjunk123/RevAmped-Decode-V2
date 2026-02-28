@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 
+@Disabled
 @TeleOp
 public class SortTest extends OpMode {
     private ArtifactColor[] artifactColors = new ArtifactColor[3];

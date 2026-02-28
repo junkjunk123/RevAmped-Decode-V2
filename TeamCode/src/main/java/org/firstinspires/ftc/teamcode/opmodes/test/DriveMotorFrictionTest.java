@@ -3,11 +3,13 @@ import static org.firstinspires.ftc.teamcode.pedro.Tuning.follower;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
+@Disabled
 @Config
 @TeleOp
 public class DriveMotorFrictionTest extends OpMode {

@@ -83,6 +83,9 @@ public class Tele extends OpModeCommand {
                     ), RobotStateHandler.CycleState.INTAKE)
             )
         );
+
+        TrackingThread.trackHood = false;
+        TrackingThread.trackTurret = false;
     }
 
     @Override
@@ -108,7 +111,7 @@ public class Tele extends OpModeCommand {
             tsh.setForce(!tsh.isForce());
         }
 
-        if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
+        //if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
 
@@ -270,13 +273,9 @@ public class Tele extends OpModeCommand {
             robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        if (gamepad_1.left_trigger_button.isRisingEdge()) {
-            schedule(robot.drivetrain.holdPose());
-        }
-
         // Telemetry
         telemetry.addData("alliance", Globals.allianceColor);
-        telemetry.update();
+        //telemetry.update();
     }
 
     @Override

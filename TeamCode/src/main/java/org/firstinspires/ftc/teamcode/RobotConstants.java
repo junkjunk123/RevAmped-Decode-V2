@@ -15,7 +15,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 128/255f; Popper.NEUTRAL = 35/255f; Popper.BLOCK = 111/255f;
+        Popper.POP = 123/255f; Popper.NEUTRAL = 35/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 640; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 919; Flywheel.CLOSE_AUTO_VELOCITY = 630;
@@ -33,7 +33,7 @@ public class RobotConstants {
         Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
         Turret.P_RESET = 0.0022; Turret.F_RESET = 0.09;
         Turret.AUTO_PRELOADS = 520; Turret.AUTO_SET_1 = 540; Turret.AUTO_SET_2 = 540; Turret.AUTO_SET_3 = 555; Turret.FAR_AUTO = 580;
-        Turret.UNSORTED_AUTO_PRELOADS = 80; Turret.UNSORTED_GATE = 660; Turret.UNSORTED_FINAL = 735;
+        Turret.UNSORTED_AUTO_PRELOADS = 80; Turret.UNSORTED_GATE = 660; Turret.UNSORTED_FINAL = 723;
         Turret.UNSORTED_SET_1 = Turret.UNSORTED_SET_2 = Turret.UNSORTED_SET_3 = Turret.UNSORTED_SET_5 = Turret.UNSORTED_GATE;
         Turret.UNSORTED_SET_4 = Turret.UNSORTED_GATE;
 
@@ -43,7 +43,7 @@ public class RobotConstants {
         //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
 
         //updated
-        float TABLE_BALL_0 = 239/255f, TABLE_BALL_1 = 203/255f, TABLE_BALL_2 = 167/255f, TABLE_BALL_0_END = 115/255f, TABLE_BALL_1_END = 79/255f, TABLE_BALL_2_END = 43/255f, FULL_REVOLUTION_TICKS = -106/255f;
+        float TABLE_BALL_0 = 236/255f, TABLE_BALL_1 = 200/255f, TABLE_BALL_2 = 164/255f, TABLE_BALL_0_END = 112/255f, TABLE_BALL_1_END = 76/255f, TABLE_BALL_2_END = 40/255f, FULL_REVOLUTION_TICKS = -106/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 

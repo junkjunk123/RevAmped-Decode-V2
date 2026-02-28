@@ -4,6 +4,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.pedro.FusionConstants;
 import org.firstinspires.ftc.teamcode.pedro.FusionLocalizer;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwUltrasonic;
 
+@Disabled
 @TeleOp
 public class UltrasonicEKFTest extends OpMode {
     private Follower follower;
