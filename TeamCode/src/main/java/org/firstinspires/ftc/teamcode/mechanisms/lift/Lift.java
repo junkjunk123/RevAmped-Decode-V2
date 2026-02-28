@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.mechanisms.lift;
+
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -6,6 +7,7 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;

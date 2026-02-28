@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
@@ -27,6 +26,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Functional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloseAuto extends OpModeCommand {

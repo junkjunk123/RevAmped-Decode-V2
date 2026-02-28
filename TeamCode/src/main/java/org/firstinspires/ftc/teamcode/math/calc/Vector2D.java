@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.math.calc;
+
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Vector;
-
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class Vector2D extends Vector {
     public Vector2D(double x, double y) {

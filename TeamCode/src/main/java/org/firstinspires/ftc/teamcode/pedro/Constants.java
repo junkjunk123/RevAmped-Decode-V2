@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
-import static org.firstinspires.ftc.teamcode.opmodes.test.LocalizationTest.forwardY;
-import static org.firstinspires.ftc.teamcode.opmodes.test.LocalizationTest.strafeX;
-
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;

@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
-import static org.firstinspires.ftc.teamcode.pedro.Tuning.follower;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;

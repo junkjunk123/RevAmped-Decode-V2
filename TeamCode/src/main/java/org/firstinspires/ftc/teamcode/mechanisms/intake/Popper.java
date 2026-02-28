@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
+
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -10,8 +11,6 @@ import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
-
-import java.util.Objects;
 
 public class Popper extends HwServo {
     public static float NEUTRAL;

@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.pedropathing.ivy.commands.Infinite;
-import com.pedropathing.ivy.commands.Instant;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
-import org.firstinspires.ftc.teamcode.mechanisms.octocanum.Octocanum;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 
