@@ -125,6 +125,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
         );
     }
 
+
     private ICommand shootFromGate(int iteration) {
         return new Parallel(
                 robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), getShootTimeout()),
