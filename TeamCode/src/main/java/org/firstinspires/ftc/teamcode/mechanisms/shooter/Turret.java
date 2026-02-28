@@ -115,6 +115,7 @@ public class Turret extends HwMotor {
     public static int ticksPerRotation() {
         return (int) (TICKS_LIMIT * (Math.PI * 2 / RAD_LIMIT));
     }
+
     public final HwDigitalDevice limitSwitch;
     private final PIDFController controller;
     private final PIDFController secondaryController;
@@ -135,7 +136,11 @@ public class Turret extends HwMotor {
         updateTargetPosition(0);
         resetController.setTargetPosition(0);
         setDirection(DcMotorSimple.Direction.FORWARD);
-        setEncoderBase(getEncoder().getPosition());
+        if (Globals.isTeleOp && Globals.turretStartPos > 1)
+            setEncoderBase(getEncoder().getPosition() - Globals.turretStartPos);
+        else
+            setEncoderBase(getEncoder().getPosition());
+        Globals.turretStartPos = 0;
         invalidateCache();
     }
 

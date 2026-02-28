@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.paths.UnsortedCloseAutoPaths;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 
@@ -232,6 +233,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 new Instant(() -> {
                     robot.flywheel.stop();
                     robot.intakeMotor.stop();
+                    Globals.turretStartPos = robot.turret.getPosition();
                 }),
                 new Conditional(
                         () -> robot.popper.atState(Popper.PopperState.NEUTRAL),
@@ -240,8 +242,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                                 robot.popper.neutral(),
                                 robot.table.reset()
                         )
-                ),
-                robot.turret.resetTurret()
+                )
         );
     }
 
