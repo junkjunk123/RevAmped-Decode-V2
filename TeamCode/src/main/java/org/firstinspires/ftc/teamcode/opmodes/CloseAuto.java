@@ -33,6 +33,7 @@ public class CloseAuto extends OpModeCommand {
     private Robot robot;
     private ElapsedTime overallTimer;
     private static boolean testSlowShoot = false;
+    protected boolean shouldPush = true;
 
     @Override
     public void initialize() {
@@ -162,7 +163,7 @@ public class CloseAuto extends OpModeCommand {
     private ICommand resetTableBlock() {
         return new Sequential(
                 //new Instant(robot.intakeMotor::stop),
-                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL0)),
+                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
                 new Wait(650),
                 robot.popper.blockFromPop()
         );
@@ -178,8 +179,8 @@ public class CloseAuto extends OpModeCommand {
         };
 
         ArtifactColor[] intookColors = switch (iteration) {
-            case 0 -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
-            case 1 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.PURPLE, ArtifactColor.GREEN};
+            case 0 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE};
+            case 1 -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
             default -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
         };
 
@@ -229,12 +230,12 @@ public class CloseAuto extends OpModeCommand {
         return new Parallel(
                 new Sequential(
                         new Conditional(
-                                () -> overallTimer.seconds() > 29,
+                                () -> !shouldPush || overallTimer.seconds() > 29,
                                 robot.drivetrain.followLast(d -> d.velocityCondition(4)),
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4))
                         ),
                         new Conditional(
-                                () -> overallTimer.seconds() > 29,
+                                () -> !shouldPush || overallTimer.seconds() > 29,
                                 robot.drivetrain.followLast(d -> d.velocityCondition(4)),
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4))
                         )
