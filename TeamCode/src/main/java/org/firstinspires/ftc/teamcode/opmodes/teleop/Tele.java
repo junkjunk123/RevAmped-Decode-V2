@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
@@ -63,7 +64,7 @@ public class Tele extends OpModeCommand {
         // Schedule robot update loop
         schedule(new Infinite(() -> {
             robot.update();
-            robot.drivetrain.arcadeDrive(gamepad1);
+            if (!robot.drivetrain.isHoldingPose()) robot.drivetrain.arcadeDrive(gamepad1);
         }));
 
         // Initialize robot
@@ -103,26 +104,32 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_1.y.isRisingEdge()) {
-            tsh.setForce(!tsh.isForce());
+            if (!robot.drivetrain.isHoldingPose())
+                schedule(robot.drivetrain.holdPose());
+            else
+                robot.drivetrain.stopHoldPose();
         }
 
-        //if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
+        if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootCorner));
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
+        if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
 
-        if (gamepad_1.right_bumper.isRisingEdge()) {
-            if (!TrackingThread.trackTurret) schedule(tsh.task(robot.turret::next, new int[]{1, 1, 0}));
-            else {
+        if (gamepad_1.right_bumper.isTrue()) {
+            if (TrackingThread.trackTurret && gamepad_1.right_bumper.isRisingEdge()) {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
+            } else {
+                schedule(tsh.task(() -> robot.turret.finetune(10), new int[]{1, 1, 0}));
             }
         }
 
-        if (gamepad_1.left_bumper.isRisingEdge()) {
-            if (!TrackingThread.trackTurret) schedule(tsh.task(robot.turret::previous, new int[]{1, 1, 0}));
-            else {
-                SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(-3, -3));
-                SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(-3, 3));
+        if (gamepad_1.left_bumper.isTrue()) {
+            if (TrackingThread.trackTurret && gamepad_1.left_bumper.isRisingEdge()) {
+                SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
+                SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
+            } else {
+                schedule(tsh.task(() -> robot.turret.finetune(-10), new int[]{1, 1, 0}));
             }
         }
 
@@ -130,6 +137,7 @@ public class Tele extends OpModeCommand {
                 new WaitUntil(robot.turret.limitSwitch::state),
                 new Instant(robot.turret::resetPosition)
         ));
+
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
 
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
@@ -184,7 +192,8 @@ public class Tele extends OpModeCommand {
                     new Sequential(
                             tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                             tsh.runTransition(new Conditional(
-                                    () -> robot.hood.getCurrentState() == Hood.HoodState.FAR,
+                                    //() -> robot.hood.getCurrentState() == Hood.HoodState.FAR,
+                                    () -> false,
                                     new Sequential(
                                         robot.shootAll(25),
                                         robot.resetAfterShooting()
@@ -192,7 +201,11 @@ public class Tele extends OpModeCommand {
                                     new Sequential(
                                             new Race(
                                                     new WaitUntil(gamepad_2.x::isRisingEdge),
-                                                    robot.shootAll()
+                                                    new Sequential(
+                                                            robot.shootAll(),
+                                                            new Wait(50),
+                                                            new Instant(() -> robot.flywheel.setVelocity(robot.flywheel.getTargetVelocity() + 50))
+                                                    )
                                             ),
                                             robot.resetAfterShooting()
                                     )
@@ -270,7 +283,8 @@ public class Tele extends OpModeCommand {
 
         // Telemetry
         telemetry.addData("alliance", Globals.allianceColor);
-        //telemetry.update();
+        telemetry.addData("holdPose", robot.drivetrain.isHoldingPose());
+        telemetry.update();
     }
 
     @Override

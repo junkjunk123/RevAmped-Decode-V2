@@ -14,12 +14,15 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 
 import java.util.Arrays;
 
@@ -40,6 +43,9 @@ public class SimpleShooterMath {
     private static final double[] DIST_X = {15.0, 39.0, 63.0};
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
+
+    public static ColoredDecodePose REFERENCE_POSE;
+    public static ColoredDecodePose REFERENCE_GOAL;
 
     public SimpleShooterMath(Localizer pinpoint) {
         this.pinpoint = pinpoint;
@@ -105,6 +111,19 @@ public class SimpleShooterMath {
                 hoodPos = Range.clip(hoodPos, 0, 1);
             }
         }
+    }
+
+    public int SOTM() {
+        pinpoint.update();
+        Vector target = REFERENCE_GOAL.getPose().getAsVector();
+
+        for (int i = 0; i < 10; i++) {
+            Vector offset = target.minus(REFERENCE_POSE.getPose().getAsVector());
+            target = target.minus(pinpoint.getVelocityVector().times(airTime.interpolate(offset.getXComponent(),
+                    offset.getYComponent())));
+        }
+        double deltaAngle = angleTurretTo(target.minus(REFERENCE_POSE.getPose().getAsVector()));
+        return (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
     }
 
     public void reset(int turretPos, float hoodPos) {

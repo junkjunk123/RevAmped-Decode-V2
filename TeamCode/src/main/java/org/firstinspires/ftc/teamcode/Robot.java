@@ -28,6 +28,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
@@ -48,7 +49,6 @@ public class Robot {
     public final Table table;
     public final Hood hood;
     public final Popper popper;
-    //public final Octocanum octocanum;
     public final IntakeMotor intakeMotor;
     public final ColorManager intakeColor;
     public final IntakeDistance intakeDistance;
@@ -223,7 +223,8 @@ public class Robot {
     public ICommand resetShooter() {
         return new Parallel(
                 new Lazy(() -> {
-                    if (TrackingThread.trackTurret) return turret.resetTurret();
+                    if (TrackingThread.trackTurret || turret.getMoveState() instanceof Turret.MoveState.FarPreset)
+                        return turret.resetTurret();
                     else return Commands.NOOP;
                 }),
                 new Instant(() -> {
@@ -290,9 +291,15 @@ public class Robot {
         flywheel.near();
     }
 
+    public void shootCorner() {
+        hood.corner();
+        flywheel.corner();
+    }
+
     public void shootFar() {
         hood.far();
         flywheel.far();
+        turret.setTargetPosition(Globals.allianceColor == AllianceColor.Red ? Turret.FAR_PRESET_RED : Turret.FAR_PRESET_BLUE);
     }
 
     public void shootMedium() {

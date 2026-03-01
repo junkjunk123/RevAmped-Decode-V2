@@ -17,6 +17,7 @@ public class Flywheel extends HwMotor {
     public static double MEDIUM_VELOCITY;
     public static double NEAR_VELOCITY;
     public static double CLOSE_AUTO_VELOCITY;
+    public static double CORNER_VELOCITY;
     public static double UNSORTED_AUTO_VELOCITY;
     public static double MAX_VELOCITY = 1400;
 
@@ -28,6 +29,7 @@ public class Flywheel extends HwMotor {
         MEDIUM,
         NEAR,
         TRACKING,
+        CORNER,
         STOPPED,
         NO_PID
     }
@@ -75,6 +77,11 @@ public class Flywheel extends HwMotor {
     public void near() {
         runToVel(NEAR_VELOCITY);
         state = FlywheelState.NEAR;
+    }
+
+    public void corner() {
+        runToVel(CORNER_VELOCITY);
+        state = FlywheelState.CORNER;
     }
 
     public void closeAuto() {

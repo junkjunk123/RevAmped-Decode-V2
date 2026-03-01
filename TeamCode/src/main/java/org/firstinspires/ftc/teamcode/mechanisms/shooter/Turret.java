@@ -13,8 +13,10 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.math.calc.Integrator;
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Loop;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
@@ -24,6 +26,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleSupplier;
 
 @Config
 public class Turret extends HwMotor {
@@ -35,10 +38,11 @@ public class Turret extends HwMotor {
         FULL_ROTATION = TICKS_LIMIT / RAD_LIMIT * 2 * Math.PI;
     }
 
-    public sealed interface MoveState permits MoveState.CloseAuto, MoveState.Deenergize, MoveState.MoveTo, MoveState.PresetState, MoveState.SwitchReset, MoveState.Track {
+    public sealed interface MoveState permits MoveState.AutoTrack, MoveState.CloseAuto, MoveState.Deenergize, MoveState.FarPreset, MoveState.MoveTo, MoveState.PresetState, MoveState.SwitchReset, MoveState.Track {
         Deenergize DEENERGIZE = new Deenergize();
         CloseAuto CLOSE_AUTO = new CloseAuto();
         SwitchReset SWITCH_RESET = new SwitchReset();
+        AutoTrack AUTO_TRACK = new AutoTrack();
 
         enum PresetState implements MoveState {
             LEFT_135,
@@ -88,6 +92,26 @@ public class Turret extends HwMotor {
                 return 10;
             }
         }
+
+        final class AutoTrack implements MoveState {
+            @Override
+            public int target() {
+                return 10;
+            }
+        }
+
+        final class FarPreset implements MoveState {
+            private final int target;
+
+            public FarPreset(AllianceColor allianceColor) {
+                target = allianceColor == AllianceColor.Red ? FAR_PRESET_RED : FAR_PRESET_BLUE;
+            }
+
+            @Override
+            public int target() {
+                return target;
+            }
+        }
     }
 
     public static int AUTO_PRELOADS;
@@ -118,6 +142,13 @@ public class Turret extends HwMotor {
     public static double TRACK_D;
     public static int PIDF_SWITCH;
     public static double MS_PER_REVOLUTION = 2000;
+    public static int FAR_PRESET_RED = -173;
+    public static int FAR_PRESET_BLUE = 150;
+    public static int LEGAL_FAR_BLUE = 400;
+    public static int ILLEGAL_FAR_BLUE = 680;
+    public static int ILLEGAL_FAR_RED = -720;
+    public static int LEGAL_FAR_RED = 380;
+
     public static int ticksPerRotation() {
         return (int) (TICKS_LIMIT * (Math.PI * 2 / RAD_LIMIT));
     }
@@ -130,6 +161,7 @@ public class Turret extends HwMotor {
     private MoveState moveState = MoveState.PresetState.REST;
     private final AtomicInteger distance = new AtomicInteger(0);
     private boolean useSecondary = false;
+    private DoubleSupplier limelightError;
 
     public Turret(HardwareMap hardwareMap, Encoder encoder) {
         super(hardwareMap, false, "turret");
@@ -261,6 +293,13 @@ public class Turret extends HwMotor {
             return;
         }
 
+        if (moveState instanceof MoveState.AutoTrack) {
+            if (limelightError == null) throw new IllegalArgumentException("DIE");
+            updateController(trackController, getLimelightError());
+            setPower(trackController.run());
+            return;
+        }
+
         if (!useSecondary && Math.abs(error) > PIDF_SWITCH) {
             setPower(updateController(secondaryController, error));
             return;
@@ -346,5 +385,18 @@ public class Turret extends HwMotor {
                         })
                 )
         );
+    }
+
+    public void setLimelightError(DoubleSupplier limelightError) {
+        this.limelightError = limelightError;
+    }
+
+    private double getLimelightError() {
+        double angularError = limelightError.getAsDouble();
+        return FULL_ROTATION / Math.PI / 2 * angularError;
+    }
+
+    public void farPreset() {
+        move(new MoveState.FarPreset(Globals.allianceColor));
     }
 }

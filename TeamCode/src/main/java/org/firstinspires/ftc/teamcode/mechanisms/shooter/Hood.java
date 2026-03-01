@@ -13,6 +13,7 @@ public class Hood extends HwServo {
     public static float HOOD_MAX_POS;
 
     public static float REST;
+    public static float CORNER_PRESET;
     public static float NEAR_PRESET;
     public static float FAR_PRESET;
     public static float MEDIUM_PRESET;
@@ -22,9 +23,11 @@ public class Hood extends HwServo {
         REST,
         NEAR,
         FAR,
+        CORNER,
         MEDIUM,
         TRACKING
     }
+
     private HoodState state = HoodState.REST;
 
     public Hood(HardwareMap hwMap) {
@@ -46,6 +49,12 @@ public class Hood extends HwServo {
         setPosition(FAR_PRESET);
         state = HoodState.FAR;
     }
+
+    public void corner() {
+        setPosition(CORNER_PRESET);
+        state = HoodState.CORNER;
+    }
+
 
     public void medium() {
         setPosition(MEDIUM_PRESET);

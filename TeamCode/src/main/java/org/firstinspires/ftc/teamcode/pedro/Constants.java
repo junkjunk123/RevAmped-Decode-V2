@@ -29,6 +29,16 @@ public class Constants {
             ))
             .centripetalScaling(0.00055);
 
+    public static FollowerConstants teleopFollowerConstants = new FollowerConstants()
+            .mass(12.4)
+            .headingPIDFCoefficients(new PIDFCoefficients(10, 0, 0, 0.01))
+            .translationalPIDFCoefficients(new PIDFCoefficients(6, 0, 0, 0.02))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2, 0, 0.05, 0.01))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0, 0.01))
+            .translationalPIDFSwitch(0.5)
+            .headingPIDFSwitch(Math.PI / 120)
+            .centripetalScaling(0.00055);
+
     public static MecanumConstants driveConstants = new MecanumConstants()
             .leftFrontMotorName("motor_lf")
             .leftRearMotorName("motor_lb")
@@ -61,6 +71,16 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
+                .mecanumDrivetrain(driveConstants)
+                .pinpointLocalizer(localizerConstants)
+                //.setDrivetrain(new PedroMecanumDrive(hardwareMap, driveConstants))
+                //.setLocalizer(new OctoQuadLocalizer(hardwareMap, octoQuadConstants, OctoQuadLocalizer.InitMode.INITIALIZE_OCTOQUAD))
+                .pathConstraints(pathConstraints)
+                .build();
+    }
+
+    public static Follower createFollowerTeleOp(HardwareMap hardwareMap) {
+        return new FollowerBuilder(teleopFollowerConstants, hardwareMap)
                 .mecanumDrivetrain(driveConstants)
                 .pinpointLocalizer(localizerConstants)
                 //.setDrivetrain(new PedroMecanumDrive(hardwareMap, driveConstants))

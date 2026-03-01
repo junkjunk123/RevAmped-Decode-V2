@@ -46,7 +46,7 @@ public class Drivetrain {
     private boolean holdingPose;
 
     public Drivetrain(HardwareMap hardwareMap) {
-        follower = Constants.createFollower(hardwareMap);
+        follower = Constants.createFollowerTeleOp(hardwareMap);
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
         leftFront = motors.get(0);
@@ -96,7 +96,10 @@ public class Drivetrain {
         return new Sequential(
                 new Instant(() -> {
                     follower.update();
-                    follower.holdPoint(new BezierPoint(follower.getPose()), follower.getHeading(), false);
+                    BezierPoint point = new BezierPoint(follower.getPose());
+                    Path path = new Path(point);
+                    path.setConstantHeadingInterpolation(follower.getHeading());
+                    follower.followPath(path);
                     canShoot = false;
                     holdingPose = true;
                 }),
@@ -108,6 +111,7 @@ public class Drivetrain {
     public void stopHoldPose() {
         holdingPose = false;
         follower.startTeleOpDrive();
+        follower.update();
     }
 
     public void skip(int i) {
@@ -294,10 +298,15 @@ public class Drivetrain {
     public void setPower(double power) {
         apply(m -> m.setPower(power));
     }
+
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior){
         leftFront.setZeroPowerBehavior(behavior);
         leftRear.setZeroPowerBehavior(behavior);
         rightFront.setZeroPowerBehavior(behavior);
         rightRear.setZeroPowerBehavior(behavior);
+    }
+
+    public boolean isHoldingPose() {
+        return holdingPose;
     }
 }

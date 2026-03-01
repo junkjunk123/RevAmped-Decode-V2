@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
 
 @Config
 public class TrackingThread {
-    private final SimpleShooterMath shooterMath;
+    public final SimpleShooterMath shooterMath;
     private final Turret turret;
     private final Hood hood;
     private final Flywheel flywheel;
