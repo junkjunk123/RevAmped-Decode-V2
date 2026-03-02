@@ -71,8 +71,8 @@ public class UnsortedCloseAuto extends OpModeCommand {
                         shootFromGate(1),
                         intakeFromGate(2),
                         shootFromGate(2),
-                        intakeFromGate(3),
-                        shootFromGate(3),
+                        //intakeFromGate(3),
+                        //shootFromGate(3),
                         intakePreload(false),
                         shootPreload(false),
                         park()

@@ -296,10 +296,15 @@ public class Robot {
         flywheel.corner();
     }
 
-    public void shootFar() {
-        hood.far();
-        flywheel.far();
-        turret.setTargetPosition(Globals.allianceColor == AllianceColor.Red ? Turret.FAR_PRESET_RED : Turret.FAR_PRESET_BLUE);
+    public ICommand shootFar() {
+        return new Sequential(
+                new Instant(() -> {
+                    hood.far();
+                    flywheel.far();
+                }),
+                turret.resetTurret(),
+                new Instant(() -> turret.setTargetPosition(Globals.allianceColor == AllianceColor.Red ? Turret.FAR_PRESET_RED : Turret.FAR_PRESET_BLUE))
+        );
     }
 
     public void shootMedium() {
