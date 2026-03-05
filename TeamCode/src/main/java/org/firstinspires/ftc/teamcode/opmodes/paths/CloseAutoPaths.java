@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.paths;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
@@ -36,15 +37,9 @@ public class CloseAutoPaths implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-        FollowParameters partnerPush = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(START_POSE, PARTNER_PUSH))
-                .setLinearHeadingInterpolation(START_POSE.getHeading(), PARTNER_PUSH.getHeading())
-                .build()
-        );
-
         FollowParameters initialShoot = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(PARTNER_PUSH, FIRST_SHOOT))
-                .setLinearHeadingInterpolation(PARTNER_PUSH.getHeading(), FIRST_SHOOT.getHeading())
+                .addPath(ColoredDecodePose.makeBezier(START_POSE, FIRST_SHOOT))
+                .setLinearHeadingInterpolation(START_POSE.getHeading(), FIRST_SHOOT.getHeading())
                 .build()
         );
 
@@ -90,13 +85,27 @@ public class CloseAutoPaths implements PathSupplier {
                 .build()
         );
 
-        FollowParameters park = new FollowParameters(Constants.SAFE_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(THIRD_SHOOT, PARK))
-                .setConstantHeadingInterpolation(THIRD_SHOOT.getHeading())
+        FollowParameters goToStart = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(THIRD_SHOOT, START_POSE))
+                .setLinearHeadingInterpolation(THIRD_SHOOT.getHeading(), PARTNER_PUSH.getHeading())
                 .build()
         );
 
-        return List.of(partnerPush, initialShoot, intakeFirstSet, shootFirstSet, intakeSecondSet,
-                shootSecondSet, intakeThirdSet, shootThirdSet, park);
+        FollowParameters park = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(START_POSE, PARTNER_PUSH))
+                .setConstantHeadingInterpolation(PARTNER_PUSH.getHeading())
+                .addPath(ColoredDecodePose.makeBezier(PARTNER_PUSH, PARK))
+                .setConstantHeadingInterpolation(PARTNER_PUSH.getHeading())
+                .build()
+        );
+
+        FollowParameters parkNoPush = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+                .addPath(new BezierLine(follower::getPose, PARTNER_PUSH))
+                .setConstantHeadingInterpolation(PARTNER_PUSH.getHeading())
+                .build()
+        );
+
+        return List.of(initialShoot, intakeFirstSet, shootFirstSet, intakeSecondSet,
+                shootSecondSet, intakeThirdSet, shootThirdSet, goToStart, park, parkNoPush);
     }
 }

@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @Config
 @TeleOp(name = "ServoCalibrateTest", group = "a")

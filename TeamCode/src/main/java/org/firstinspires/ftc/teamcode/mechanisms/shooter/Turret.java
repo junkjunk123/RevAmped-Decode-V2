@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
@@ -12,13 +13,21 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Supplier;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.math.calc.Integrator;
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.Loop;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDigitalDevice;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleSupplier;
 
 @Config
 public class Turret extends HwMotor {
@@ -32,10 +41,11 @@ public class Turret extends HwMotor {
         FULL_ROTATION = TICKS_LIMIT / RAD_LIMIT * 2 * Math.PI;
     }
 
-    public sealed interface MoveState permits MoveState.CloseAuto, MoveState.Deenergize, MoveState.MoveTo, MoveState.PresetState, MoveState.SwitchReset {
+    public sealed interface MoveState permits MoveState.AutoTrack, MoveState.CloseAuto, MoveState.Deenergize, MoveState.FarPreset, MoveState.MoveTo, MoveState.PresetState, MoveState.SwitchReset, MoveState.Track {
         Deenergize DEENERGIZE = new Deenergize();
         CloseAuto CLOSE_AUTO = new CloseAuto();
         SwitchReset SWITCH_RESET = new SwitchReset();
+        AutoTrack AUTO_TRACK = new AutoTrack();
 
         enum PresetState implements MoveState {
             LEFT_135,
@@ -64,6 +74,8 @@ public class Turret extends HwMotor {
         int target();
 
         record MoveTo(int target) implements MoveState {}
+        record
+        Track(int target) implements MoveState {}
         final class Deenergize implements MoveState {
             @Override
             public int target() {
@@ -81,6 +93,26 @@ public class Turret extends HwMotor {
             @Override
             public int target() {
                 return 10;
+            }
+        }
+
+        final class AutoTrack implements MoveState {
+            @Override
+            public int target() {
+                return 10;
+            }
+        }
+
+        final class FarPreset implements MoveState {
+            private final int target;
+
+            public FarPreset(AllianceColor allianceColor) {
+                target = allianceColor == AllianceColor.Red ? FAR_PRESET_RED : FAR_PRESET_BLUE;
+            }
+
+            @Override
+            public int target() {
+                return target;
             }
         }
     }
@@ -110,15 +142,25 @@ public class Turret extends HwMotor {
     public static double I_RESET;
     public static double D_RESET;
     public static double F_RESET;
+    public static double TRACK_D;
     public static int PIDF_SWITCH;
     public static double MS_PER_REVOLUTION = 2000;
+    public static int FAR_PRESET_RED = -173;
+    public static int FAR_PRESET_BLUE = 150;
+    public static int LEGAL_FAR_BLUE = 400;
+    public static int ILLEGAL_FAR_BLUE = 680;
+    public static int ILLEGAL_FAR_RED = -720;
+    public static int LEGAL_FAR_RED = 380;
+
     public static int ticksPerRotation() {
         return (int) (TICKS_LIMIT * (Math.PI * 2 / RAD_LIMIT));
     }
+
     public final HwDigitalDevice limitSwitch;
     private final PIDFController controller;
     private final PIDFController secondaryController;
     private final PIDFController resetController;
+    private final PIDFController trackController;
     private MoveState moveState = MoveState.PresetState.REST;
     private final AtomicInteger distance = new AtomicInteger(0);
     private boolean useSecondary = false;
@@ -126,6 +168,7 @@ public class Turret extends HwMotor {
     private int lastLoggedTarget = Integer.MIN_VALUE;
     private MoveState lastLoggedMoveState;
     private long lastTargetLogNanos;
+    private DoubleSupplier limelightError;
 
     public Turret(HardwareMap hardwareMap, Encoder encoder) {
         super(hardwareMap, false, "turret");
@@ -133,12 +176,16 @@ public class Turret extends HwMotor {
         controller = new PIDFController(new PIDFCoefficients(P, I, D, F));
         secondaryController = new PIDFController(new PIDFCoefficients(P_SECONDARY, I_SECONDARY, D_SECONDARY, F_SECONDARY));
         resetController = new PIDFController(new PIDFCoefficients(P_RESET, I_RESET, D_RESET, F_RESET));
+        trackController = new PIDFController(new PIDFCoefficients(P, I, TRACK_D, F));
         limitSwitch = new HwDigitalDevice(hardwareMap, "turret_switch").flip();
         updateTargetPosition(0);
         resetController.setTargetPosition(0);
         setDirection(DcMotorSimple.Direction.FORWARD);
-        setEncoderBase(getEncoder().getPosition());
-
+        if (Globals.isTeleOp && Globals.turretStartPos > 1)
+            setEncoderBase(getEncoder().getPosition() - Globals.turretStartPos);
+        else
+            setEncoderBase(getEncoder().getPosition());
+        Globals.turretStartPos = 0;
         invalidateCache();
     }
 
@@ -176,6 +223,7 @@ public class Turret extends HwMotor {
         distance.set(Math.abs(target - getTargetPosition()));
         controller.setTargetPosition(target);
         secondaryController.setTargetPosition(target);
+        trackController.setTargetPosition(target);
         useSecondary = false;
     }
 
@@ -243,6 +291,7 @@ public class Turret extends HwMotor {
                     "pos", getPosition());
         }
         lastLimitState = limitState;
+        trackController.setCoefficients(new PIDFCoefficients(P, I, TRACK_D, F));
 
         if (deenergized()) return;
 
@@ -250,6 +299,19 @@ public class Turret extends HwMotor {
 
         if (moveState instanceof MoveState.SwitchReset) {
             setPower(updateController(resetController, error));
+            return;
+        }
+
+        if (moveState instanceof MoveState.Track) {
+            updateController(trackController, error);
+            setPower(trackController.run());
+            return;
+        }
+
+        if (moveState instanceof MoveState.AutoTrack) {
+            if (limelightError == null) throw new IllegalArgumentException("DIE");
+            updateController(trackController, getLimelightError());
+            setPower(trackController.run());
             return;
         }
 
@@ -330,5 +392,57 @@ public class Turret extends HwMotor {
         if (moveState instanceof MoveState.PresetState preset) return preset.name();
         if (moveState instanceof MoveState.MoveTo) return "MOVE_TO";
         return moveState.getClass().getSimpleName();
+    }
+
+    @Override
+    public Speaker<String> test() {
+        setPower(0.3);
+        Integrator current = new Integrator();
+        Integrator encoder = new Integrator();
+        double nominalCurrent = get().getCurrent(CurrentUnit.AMPS);
+        return new Speaker<>(c ->
+                new Sequential(
+                        new Race(
+                                new Wait(2000),
+                                new Infinite(() -> {
+                                    current.update(Math.abs(nominalCurrent - get().getCurrent(CurrentUnit.AMPS)));
+                                    encoder.update(Math.abs(getEncoder().getVelocity()));
+                                }),
+                                new Loop(
+                                        new Sequential(
+                                                new Wait(500),
+                                                new Instant(() -> setPower(-0.3))
+                                        ),
+                                        4
+                                )
+                        ),
+                        new Instant(() -> setPower(0)),
+                        Channels.send(c, () -> {
+                            if (current.getIntegral() > 0.08)
+                                return this + "MOTOR TEST PASS: Current draw normal.";
+                            else
+                                return this + "MOTOR TEST FAIL: Current draw too low!";
+                        }),
+                        Channels.send(c, () -> {
+                            if (encoder.getIntegral() > 15)
+                                return this + "MOTOR TEST PASS: Encoder counts normal.";
+                            else
+                                return this + "MOTOR TEST FAIL: Encoder counts too low!";
+                        })
+                )
+        );
+    }
+
+    public void setLimelightError(DoubleSupplier limelightError) {
+        this.limelightError = limelightError;
+    }
+
+    private double getLimelightError() {
+        double angularError = limelightError.getAsDouble();
+        return FULL_ROTATION / Math.PI / 2 * angularError;
+    }
+
+    public void farPreset() {
+        move(new MoveState.FarPreset(Globals.allianceColor));
     }
 }

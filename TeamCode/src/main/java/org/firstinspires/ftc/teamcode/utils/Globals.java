@@ -29,6 +29,7 @@ public final class Globals {
     public static RobotConstants constants = new RobotConstants();
     public static AllianceColor allianceColor = AllianceColor.None;
     public static boolean isTeleOp = true;
+    public static int turretStartPos;
 
     /**
      * Initializes the telemetry instance.
@@ -64,10 +65,10 @@ public final class Globals {
             Turret.UNSORTED_SET_4 *= -1;
             Turret.UNSORTED_SET_5 *= -1;
         } else if (allianceColor.equals(AllianceColor.Blue)) {
-            Turret.AUTO_PRELOADS = Turret.AUTO_PRELOADS >= 0? Turret.AUTO_PRELOADS : Math.abs(Turret.AUTO_PRELOADS + 25);
-            Turret.AUTO_SET_1 = Math.abs(Turret.AUTO_SET_1);
-            Turret.AUTO_SET_2 = Math.abs(Turret.AUTO_SET_2);
-            Turret.AUTO_SET_3 = Math.abs(Turret.AUTO_SET_3);
+            Turret.AUTO_PRELOADS = Math.abs(Turret.AUTO_PRELOADS);
+            Turret.AUTO_SET_1 = Turret.AUTO_SET_1 > 0 ? Turret.AUTO_SET_1 : Math.abs(Turret.AUTO_SET_1) - 30;
+            Turret.AUTO_SET_2 = Turret.AUTO_SET_2 > 0 ? Turret.AUTO_SET_2 :Math.abs(Turret.AUTO_SET_2) - 30;
+            Turret.AUTO_SET_3 = Turret.AUTO_SET_3 > 0 ? Turret.AUTO_SET_3 :Math.abs(Turret.AUTO_SET_3) - 30;
             Turret.FAR_AUTO = Math.abs(Turret.FAR_AUTO);
             Turret.UNSORTED_FINAL = Math.abs(Turret.UNSORTED_FINAL);
             Turret.UNSORTED_GATE = Math.abs(Turret.UNSORTED_GATE);

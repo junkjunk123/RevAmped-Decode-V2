@@ -27,8 +27,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
-import org.firstinspires.ftc.teamcode.opmodes.CloseAuto;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
@@ -38,7 +38,6 @@ import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -51,7 +50,6 @@ public class Robot {
     public final Table table;
     public final Hood hood;
     public final Popper popper;
-    //public final Octocanum octocanum;
     public final IntakeMotor intakeMotor;
     public final ColorManager intakeColor;
     public final IntakeDistance intakeDistance;
@@ -135,9 +133,9 @@ public class Robot {
 
     public void setRobotState(Message message) {
         if (message instanceof DriveMessage driveState)
-            CycleState.DRIVE_TO_SHOOT.INSTANCE = driveState.driveState;
+            CycleState.DRIVE_TO_SHOOT.INSTANCE = driveState.driveState();
         else if (message instanceof IntakeMessage intakeMessage)
-            CycleState.INTAKE.INSTANCE = intakeMessage.intakeState;
+            CycleState.INTAKE.INSTANCE = intakeMessage.intakeState();
         else if (message instanceof CycleState.Intake)
             CycleState.INTAKE.INSTANCE = RobotStateHandler.IntakeState.INTAKING;
         robotState = message.cycleState();
@@ -159,8 +157,9 @@ public class Robot {
 
     public ICommand shootAll() {
         return new Sequential(
+                new WaitUntil(() -> drivetrain.canShoot),
                 new Instant(intakeMotor::intake),
-                table.fullRotation()
+                table.shoot()
         );
     }
 
@@ -170,6 +169,7 @@ public class Robot {
                 () -> delay.get() < 10,
                 shootAll(),
                 new Sequential(
+                        new WaitUntil(() -> drivetrain.canShoot),
                         new Instant(() -> {
                             intakeMotor.intakeSlow();
                             shootSequence.set(table.getState().getShootStates());
@@ -206,21 +206,7 @@ public class Robot {
         AtomicReference<float[]> shootSequence = new AtomicReference<>();
         return new Conditional(
                 () -> delay.get() < 10,
-                new Sequential(
-                        new Instant(intakeMotor::intake),
-                        new Lazy(() -> {
-                            float pos = switch (table.getState()) {
-                                case BALL0 -> Table.BALL0_END;
-                                case BALL1 -> Table.BALL1_END;
-                                case BALL2 -> Table.BALL2_END;
-                            };
-
-                            return new Sequential(
-                                new Instant(() -> table.setPosition(pos)),
-                                new Wait(1250)
-                            );
-                        })
-                ),
+                autoFastShoot(),
                 new Sequential(
                         new Instant(() -> {
                             intakeMotor.intake();
@@ -244,7 +230,8 @@ public class Robot {
     public ICommand resetShooter() {
         return new Parallel(
                 new Lazy(() -> {
-                    if (TrackingThread.trackTurret) return turret.resetTurret();
+                    if (TrackingThread.trackTurret || turret.getMoveState() instanceof Turret.MoveState.FarPreset)
+                        return turret.resetTurret();
                     else return Commands.NOOP;
                 }),
                 new Instant(() -> {
@@ -256,6 +243,7 @@ public class Robot {
 
     public ICommand resetAfterShooting() {
         return new Parallel(
+                new Instant(drivetrain::stopHoldPose),
                 resetShooter(),
                 resetTableTeleOp()
         );
@@ -310,9 +298,20 @@ public class Robot {
         flywheel.near();
     }
 
-    public void shootFar() {
-        hood.far();
-        flywheel.far();
+    public void shootCorner() {
+        hood.corner();
+        flywheel.corner();
+    }
+
+    public ICommand shootFar() {
+        return new Sequential(
+                new Instant(() -> {
+                    hood.far();
+                    flywheel.far();
+                }),
+                turret.resetTurret(),
+                new Instant(() -> turret.setTargetPosition(Globals.allianceColor == AllianceColor.Red ? Turret.FAR_PRESET_RED : Turret.FAR_PRESET_BLUE))
+        );
     }
 
     public void shootMedium() {

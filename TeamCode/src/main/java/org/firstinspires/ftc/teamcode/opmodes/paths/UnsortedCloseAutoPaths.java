@@ -1,17 +1,16 @@
 package org.firstinspires.ftc.teamcode.opmodes.paths;
+
 import androidx.annotation.NonNull;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.PathChain;
+
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
-import org.firstinspires.ftc.teamcode.utils.AllianceColor;
-import org.opencv.core.Mat;
 
 import java.util.List;
 import java.util.function.Function;
@@ -26,10 +25,10 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(12, 59, Math.PI);
     public static ColoredDecodePose INTAKE_1_CONTROL = new ColoredDecodePose(45,59, Math.PI);
     public static ColoredDecodePose GATE_CONTROL = new ColoredDecodePose(56, 58);
-    public static ColoredDecodePose GATE = new ColoredDecodePose(14, 59.5, Math.toRadians(160));
-    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(14, 59.5, Math.toRadians(160));
-    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(14, 60, Math.toRadians(160));
-    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(14.5, 60, Math.toRadians(160));
+    public static ColoredDecodePose GATE = new ColoredDecodePose(13, 60, Math.toRadians(150));
+    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(13, 60, Math.toRadians(150));
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(13, 60.5, Math.toRadians(150));
+    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(13.5, 60.5, Math.toRadians(150));
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD_CONTROL = new ColoredDecodePose(52, 84, Math.PI);
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(18, 84, Math.PI);
     public static ColoredDecodePose PARK_CONTROL = new ColoredDecodePose(30.5, 84);
@@ -85,7 +84,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
 
         return List.of(shootPreloads, intakeFirstSet, shootFirstSet, intakeToGate.apply(0), shootFromGate.get(),
                 intakeToGate.apply(1), shootFromGate.get(), intakeToGate.apply(2), shootFromGate.get(),
-                intakeToGate.apply(3), shootFromGate.get(), intakeFinalPresets, shootFinalPresets);
+                intakeFinalPresets, shootFinalPresets);
     }
 
     @NonNull

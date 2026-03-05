@@ -3,16 +3,17 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 import static org.firstinspires.ftc.teamcode.mechanisms.intake.Table.FULL_REVOLUTION;
 import static org.firstinspires.ftc.teamcode.mechanisms.intake.Table.MS_PER_REVOLUTION;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 
+@Disabled
 @TeleOp
 public class TableEncoderTest extends OpMode {
     private Table table;

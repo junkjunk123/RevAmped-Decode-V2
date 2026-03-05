@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.hardware.dfrobot.HuskyLens.Block;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
@@ -11,6 +13,8 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.function.ToDoubleFunction;
 
+@Disabled
+@TeleOp
 public class HuskyLensTest extends OpMode {
     private HuskyLens camera;
 

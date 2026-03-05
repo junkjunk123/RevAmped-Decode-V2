@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
+
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -47,6 +48,14 @@ public class Popper extends HwServo {
         return new Sequential(
                 new Instant(() -> setStateAndLog(BLOCK, PopperState.POP, "BLOCK")),
                 new Wait(250),
+                new Instant(() -> stateMachine.setCurrentState(PopperState.POP))
+        );
+    }
+
+    public ICommand blockFromPop() {
+        return new Sequential(
+                new Instant(() -> setPosition(BLOCK)),
+                new Wait(150),
                 new Instant(() -> stateMachine.setCurrentState(PopperState.POP))
         );
     }

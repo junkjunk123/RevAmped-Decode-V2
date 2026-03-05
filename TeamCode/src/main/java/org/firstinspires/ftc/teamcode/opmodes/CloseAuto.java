@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPaths;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Functional;
@@ -34,12 +35,14 @@ public class CloseAuto extends OpModeCommand {
     private ElapsedTime overallTimer;
     private final ElapsedTime telemetryTimer = new ElapsedTime();
     private String currentStep = "INIT";
+    private static boolean testSlowShoot = false;
+    protected boolean shouldPush = true;
 
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap, new CloseAutoPaths());
         DecodeLimelight limelight = new DecodeLimelight(hardwareMap);
-        robot.tableCompartments.populate(new ArtifactColor[]{ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE});
+        robot.tableCompartments.populate(ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE);
         overallTimer = new ElapsedTime();
         robot.turret.setTargetPosition(Turret.UNSORTED_AUTO_PRELOADS);
 
@@ -47,8 +50,7 @@ public class CloseAuto extends OpModeCommand {
             new Infinite(() -> {
                 robot.update();
                 Pose pose = robot.drivetrain.follower.getPose();
-                if (pose.distanceFrom(new Pose()) > 0.01)
-                    Drivetrain.startPose = robot.drivetrain.follower.getPose();
+                if (pose.distanceFrom(new Pose()) > 0.01) Drivetrain.startPose = robot.drivetrain.follower.getPose();
             }),
             new Sequential(
                     new WaitUntil(() -> !opModeInInit()),
@@ -60,15 +62,13 @@ public class CloseAuto extends OpModeCommand {
                         robot.intakeMotor.intakeSlow();
                         limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
                     }),
-                    step("PRELOAD_DRIVE_AND_DETECT", new Sequential(
+                    step("PRELOAD_DRIVE_AND_DETECT", new Race(
                             robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
-                            new Race(
-                                    robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
-                                    new Sequential(
-                                            new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null),
-                                            new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
-                                            new Infinite(() -> {})
-                                    )
+                            new Sequential(
+                                    !testSlowShoot ? new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null) :
+                                            new Instant(() -> Globals.randomizationState = RandomizationState.PPG),
+                                    new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
+                                    new Infinite(() -> {})
                             )
                     )),
                     step("DETECTION_FALLBACK", new Lazy(() -> {
@@ -89,7 +89,7 @@ public class CloseAuto extends OpModeCommand {
                             return robot.sortAndShootAuto();
                         return new Sequential(
                                 robot.popper.pop(),
-                                robot.shootAll()
+                                robot.autoFastShoot()
                         );
                     })),
                     step("INTAKE_0", intake(0)),
@@ -160,12 +160,21 @@ public class CloseAuto extends OpModeCommand {
                                     robot.flywheel.stop();
                                 })
                         ),
-                        robot.resetTable(),
+                        iteration == 2 ? robot.resetTable() : resetTableBlock(),
                         iteration == 0 ? new Sequential(
                                 new Wait(600),
                                 robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                         ) : robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
                 )
+        );
+    }
+
+    private ICommand resetTableBlock() {
+        return new Sequential(
+                //new Instant(robot.intakeMotor::stop),
+                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
+                new Wait(650),
+                robot.popper.blockFromPop()
         );
     }
 
@@ -180,7 +189,7 @@ public class CloseAuto extends OpModeCommand {
 
         ArtifactColor[] intookColors = switch (iteration) {
             case 0 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE};
-            case 1 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.PURPLE, ArtifactColor.GREEN};
+            case 1 -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
             default -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
         };
 
@@ -189,6 +198,7 @@ public class CloseAuto extends OpModeCommand {
                 new Instant(() -> isSorting.set(iteration != 2 && Globals.randomizationState != null)),
                 new Parallel(
                         robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), driveTimeout),
+                        iteration != 2 ? robot.popper.neutral() : Commands.NOOP,
                         new Conditional(
                                 () -> iteration == 0,
                                 Commands.NOOP,
@@ -227,7 +237,18 @@ public class CloseAuto extends OpModeCommand {
 
     public ICommand park() {
         return new Parallel(
-                robot.drivetrain.followNext(d -> d.velocityCondition(4)),
+                new Sequential(
+                        new Conditional(
+                                () -> !shouldPush || overallTimer.seconds() > 29,
+                                robot.drivetrain.followLast(d -> d.velocityCondition(4)),
+                                robot.drivetrain.followNext(d -> d.velocityCondition(4))
+                        ),
+                        new Conditional(
+                                () -> !shouldPush || overallTimer.seconds() > 29,
+                                robot.drivetrain.followLast(d -> d.velocityCondition(4)),
+                                robot.drivetrain.followNext(d -> d.velocityCondition(4))
+                        )
+                ),
                 new Instant(() -> {
                     robot.flywheel.stop();
                     robot.intakeMotor.stop();

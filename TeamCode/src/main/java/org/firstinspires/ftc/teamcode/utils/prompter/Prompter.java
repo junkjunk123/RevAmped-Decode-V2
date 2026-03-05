@@ -87,7 +87,7 @@ public class Prompter {
 
         if (finished) {
             isCompleted = true;
-            completeFunc.run();
+            if (completeFunc != null) completeFunc.run();
 
             if (finalMessageSupplier != null)
                 finalMessage = finalMessageSupplier.get();

@@ -54,7 +54,7 @@ public class TableCompartmentManager {
         return (curGreenIndex - targetGreenIndex + 3) % 3;
     }
 
-    public void populate(ArtifactColor[] colors) {
+    public void populate(ArtifactColor... colors) {
         compartmentColors[0] = colors[0];
         compartmentColors[1] = colors[1];
         compartmentColors[2] = colors[2];

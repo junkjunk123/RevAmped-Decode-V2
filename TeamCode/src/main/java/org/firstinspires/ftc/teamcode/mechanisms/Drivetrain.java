@@ -46,9 +46,11 @@ public class Drivetrain {
     public static float MAGNITUDE_ZERO = 0.15f;
     public static float ANGLE_ZERO = (float) Math.tan(Math.toRadians(15));
     public static float MAX_POWER = 1.0f;
+    public boolean canShoot = true;
+    private boolean holdingPose;
 
     public Drivetrain(HardwareMap hardwareMap) {
-        follower = Constants.createFollower(hardwareMap);
+        follower = Constants.createFollowerTeleOp(hardwareMap);
         follower.setStartingPose(startPose);
         motors = ((Mecanum) follower.drivetrain).getMotors();
         leftFront = motors.get(0);
@@ -101,6 +103,28 @@ public class Drivetrain {
             path.setConstantHeadingInterpolation(follower.getHeading());
             follower.followPath(path);
         }
+    }
+
+    public ICommand holdPose() {
+        return new Sequential(
+                new Instant(() -> {
+                    follower.update();
+                    BezierPoint point = new BezierPoint(follower.getPose());
+                    Path path = new Path(point);
+                    path.setConstantHeadingInterpolation(follower.getHeading());
+                    follower.followPath(path);
+                    canShoot = false;
+                    holdingPose = true;
+                }),
+                new Wait(350),
+                new Instant(() -> canShoot = true)
+        );
+    }
+
+    public void stopHoldPose() {
+        holdingPose = false;
+        follower.startTeleOpDrive();
+        follower.update();
     }
 
     public void skip(int i) {
@@ -294,8 +318,7 @@ public class Drivetrain {
     }
 
     public void update() {
-        if (!Globals.isTeleOp)
-            follower.update();
+        if (!Globals.isTeleOp || holdingPose) follower.update();
     }
 
     public void updateLocalization() {
@@ -330,10 +353,15 @@ public class Drivetrain {
     public void setPower(double power) {
         apply(m -> m.setPower(power));
     }
+
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior){
         leftFront.setZeroPowerBehavior(behavior);
         leftRear.setZeroPowerBehavior(behavior);
         rightFront.setZeroPowerBehavior(behavior);
         rightRear.setZeroPowerBehavior(behavior);
+    }
+
+    public boolean isHoldingPose() {
+        return holdingPose;
     }
 }

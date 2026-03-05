@@ -8,14 +8,14 @@ import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
 
 @Config
 public class TrackingThread {
-    private final SimpleShooterMath shooterMath;
+    public final SimpleShooterMath shooterMath;
     private final Turret turret;
     private final Hood hood;
     private final Flywheel flywheel;
     private final Localizer pinpoint;
     private final boolean isTeleOp;
-    public static boolean trackHood = true;
-    public static boolean trackTurret = true;
+    public static boolean trackHood = false;
+    public static boolean trackTurret = false;
 
     public TrackingThread(Follower pinpoint, Turret turret, Flywheel flywheel, Hood hood, boolean isTeleOp) {
         this.hood = hood;
@@ -30,8 +30,8 @@ public class TrackingThread {
         if (!trackHood && !trackTurret) return;
         if (isTeleOp) pinpoint.update();
         shooterMath.update(trackTurret, trackHood);
-        hood.updateTracking(shooterMath.getHoodPos());
-        turret.setTargetPosition(shooterMath.getTurretPos());
-        flywheel.setVelocity(shooterMath.getFlywheelVelocity());
+        if (trackHood) hood.updateTracking(shooterMath.getHoodPos());
+        if (trackTurret) turret.move(new Turret.MoveState.Track(shooterMath.getTurretPos()));
+        if (trackHood) flywheel.setVelocity(shooterMath.getFlywheelVelocity());
     }
 }

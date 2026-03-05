@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.math.projectile;
+
 import static org.firstinspires.ftc.teamcode.math.calc.Angle.normalizeAnglePi;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.BALL_LAUNCH_MS;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueX;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueY;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redX;
@@ -9,18 +9,22 @@ import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.velocit
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.RAD_LIMIT;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.TICKS_LIMIT;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
-import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
+
+import java.util.Arrays;
 
 import smile.interpolation.BilinearInterpolation;
 import smile.interpolation.Interpolation2D;
@@ -35,30 +39,43 @@ public class SimpleShooterMath {
     private final Interpolation2D velocityInterpolation;
     private final Interpolation2D hoodInterpolation;
     private final Interpolation2D airTime;
-    private static final double[] DIST_X = {24.0, 60.0};
-    private static final double[] DIST_Y = {15.0, 39.0, 63.0};
-    public static double HOOD_0_DEG = 28.9;
+    private static final double[] DIST_Y = {24.0, 60.0, 96.0};
+    private static final double[] DIST_X = {15.0, 39.0, 63.0};
+    public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
+
+    public static ColoredDecodePose REFERENCE_POSE;
+    public static ColoredDecodePose REFERENCE_GOAL;
 
     public SimpleShooterMath(Localizer pinpoint) {
         this.pinpoint = pinpoint;
         APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
         APRIL_TAG_POSE_RED = new Pose(redX, redY);
 
-        double[][] hoodSine = {
-                { 0.4925446801631296, 0.5199946813957746, 0.6379734257885634 },
-                { 0.6019030541429722, 0.6297664634859653, 0.6434048835870022 }
+        double[][] hoodPos = {
+                {0.02, 0.3, 0.45},
+                {0.2, 0.35, 0.5},
+                {0.35, 0.38, 0.53}
         };
 
         double[][] flywheelVel = {
-                { 567.0, 586.8, 749.25 },
-                { 688.5, 708.5, 769.5 }
+                { 590, 700, 865 },
+                { 640, 720, 920 },
+                { 720, 780, 925}
         };
 
         double[][] airTime = {
                 {0, 0, 0},
+                {0, 0, 0},
                 {0, 0, 0}
         };
+
+        double[][] hoodSine = Arrays.stream(hoodPos)
+                .map(row -> Arrays.stream(row)
+                        .map(this::hoodPosToSin)
+                        .toArray()
+                )
+                .toArray(double[][]::new);
 
         velocityInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, flywheelVel);
         hoodInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, hoodSine);
@@ -85,15 +102,28 @@ public class SimpleShooterMath {
             if (trackHood) {
                 double xDist = Math.abs(displacement.getXComponent());
                 double yDist = Math.abs(displacement.getYComponent());
-                flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
+                flywheelVelocity = velocityInterpolation.interpolate(xDist-10, yDist-10);
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Flywheel.MAX_VELOCITY);
-                double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
+                double hoodSine = hoodInterpolation.interpolate(xDist-10, yDist-10);
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
                 hoodPos = Range.clip(hoodPos, 0, 1);
             }
         }
+    }
+
+    public int SOTM() {
+        pinpoint.update();
+        Vector target = REFERENCE_GOAL.getPose().getAsVector();
+
+        for (int i = 0; i < 10; i++) {
+            Vector offset = target.minus(REFERENCE_POSE.getPose().getAsVector());
+            target = target.minus(pinpoint.getVelocityVector().times(airTime.interpolate(offset.getXComponent(),
+                    offset.getYComponent())));
+        }
+        double deltaAngle = angleTurretTo(target.minus(REFERENCE_POSE.getPose().getAsVector()));
+        return (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
     }
 
     public void reset(int turretPos, float hoodPos) {
@@ -148,5 +178,10 @@ public class SimpleShooterMath {
 
     public double getFlywheelVelocity() {
         return flywheelVelocity;
+    }
+
+    private double hoodPosToSin(double pos) {
+        double hoodDeg = pos * HOOD_POS_TO_DEG_SLOPE + HOOD_0_DEG;
+        return Math.sin(Math.toRadians(hoodDeg));
     }
 }

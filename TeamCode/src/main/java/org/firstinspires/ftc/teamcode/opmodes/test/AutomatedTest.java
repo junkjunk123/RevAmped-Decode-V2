@@ -2,14 +2,16 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
-import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channel;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 
+//@Disabled
+@TeleOp
 public class AutomatedTest extends OpModeCommand {
     @Override
     public void initialize() {
