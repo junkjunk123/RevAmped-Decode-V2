@@ -104,11 +104,6 @@ public final class TeleOpStateHandler {
                     "from", t.from().toString(),
                     "to", t.to().toString());
             abortCounter.incrementAndGet();
-            if (queued != null) {
-                DecodeLogger.get().debug("state", "STATE_TRANSITION_QUEUE_CLEARED",
-                        "queuedTo", queued.next().toString());
-                queued = null;
-            }
         }
     }
 

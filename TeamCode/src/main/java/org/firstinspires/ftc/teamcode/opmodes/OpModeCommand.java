@@ -17,99 +17,67 @@ public abstract class OpModeCommand extends LinearOpMode {
         DecodeLogger.init(telemetry, this.getClass().getSimpleName(), logProfile);
         DecodeLogger logger = DecodeLogger.get();
         boolean stopLogged = false;
-        try {
-            Globals.init(telemetry);
-            logger.setPhase("init");
-            logger.info("opmode", "OPMODE_INIT",
-                    "opmode", this.getClass().getSimpleName(),
-                    "alliance", Globals.allianceColor.name(),
-                    "runId", logger.runId(),
-                    "logProfile", logProfile.name());
-            initialize();
 
-            while (opModeInInit()) {
-                telemetry.addData("loggingProfile", logProfile.name());
-                initializeLoop();
-                telemetry.update();
-                logger.flush();
+        Globals.init(telemetry);
+        logger.setPhase("init");
+        logger.info("opmode", "OPMODE_INIT",
+                "opmode", this.getClass().getSimpleName(),
+                "alliance", Globals.allianceColor.name(),
+                "runId", logger.runId(),
+                "logProfile", logProfile.name());
+        initialize();
+
+        while (opModeInInit()) {
+            telemetry.addData("loggingProfile", logProfile.name());
+            initializeLoop();
+            telemetry.update();
+            logger.flush();
+        }
+
+        waitForStart();
+
+        logger.markStart();
+        logger.setPhase("start");
+        logger.info("opmode", "OPMODE_START", "opmode", this.getClass().getSimpleName());
+        onStart();
+
+        ElapsedTime loopTimer = new ElapsedTime();
+        int loopSamplesSinceLog = 0;
+        int loopDebugPeriod = logProfile.loopMsSampleEveryLoops();
+        logger.setPhase("loop");
+        while (opModeIsActive()) {
+            loopTimer.reset();
+            execute();
+            Scheduler.getInstance().execute();
+
+            double loopMs = loopTimer.milliseconds();
+            if (loopDebugPeriod > 0 && ++loopSamplesSinceLog >= loopDebugPeriod) {
+                logger.debug("opmode", "LOOP_MS",
+                        "ms", loopMs,
+                        "profile", logProfile.name());
+                loopSamplesSinceLog = 0;
             }
+            if (loopMs > 50) {
+                logger.warn("opmode", "LOOP_SLOW", "ms", loopMs, "threshold", 50);
+            }
+            logger.flush();
 
-            waitForStart();
             if (isStopRequested()) {
                 logger.setPhase("stop");
-                logger.info("opmode", "OPMODE_STOP",
-                        "matchTimeSec", logger.matchTimeSec(),
-                        "beforeStart", true);
-                stopLogged = true;
-                return;
-            }
-
-            logger.markStart();
-            logger.setPhase("start");
-            logger.info("opmode", "OPMODE_START", "opmode", this.getClass().getSimpleName());
-            onStart();
-
-            ElapsedTime loopTimer = new ElapsedTime();
-            int loopSamplesSinceLog = 0;
-            int loopDebugPeriod = logProfile.loopMsSampleEveryLoops();
-            logger.setPhase("loop");
-            while (opModeIsActive()) {
-                loopTimer.reset();
-                try {
-                    execute();
-                    Scheduler.getInstance().execute();
-                } catch (Exception e) {
-                    logger.error("opmode", "OPMODE_EXCEPTION",
-                            "exception", e.getClass().getSimpleName(),
-                            "message", e.getMessage());
-                    logger.forceFlush();
-                    throw e;
-                }
-
-                double loopMs = loopTimer.milliseconds();
-                if (loopDebugPeriod > 0 && ++loopSamplesSinceLog >= loopDebugPeriod) {
-                    logger.debug("opmode", "LOOP_MS",
-                            "ms", loopMs,
-                            "profile", logProfile.name());
-                    loopSamplesSinceLog = 0;
-                }
-                if (loopMs > 50) {
-                    logger.warn("opmode", "LOOP_SLOW", "ms", loopMs, "threshold", 50);
-                }
-                logger.flush();
-
-                if (isStopRequested()) {
-                    logger.setPhase("stop");
-                    logger.info("opmode", "OPMODE_STOP", "matchTimeSec", logger.matchTimeSec());
-                    logger.forceFlush();
-                    stopLogged = true;
-                    break;
-                }
-            }
-        } finally {
-            if (!stopLogged) {
-                logger.setPhase("stop");
                 logger.info("opmode", "OPMODE_STOP", "matchTimeSec", logger.matchTimeSec());
-            }
-            try {
+                logger.forceFlush();
+                stopLogged = true;
                 reset();
-            } catch (Exception e) {
-                logger.error("opmode", "OPMODE_EXCEPTION",
-                        "hook", "reset",
-                        "exception", e.getClass().getSimpleName(),
-                        "message", e.getMessage());
-            }
-            try {
                 end();
-            } catch (Exception e) {
-                logger.error("opmode", "OPMODE_EXCEPTION",
-                        "hook", "end",
-                        "exception", e.getClass().getSimpleName(),
-                        "message", e.getMessage());
             }
-            logger.forceFlush();
-            logger.close();
         }
+
+        if (!stopLogged) {
+            logger.setPhase("stop");
+            logger.info("opmode", "OPMODE_STOP", "matchTimeSec", logger.matchTimeSec());
+            logger.forceFlush();
+        }
+        logger.close();
     }
 
     /**

@@ -20,13 +20,11 @@ import org.firstinspires.ftc.teamcode.utils.logging.DecodeLogger;
 import java.util.List;
 
 public class DecodeLimelight implements HwDevice {
-    private static final long STALE_THRESHOLD_MS = 750;
     public final Limelight3A limelight;
     private final String id;
     private LLResult latestResult;
-    private Pose detectionResult = new Pose();
-    private long lastDetectionTimeNanos;
-    private long lastStaleWarningNanos;
+    private Pose detectionResult;
+    private long lastDetectionTime = 0;
     private boolean lastShootingTargetVisible;
 
     public enum Pipeline {
@@ -60,48 +58,28 @@ public class DecodeLimelight implements HwDevice {
     }
 
     public void setCurrentPipeline(Pipeline pipeline) {
-        Pipeline next = pipeline == null ? Pipeline.NONE : pipeline;
-        if (currentPipeline == next) return;
-
-        latestResult = null;
-        detectionResult = new Pose();
-        lastDetectionTimeNanos = 0;
-        lastStaleWarningNanos = 0;
-        lastShootingTargetVisible = false;
-
-        if (next != Pipeline.NONE) {
-            limelight.pipelineSwitch(next.getPipeline());
+        if (pipeline != Pipeline.NONE) {
+            limelight.pipelineSwitch(pipeline.getPipeline());
             limelight.start();
-        } else limelight.pause();
-        currentPipeline = next;
-        DecodeLogger.get().info("vision", "LIMELIGHT_PIPELINE_SET", "pipeline", next.name());
+        }
+        else limelight.pause();
+        currentPipeline = pipeline;
+        lastShootingTargetVisible = false;
+        DecodeLogger.get().info("vision", "LIMELIGHT_PIPELINE_SET", "pipeline", String.valueOf(pipeline));
     }
 
     private void computeLatestResult() {
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
             latestResult = result;
-            lastDetectionTimeNanos = System.nanoTime();
-        } else {
-            latestResult = null;
+            lastDetectionTime = result.getControlHubTimeStampNanos();
         }
     }
 
     public void update() {
         if (currentPipeline == Pipeline.NONE) return;
         computeLatestResult();
-        warnIfStale();
-        if (latestResult == null) {
-            if (currentPipeline == Pipeline.SHOOTING_ALIGNMENT && lastShootingTargetVisible) {
-                detectionResult = new Pose();
-                DecodeLogger.get().info("vision", "LIMELIGHT_DETECTION",
-                        "detected", false,
-                        "pipeline", currentPipeline.name(),
-                        "tagId", Globals.allianceColor.getTagID());
-                lastShootingTargetVisible = false;
-            }
-            return;
-        }
+        if (latestResult == null) return;
 
         switch (currentPipeline) {
             case OBELISK -> {
@@ -127,12 +105,10 @@ public class DecodeLimelight implements HwDevice {
                 double tagID = Globals.allianceColor.getTagID();
                 List<LLResultTypes.FiducialResult> r = latestResult.getFiducialResults();
                 LLResultTypes.FiducialResult target = null;
-                if (r != null && !r.isEmpty()) {
-                    for (LLResultTypes.FiducialResult i : r) {
-                        if (i != null && i.getFiducialId() == tagID) {
-                            target = i;
-                            break;
-                        }
+                for (LLResultTypes.FiducialResult i : r) {
+                    if (i != null && i.getFiducialId() == tagID) {
+                        target = i;
+                        break;
                     }
                 }
 
@@ -169,7 +145,7 @@ public class DecodeLimelight implements HwDevice {
     }
 
     public long getLastDetectionTimeNanos() {
-        return lastDetectionTimeNanos;
+        return lastDetectionTime;
     }
 
     public Pipeline getCurrentPipeline() {
@@ -186,18 +162,5 @@ public class DecodeLimelight implements HwDevice {
                 .setStart(() -> setCurrentPipeline(Pipeline.OBELISK))
                 .setExecute(this::update)
                 .setDone(() -> getCurrentPipeline() != Pipeline.OBELISK);
-    }
-
-    private void warnIfStale() {
-        if (lastDetectionTimeNanos == 0) return;
-        long nowNanos = System.nanoTime();
-        long staleMs = (nowNanos - lastDetectionTimeNanos) / 1_000_000L;
-        if (staleMs > STALE_THRESHOLD_MS && nowNanos - lastStaleWarningNanos > STALE_THRESHOLD_MS * 1_000_000L) {
-            DecodeLogger.get().warn("vision", "SENSOR_STALE",
-                    "sensor", "limelight",
-                    "staleMs", staleMs,
-                    "pipeline", currentPipeline.name());
-            lastStaleWarningNanos = nowNanos;
-        }
     }
 }

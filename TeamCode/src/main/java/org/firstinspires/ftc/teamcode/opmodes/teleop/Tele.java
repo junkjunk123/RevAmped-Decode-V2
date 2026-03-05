@@ -76,7 +76,6 @@ public class Tele extends OpModeCommand {
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
-                new Instant(() -> Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState)),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                 tsh.runTransition(
                     new Sequential(
@@ -149,12 +148,6 @@ public class Tele extends OpModeCommand {
         ));
 
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
-
-        if (gamepad_1.right_trigger_button.isTrue())
-            robot.turret.finetune((int) (gamepad1.right_trigger * 20));
-
-        if (gamepad_1.left_trigger_button.isTrue())
-            robot.turret.finetune(-(int) (gamepad1.left_trigger * 20));
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(robot.flywheel::stop),

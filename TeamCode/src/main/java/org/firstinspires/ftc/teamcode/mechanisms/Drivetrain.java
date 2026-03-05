@@ -75,7 +75,7 @@ public class Drivetrain {
     }
 
     public void followNext() {
-        if (paths != null && !paths.isEmpty()) {
+        if (!paths.isEmpty()) {
             pathIndex++;
             DecodeLogger.get().info("drive", "AUTO_PATH_START",
                     "pathIndex", pathIndex,
@@ -90,7 +90,7 @@ public class Drivetrain {
     }
 
     public void followLast() {
-        if (paths != null && !paths.isEmpty()) {
+        if (!paths.isEmpty()) {
             pathIndex++;
             DecodeLogger.get().info("drive", "AUTO_PATH_START",
                     "pathIndex", pathIndex,
@@ -178,7 +178,6 @@ public class Drivetrain {
      * @return the distance to the target position
      */
     public double distanceFromTarget() {
-        if (follower.getCurrentPathChain() == null) return Double.POSITIVE_INFINITY;
         return follower.getPose().distanceFrom(follower.getCurrentPathChain().endPoint());
     }
 
@@ -334,8 +333,9 @@ public class Drivetrain {
     }
 
     private void logPathOutcome(boolean conditionMet) {
-        double distance = distanceFromTarget();
-        double tValue = follower.getCurrentPathChain() != null ? follower.getCurrentTValue() : -1;
+        boolean hasPath = follower.getCurrentPathChain() != null;
+        double distance = hasPath ? distanceFromTarget() : Double.POSITIVE_INFINITY;
+        double tValue = hasPath ? follower.getCurrentTValue() : -1;
         if (conditionMet || distance <= PATH_COMPLETE_DISTANCE_THRESHOLD) {
             DecodeLogger.get().info("drive", "AUTO_PATH_COMPLETE",
                     "pathIndex", pathIndex,

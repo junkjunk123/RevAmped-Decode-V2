@@ -132,11 +132,10 @@ public class Table extends HwServo {
         AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
         AtomicReadOnce<Double> accelTime = getAccelerationTime(true);
         return new Lazy(() -> {
-           RelativeState targetState = stateVal.read();
-           if (atPos(targetState.target())) return Commands.NOOP;
+           if (atPos(stateVal.read().target())) return Commands.NOOP;
            return stateHandler.runTransition(
                    new Sequential(
-                           new Instant(() -> setRelativeStateAndLog(targetState)),
+                           new Instant(() -> setRelativeStateAndLog(stateVal.read())),
                            useEncoder ? new Race(
                                    new Sequential(
                                            new Wait(accelTime.read()),
@@ -146,7 +145,7 @@ public class Table extends HwServo {
                            ) : new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION - 150)),
                            new Instant(() -> atRelativeState = true)
                    ),
-                   () -> targetState
+                   stateVal::read
            );
         });
     }

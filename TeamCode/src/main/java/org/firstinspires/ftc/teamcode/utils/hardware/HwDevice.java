@@ -9,12 +9,11 @@ public interface HwDevice {
         try {
             return hardwareMap.get(c, id);
         } catch (Exception e) {
-            String message = c.getSimpleName() + " '" + id + "' not found in hardware map";
             DecodeLogger.get().error("hw", "HW_INIT_FAIL",
                     "deviceType", c.getSimpleName(),
                     "id", id,
                     "exception", e.getMessage());
-            throw new IllegalArgumentException(message, e);
+            throw new IllegalArgumentException("motor " + id + " not found");
         }
     }
 

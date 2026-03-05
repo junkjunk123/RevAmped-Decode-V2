@@ -110,7 +110,6 @@ public class Flywheel extends HwMotor {
     public void stop() {
         state = FlywheelState.STOPPED;
         atSpeedLogged = false;
-        targetVelocity = 0;
         logTargetIfNeeded(0.0, FlywheelState.STOPPED.name());
         setPower(0);
     }
@@ -119,7 +118,6 @@ public class Flywheel extends HwMotor {
         boolean changed = state != FlywheelState.NO_PID || Math.abs(getPower() - power) > 0.01;
         state = FlywheelState.NO_PID;
         atSpeedLogged = false;
-        targetVelocity = 0;
         setPower(power);
         if (changed) {
             DecodeLogger.get().info("flywheel", "FLYWHEEL_TARGET_SET",

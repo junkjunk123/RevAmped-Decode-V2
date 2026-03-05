@@ -65,7 +65,7 @@ public class IntakeMotor extends HwMotor {
     }
 
     public void intakePreloads(double power) {
-        setState(IntakeState.PRELOADS, power);
+        setState(IntakeState.PRELOADS, INTAKE_PRELOADS);
     }
 
     public String getState() {
