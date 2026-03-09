@@ -134,96 +134,11 @@ public class CloseAuto extends OpModeCommand {
     }
 
     private ICommand intake(int iteration) {
-        int turretPos = switch (iteration) {
-            case 0 -> Turret.AUTO_SET_1;
-            case 1 -> Turret.AUTO_SET_2;
-            default -> Turret.AUTO_SET_3;
-        };
-        int driveTimeout = iteration == 2 ? 4500 : 3000;
-
-        return new Sequential(
-                new Parallel(
-                        new Sequential(
-                                new Wait(300),
-                                new Instant(() -> {
-                                    robot.turret.setTargetPosition(turretPos);
-                                    robot.intakeMotor.intake();
-                                    robot.flywheel.stop();
-                                })
-                        ),
-                        iteration == 2 ? robot.resetTable() : resetTableBlock(),
-                        iteration == 0 ? new Sequential(
-                                new Wait(600),
-                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
-                        ) : robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
-                )
-        );
-    }
-
-    private ICommand resetTableBlock() {
-        return new Sequential(
-                //new Instant(robot.intakeMotor::stop),
-                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
-                new Wait(650),
-                robot.popper.blockFromPop()
-        );
+        return AutoMethods.intakeForSort(robot, iteration);
     }
 
     private ICommand shoot(int iteration) {
-        double flywheelOffset = iteration == 2 ? 20 : 0;
-
-        double driveTimeout = switch (iteration) {
-            case 0 -> 3000;
-            case 1 -> 2700;
-            default -> 3500;
-        };
-
-        ArtifactColor[] intookColors = switch (iteration) {
-            case 0 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE};
-            case 1 -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
-            default -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
-        };
-
-        AtomicBoolean isSorting = new AtomicBoolean();
-        return new Sequential(
-                new Instant(() -> isSorting.set(iteration != 2 && Globals.randomizationState != null)),
-                new Parallel(
-                        robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), driveTimeout),
-                        iteration != 2 ? robot.popper.neutral() : Commands.NOOP,
-                        new Conditional(
-                                () -> iteration == 0,
-                                Commands.NOOP,
-                                new Sequential(
-                                        new Wait(200),
-                                        new Instant(() -> robot.intakeMotor.outtakeSlow())
-                                )
-                        ),
-                        new Instant(() -> {
-                                robot.flywheel.setVelocity(Flywheel.CLOSE_AUTO_VELOCITY + flywheelOffset);
-                                robot.tableCompartments.populate(intookColors);
-                        }),
-                        new Sequential(
-                                new Race(
-                                        new WaitUntil(() -> iteration == 0),
-                                        new Wait(300),
-                                        new WaitUntil(() -> iteration == 2 && overallTimer.seconds() > 27)
-                                ),
-                                new Instant(() -> robot.intakeMotor.intake()),
-                                new Race(
-                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
-                                        new WaitUntil(() -> iteration == 2 && overallTimer.seconds() > 27.5
-                                                    && overallTimer.seconds() < 28.7 && robot.drivetrain.distanceFromTarget() < 7)
-                                ),
-                                new Lazy(() -> {
-                                    if (isSorting.get()) return robot.sortAuto();
-                                    return Commands.NOOP;
-                                }),
-                                new Wait(150),
-                                robot.popper.pop()
-                        )
-                ),
-                robot.autoShoot(() -> !isSorting.get() ? 0.0 : Table.SLOW_SHOOT_DELAY)
-        );
+        return AutoMethods.shootForSort(overallTimer, robot, iteration);
     }
 
     public ICommand park() {

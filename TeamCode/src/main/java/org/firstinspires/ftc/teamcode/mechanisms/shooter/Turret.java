@@ -119,6 +119,8 @@ public class Turret extends HwMotor {
     public static int AUTO_SET_2;
     public static int AUTO_SET_3;
     public static int FAR_AUTO;
+    public static int FIFTEEN_BALL_PRELOADS;
+    public static int FIFTEEN_OBELISK_DETECTION;
     public static int UNSORTED_AUTO_PRELOADS;
     public static int UNSORTED_GATE;
     public static int UNSORTED_SET_1;

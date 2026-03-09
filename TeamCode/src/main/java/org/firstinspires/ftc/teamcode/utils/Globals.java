@@ -64,6 +64,8 @@ public final class Globals {
             Turret.UNSORTED_SET_3 *= -1;
             Turret.UNSORTED_SET_4 *= -1;
             Turret.UNSORTED_SET_5 *= -1;
+            Turret.FIFTEEN_BALL_PRELOADS *= -1;
+            Turret.FIFTEEN_OBELISK_DETECTION = Math.abs(Turret.FIFTEEN_OBELISK_DETECTION);
         } else if (allianceColor.equals(AllianceColor.Blue)) {
             Turret.AUTO_PRELOADS = Math.abs(Turret.AUTO_PRELOADS);
             Turret.AUTO_SET_1 = Turret.AUTO_SET_1 > 0 ? Turret.AUTO_SET_1 : Math.abs(Turret.AUTO_SET_1) - 30;
@@ -78,6 +80,8 @@ public final class Globals {
             Turret.UNSORTED_SET_3 = Math.abs(Turret.UNSORTED_SET_3);
             Turret.UNSORTED_SET_4 = Math.abs(Turret.UNSORTED_SET_4);
             Turret.UNSORTED_SET_5 = Math.abs(Turret.UNSORTED_SET_5);
+            Turret.FIFTEEN_BALL_PRELOADS = Math.abs(Turret.FIFTEEN_BALL_PRELOADS);
+            Turret.FIFTEEN_OBELISK_DETECTION = -Math.abs(Turret.FIFTEEN_OBELISK_DETECTION);
         }
     }
 }

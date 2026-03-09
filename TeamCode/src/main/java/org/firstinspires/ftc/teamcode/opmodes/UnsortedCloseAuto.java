@@ -81,153 +81,25 @@ public class UnsortedCloseAuto extends OpModeCommand {
     }
 
     private ICommand intakeFromGate(int iteration) {
-        return new Sequential(
-                new Instant(() -> {
-                    robot.flywheel.stop();
-                    robot.intakeMotor.stop();
-                }),
-                new Parallel(
-                        resetTableBlock(),
-                        new Sequential(
-                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), getIntakeTimeout()),
-                                new Instant(() -> {
-                                    robot.turret.unsortedAutoSet(iteration + 1);
-                                    robot.flywheel.unsortedAuto();
-                                })
-                        ),
-                        new Sequential(
-                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
-                                new Instant(() -> {
-                                    robot.intakeMotor.intakeGate();
-                                    robot.turret.setTargetPosition(robot.turret.getTargetPosition() -
-                                            250 * (int) Math.signum(robot.turret.getTargetPosition()));
-                                })
-                        )
-                ),
-                new Wait(1200)
-        );
+        return AutoMethods.intakeFromGate(robot, iteration);
     }
-
-    private ICommand resetTable() {
-        return new Sequential(
-                //new Instant(robot.intakeMotor::stop),
-                robot.popper.neutral(),
-                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
-                new Wait(650)
-        );
-    }
-
-    private ICommand resetTableBlock() {
-        return new Sequential(
-                //new Instant(robot.intakeMotor::stop),
-                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
-                new Wait(650),
-                robot.popper.blockFromPop()
-        );
-    }
-
 
     private ICommand shootFromGate(int iteration) {
-        return new Parallel(
-                robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), getShootTimeout()),
-                new Sequential(
-                        new Instant(() -> robot.intakeMotor.outtakeSlow()),
-                        new Sequential(
-                                new Parallel(
-                                        robot.popper.neutral(),
-                                        new Sequential(
-                                                new Wait(280),
-                                                new Instant(robot.intakeMotor::intake),
-                                                new Wait(300)
-                                        )
-                                ),
-                                robot.popper.pop(),
-                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.80)),
-                                robot.autoFastShoot()
-                        )
-                )
-        );
+        return AutoMethods.shootFromGate(robot, iteration, false);
     }
 
     private ICommand intakePreload(boolean isFirst) {
-        return new Sequential(
-                new Instant(() -> {
-                    if (!isFirst) {
-                        robot.turret.setTargetPosition(Turret.UNSORTED_FINAL);
-                        robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 10);
-                    }
-
-                    robot.intakeMotor.intake();
-                }),
-                new Parallel(
-                        resetTable(),
-                        new Sequential(
-                                new Wait(600),
-                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) &&
-                                        d.velocityCondition(), getIntakeTimeout()),
-                                isFirst ? new Instant(() -> robot.flywheel.unsortedAuto()) : Commands.NOOP,
-                                new Sequential(
-                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
-                                        new Instant(() -> robot.turret.unsortedAutoSet(0))
-                                )
-                        )
-                )
-        );
+        return AutoMethods.intakePreload(robot, isFirst);
     }
 
     private ICommand shootPreload(boolean isFirst) {
-        return new Sequential(
-                new Instant(() -> {
-                    if (isFirst) {
-                        robot.flywheel.unsortedAuto();
-                        robot.hood.unsortedAuto();
-                    } else {
-                        robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 30);
-                        robot.hood.setPosition(Hood.NEAR_PRESET - 10/255f);
-                    }
-                }),
-                isFirst ? new Parallel(
-                        robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), getShootTimeout()),
-                        preloadShootArmActions(true)
-                ) : new Deadline(
-                        preloadShootArmActions(false),
-                        robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), getShootTimeout())
-                )
-        );
-    }
-
-    private ICommand preloadShootArmActions(boolean isFirst) {
-        return isFirst ? new Sequential(
-                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
-                robot.popper.pop(),
-                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.80)),
-                robot.autoFastShoot()
-        ) : new Sequential(
-                new Wait(200),
-                new Instant(() -> robot.intakeMotor.outtakeSlow()),
-                new Wait(280),
-                new Instant(() -> robot.intakeMotor.intake()),
-                new Wait(150),
-                robot.popper.pop(),
-                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.80)),
-                new Wait(300),
-                robot.autoFastShoot()
-        );
+        return AutoMethods.shootPreload(robot, isFirst);
     }
 
     @Override
     public void end() {
         if (!transferredData) Globals.turretStartPos = robot.turret.getPosition();
         //Drivetrain.startPose = robot.drivetrain.follower.getPose();
-    }
-
-    public int getIntakeTimeout() {
-        return 3000;
-    }
-
-
-    public int getShootTimeout() {
-        return 3000;
     }
 
     public ICommand park() {
