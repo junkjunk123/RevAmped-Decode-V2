@@ -115,21 +115,21 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
         if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot.shootFar()));
 
-        if (gamepad_1.right_bumper.isTrue()) {
-            if (TrackingThread.trackTurret && gamepad_1.right_bumper.isRisingEdge()) {
+        if (gamepad_1.right_bumper.isRisingEdge()) {
+            if (TrackingThread.trackTurret) {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
             } else {
-                schedule(tsh.task(() -> robot.turret.finetune(10), new int[]{1, 1, 0}));
+                schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
             }
         }
 
-        if (gamepad_1.left_bumper.isTrue()) {
-            if (TrackingThread.trackTurret && gamepad_1.left_bumper.isRisingEdge()) {
+        if (gamepad_1.left_bumper.isRisingEdge()) {
+            if (TrackingThread.trackTurret) {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
             } else {
-                schedule(tsh.task(() -> robot.turret.finetune(-10), new int[]{1, 1, 0}));
+                schedule(tsh.task(() -> robot.turret.previous(), new int[]{1, 1, 0}));
             }
         }
 
