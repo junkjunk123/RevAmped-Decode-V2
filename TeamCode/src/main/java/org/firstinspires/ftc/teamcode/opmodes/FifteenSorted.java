@@ -57,7 +57,7 @@ public class FifteenSorted extends OpModeCommand {
                         new Instant(overallTimer::reset),
                         new Instant(() -> {
                             robot.turret.setTargetPosition(Turret.FIFTEEN_OBELISK_DETECTION);
-                            robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY + 15);
+                            robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY);
                             robot.hood.medium();
                             robot.intakeMotor.intakeSlow();
                             limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
@@ -120,12 +120,13 @@ public class FifteenSorted extends OpModeCommand {
                         new Sequential(
                                 new Wait(300),
                                 new Instant(() -> {
-                                    robot.turret.setTargetPosition(Turret.UNSORTED_FINAL);
+                                    robot.turret.setTargetPosition(Turret.UNSORTED_FINAL+7);
                                     robot.intakeMotor.intake();
                                     robot.flywheel.stop();
                                 })
                         ),
                         resetTableBlock(robot),
+                        new Instant(robot.intakeMotor::outtakeMidSlow),
                         robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), 4500)
                 )
         );
@@ -138,12 +139,12 @@ public class FifteenSorted extends OpModeCommand {
                         robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), 4500),
                         robot.popper.neutral(),
                         new Sequential(
-                                new Wait(200),
-                                new Instant(robot.intakeMotor::outtakeSlow)
+                                new Instant(robot.intakeMotor::outtakeMidSlow),
+                                new Wait(200)
                         ),
                         new Instant(() -> {
                             robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY);
-                            robot.hood.setPosition(Hood.NEAR_PRESET - 10/255f);
+                            robot.hood.setPosition(Hood.NEAR_PRESET - 12/255f);
                             robot.tableCompartments.populate(colors);
                         }),
                         new Sequential(

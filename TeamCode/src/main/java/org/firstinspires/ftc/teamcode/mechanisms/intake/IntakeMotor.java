@@ -56,6 +56,11 @@ public class IntakeMotor extends HwMotor {
         state = IntakeState.OUTTAKE_SLOW;
     }
 
+    public void outtakeMidSlow(){
+        setPower(-0.6f);
+        state = IntakeState.OUTTAKE_SLOW;
+    }
+
     public void stop() {
         setPower(STOPPED);
         state = IntakeState.STOPPED;

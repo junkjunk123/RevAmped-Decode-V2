@@ -45,7 +45,7 @@ public class AutoMethods {
                                 new Instant(() -> {
                                     robot.intakeMotor.intakeGate();
                                     robot.turret.setTargetPosition(robot.turret.getTargetPosition() -
-                                            250 * (int) Math.signum(robot.turret.getTargetPosition()));
+                                            250 * (int) Math.signum(robot.turret.getTargetPosition())-8);
                                 })
                         )
                 ),
@@ -166,7 +166,7 @@ public class AutoMethods {
         return new Parallel(
                 robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), 3000),
                 new Sequential(
-                        new Instant(robot.intakeMotor::outtakeSlow),
+                        new Instant(robot.intakeMotor::outtakeMidSlow),
                         new Sequential(
                                 new Parallel(
                                         robot.popper.neutral(),
@@ -241,7 +241,8 @@ public class AutoMethods {
                                 )
                         ),
                         new Instant(() -> {
-                            robot.flywheel.setVelocity(Flywheel.CLOSE_AUTO_VELOCITY + flywheelOffset);
+                            robot.hood.setPosition(Hood.MEDIUM_PRESET - 8/255f);
+                            robot.flywheel.setVelocity(Flywheel.CLOSE_AUTO_VELOCITY + flywheelOffset+10);
                             robot.tableCompartments.populate(intookColors);
                         }),
                         new Sequential(

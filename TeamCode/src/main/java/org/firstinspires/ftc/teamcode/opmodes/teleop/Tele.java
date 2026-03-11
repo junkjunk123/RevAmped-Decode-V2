@@ -120,7 +120,7 @@ public class Tele extends OpModeCommand {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
             } else {
-                schedule(tsh.task(() -> robot.turret.finetune(10), new int[]{1, 1, 0}));
+                schedule(tsh.task(robot.turret::next, new int[]{1, 1, 0}));
             }
         }
 
@@ -129,7 +129,7 @@ public class Tele extends OpModeCommand {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
             } else {
-                schedule(tsh.task(() -> robot.turret.finetune(-10), new int[]{1, 1, 0}));
+                schedule(tsh.task(robot.turret::previous, new int[]{1, 1, 0}));
             }
         }
 
