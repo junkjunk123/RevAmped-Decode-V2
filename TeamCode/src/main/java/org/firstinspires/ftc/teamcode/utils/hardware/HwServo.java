@@ -8,8 +8,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
+
 public class HwServo implements HwDevice {
-    public final ServoImplEx servo;
+    public final ServoImplEx[] servo;
     private final String id;
     private double cachingTolerance = 1.0/256;
     private double lastPos = Double.NaN;
@@ -19,8 +22,17 @@ public class HwServo implements HwDevice {
      * @param id the ID of the servo as configured
      */
     public HwServo(HardwareMap hwMap, String id) {
-        this.servo = HwDevice.init(hwMap, ServoImplEx.class, id);
+        this.servo = new ServoImplEx[] {HwDevice.init(hwMap, ServoImplEx.class, id)};
         this.id = id;
+    }
+
+    /**
+     * @param hwMap hardwareMap
+     * @param id the ID of the servo as configured
+     */
+    public HwServo(HardwareMap hwMap, String... id) {
+        servo = Arrays.stream(id).map(s -> HwDevice.init(hwMap, ServoImplEx.class, s)).toArray(ServoImplEx[]::new);
+        this.id = id[0];
     }
 
     /**
@@ -29,12 +41,24 @@ public class HwServo implements HwDevice {
      */
     public boolean setPosition(double pos) {
         if (Double.isNaN(lastPos) || Math.abs(pos - lastPos) >= cachingTolerance) {
-            servo.setPosition(pos);
+            internalSetPosition(pos);
             lastPos = pos;
             return true;
         }
 
         return false;
+    }
+
+    private void internalSetPosition(double pos) {
+        for (ServoImplEx s : servo) {
+            s.setPosition(pos);
+        }
+    }
+
+    private void apply(Consumer<ServoImplEx> consumer) {
+        for (ServoImplEx s : servo) {
+            consumer.accept(s);
+        }
     }
 
     protected boolean evaluateCache(double pos) {
@@ -45,7 +69,7 @@ public class HwServo implements HwDevice {
      * @return the raw position of the servo between 0 and 1
      */
     public double getPosition() {
-        return servo.getPosition();
+        return servo[0].getPosition();
     }
 
     /**
@@ -53,7 +77,7 @@ public class HwServo implements HwDevice {
      * @return this object for chaining purposes
      */
     public HwServo setInverted(boolean inverted) {
-        servo.setDirection(inverted ? Servo.Direction.REVERSE : Servo.Direction.FORWARD);
+        apply(s -> s.setDirection(inverted ? Servo.Direction.REVERSE : Servo.Direction.FORWARD));
         return this;
     }
 
@@ -61,7 +85,7 @@ public class HwServo implements HwDevice {
      * @return whether the servo is inverted/reversed
      */
     public boolean getInverted() {
-        return servo.getDirection().equals(Servo.Direction.REVERSE);
+        return servo[0].getDirection().equals(Servo.Direction.REVERSE);
     }
 
     /**
@@ -69,7 +93,7 @@ public class HwServo implements HwDevice {
      * @return this object for chaining purposes
      */
     public HwServo setPwm(PwmControl.PwmRange pwmRange) {
-        getController().setServoPwmRange(servo.getPortNumber(), pwmRange);
+        apply(servo -> getController().setServoPwmRange(servo.getPortNumber(), pwmRange));
         return this;
     }
 
@@ -77,14 +101,14 @@ public class HwServo implements HwDevice {
      * @return the extended servo controller object for the servo
      */
     public ServoControllerEx getController() {
-        return (ServoControllerEx) servo.getController();
+        return (ServoControllerEx) servo[0].getController();
     }
 
     /**
      * @return the port the servo controller is controlling the servo from
      */
     public int getPortNumber() {
-        return this.servo.getPortNumber();
+        return this.servo[0].getPortNumber();
     }
 
     /**
@@ -108,7 +132,7 @@ public class HwServo implements HwDevice {
     }
 
     public void deenergize() {
-        servo.setPwmDisable();
+        apply(ServoImplEx::setPwmDisable);
     }
 
     @NonNull

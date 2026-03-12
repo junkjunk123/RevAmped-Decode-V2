@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
-
 import static org.firstinspires.ftc.teamcode.opmodes.AutoMethods.resetTableBlock;
-
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
@@ -11,9 +9,7 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
@@ -22,9 +18,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
-import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPaths;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FifteenSortedPaths;
-import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.RandomizationState;
@@ -33,12 +27,11 @@ import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Functional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class FifteenSorted extends OpModeCommand {
     private Robot robot;
     private final ElapsedTime overallTimer = new ElapsedTime();
     private static boolean testSlowShoot = false;
+    private boolean transferredData = false;
 
     @Override
     public void initialize() {
@@ -100,6 +93,7 @@ public class FifteenSorted extends OpModeCommand {
                                     robot.flywheel.stop();
                                     robot.intakeMotor.stop();
                                     Globals.turretStartPos = robot.turret.getPosition();
+                                    transferredData = true;
                                 }),
                                 new Conditional(
                                         () -> robot.popper.atState(Popper.PopperState.NEUTRAL),
@@ -193,5 +187,11 @@ public class FifteenSorted extends OpModeCommand {
                 ),
                 robot.autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
         );
+    }
+
+    @Override
+    public void end() {
+        if (!transferredData) Globals.turretStartPos = robot.turret.getPosition();
+        //Drivetrain.startPose = robot.drivetrain.follower.getPose();
     }
 }
