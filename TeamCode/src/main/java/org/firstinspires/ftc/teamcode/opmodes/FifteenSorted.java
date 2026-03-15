@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FifteenSortedPaths;
@@ -49,7 +50,7 @@ public class FifteenSorted extends OpModeCommand {
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(overallTimer::reset),
                         new Instant(() -> {
-                            robot.turret.setTargetPosition(Turret.FIFTEEN_OBELISK_DETECTION);
+                            robot.turret.setPosition(ServoTurret.FIFTEEN_OBELISK_DETECTION);
                             robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY);
                             robot.hood.medium();
                             robot.intakeMotor.intakeSlow();
@@ -60,7 +61,7 @@ public class FifteenSorted extends OpModeCommand {
                                 new Sequential(
                                         !testSlowShoot ? new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null) :
                                                 new Instant(() -> Globals.randomizationState = RandomizationState.GPP),
-                                        new Instant(() -> robot.turret.setTargetPosition(Turret.FIFTEEN_BALL_PRELOADS)),
+                                        new Instant(() -> robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS)),
                                         new Infinite(() -> {})
                                 )
                         ),
@@ -74,7 +75,7 @@ public class FifteenSorted extends OpModeCommand {
                         }),
                         new Instant(() -> {
                             limelight.close();
-                            robot.turret.setTargetPosition(Turret.FIFTEEN_BALL_PRELOADS);
+                            robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS);
                             robot.intakeMotor.intakeSlow();
                         }),
                         robot.popper.pop(),
@@ -114,7 +115,7 @@ public class FifteenSorted extends OpModeCommand {
                         new Sequential(
                                 new Wait(300),
                                 new Instant(() -> {
-                                    robot.turret.setTargetPosition(Turret.UNSORTED_FINAL+7);
+                                    robot.turret.setPosition(ServoTurret.UNSORTED_FINAL+7);
                                     robot.intakeMotor.intake();
                                     robot.flywheel.stop();
                                 })

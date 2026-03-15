@@ -25,6 +25,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
@@ -44,7 +46,7 @@ import java.util.function.Supplier;
 public class Robot {
     public static Robot INSTANCE;
     public final Drivetrain drivetrain;
-    public final Turret turret;
+    public final ServoTurret turret;
     public final Flywheel flywheel;
     public final Table table;
     public final Hood hood;
@@ -52,7 +54,6 @@ public class Robot {
     public final IntakeMotor intakeMotor;
     public final ColorManager intakeColor;
     public final IntakeDistance intakeDistance;
-    private Lift lift;
     public final TableCompartmentManager tableCompartments;
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
@@ -69,7 +70,7 @@ public class Robot {
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         Globals.isTeleOp = pathSupplier == null;
         //octocanum = teleop ? new Octocanum(hardwareMap) : null;
-        turret = new Turret(hardwareMap, Encoder.fromMotor(drivetrain.leftFront).reverse());
+        turret = new ServoTurret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
         table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.leftRear));
@@ -87,7 +88,7 @@ public class Robot {
     public void initialize() {
         popper.setPosition(Popper.NEUTRAL);
         table.setPosition(Table.BALL1);
-        turret.move(Turret.MoveState.PresetState.REST);
+        turret.move(ServoTurretState.PresetState.REST);
     }
 
     public void update() {
@@ -221,17 +222,10 @@ public class Robot {
     }
 
     public ICommand resetShooter() {
-        return new Parallel(
-                new Lazy(() -> {
-                    if (TrackingThread.trackTurret || turret.getMoveState() instanceof Turret.MoveState.FarPreset)
-                        return turret.resetTurret();
-                    else return Commands.NOOP;
-                }),
-                new Instant(() -> {
-                    flywheel.stop();
-                    hood.rest();
-                })
-        );
+        return new Instant(() -> {
+            flywheel.stop();
+            hood.rest();
+        });
     }
 
     public ICommand resetAfterShooting() {
@@ -264,7 +258,6 @@ public class Robot {
         return new Sequential(
                 sortAuto(),
                 popper.pop(),
-                turret.reached(),
                 autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
         );
     }
@@ -303,29 +296,12 @@ public class Robot {
                     flywheel.far();
                 }),
                 turret.resetTurret(),
-                new Instant(() -> turret.setTargetPosition(Globals.allianceColor == AllianceColor.Red ? Turret.FAR_PRESET_RED : Turret.FAR_PRESET_BLUE))
+                new Instant(() -> turret.setPosition(Globals.allianceColor == AllianceColor.Red ? ServoTurret.FAR_PRESET_RED : ServoTurret.FAR_PRESET_BLUE))
         );
     }
 
     public void shootMedium() {
         hood.medium();
         flywheel.medium();
-    }
-
-    public ICommand lift() {
-        return new Sequential(
-                new Instant(() -> {
-                    lift = new Lift(hardwareMap, Encoder.fromMotor(intakeMotor.get()));
-                    intakeMotor.deenergize();
-                    flywheel.deenergize();
-                    popper.deenergize();
-                    drivetrain.apply(DcMotorEx::setMotorDisable);
-                    //octocanum.apply(HwServo::deenergize);
-                    table.deenergize();
-                    hood.deenergize();
-                }),
-                new WaitUntil(turret::deenergized),
-                lift.lift()
-        );
     }
 }

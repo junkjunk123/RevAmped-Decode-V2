@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.paths.UnsortedCloseAutoPaths;
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -30,7 +31,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap, new UnsortedCloseAutoPaths());
-        robot.turret.setTargetPosition(Turret.UNSORTED_AUTO_PRELOADS);
+        robot.turret.setPosition(ServoTurret.UNSORTED_AUTO_PRELOADS);
         robot.popper.popCommandless();
         robot.table.setStateCommandless(Table.RelativeState.BALL1);
         robot.hood.unsortedAuto();
@@ -39,7 +40,7 @@ public class UnsortedCloseAuto extends OpModeCommand {
                 new Infinite(() -> {
                     robot.update();
                     Drivetrain.startPose = robot.drivetrain.follower.getPose();
-                    telemetry.addData("turret target", robot.turret.getTargetPosition());
+                    telemetry.addData("turret target", robot.turret.getPosition());
                     telemetry.addData("turret encoder", robot.turret.getPosition());
                     telemetry.update();
                 }),
@@ -55,9 +56,9 @@ public class UnsortedCloseAuto extends OpModeCommand {
                                                 robot.autoFastShoot(),
                                                 new Sequential(
                                                         new Wait(50),
-                                                        new Instant(() -> {robot.turret.setTargetPosition(
-                                                                robot.turret.getTargetPosition() -
-                                                                        20 * (int) Math.signum(robot.turret.getTargetPosition())
+                                                        new Instant(() -> {robot.turret.setPosition(
+                                                                robot.turret.getPosition() -
+                                                                        20/255f * (int) Math.signum(robot.turret.getPosition())
                                                         ); robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 115);})
                                                 )
                                         )

@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
@@ -84,7 +85,7 @@ public class RobotStateHandler {
             public DriveState INSTANCE = DriveState.AUTO_TRACKING;
             public TrackingThread autoTracker;
 
-            public void init(Follower follower, Turret turret, Hood hood, Flywheel flywheel, boolean isTeleOp) {
+            public void init(Follower follower, ServoTurret turret, Hood hood, Flywheel flywheel, boolean isTeleOp) {
                 INSTANCE = DriveState.AUTO_TRACKING;
                 autoTracker = new TrackingThread(follower, turret, flywheel, hood, isTeleOp);
             }

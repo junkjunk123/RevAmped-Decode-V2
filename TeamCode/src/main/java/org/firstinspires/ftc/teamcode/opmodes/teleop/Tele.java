@@ -133,11 +133,6 @@ public class Tele extends OpModeCommand {
             }
         }
 
-        if (gamepad_1.b.isRisingEdge()) schedule(new Sequential(
-                new WaitUntil(robot.turret.limitSwitch::state),
-                new Instant(robot.turret::resetPosition)
-        ));
-
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
 
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
@@ -246,10 +241,6 @@ public class Tele extends OpModeCommand {
                     )
                 )
             );
-        }
-
-        if (gamepad_2.left_trigger_button.isRisingEdge()) {
-            robot.turret.resetPosition();
         }
 
         if (gamepad_2.dpad_left.isRisingEdge()) {

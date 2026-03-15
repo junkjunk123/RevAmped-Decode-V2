@@ -13,7 +13,7 @@ public sealed interface ServoTurretState permits ServoTurretState.AutoTrack, Ser
         RIGHT_135;
 
         public float targetPos() {
-            return (ordinal() - REST.ordinal()) * ServoTurret.ticksPerRotation() / 8;
+            return (ordinal() - REST.ordinal()) * ServoTurret.ticksPerRotation() / 8 + ServoTurret.REST;
         }
 
         public PresetState next() {

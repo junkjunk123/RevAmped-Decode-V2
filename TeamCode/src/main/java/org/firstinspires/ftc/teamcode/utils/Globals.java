@@ -29,7 +29,7 @@ public final class Globals {
     public static RobotConstants constants = new RobotConstants();
     public static AllianceColor allianceColor = AllianceColor.None;
     public static boolean isTeleOp = true;
-    public static int turretStartPos;
+    public static double turretStartPos;
 
     /**
      * Initializes the telemetry instance.

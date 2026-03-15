@@ -15,6 +15,7 @@ public class ServoTurret extends HwServo {
     public static double RAD_LIMIT;
     public static double TICKS_LIMIT;
     public static double FULL_ROTATION;
+    public static float REST;
 
     public static int AUTO_PRELOADS;
     public static int AUTO_SET_1;
@@ -31,6 +32,8 @@ public class ServoTurret extends HwServo {
     public static int UNSORTED_SET_4;
     public static int UNSORTED_SET_5;
     public static int UNSORTED_FINAL;
+    public static double FAR_PRESET_BLUE;
+    public static double FAR_PRESET_RED;
 
     public static double MS_PER_REVOLUTION = 1500;
 

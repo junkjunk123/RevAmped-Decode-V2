@@ -177,7 +177,7 @@ public class Turret extends HwMotor {
         resetController.setTargetPosition(0);
         setDirection(DcMotorSimple.Direction.FORWARD);
         if (Globals.isTeleOp && Globals.turretStartPos > 1)
-            setEncoderBase(getEncoder().getPosition() - Globals.turretStartPos);
+            setEncoderBase((int) (getEncoder().getPosition() - Globals.turretStartPos));
         else
             setEncoderBase(getEncoder().getPosition());
         Globals.turretStartPos = 0;

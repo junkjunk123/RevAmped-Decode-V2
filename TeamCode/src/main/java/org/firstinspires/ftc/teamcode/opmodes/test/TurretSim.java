@@ -20,8 +20,8 @@ public class TurretSim extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.aWasPressed()) robot.turret.setTargetPosition(300);
-        if (gamepad1.bWasPressed()) robot.turret.setTargetPosition(0);
+        //if (gamepad1.aWasPressed()) robot.turret.setTargetPosition(300);
+        //if (gamepad1.bWasPressed()) robot.turret.setTargetPosition(0);
         robot.update();
     }
 

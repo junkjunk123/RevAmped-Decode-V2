@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -44,8 +45,8 @@ public class AutoMethods {
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
                                 new Instant(() -> {
                                     robot.intakeMotor.intakeGate();
-                                    robot.turret.setTargetPosition(robot.turret.getTargetPosition() -
-                                            250 * (int) Math.signum(robot.turret.getTargetPosition())-8);
+                                    robot.turret.setPosition(robot.turret.getPosition() -
+                                            (int) Math.signum(robot.turret.getPosition()) - 8 / 255f);
                                 })
                         )
                 ),
@@ -66,7 +67,7 @@ public class AutoMethods {
         return new Sequential(
                 new Instant(() -> {
                     if (!isFirst) {
-                        robot.turret.setTargetPosition(Turret.UNSORTED_FINAL);
+                        robot.turret.setPosition(ServoTurret.UNSORTED_FINAL);
                         robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 10);
                     }
 
@@ -197,7 +198,7 @@ public class AutoMethods {
                         new Sequential(
                                 new Wait(300),
                                 new Instant(() -> {
-                                    robot.turret.setTargetPosition(turretPos);
+                                    robot.turret.setPosition(turretPos);
                                     robot.intakeMotor.intake();
                                     robot.flywheel.stop();
                                 })

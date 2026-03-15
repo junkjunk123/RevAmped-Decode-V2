@@ -24,7 +24,7 @@ public class AutomatedTest extends OpModeCommand {
                 new Instant(robot.hood::near),
                 new Parallel(
                         robot.intakeMotor.test().subscribe(channel),
-                        robot.turret.test().subscribe(channel),
+                        //robot.turret.test().subscribe(channel),
                         robot.table.test().subscribe(channel),
                         robot.flywheel.test().subscribe(channel)
                 ),

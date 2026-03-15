@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPaths;
@@ -41,7 +42,7 @@ public class CloseAuto extends OpModeCommand {
         DecodeLimelight limelight = new DecodeLimelight(hardwareMap);
         robot.tableCompartments.populate(ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE);
         overallTimer = new ElapsedTime();
-        robot.turret.setTargetPosition(Turret.UNSORTED_AUTO_PRELOADS);
+        robot.turret.setPosition(Turret.UNSORTED_AUTO_PRELOADS);
 
         schedule(
             new Infinite(() -> {
@@ -53,7 +54,7 @@ public class CloseAuto extends OpModeCommand {
                     new WaitUntil(() -> !opModeInInit()),
                     new Instant(overallTimer::reset),
                     new Instant(() -> {
-                        robot.turret.setTargetPosition(0);
+                        robot.turret.setPosition(ServoTurret.REST);
                         robot.flywheel.closeAuto();
                         robot.hood.near();
                         robot.intakeMotor.intakeSlow();
@@ -64,7 +65,7 @@ public class CloseAuto extends OpModeCommand {
                             new Sequential(
                                     !testSlowShoot ? new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null) :
                                             new Instant(() -> Globals.randomizationState = RandomizationState.PPG),
-                                    new Instant(() -> robot.turret.setTargetPosition(Turret.AUTO_PRELOADS)),
+                                    new Instant(() -> robot.turret.setPosition(Turret.AUTO_PRELOADS)),
                                     new Infinite(() -> {})
                             )
                     ),
@@ -78,7 +79,7 @@ public class CloseAuto extends OpModeCommand {
                     }),
                     new Instant(() -> {
                         limelight.close();
-                        robot.turret.setTargetPosition(Turret.AUTO_PRELOADS);
+                        robot.turret.setPosition(ServoTurret.AUTO_PRELOADS);
                         robot.intakeMotor.intakeSlow();
                     }),
                     new Lazy(() -> {
