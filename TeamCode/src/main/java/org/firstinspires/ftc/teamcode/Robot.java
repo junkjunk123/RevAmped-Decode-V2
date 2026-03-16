@@ -295,7 +295,6 @@ public class Robot {
                     hood.far();
                     flywheel.far();
                 }),
-                turret.resetTurret(),
                 new Instant(() -> turret.setPosition(Globals.allianceColor == AllianceColor.Red ? ServoTurret.FAR_PRESET_RED : ServoTurret.FAR_PRESET_BLUE))
         );
     }
