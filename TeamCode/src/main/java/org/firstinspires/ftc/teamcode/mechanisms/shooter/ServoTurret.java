@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 @Config
 public class ServoTurret extends HwServo {
-    public static double RAD_LIMIT;
-    public static double TICKS_LIMIT;
+    public static double LEFT_TICKS_LIMIT;
+    public static double RIGHT_TICKS_LIMIT;
     public static double FULL_ROTATION;
     public static float REST;
 
@@ -37,12 +37,8 @@ public class ServoTurret extends HwServo {
 
     public static double MS_PER_REVOLUTION = 1500;
 
-    public static void updateFullRotation() {
-        FULL_ROTATION = TICKS_LIMIT / RAD_LIMIT * 2 * Math.PI;
-    }
-
     public static float ticksPerRotation() {
-        return (float) (TICKS_LIMIT * (Math.PI * 2 / RAD_LIMIT));
+        return (float) FULL_ROTATION;
     }
 
     private ServoTurretState state = ServoTurretState.PresetState.REST;

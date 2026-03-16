@@ -34,11 +34,9 @@ public class RobotConstants {
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants
-        ServoTurret.FULL_ROTATION = 284;
-        ServoTurret.MS_PER_REVOLUTION = 1080;
-        ServoTurret.TICKS_LIMIT = 245;
-        ServoTurret.REST = 125;
-        ServoTurret.RAD_LIMIT = 5.42;
+        ServoTurret.FULL_ROTATION = 284/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
+        ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
+        ServoTurret.REST = 125/255f;
         //Octocanum Constants
         //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
         //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;

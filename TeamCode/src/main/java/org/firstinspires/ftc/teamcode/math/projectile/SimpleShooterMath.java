@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
@@ -33,19 +34,17 @@ public class SimpleShooterMath {
     private final Localizer pinpoint;
     public static Pose APRIL_TAG_POSE_RED;
     public static Pose APRIL_TAG_POSE_BLUE;
-    private int turretPos;
+    private double turretPos;
     private double hoodPos;
     private double flywheelVelocity;
     private final Interpolation2D velocityInterpolation;
     private final Interpolation2D hoodInterpolation;
     private final Interpolation2D airTime;
+    private final Interpolation2D turretInterpolation;
     private static final double[] DIST_Y = {24.0, 60.0, 96.0};
     private static final double[] DIST_X = {15.0, 39.0, 63.0};
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
-
-    public static ColoredDecodePose REFERENCE_POSE;
-    public static ColoredDecodePose REFERENCE_GOAL;
 
     public SimpleShooterMath(Localizer pinpoint) {
         this.pinpoint = pinpoint;
@@ -64,11 +63,13 @@ public class SimpleShooterMath {
                 { 720, 780, 925}
         };
 
-        double[][] airTime = {
+        double[][] airTimes = {
                 {0, 0, 0},
                 {0, 0, 0},
                 {0, 0, 0}
         };
+
+        double[][] turretPos = {{}};
 
         double[][] hoodSine = Arrays.stream(hoodPos)
                 .map(row -> Arrays.stream(row)
@@ -79,7 +80,8 @@ public class SimpleShooterMath {
 
         velocityInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, flywheelVel);
         hoodInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, hoodSine);
-        this.airTime = new BilinearInterpolation(DIST_X, DIST_Y, airTime);
+        airTime = new BilinearInterpolation(DIST_X, DIST_Y, airTimes);
+        turretInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, turretPos);
     }
 
     public void update(boolean trackTurret, boolean trackHood) {
@@ -89,41 +91,28 @@ public class SimpleShooterMath {
             Vector displacement = getDispVector(targetPos, currentPos);
 
             if (trackTurret) {
-                double deltaAngle;
                 if (!velocityCompensation) {
-                    deltaAngle = angleTurretTo(displacement);
+                    turretPos = getTurretPos(displacement);
+                    //deltaAngle = angleTurretTo(displacement);
                 } else {
                     Pose currentVelocity = pinpoint.getVelocity();
-                    deltaAngle = angleTurretTo(iterateOffset(targetPos, currentPos, currentVelocity));
+                    //deltaAngle = angleTurretTo(iterateOffset(targetPos, currentPos, currentVelocity));
+                    turretPos = getTurretPos(iterateOffset(targetPos, currentPos, currentVelocity));
                 }
-                turretPos = (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
             }
 
             if (trackHood) {
                 double xDist = Math.abs(displacement.getXComponent());
                 double yDist = Math.abs(displacement.getYComponent());
-                flywheelVelocity = velocityInterpolation.interpolate(xDist-10, yDist-10);
+                flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Flywheel.MAX_VELOCITY);
-                double hoodSine = hoodInterpolation.interpolate(xDist-10, yDist-10);
+                double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
                 hoodPos = Range.clip(hoodPos, 0, 1);
             }
         }
-    }
-
-    public int SOTM() {
-        pinpoint.update();
-        Vector target = REFERENCE_GOAL.getPose().getAsVector();
-
-        for (int i = 0; i < 10; i++) {
-            Vector offset = target.minus(REFERENCE_POSE.getPose().getAsVector());
-            target = target.minus(pinpoint.getVelocityVector().times(airTime.interpolate(offset.getXComponent(),
-                    offset.getYComponent())));
-        }
-        double deltaAngle = angleTurretTo(target.minus(REFERENCE_POSE.getPose().getAsVector()));
-        return (int) Range.clip(deltaAngle * TICKS_LIMIT / RAD_LIMIT, -TICKS_LIMIT, TICKS_LIMIT);
     }
 
     public void reset(int turretPos, float hoodPos) {
@@ -149,7 +138,7 @@ public class SimpleShooterMath {
         return target.minus(current).getAsVector();
     }
 
-    private Pose iterateOffset(Pose targetPos, Pose currentPos, Pose fieldVelocity) {
+    private Vector iterateOffset(Pose targetPos, Pose currentPos, Pose fieldVelocity) {
         Matrix inverseRotation = MathUtil.rotMatrix(currentPos.getHeading()).transposed();
         Vector velVector = fieldVelocity.getAsVector();
         Vector robotLinearVel = velVector.transform(inverseRotation);
@@ -165,10 +154,10 @@ public class SimpleShooterMath {
             ));
         }
 
-        return currentIteration;
+        return currentIteration.getAsVector();
     }
 
-    public int getTurretPos() {
+    public double getTurretPos() {
         return turretPos;
     }
 
@@ -183,5 +172,16 @@ public class SimpleShooterMath {
     private double hoodPosToSin(double pos) {
         double hoodDeg = pos * HOOD_POS_TO_DEG_SLOPE + HOOD_0_DEG;
         return Math.sin(Math.toRadians(hoodDeg));
+    }
+
+    public double getTurretPos(Vector offset, double heading) {
+        double pos = turretInterpolation.interpolate(offset.getXComponent(), offset.getYComponent());
+        double delta = normalizeAnglePi(pos - heading);
+        return Range.clip(delta, Math.min(ServoTurret.LEFT_TICKS_LIMIT, ServoTurret.RIGHT_TICKS_LIMIT),
+                Math.max(ServoTurret.RIGHT_TICKS_LIMIT, ServoTurret.LEFT_TICKS_LIMIT));
+    }
+
+    public double getTurretPos(Vector offset) {
+        return getTurretPos(offset, pinpoint.getPose().getHeading());
     }
 }

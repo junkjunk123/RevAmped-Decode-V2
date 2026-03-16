@@ -55,6 +55,7 @@ public class Drivetrain {
         rightRear = motors.get(3);
         Globals.isTeleOp = true;
         follower.startTeleOpDrive();
+        follower.update();
     }
 
     public Drivetrain(HardwareMap hardwareMap, PathSupplier paths) {
