@@ -31,6 +31,5 @@ public sealed interface ServoTurretState permits ServoTurretState.AutoTrack, Ser
 
     record AutoTrack(float targetPos) implements ServoTurretState { }
 
-    record Custom(float targetPos) implements ServoTurretState {
-    }
+    record Custom(float targetPos) implements ServoTurretState { }
 }

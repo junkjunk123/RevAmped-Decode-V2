@@ -69,7 +69,11 @@ public class SimpleShooterMath {
                 {0, 0, 0}
         };
 
-        double[][] turretPos = {{}};
+        double[][] turretPos = {
+                {0, 0, 0},
+                {0, 0, 0},
+                {0, 0, 0}
+        };
 
         double[][] hoodSine = Arrays.stream(hoodPos)
                 .map(row -> Arrays.stream(row)

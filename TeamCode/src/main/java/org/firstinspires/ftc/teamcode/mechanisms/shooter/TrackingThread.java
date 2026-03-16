@@ -31,7 +31,7 @@ public class TrackingThread {
         if (isTeleOp) pinpoint.update();
         shooterMath.update(trackTurret, trackHood);
         if (trackHood) hood.updateTracking(shooterMath.getHoodPos());
-        if (trackTurret) turret.move(new ServoTurretState.AutoTrack(shooterMath.getTurretPos()));
+        if (trackTurret) turret.move(new ServoTurretState.AutoTrack((float) shooterMath.getTurretPos()));
         if (trackHood) flywheel.setVelocity(shooterMath.getFlywheelVelocity());
     }
 }

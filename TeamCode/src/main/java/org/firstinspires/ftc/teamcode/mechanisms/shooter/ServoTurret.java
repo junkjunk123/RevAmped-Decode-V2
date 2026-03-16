@@ -47,7 +47,7 @@ public class ServoTurret extends HwServo {
      * @param hwMap hardwareMap
      */
     public ServoTurret(HardwareMap hwMap) {
-        super(hwMap, "turret1", "turret2", "turret3");
+        super(hwMap, "turret", "turret2");
     }
 
     public ICommand setState(ServoTurretState state) {

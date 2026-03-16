@@ -7,7 +7,7 @@ public interface HwDevice {
         try {
             return hardwareMap.get(c, id);
         } catch (Exception e) {
-            throw new IllegalArgumentException("motor " + id + " not found");
+            throw new IllegalArgumentException(c.getName() + id + " not found");
         }
     }
 
