@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 
 public class RobotConstants {
@@ -31,15 +34,11 @@ public class RobotConstants {
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants
-        Turret.P = 0.009; Turret.F = 0.01; Turret.P_SECONDARY = 0.003; Turret.F_SECONDARY = 0.1; Turret.PIDF_SWITCH = 50;
-        Turret.P_RESET = 0.0022; Turret.F_RESET = 0.09;
-        Turret.AUTO_PRELOADS = 520; Turret.AUTO_SET_1 = 535; Turret.AUTO_SET_2 = 535; Turret.AUTO_SET_3 = 550; Turret.FAR_AUTO = 580;
-        Turret.UNSORTED_AUTO_PRELOADS = 80; Turret.UNSORTED_GATE = 655; Turret.UNSORTED_FINAL = 692;
-        Turret.FIFTEEN_BALL_PRELOADS = 59; Turret.FIFTEEN_OBELISK_DETECTION = -207;
-        Turret.UNSORTED_SET_1 = Turret.UNSORTED_SET_2 = Turret.UNSORTED_SET_3 = Turret.UNSORTED_GATE;
-        Turret.UNSORTED_SET_4 = Turret.UNSORTED_SET_5 = Turret.UNSORTED_GATE + 8;
-
-        Turret.TICKS_LIMIT = 810; Turret.RAD_LIMIT = 3.0 * Math.PI / 4.0; Turret.updateFullRotation();
+        ServoTurret.FULL_ROTATION = 284;
+        ServoTurret.MS_PER_REVOLUTION = 1080;
+        ServoTurret.TICKS_LIMIT = 245;
+        ServoTurret.REST = 125;
+        ServoTurret.RAD_LIMIT = 5.42;
         //Octocanum Constants
         //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
         //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
