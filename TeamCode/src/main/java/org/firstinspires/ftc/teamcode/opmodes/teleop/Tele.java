@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
@@ -43,6 +44,7 @@ public class Tele extends OpModeCommand {
     private Robot robot;
     private TeleOpStateHandler tsh;
     private Prompter prompter;
+    private SpindexerColorSensors colorSensors;
 
     @Override
     public void initialize() {
@@ -50,6 +52,7 @@ public class Tele extends OpModeCommand {
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
+        colorSensors = new SpindexerColorSensors(hardwareMap,"colorLeft","colorRight");
         prompter = new Prompter(this, gamepad_1)
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
                 .onComplete(() -> Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState))
@@ -65,18 +68,19 @@ public class Tele extends OpModeCommand {
         schedule(new Infinite(() -> {
             robot.update();
             if (!robot.drivetrain.isHoldingPose()) robot.drivetrain.arcadeDrive(gamepad1);
+            colorSensors.update();
         }));
 
         // Initialize robot
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
-                new Instant(robot::initialize),
-                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                tsh.runTransition(
-                    new Sequential(
-                        robot.shootAll(),
-                        robot.resetAfterShooting()
-                    ), RobotStateHandler.CycleState.INTAKE)
+                new Instant(robot::initialize)
+//                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+//                tsh.runTransition(
+//                    new Sequential(
+//                        robot.shootAll(),
+//                        robot.resetAfterShooting()
+//                    ), RobotStateHandler.CycleState.INTAKE)
             )
         );
 
@@ -275,6 +279,7 @@ public class Tele extends OpModeCommand {
         // Telemetry
         telemetry.addData("alliance", Globals.allianceColor);
         telemetry.addData("holdPose", robot.drivetrain.isHoldingPose());
+        telemetry.addData("colors",colorSensors.getCompartmentColors());
         telemetry.update();
     }
 
