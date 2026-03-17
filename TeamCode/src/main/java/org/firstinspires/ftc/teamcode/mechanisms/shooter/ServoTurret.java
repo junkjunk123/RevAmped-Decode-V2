@@ -34,6 +34,7 @@ public class ServoTurret extends HwServo {
     public static int UNSORTED_FINAL;
     public static double FAR_PRESET_BLUE;
     public static double FAR_PRESET_RED;
+    public static double MANUALSOTMOFFSET;
 
     public static double MS_PER_REVOLUTION = 1500;
 
@@ -42,6 +43,7 @@ public class ServoTurret extends HwServo {
     }
 
     private ServoTurretState state = ServoTurretState.PresetState.REST;
+    private double offset = 0;
 
     /**
      * @param hwMap hardwareMap
@@ -52,6 +54,7 @@ public class ServoTurret extends HwServo {
 
     public ICommand setState(ServoTurretState state) {
         return new Conditional(
+                //havish PLEASE REMOVE THIS AFTER MTI APP T_T
                 () -> setPosition(state.targetPos()),
                 new Sequential(
                         new Instant(() -> this.state = state),
@@ -97,5 +100,14 @@ public class ServoTurret extends HwServo {
             move(p.previous());
         else
             move(ServoTurretState.PresetState.REST);
+    }
+
+    //PLEASE REMOVE THIS AFTER MTI APPS T_T
+    public void manualSOTM(double offset){
+        setPosition(this.state.targetPos()-offset);
+    }
+
+    public void manual(){
+        setPosition(this.state.targetPos());
     }
 }

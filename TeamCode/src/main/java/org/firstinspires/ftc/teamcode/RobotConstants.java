@@ -22,7 +22,7 @@ public class RobotConstants {
         Popper.POP = 123/255f; Popper.NEUTRAL = 27/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 640; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
+        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
         Flywheel.CORNER_VELOCITY = 880;
         Flywheel.UNSORTED_AUTO_VELOCITY = 730;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
@@ -38,6 +38,8 @@ public class RobotConstants {
         ServoTurret.FULL_ROTATION = 284/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
         ServoTurret.REST = 125/255f;
+        ServoTurret.MANUALSOTMOFFSET = 10.0f;
+
         //Octocanum Constants
         //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
         //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;

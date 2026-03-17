@@ -71,13 +71,13 @@ public class Tele extends OpModeCommand {
         // Initialize robot
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
-                new Instant(robot::initialize)
-//                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-//                tsh.runTransition(
-//                    new Sequential(
-//                        robot.shootAll(),
-//                        robot.resetAfterShooting()
-//                    ), RobotStateHandler.CycleState.INTAKE)
+                new Instant(robot::initialize),
+                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                tsh.runTransition(
+                    new Sequential(
+                        robot.shootAll(),
+                        robot.resetAfterShooting()
+                    ), RobotStateHandler.CycleState.INTAKE)
             )
         );
 
@@ -174,7 +174,7 @@ public class Tele extends OpModeCommand {
                             robot.popper.pop(),
                             new Conditional(
                                     robot.flywheel::isStopped,
-                                    new Instant(robot::shootMedium),
+                                    new Instant(robot::shootNear),
                                     Commands.NOOP
                             )
                     ),
@@ -267,10 +267,17 @@ public class Tele extends OpModeCommand {
             );
         }
 
-        if (gamepad_1.right_trigger_button.isRisingEdge()) {
-            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        } else if (gamepad_1.right_trigger_button.isFallingEdge()) {
-            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        if (gamepad_1.right_trigger_button.isRisingEdge()) {
+//            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        } else if (gamepad_1.right_trigger_button.isFallingEdge()) {
+//            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        }
+        if(gamepad_1.left_trigger_button.isTrue()){
+            robot.turret.manualSOTM(8/255f);
+        }else if(gamepad_1.right_trigger_button.isTrue()) {
+            robot.turret.manualSOTM(-8/255f);
+        } else {
+            robot.turret.manual();
         }
 
         // Telemetry
