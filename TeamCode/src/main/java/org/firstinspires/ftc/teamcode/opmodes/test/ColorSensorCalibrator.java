@@ -32,7 +32,7 @@ public class ColorSensorCalibrator extends OpMode {
     @Override
     public void init() {
         gamepad_1 = new GamepadEx(gamepad1);
-        sensors = List.of("colorleft", "colorright");
+        sensors = List.of("colorLeft", "colorRight");
         dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         prompter = new Prompter(this, gamepad_1);
         prompter.prompt("sensor", new OptionPrompt<>("Select a sensor -- press right bumper to select", sensors.toArray(new String[0])))
