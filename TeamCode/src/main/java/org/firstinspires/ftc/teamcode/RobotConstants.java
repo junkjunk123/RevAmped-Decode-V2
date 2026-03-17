@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.DecodeColorSensor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
@@ -18,7 +19,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 120/255f; Popper.NEUTRAL = 27/255f; Popper.BLOCK = 111/255f;
+        Popper.POP = 123/255f; Popper.NEUTRAL = 27/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 640; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
@@ -54,5 +55,10 @@ public class RobotConstants {
         ColorManager.maxPurpleHueTwo = 235.0f; ColorManager.minPurpleHueTwo = 195.0f;
         ColorManager.maxGreenHueOne = 165.0f; ColorManager.minGreenHueOne = 155.0f;
         ColorManager.maxGreenHueTwo = 165.0f; ColorManager.minGreenHueTwo = 155.0f;
+
+        //ColorSensor Constants
+        DecodeColorSensor.DISTANCEMAX  = 40.0f; DecodeColorSensor.DISTANCEMIN = 0f;
+        DecodeColorSensor.GREENMAX = 170.0f; DecodeColorSensor.GREENMIN = 150.0f;
+        DecodeColorSensor.PURPLEMAX = 250.0f; DecodeColorSensor.PURPLEMIN = 200.0f;
     }
 }

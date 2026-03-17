@@ -47,8 +47,10 @@ public class ColorSensorCalibrator extends OpMode {
     public void loop() {
         switch (testState) {
             case CALIBRATE -> {
-                dashTelemetry.addData("Detection", currentSensor.objectDetected() ? currentSensor.getColor() : currentSensor.objectDetected());
+                dashTelemetry.addData("Detection", currentSensor.objectDetected() ? currentSensor.getColor() : "out of range");
                 dashTelemetry.addData("Hue", currentSensor.getHue());
+                dashTelemetry.addData("Value",currentSensor.getValue());
+                dashTelemetry.addData("Saturation",currentSensor.getSaturation());
                 dashTelemetry.addData("Distance", currentSensor.getDistanceMM());
                 dashTelemetry.update();
                 currentSensor.update();

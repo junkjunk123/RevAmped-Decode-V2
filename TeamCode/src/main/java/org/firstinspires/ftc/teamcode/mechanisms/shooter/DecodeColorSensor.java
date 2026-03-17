@@ -8,12 +8,12 @@ import org.firstinspires.ftc.teamcode.utils.hardware.HwColorSensor;
 
 @Config
 public class DecodeColorSensor extends HwColorSensor {
-    public static double GREENMIN = 81;
-    public static double GREENMAX = 140;
-    public static double PURPLEMIN = 270;
-    public static double PURPLEMAX = 300;
+    public static double GREENMIN = 150;
+    public static double GREENMAX = 170;
+    public static double PURPLEMIN = 200;
+    public static double PURPLEMAX = 250;
     public static double DISTANCEMIN = 0;
-    public static double DISTANCEMAX = 1000;
+    public static double DISTANCEMAX = 40;
     public DecodeColorSensor(HardwareMap hardwareMap,String id){
         super(hardwareMap,id);
     }
@@ -28,6 +28,14 @@ public class DecodeColorSensor extends HwColorSensor {
 
     public double getHue(){
         return getHSVValues().getH();
+    }
+
+    public double getValue(){
+        return getHSVValues().getV();
+    }
+
+    public double getSaturation(){
+        return getHSVValues().getS();
     }
 
     public boolean purpleDetected(){
