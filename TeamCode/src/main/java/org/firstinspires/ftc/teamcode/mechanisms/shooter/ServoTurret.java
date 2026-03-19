@@ -6,6 +6,7 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
@@ -17,23 +18,23 @@ public class ServoTurret extends HwServo {
     public static double FULL_ROTATION;
     public static float REST;
 
-    public static int AUTO_PRELOADS;
-    public static int AUTO_SET_1;
-    public static int AUTO_SET_2;
-    public static int AUTO_SET_3;
-    public static int FAR_AUTO;
-    public static int FIFTEEN_BALL_PRELOADS;
-    public static int FIFTEEN_OBELISK_DETECTION;
-    public static int UNSORTED_AUTO_PRELOADS;
-    public static int UNSORTED_GATE;
-    public static int UNSORTED_SET_1;
-    public static int UNSORTED_SET_2;
-    public static int UNSORTED_SET_3;
-    public static int UNSORTED_SET_4;
-    public static int UNSORTED_SET_5;
-    public static int UNSORTED_FINAL;
-    public static double FAR_PRESET_BLUE;
-    public static double FAR_PRESET_RED;
+    public static float AUTO_PRELOADS;
+    public static float AUTO_SET_1;
+    public static float AUTO_SET_2;
+    public static float AUTO_SET_3;
+    public static float FAR_AUTO;
+    public static float FIFTEEN_BALL_PRELOADS;
+    public static float FIFTEEN_OBELISK_DETECTION;
+    public static float UNSORTED_AUTO_PRELOADS; //doesn't matter for 15
+    public static float UNSORTED_GATE;
+    public static float UNSORTED_SET_1;
+    public static float UNSORTED_SET_2;
+    public static float UNSORTED_SET_3;
+    public static float UNSORTED_SET_4;
+    public static float UNSORTED_SET_5;
+    public static float UNSORTED_FINAL;
+    public static float FAR_PRESET_BLUE;
+    public static float FAR_PRESET_RED;
     public static double MANUALSOTMOFFSET;
 
     public static double MS_PER_REVOLUTION = 1500;
@@ -110,4 +111,5 @@ public class ServoTurret extends HwServo {
     public void manual(){
         setPosition(this.state.targetPos());
     }
+
 }

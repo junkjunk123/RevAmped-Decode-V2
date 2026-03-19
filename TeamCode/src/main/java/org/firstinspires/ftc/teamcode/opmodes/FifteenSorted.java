@@ -75,16 +75,17 @@ public class FifteenSorted extends OpModeCommand {
                         }),
                         new Instant(() -> {
                             limelight.close();
-                            robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS);
+                            robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS); //looks fine
                             robot.intakeMotor.intakeSlow();
                         }),
                         robot.popper.pop(),
                         robot.autoFastShoot(),
+
                         AutoMethods.intakePreload(robot, true),
-                        AutoMethods.shootPreload(robot, true),
+                        AutoMethods.shootPreload(robot, true), //uses unsorted final
                         AutoMethods.intakeFromGate(robot, 0),
-                        AutoMethods.shootFromGate(robot, 0, true),
-                        AutoMethods.intakeForSort(robot, 0),
+                        AutoMethods.shootFromGate(robot, 0, true),//uses unsorted auto set 1
+                        AutoMethods.intakeForSort(robot, 0), //uses auto set 1
                         AutoMethods.shootForSort(overallTimer, robot, 0),
                         AutoMethods.intakeForSort(robot, 2),
                         intakeLastPreloadSet(),
@@ -115,7 +116,7 @@ public class FifteenSorted extends OpModeCommand {
                         new Sequential(
                                 new Wait(300),
                                 new Instant(() -> {
-                                    robot.turret.setPosition(ServoTurret.UNSORTED_FINAL+7);
+                                    robot.turret.setPosition(ServoTurret.UNSORTED_FINAL);
                                     robot.intakeMotor.intake();
                                     robot.flywheel.stop();
                                 })

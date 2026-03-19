@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
@@ -272,13 +273,14 @@ public class Tele extends OpModeCommand {
 //        } else if (gamepad_1.right_trigger_button.isFallingEdge()) {
 //            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        }
-        if(gamepad_1.left_trigger_button.isTrue()){
-            robot.turret.manualSOTM(8/255f);
-        }else if(gamepad_1.right_trigger_button.isTrue()) {
-            robot.turret.manualSOTM(-8/255f);
-        } else {
-            robot.turret.manual();
-        }
+//        if(gamepad_1.left_trigger_button.isTrue()){
+//            robot.turret.manualSOTM(8/255f);
+//        }else if(gamepad_1.right_trigger_button.isTrue()) {
+//            robot.turret.manualSOTM(-8/255f);
+//        } else {
+//            robot.turret.manual();
+//        }
+
 
         // Telemetry
         telemetry.addData("alliance", Globals.allianceColor);

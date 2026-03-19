@@ -186,10 +186,10 @@ public class AutoMethods {
     }
 
     public static ICommand intakeForSort(Robot robot, int iteration) {
-        int turretPos = switch (iteration) {
-            case 0 -> Turret.AUTO_SET_1;
-            case 1 -> Turret.AUTO_SET_2;
-            default -> Turret.AUTO_SET_3;
+        float turretPos = switch (iteration) {
+            case 0 -> ServoTurret.AUTO_SET_1;
+            case 1 -> ServoTurret.AUTO_SET_2;
+            default -> ServoTurret.AUTO_SET_3;
         };
         int driveTimeout = iteration == 2 ? 4500 : 3000;
 
