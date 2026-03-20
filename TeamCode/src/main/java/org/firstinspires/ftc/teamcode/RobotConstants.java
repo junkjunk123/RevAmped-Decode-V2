@@ -41,18 +41,23 @@ public class RobotConstants {
         ServoTurret.FAR_PRESET_RED = 36/255f;
         //done
         ServoTurret.FIFTEEN_OBELISK_DETECTION = 200/255f;
-        ServoTurret.FIFTEEN_BALL_PRELOADS = 117/255f;
-        ServoTurret.UNSORTED_FINAL = 35/255f;
+        //preloads
+        ServoTurret.FIFTEEN_BALL_PRELOADS = 118/255f;
+        ServoTurret.UNSORTED_FINAL = 38/255f; // 1st spike
+        //Gate cycle
+        ServoTurret.UNSORTED_SET_2 = 42/255f;
+        //2nd spike
         ServoTurret.AUTO_SET_1 = 59/255f;
-        ServoTurret.AUTO_SET_3 = 15/255f;
-        ServoTurret.UNSORTED_SET_2 = 30/255f;
+        //3nd spike
+        ServoTurret.AUTO_SET_3 = 33/255f;
+
 
         //Not used in 15 ball
         ServoTurret.UNSORTED_SET_1 = 43/255f;
         ServoTurret.UNSORTED_SET_3 = 5/255f;
         ServoTurret.UNSORTED_SET_4 = 5/255f;
         ServoTurret.UNSORTED_SET_5 = 5/255f;
-        ServoTurret.AUTO_SET_2 = 50/255f;
+        ServoTurret.AUTO_SET_2 = 51/255f;
 
         //Octocanum Constants
         //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
@@ -60,7 +65,7 @@ public class RobotConstants {
 
         //updated
         // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 242/255f, TABLE_BALL_1 = 210/255f, TABLE_BALL_2 = 178/255f, TABLE_BALL_0_END = 69/255f, TABLE_BALL_1_END = 37/255f, TABLE_BALL_2_END = 5/255f, FULL_REVOLUTION_TICKS = -145/255f;
+        float TABLE_BALL_0 = 242/255f, TABLE_BALL_1 = 210/255f, TABLE_BALL_2 = 178/255f, TABLE_BALL_0_END = 69/255f, TABLE_BALL_1_END = 37/255f, TABLE_BALL_2_END = 5/255f, FULL_REVOLUTION_TICKS = -96/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 

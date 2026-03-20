@@ -242,7 +242,7 @@ public class AutoMethods {
                                 )
                         ),
                         new Instant(() -> {
-                            robot.hood.setPosition(Hood.MEDIUM_PRESET - 8/255f);
+                            robot.hood.setPosition(Hood.MEDIUM_PRESET - 10/255f);
                             robot.flywheel.setVelocity(Flywheel.CLOSE_AUTO_VELOCITY + flywheelOffset+10);
                             robot.tableCompartments.populate(intookColors);
                         }),
