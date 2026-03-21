@@ -38,7 +38,7 @@ public class FifteenSortedPaths implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-        FollowParameters shootPreloads = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootPreloads = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(START_POSE, CONTROL_POINT_1, FIRST_SHOOT_POSE))
                 .setConstantHeadingInterpolation(FIRST_SHOOT_POSE.getHeading())
                 .build()

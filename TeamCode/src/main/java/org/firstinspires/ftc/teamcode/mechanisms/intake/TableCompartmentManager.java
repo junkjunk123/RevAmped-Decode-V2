@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 public class TableCompartmentManager {
@@ -15,8 +17,10 @@ public class TableCompartmentManager {
     };
 
     public final IntakeThread intakeThread;
+    private final Supplier<Table.RelativeState> tableState;
 
-    public TableCompartmentManager(ColorManager colorManager) {
+    public TableCompartmentManager(SpindexerColorSensors colorManager, Supplier<Table.RelativeState> tableState) {
+        this.tableState = tableState;
         RobotStateHandler.CycleState.INTAKE.init(colorManager, compartmentColors);
         intakeThread = RobotStateHandler.CycleState.INTAKE.intakeThread;
     }
@@ -43,7 +47,8 @@ public class TableCompartmentManager {
                 .toArray();
     }
 
-    public int sort(int curIndex) {
+    public int sort() {
+        int curIndex = tableState.get().ordinal();
         if (isEmpty() || allGreen() || allPurple() || Globals.randomizationState == null) {
             return curIndex;
         }
@@ -58,6 +63,10 @@ public class TableCompartmentManager {
         compartmentColors[0] = colors[0];
         compartmentColors[1] = colors[1];
         compartmentColors[2] = colors[2];
+    }
+
+    public void populate() {
+        intakeThread.updateColors(tableState.get().ordinal());
     }
 
     public void removeAll() {

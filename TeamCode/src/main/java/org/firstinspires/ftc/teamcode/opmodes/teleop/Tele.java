@@ -46,6 +46,8 @@ public class Tele extends OpModeCommand {
     private TeleOpStateHandler tsh;
     private Prompter prompter;
 
+    public static double turretPos;
+
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
@@ -99,10 +101,18 @@ public class Tele extends OpModeCommand {
         gamepad_1.update();
         gamepad_2.update();
 
+        if (RobotStateHandler.CycleState.DRIVE_TO_SHOOT.INSTANCE == RobotStateHandler.DriveState.AUTO_TRACKING) {
+            RobotStateHandler.CycleState.DRIVE_TO_SHOOT.update();
+        }
+
         // Schedule commands based on triggers
         if (gamepad_1.a.isRisingEdge()) {
             TrackingThread.trackTurret = !TrackingThread.trackTurret;
             TrackingThread.trackHood = !TrackingThread.trackHood;
+        }
+
+        if (gamepad_1.b.isRisingEdge()) {
+            robot.turret.setPosition(ServoTurret.radToTicks(turretPos));
         }
 
         if (gamepad_1.y.isRisingEdge()) {

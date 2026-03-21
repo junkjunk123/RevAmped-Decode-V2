@@ -36,7 +36,7 @@ public class SortingTest extends OpModeCommand {
         gamepad_1 = new GamepadEx(gamepad1);
         robot = new Robot(hardwareMap);
         prompter = new Prompter(this,gamepad_1);
-        colorSensors = new SpindexerColorSensors(hardwareMap,"colorLeft","colorRight");
+        //colorSensors = new SpindexerColorSensors(hardwareMap,"colorLeft","colorRight");
         compartmentManager = new SpindexerCompartmentManager(colorSensors);
         telemetries = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         prompter.prompt("motif", new OptionPrompt<>("Select a motif -- press right bumper to select", RandomizationState.values()))

@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
@@ -52,7 +53,7 @@ public class Robot {
     public final Hood hood;
     public final Popper popper;
     public final IntakeMotor intakeMotor;
-    public final ColorManager intakeColor;
+    public final SpindexerColorSensors intakeColor;
     public final IntakeDistance intakeDistance;
     public final TableCompartmentManager tableCompartments;
     private final List<LynxModule> hubs;
@@ -76,12 +77,12 @@ public class Robot {
         table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.leftRear));
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap);
-        intakeColor = new ColorManager(hardwareMap);
+        intakeColor = new SpindexerColorSensors(hardwareMap);
         //intakeDistance = new IntakeDistance(hardwareMap);
         intakeDistance = null;
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
-        tableCompartments = new TableCompartmentManager(intakeColor);
+        tableCompartments = new TableCompartmentManager(intakeColor, table::getState);
         if (!Globals.isTeleOp) initialize();
     }
 
@@ -137,15 +138,14 @@ public class Robot {
 
     public ICommand sort() {
         return new Lazy(() -> {
-            if (Globals.randomizationState != null) return table.setState(() -> tableCompartments.sort(table.getState().ordinal()));
+            if (Globals.randomizationState != null) return table.setState(tableCompartments::sort);
             return Commands.NOOP;
         });
     }
 
     public ICommand sortAuto() {
         return new Sequential(
-                new Instant(intakeMotor::stop),
-                new Instant(() -> table.setStateCommandless(Table.RelativeState.values()[tableCompartments.sort(table.getState().ordinal())])),
+                new Instant(() -> table.setStateCommandless(Table.RelativeState.values()[tableCompartments.sort()])),
                 new Wait(400)
         );
     }
