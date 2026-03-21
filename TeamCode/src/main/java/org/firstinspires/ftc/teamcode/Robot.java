@@ -144,6 +144,7 @@ public class Robot {
 
     public ICommand sortAuto() {
         return new Sequential(
+                new Instant(intakeMotor::stop),
                 new Instant(() -> table.setStateCommandless(Table.RelativeState.values()[tableCompartments.sort(table.getState().ordinal())])),
                 new Wait(400)
         );

@@ -43,7 +43,7 @@ public class RobotConstants {
         ServoTurret.FIFTEEN_OBELISK_DETECTION = 200/255f;
         //preloads
         ServoTurret.FIFTEEN_BALL_PRELOADS = 118/255f;
-        ServoTurret.UNSORTED_FINAL = 38/255f; // 1st spike
+        ServoTurret.UNSORTED_FINAL = 43/255f; // 1st spike
         //Gate cycle
         ServoTurret.UNSORTED_SET_2 = 42/255f;
         //2nd spike

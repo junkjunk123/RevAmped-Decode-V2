@@ -20,7 +20,7 @@ public class SpindexerCompartmentManager {
         };
 
         colorSensors = spindexerColorSensors;
-        motifGreenIndex = Globals.randomizationState.getGreenIndex();
+        motifGreenIndex = 0;
     }
 
     public void updateCompartments(){
