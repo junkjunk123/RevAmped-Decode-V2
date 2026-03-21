@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+
 public sealed interface ServoTurretState permits ServoTurretState.AutoTrack, ServoTurretState.Custom, ServoTurretState.PresetState {
     Turret.MoveState.AutoTrack AUTO_TRACK = new Turret.MoveState.AutoTrack();
 

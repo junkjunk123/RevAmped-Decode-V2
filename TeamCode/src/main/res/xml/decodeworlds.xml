@@ -13,6 +13,8 @@
             <goBILDA5202SeriesMotor name="motor_rf" port="2"/>
             <goBILDA5202SeriesMotor name="motor_lf" port="3"/>
             <goBILDAPinpoint name="pinpoint" port="0" bus="3"/>
+            <RevColorSensorV3 name="colorRight" port="0" bus="1"/>
+            <RevColorSensorV3 name="colorLeft" port="0" bus="2"/>
             <Servo name="popper" port="0"/>
             <Servo name="table" port="1"/>
             <Servo name="table2" port="3"/>

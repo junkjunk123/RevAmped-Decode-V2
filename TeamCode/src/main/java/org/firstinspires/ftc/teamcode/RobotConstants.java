@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.DecodeColorSensor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
@@ -21,7 +22,7 @@ public class RobotConstants {
         Popper.POP = 123/255f; Popper.NEUTRAL = 27/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 640; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
+        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
         Flywheel.CORNER_VELOCITY = 880;
         Flywheel.UNSORTED_AUTO_VELOCITY = 730;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
@@ -37,13 +38,34 @@ public class RobotConstants {
         ServoTurret.FULL_ROTATION = 284/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
         ServoTurret.REST = 125/255f;
+        ServoTurret.FAR_PRESET_RED = 36/255f;
+        //done
+        ServoTurret.FIFTEEN_OBELISK_DETECTION = 200/255f;
+        //preloads
+        ServoTurret.FIFTEEN_BALL_PRELOADS = 118/255f;
+        ServoTurret.UNSORTED_FINAL = 38/255f; // 1st spike
+        //Gate cycle
+        ServoTurret.UNSORTED_SET_2 = 42/255f;
+        //2nd spike
+        ServoTurret.AUTO_SET_1 = 59/255f;
+        //3nd spike
+        ServoTurret.AUTO_SET_3 = 33/255f;
+
+
+        //Not used in 15 ball
+        ServoTurret.UNSORTED_SET_1 = 43/255f;
+        ServoTurret.UNSORTED_SET_3 = 5/255f;
+        ServoTurret.UNSORTED_SET_4 = 5/255f;
+        ServoTurret.UNSORTED_SET_5 = 5/255f;
+        ServoTurret.AUTO_SET_2 = 51/255f;
+
         //Octocanum Constants
         //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
         //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
 
         //updated
         // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 241/255f, TABLE_BALL_1 = 209/255f, TABLE_BALL_2 = 177/255f, TABLE_BALL_0_END = 69/255f, TABLE_BALL_1_END = 37/255f, TABLE_BALL_2_END = 5/255f, FULL_REVOLUTION_TICKS = -145/255f;
+        float TABLE_BALL_0 = 242/255f, TABLE_BALL_1 = 210/255f, TABLE_BALL_2 = 178/255f, TABLE_BALL_0_END = 69/255f, TABLE_BALL_1_END = 37/255f, TABLE_BALL_2_END = 5/255f, FULL_REVOLUTION_TICKS = -96/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 
@@ -54,5 +76,10 @@ public class RobotConstants {
         ColorManager.maxPurpleHueTwo = 235.0f; ColorManager.minPurpleHueTwo = 195.0f;
         ColorManager.maxGreenHueOne = 165.0f; ColorManager.minGreenHueOne = 155.0f;
         ColorManager.maxGreenHueTwo = 165.0f; ColorManager.minGreenHueTwo = 155.0f;
+
+        //ColorSensor Constants
+        DecodeColorSensor.DISTANCEMAX  = 40.0f; DecodeColorSensor.DISTANCEMIN = 0f;
+        DecodeColorSensor.GREENMAX = 170.0f; DecodeColorSensor.GREENMIN = 150.0f;
+        DecodeColorSensor.PURPLEMAX = 250.0f; DecodeColorSensor.PURPLEMIN = 200.0f;
     }
 }

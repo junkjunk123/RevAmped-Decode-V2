@@ -23,6 +23,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
@@ -173,7 +175,7 @@ public class Tele extends OpModeCommand {
                             robot.popper.pop(),
                             new Conditional(
                                     robot.flywheel::isStopped,
-                                    new Instant(robot::shootMedium),
+                                    new Instant(robot::shootNear),
                                     Commands.NOOP
                             )
                     ),
@@ -266,11 +268,19 @@ public class Tele extends OpModeCommand {
             );
         }
 
-        if (gamepad_1.right_trigger_button.isRisingEdge()) {
-            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        } else if (gamepad_1.right_trigger_button.isFallingEdge()) {
-            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }
+//        if (gamepad_1.right_trigger_button.isRisingEdge()) {
+//            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        } else if (gamepad_1.right_trigger_button.isFallingEdge()) {
+//            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        }
+//        if(gamepad_1.left_trigger_button.isTrue()){
+//            robot.turret.manualSOTM(8/255f);
+//        }else if(gamepad_1.right_trigger_button.isTrue()) {
+//            robot.turret.manualSOTM(-8/255f);
+//        } else {
+//            robot.turret.manual();
+//        }
+
 
         // Telemetry
         telemetry.addData("alliance", Globals.allianceColor);

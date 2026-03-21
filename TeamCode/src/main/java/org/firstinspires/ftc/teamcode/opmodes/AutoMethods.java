@@ -186,10 +186,10 @@ public class AutoMethods {
     }
 
     public static ICommand intakeForSort(Robot robot, int iteration) {
-        int turretPos = switch (iteration) {
-            case 0 -> Turret.AUTO_SET_1;
-            case 1 -> Turret.AUTO_SET_2;
-            default -> Turret.AUTO_SET_3;
+        float turretPos = switch (iteration) {
+            case 0 -> ServoTurret.AUTO_SET_1;
+            case 1 -> ServoTurret.AUTO_SET_2;
+            default -> ServoTurret.AUTO_SET_3;
         };
         int driveTimeout = iteration == 2 ? 4500 : 3000;
 
@@ -242,7 +242,7 @@ public class AutoMethods {
                                 )
                         ),
                         new Instant(() -> {
-                            robot.hood.setPosition(Hood.MEDIUM_PRESET - 8/255f);
+                            robot.hood.setPosition(Hood.MEDIUM_PRESET - 10/255f);
                             robot.flywheel.setVelocity(Flywheel.CLOSE_AUTO_VELOCITY + flywheelOffset+10);
                             robot.tableCompartments.populate(intookColors);
                         }),

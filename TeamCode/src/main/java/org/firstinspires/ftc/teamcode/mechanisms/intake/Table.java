@@ -32,10 +32,10 @@ public class Table extends HwServo {
         BALL2;
 
         public float[] getShootStates() {
-            float first = target() + SHOOT_INCREMENT;
+            float first = target() + SHOOT_INCREMENT+10/255f;
             float secondIncrement = FULL_REVOLUTION / 3;
             float second = secondIncrement + first;
-            float third = secondIncrement + second;
+            float third = secondIncrement + second-10/255f;
             return new float[] {first, second, third};
         }
 
