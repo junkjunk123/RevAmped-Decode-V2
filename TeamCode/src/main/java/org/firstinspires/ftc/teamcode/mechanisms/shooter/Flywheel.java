@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
+import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 
 @Config
 public class Flywheel extends HwMotor {
@@ -23,6 +24,7 @@ public class Flywheel extends HwMotor {
 
     private double targetVelocity;
     private final FlywheelController controller;
+    private final HwVoltageSensor voltageSensor;
 
     public enum FlywheelState {
         FAR,
@@ -37,6 +39,7 @@ public class Flywheel extends HwMotor {
 
     public Flywheel(HardwareMap hardwareMap) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
+        voltageSensor = new HwVoltageSensor(hardwareMap);
         setEncoder(Encoder.fromMotor(get()).reverse());
         resetPosition();
         hardware[0].setDirection(DcMotorSimple.Direction.REVERSE);
@@ -46,10 +49,11 @@ public class Flywheel extends HwMotor {
 
     public void update() {
         super.update();
+        voltageSensor.update();
 
         if (isRunning() && state != FlywheelState.NO_PID) {
             double power = controller.update(getVelocityImperial(), targetVelocity);
-            setPower(power);
+            setPower(power * voltageSensor.getVoltageNormalized());
         }
     };
 

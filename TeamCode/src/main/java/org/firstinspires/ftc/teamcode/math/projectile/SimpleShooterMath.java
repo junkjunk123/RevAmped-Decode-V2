@@ -69,10 +69,12 @@ public class SimpleShooterMath {
                 {0, 0, 0}
         };
 
+        //(0,0) -> (3, 0) : x increase
+        //(0, 0) -> (0, 3) down : y decrease
         double[][] turretPos = {
-                {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, 0}
+                {-0.55, -0.23, -0.15},
+                {-1.0, -0.6, -0.45},
+                {-1.15, -0.77, -0.58}
         };
 
         double[][] hoodSine = Arrays.stream(hoodPos)
@@ -181,7 +183,7 @@ public class SimpleShooterMath {
     public double getTurretPos(Vector offset, double heading) {
         double pos = turretInterpolation.interpolate(offset.getXComponent(), offset.getYComponent());
         double delta = normalizeAnglePi(pos - heading);
-        return Range.clip(delta, Math.min(ServoTurret.LEFT_TICKS_LIMIT, ServoTurret.RIGHT_TICKS_LIMIT),
+        return Range.clip(ServoTurret.degreesToTicks(delta), Math.min(ServoTurret.LEFT_TICKS_LIMIT, ServoTurret.RIGHT_TICKS_LIMIT),
                 Math.max(ServoTurret.RIGHT_TICKS_LIMIT, ServoTurret.LEFT_TICKS_LIMIT));
     }
 

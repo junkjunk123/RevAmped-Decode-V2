@@ -42,6 +42,12 @@ public class ServoTurret extends HwServo {
     public static float ticksPerRotation() {
         return (float) FULL_ROTATION;
     }
+    public static double ticksPerDegree() {return FULL_ROTATION / 360.0;}
+    public static double ticksPerRad() {return FULL_ROTATION / Math.PI / 2;}
+    public static double degreesToTicks(double degrees) {return degrees * ticksPerDegree() + REST;}
+    public static double ticksToDegrees(double ticks) {return (ticks - REST) / ticksPerDegree();}
+    public static double ticksToRad(double ticks) {return (ticks - REST) / ticksPerRad();}
+    public static double radToTicks(double rad) {return rad * ticksPerRad() + REST;}
 
     private ServoTurretState state = ServoTurretState.PresetState.REST;
     private double offset = 0;

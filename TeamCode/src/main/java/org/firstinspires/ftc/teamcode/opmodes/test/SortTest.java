@@ -29,14 +29,14 @@ public class SortTest extends OpMode {
     public void start() {
         robot.update();
         Globals.randomizationState = motif;
-        index = robot.tableCompartments.sort(robot.table.getState().ordinal());
+        index = robot.tableCompartments.sort();
         robot.table.setPosition(index);
     }
 
 
     @Override
     public void loop() {
-        telemetry.addData("val", robot.tableCompartments.sort(robot.table.getState().ordinal()));
+        telemetry.addData("val", robot.tableCompartments.sort());
         telemetry.update();
     }
 }

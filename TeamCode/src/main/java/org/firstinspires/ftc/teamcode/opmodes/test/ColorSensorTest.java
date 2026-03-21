@@ -22,7 +22,7 @@ public class ColorSensorTest extends OpMode {
     MultipleTelemetry telemetries;
     @Override
     public void init() {
-        colorSensors = new SpindexerColorSensors(hardwareMap,"colorLeft","colorRight");
+        //colorSensors = new SpindexerColorSensors(hardwareMap,"colorLeft","colorRight");
         telemetries = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 

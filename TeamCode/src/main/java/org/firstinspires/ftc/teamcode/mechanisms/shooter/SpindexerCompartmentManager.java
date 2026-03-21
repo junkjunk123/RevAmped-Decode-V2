@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
-import android.accessibilityservice.AccessibilityService;
-
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class SpindexerCompartmentManager {
@@ -25,9 +22,9 @@ public class SpindexerCompartmentManager {
 
     public void updateCompartments(){
         populateCompartments(
-                colorSensors.getColorAt(0),
-                colorSensors.getColorAt(1),
-                colorSensors.getColorAt(2)
+                colorSensors.getColor(0),
+                colorSensors.getColor(1),
+                colorSensors.getColor(2)
         );
     }
 
@@ -65,7 +62,7 @@ public class SpindexerCompartmentManager {
     }
 
     public boolean canSort(){
-        if (colorSensors.getColorAt(1) == ArtifactColor.GREEN && colorSensors.getColorAt(2) == ArtifactColor.GREEN){
+        if (colorSensors.getColor(1) == ArtifactColor.GREEN && colorSensors.getColor(2) == ArtifactColor.GREEN){
             return false;
         }
         return true;

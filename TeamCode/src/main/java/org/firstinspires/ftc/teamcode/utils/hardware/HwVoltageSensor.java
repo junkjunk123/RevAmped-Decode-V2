@@ -19,4 +19,13 @@ public class HwVoltageSensor {
         if (voltage == null) voltage = voltageSensor.getVoltage();
         return voltage;
     }
+
+    public double getVoltageNormalized(float nominalVoltage) {
+        return Math.min(nominalVoltage / getVoltage(), 1f);
+    }
+
+    public double getVoltageNormalized() {
+        return getVoltageNormalized(12.0f);
+    }
+
 }
