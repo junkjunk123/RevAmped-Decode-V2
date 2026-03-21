@@ -139,8 +139,8 @@ public class FifteenSorted extends OpModeCommand {
                                 new Wait(200)
                         ),
                         new Instant(() -> {
-                            robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY-40);
-                            robot.hood.setPosition(Hood.NEAR_PRESET - 16/255f);
+                            robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY-60);
+                            robot.hood.setPosition(Hood.NEAR_PRESET - 20/255f);
                             robot.tableCompartments.populate(colors);
                         }),
                         new Sequential(
