@@ -5,6 +5,8 @@ import androidx.annotation.NonNull;
 import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -12,23 +14,33 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
+import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDevice;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public class DecodeLimelight implements HwDevice {
     public final Limelight3A limelight;
     private final String id;
     private LLResult latestResult;
-    private Pose detectionResult;
+    private Vector tagOffsets = new Vector();
     private long lastDetectionTime = 0;
+
+    public static ColoredDecodePose APRILTAG_POSE = new ColoredDecodePose(14.5, 132, 0);
+    public static double CENTER_OFFSET = 6.6;
 
     public enum Pipeline {
         NONE(-1),
         OBELISK(7),
-        SHOOTING_ALIGNMENT(1),
+        SHOOTING_ALIGNMENT(0),
         ELEMENT_DETECTION(2);
 
         final int pipeline;
@@ -66,7 +78,7 @@ public class DecodeLimelight implements HwDevice {
 
     private void computeLatestResult() {
         LLResult result = limelight.getLatestResult();
-        if (result != null && result.isValid()) {
+        if (result != null && (result.isValid() || getCurrentPipeline() == Pipeline.SHOOTING_ALIGNMENT)) {
             latestResult = result;
             lastDetectionTime = result.getControlHubTimeStampNanos();
         }
@@ -91,34 +103,19 @@ public class DecodeLimelight implements HwDevice {
                     }
                 }
             }
-
             case SHOOTING_ALIGNMENT -> {
-                double tagID = Globals.allianceColor.getTagID();
-                List<LLResultTypes.FiducialResult> r = latestResult.getFiducialResults();
-                LLResultTypes.FiducialResult target = null;
-                for (LLResultTypes.FiducialResult i : r) {
-                    if (i != null && i.getFiducialId() == tagID) {
-                        target = i;
-                        break;
-                    }
-                }
-
-                if (target != null) {
-                    double x = target.getCameraPoseTargetSpace().getPosition().toUnit(DistanceUnit.INCH).x; // right/left from tag
-                    double z = target.getCameraPoseTargetSpace().getPosition().toUnit(DistanceUnit.INCH).z; // forward/back from tag
-                    double h = target.getCameraPoseTargetSpace().getOrientation().getYaw(AngleUnit.RADIANS); // heading from tag
-
-                    detectionResult = new Pose(x, z, h, FTCCoordinates.INSTANCE);
-                    return;
-                }
-
-                detectionResult = new Pose();
+                double[] output = latestResult.getPythonOutput();
+                Globals.telemetry.addData("lloutput", Arrays.toString(output));
+                if (Globals.allianceColor.getTagID() != output[0]) return;
+                tagOffsets = new Vector2D(output[2], output[1]);
+                Tele.offsets = getOffsets();
+                setCurrentPipeline(Pipeline.NONE);
             }
         }
-    };
+    }
 
-    public Pose getDetectionResult() {
-        return detectionResult;
+    public Vector getOffsets() {
+        return tagOffsets;
     }
 
     public long getLastDetectionTimeNanos() {
@@ -139,5 +136,12 @@ public class DecodeLimelight implements HwDevice {
                 .setStart(() -> setCurrentPipeline(Pipeline.OBELISK))
                 .setExecute(this::update)
                 .setDone(() -> getCurrentPipeline() != Pipeline.OBELISK);
+    }
+
+    public ICommand computeOffsets() {
+        return new Command()
+                .setStart(() -> setCurrentPipeline(Pipeline.SHOOTING_ALIGNMENT))
+                .setExecute(this::update)
+                .setDone(() -> getCurrentPipeline() != Pipeline.SHOOTING_ALIGNMENT);
     }
 }

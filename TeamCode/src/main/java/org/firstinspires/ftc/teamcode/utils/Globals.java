@@ -4,6 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RobotConstants;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 
 /**
@@ -43,6 +45,10 @@ public final class Globals {
         constants.build();
         randomizationState = null;
         Globals.telemetry = telemetry;
+    }
+
+    public static TrackingThread getTrackingThread() {
+        return RobotStateHandler.CycleState.DRIVE_TO_SHOOT.autoTracker;
     }
 
     public static RandomizationState randomizationState;

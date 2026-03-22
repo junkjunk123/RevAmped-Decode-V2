@@ -30,6 +30,7 @@ import java.util.function.DoubleSupplier;
 
 @Config
 public class Turret extends HwMotor {
+    public static double TURRET_OFFSET = 1.0; //turret center offset to center of robot
     public static double RAD_LIMIT;
     public static double TICKS_LIMIT;
     public static double FULL_ROTATION;

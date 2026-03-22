@@ -12,6 +12,7 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
+import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -26,6 +27,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
+import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
@@ -45,12 +47,15 @@ public class Tele extends OpModeCommand {
     private Robot robot;
     private TeleOpStateHandler tsh;
     private Prompter prompter;
+    private DecodeLimelight limelight;
 
-    public static double turretPos;
+    public static boolean updated = false;
+    public static Vector offsets;
 
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
+        limelight = new DecodeLimelight(hardwareMap);
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
@@ -112,7 +117,11 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_1.b.isRisingEdge()) {
-            robot.turret.setPosition(ServoTurret.radToTicks(turretPos));
+            schedule(new Sequential(
+                        limelight.computeOffsets(),
+                        new Instant(() -> Globals.getTrackingThread().addLimelightMeasurement(limelight.getOffsets()))
+                    )
+            );
         }
 
         if (gamepad_1.y.isRisingEdge()) {
@@ -293,8 +302,8 @@ public class Tele extends OpModeCommand {
 
 
         // Telemetry
-        telemetry.addData("alliance", Globals.allianceColor);
-        telemetry.addData("holdPose", robot.drivetrain.isHoldingPose());
+        telemetry.addData("updated", updated);
+        telemetry.addData("offsets", offsets);
         telemetry.update();
     }
 

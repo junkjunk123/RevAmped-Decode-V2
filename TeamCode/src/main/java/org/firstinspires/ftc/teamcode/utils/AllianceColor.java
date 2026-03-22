@@ -5,7 +5,7 @@ package org.firstinspires.ftc.teamcode.utils;
  * Used to determine the color of the alliance for the robot.
  */
 public enum AllianceColor {
-    None(0),
+    None(20),
     Blue(20),
     Red(24);
 
