@@ -4,7 +4,10 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Localizer;
 
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 
 @Config
 public class TrackingThread {
@@ -29,6 +32,7 @@ public class TrackingThread {
         shooterMath.update(trackTurret, trackHood);
         if (trackHood) hood.updateTracking(shooterMath.getHoodPos());
         if (trackTurret) turret.move(new ServoTurretState.AutoTrack((float) shooterMath.getTurretPos()));
-        if (trackHood) flywheel.setVelocity(shooterMath.getFlywheelVelocity());
+        if (trackHood && Robot.INSTANCE.getRobotState().equals(RobotStateHandler.CycleState.DRIVE_TO_SHOOT))
+            flywheel.setVelocity(shooterMath.getFlywheelVelocity());
     }
 }

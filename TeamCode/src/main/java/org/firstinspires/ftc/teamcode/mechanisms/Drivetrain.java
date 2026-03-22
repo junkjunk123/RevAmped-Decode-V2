@@ -289,7 +289,7 @@ public class Drivetrain {
     }
 
     public void update() {
-        if (!isHoldingPose() || !Globals.isTeleOp) follower.update();
+        if (!Globals.isTeleOp || isHoldingPose()) follower.update();
         else follower.poseTracker.getLocalizer().update();
     }
 

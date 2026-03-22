@@ -26,8 +26,8 @@ public class ShooterMath {
     public static Pose APRIL_TAG_POSE_BLUE;
     public static double LAUNCH_ZONE_HEIGHT = 58;
 
-    public static double blueX = 1;
-    public static double blueY = 120;
+    public static double blueX = 9.5;
+    public static double blueY = 135;
     public static double redX = 122;
     public static double redY = 120;
 
