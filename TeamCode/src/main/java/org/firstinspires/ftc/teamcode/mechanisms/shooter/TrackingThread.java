@@ -43,9 +43,9 @@ public class TrackingThread {
 
     public void addLimelightMeasurement(Vector offset) {
         Vector targ = DecodeLimelight.APRILTAG_POSE.getPose().getAsVector();
-        double bearing = targ.getTheta();
+        double bearing = offset.getTheta();
         double robotHeading = pinpoint.getPose().getHeading();
-        double viewRad = ServoTurret.ticksToRad(turret.getPosition()) + robotHeading;
+        double viewRad = ServoTurret.ticksToRad(turret.getPosition()) + robotHeading + Math.PI;
         double alpha = viewRad - bearing;
         Vector tagOffset = new Vector(offset.getXComponent(), alpha);
         Vector camPos = targ.minus(tagOffset);
@@ -54,8 +54,7 @@ public class TrackingThread {
         Vector turretOffset;
         if (Turret.TURRET_OFFSET >= 0) turretOffset = new Vector2D(Turret.TURRET_OFFSET, robotHeading);
         else turretOffset = new Vector2D(Turret.TURRET_OFFSET, Math.PI + robotHeading);
-        Vector robotPos = turretPos.minus(turretOffset);
-
+        Vector robotPos = turretPos.minus(turretOffset).minus(DecodeLimelight.TAG_OFFSETS);
         pinpoint.setX(robotPos.getXComponent());
         pinpoint.setY(robotPos.getYComponent());
     }

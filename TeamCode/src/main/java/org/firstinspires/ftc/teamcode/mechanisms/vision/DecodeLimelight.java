@@ -33,6 +33,7 @@ public class DecodeLimelight implements HwDevice {
     private LLResult latestResult;
     private Vector tagOffsets = new Vector();
     private long lastDetectionTime = 0;
+    public static Vector2D TAG_OFFSETS = new Vector2D(1.8, 1);
 
     public static ColoredDecodePose APRILTAG_POSE = new ColoredDecodePose(14.5, 132, 0);
     public static double CENTER_OFFSET = 6.9;
