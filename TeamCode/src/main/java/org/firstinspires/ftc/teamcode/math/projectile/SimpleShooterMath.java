@@ -7,7 +7,6 @@ import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redX;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redY;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.velocityCompensation;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.RAD_LIMIT;
-import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.TICKS_LIMIT;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
 import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
 
@@ -15,17 +14,12 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.math.MathUtil;
-import org.firstinspires.ftc.teamcode.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
-import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
-import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 
 import java.util.Arrays;
 
@@ -47,6 +41,7 @@ public class SimpleShooterMath {
     private static final double[] DIST_X = {24.0, 60.0, 96.0};
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
+    public static final int SOTM_ITERATIONS = 10;
 
     public SimpleShooterMath(Localizer pinpoint) {
         this.pinpoint = pinpoint;
@@ -110,11 +105,9 @@ public class SimpleShooterMath {
             if (trackTurret) {
                 if (!velocityCompensation) {
                     turretPos = getTurretPos(displacement);
-                    //deltaAngle = angleTurretTo(displacement);
                 } else {
                     Pose currentVelocity = pinpoint.getVelocity();
-                    //deltaAngle = angleTurretTo(iterateOffset(targetPos, currentPos, currentVelocity));
-                    turretPos = getTurretPos(iterateOffset(targetPos, currentPos, currentVelocity));
+                    turretPos = getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity)));
                 }
             }
 
@@ -122,9 +115,7 @@ public class SimpleShooterMath {
                 double xDist = Math.abs(displacement.getXComponent());
                 double yDist = Math.abs(displacement.getYComponent());
                 flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
-                telemetry.addData("flywheelVel", flywheelVelocity);
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Flywheel.MAX_VELOCITY);
-                telemetry.addData("displacement", displacement);
                 double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
@@ -157,23 +148,15 @@ public class SimpleShooterMath {
         return target.minus(current).getAsVector();
     }
 
-    private Vector iterateOffset(Pose targetPos, Pose currentPos, Pose fieldVelocity) {
-        Matrix inverseRotation = MathUtil.rotMatrix(currentPos.getHeading()).transposed();
-        Vector velVector = fieldVelocity.getAsVector();
-        Vector robotLinearVel = velVector.transform(inverseRotation);
-        Pose robotVelPose = new Pose(robotLinearVel.getXComponent(), robotLinearVel.getYComponent(), fieldVelocity.getHeading());
+    private Pose iteratePose(Pose currentPos, Pose fieldVelocity) {
+        Pose virtualPose = currentPos;
 
-        Pose currentIteration = targetPos.minus(currentPos);
-        for (int i = 0; i < 10; i++) {
-            double shotTime = airTime.interpolate(Math.abs(currentIteration.getX()), Math.abs(currentIteration.getY()));
-            currentIteration = targetPos.minus(RobotKinematicsCalculator.getProjectedPoseWithConstantVelocity(
-                    currentPos,
-                    shotTime,
-                    robotVelPose
-            ));
+        for (int i = 0; i < SOTM_ITERATIONS; i++) {
+            double airTime = this.airTime.interpolate(virtualPose.getX(), virtualPose.getY());
+            virtualPose = currentPos.minus(fieldVelocity.scale(airTime));
         }
 
-        return currentIteration.getAsVector();
+        return virtualPose;
     }
 
     public double getTurretPos() {
@@ -194,17 +177,11 @@ public class SimpleShooterMath {
     }
 
     public double getTurretPos(Vector offset, double heading) {
-        telemetry.addData("curPose", pinpoint.getPose());
         double pos = turretInterpolation.interpolate(offset.getXComponent(), offset.getYComponent());
-        telemetry.addData("turretRad", pos);
         double delta = normalizeAnglePi(pos - heading);
-        telemetry.addData("deltaRad", pos);
         double ticks = ServoTurret.radToTicks(delta);
-        telemetry.addData("ticks", ticks);
-        double clamped = Range.clip(ticks, Math.min(ServoTurret.LEFT_TICKS_LIMIT, ServoTurret.RIGHT_TICKS_LIMIT),
+        return Range.clip(ticks, Math.min(ServoTurret.LEFT_TICKS_LIMIT, ServoTurret.RIGHT_TICKS_LIMIT),
                 Math.max(ServoTurret.RIGHT_TICKS_LIMIT, ServoTurret.LEFT_TICKS_LIMIT));
-        telemetry.addData("clamped", clamped);
-        return clamped;
     }
 
     public double getTurretPos(Vector offset) {

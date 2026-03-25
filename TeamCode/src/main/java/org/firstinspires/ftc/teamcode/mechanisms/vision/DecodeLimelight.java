@@ -35,7 +35,7 @@ public class DecodeLimelight implements HwDevice {
     private long lastDetectionTime = 0;
 
     public static ColoredDecodePose APRILTAG_POSE = new ColoredDecodePose(14.5, 132, 0);
-    public static double CENTER_OFFSET = 6.6;
+    public static double CENTER_OFFSET = 6.9;
 
     public enum Pipeline {
         NONE(-1),

@@ -24,6 +24,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.MathFunctions;
 import com.pedropathing.math.Vector;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
@@ -1015,12 +1016,11 @@ class DriveTuner extends OpMode {
 }
 
 class HeadingAutoTuner extends OpMode {
-    private static final double ALPHA_LARGE = 1.2;
-    private static final double ALPHA_SMALL = 1.8;
-    private static final double POWER = 0.75;
-    private static final double RUNTIME = 5;
+    private static final double ALPHA_LARGE = 0.6;
+    private static final double ALPHA_SMALL = 0.9;
+    private static final double POWER = 0.6;
+    private static final double RUNTIME = 3;
     private static final int SAMPLES = 15;
-    private static final double BETA = 0.30;
 
     private double tau;
     private double lambda_small;
@@ -1076,12 +1076,14 @@ class HeadingAutoTuner extends OpMode {
 
         if (!done) {
             times.add(timer.getElapsedTimeSeconds());
-            angularVelocities.add(follower.getAngularVelocity());
+            angularVelocities.add(Math.abs(follower.getAngularVelocity()));
+            telemetryM.addData("angular velocity (rad/s)", String.format("%.4f", angularVelocities.get(angularVelocities.size() - 1)));
 
             if (timer.getElapsedTimeSeconds() >= RUNTIME) {
                 done = true;
                 systemIdentification();
                 follower.setTeleOpDrive(0, 0, 0, true);
+                telemetryM.addData("elapsed time (s)", String.format("%.4f", timer.getElapsedTimeSeconds()));
             } else {
                 follower.setTeleOpDrive(0, 0, POWER, true);
                 return;
@@ -1091,12 +1093,10 @@ class HeadingAutoTuner extends OpMode {
         lambda_small = tau * ALPHA_SMALL;
         lambda_large = tau * ALPHA_LARGE;
 
-        double safeK = (Math.abs(K) < 1e-8) ? Math.copySign(1e-8, K == 0 ? 1.0 : K) : K;
-
-        double kDLarge = (BETA * tau) / safeK;
-        double kPLarge = (((1.0 + BETA) * tau / lambda_large) - 1.0) / safeK;
-        double kDSmall = (BETA * tau) / safeK;
-        double kPSmall = (((1.0 + BETA) * tau / lambda_small) - 1.0) / safeK;
+        double kDLarge = getkD(lambda_large);
+        double kPLarge = getkP(lambda_large);
+        double kDSmall = getkD(lambda_small);
+        double kPSmall = getkP(lambda_small);
 
         telemetryM.addData("Est tau (s)", String.format("%.4f", tau));
         telemetryM.addData("Est K (rad/s per power)", String.format("%.4f", K));
@@ -1106,56 +1106,55 @@ class HeadingAutoTuner extends OpMode {
         telemetryM.addData("Small Coefficients", "kP=" + String.format("%.4f", kPSmall) + ", kD=" + String.format("%.4f", kDSmall));
     }
 
+    private double getkP(double lambda) {
+        return tau / (K * lambda * lambda);
+    }
+
+    private double getkD(double lambda) {
+        return 1 / K * (2 * tau / lambda - 1);
+    }
+
     private void systemIdentification() {
         int N = times.size();
         if (N < 4) {
-            this.tau = 0.2;
-            this.K = 1.0;
-            return;
+            throw new IllegalArgumentException("Failed calibration.");
         }
-
-        double t0 = times.get(0);
-        List<Double> t = new ArrayList<>(N);
-        for (int i = 0; i < N; i++) t.add(times.get(i) - t0);
 
         int start = Math.max(0, N - SAMPLES);
+        double samples = N - start;
         double sum = 0;
         for (int i = start; i < N; i++) sum += angularVelocities.get(i);
-        double A = sum / (N - start);
+        double A = sum / samples;
+        this.K = A / POWER;
 
-        double tauLocal = Math.max(0.05, (t.get(N - 1) - t.get(0)) / 3.0);
+        List<Double> y = new ArrayList<>();
+        List<Double> x = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            double vel = angularVelocities.get(i) / POWER;
+            if (vel > 0.8 * K) continue;
+            if (vel < 0.1 * K) continue;
+            y.add(Math.log(K - vel));
+            x.add(times.get(i));
+        }
+        double[] linReg = linearFit(x.stream().toArray(Double[]::new), y.stream().toArray(Double[]::new));
+        if (linReg[1] == 0) throw new IllegalArgumentException("Failed calibration.");
+        this.tau = -1.0/linReg[1];
+    }
 
-        for (int iter = 0; iter < 8; iter++) {
-            double num = 0.0;
-            double den = 0.0;
-            for (int i = 0; i < N; i++) {
-                double wi = angularVelocities.get(i);
-                if (wi <= 0.0 || wi >= 0.999 * A) continue;
-                double y = Math.log(1.0 - wi / A);
-                num += t.get(i) * t.get(i);
-                den += t.get(i) * y;
-            }
-            if (den != 0.0) {
-                double newTau = -num / den;
-                if (newTau > 1e-6 && newTau < 100.0) tauLocal = newTau;
-            }
+    public double[] linearFit(Double[] x, Double[] y) {
+        int n = x.length;
+        double sumX = 0, sumXY = 0, sumY = 0, sumX2 = 0;
 
-            double numA = 0.0;
-            double denA = 0.0;
-            for (int i = 0; i < N; i++) {
-                double phi = 1.0 - Math.exp(-t.get(i) / tauLocal);
-                numA += angularVelocities.get(i) * phi;
-                denA += phi * phi;
-            }
-            if (denA > 0.0) {
-                double newA = numA / denA;
-                if (newA > 1e-6) A = newA;
-            }
+        for (int i = 0; i < n; i++) {
+            sumX += x[i];
+            sumY += y[i];
+            sumXY += x[i] * y[i];
+            sumX2 += x[i] * x[i];
         }
 
-        this.tau = tauLocal;
-        double safePower = (Math.abs(POWER) < 1e-9) ? 1e-9 : POWER;
-        this.K = A / safePower;
+        double m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        double b = (sumY - m * sumX) / n;
+        return new double[] {b, m};
     }
 }
 

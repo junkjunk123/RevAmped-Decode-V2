@@ -9,6 +9,7 @@ public class SpindexerCompartmentManager {
     private final ArtifactColor[] compartments;
     private final SpindexerColorSensors colorSensors;
     private int motifGreenIndex;
+
     public SpindexerCompartmentManager(SpindexerColorSensors spindexerColorSensors){
         compartments = new ArtifactColor[]{
                 ArtifactColor.NONE,
@@ -40,7 +41,7 @@ public class SpindexerCompartmentManager {
         compartments[2] = ArtifactColor.NONE;
     }
 
-    public int[] getGreenIndicies(){
+    public int[] getGreenIndices(){
         return IntStream.range(0,3)
                 .filter(i -> compartments[i].equals(ArtifactColor.GREEN))
                 .toArray();
@@ -62,10 +63,7 @@ public class SpindexerCompartmentManager {
     }
 
     public boolean canSort(){
-        if (colorSensors.getColor(1) == ArtifactColor.GREEN && colorSensors.getColor(2) == ArtifactColor.GREEN){
-            return false;
-        }
-        return true;
+        return colorSensors.getColor(1) != ArtifactColor.GREEN || colorSensors.getColor(2) != ArtifactColor.GREEN;
     }
 
     public void updateMotifIndex(){
