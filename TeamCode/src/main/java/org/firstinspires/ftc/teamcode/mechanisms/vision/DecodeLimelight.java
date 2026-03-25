@@ -108,7 +108,6 @@ public class DecodeLimelight implements HwDevice {
                 Globals.telemetry.addData("lloutput", Arrays.toString(output));
                 if (Globals.allianceColor.getTagID() != output[0]) return;
                 tagOffsets = new Vector2D(output[2], output[1]);
-                Tele.offsets = getOffsets();
                 setCurrentPipeline(Pipeline.NONE);
             }
         }

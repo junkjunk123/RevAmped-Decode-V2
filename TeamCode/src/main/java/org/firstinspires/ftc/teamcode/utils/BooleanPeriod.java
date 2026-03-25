@@ -9,6 +9,7 @@ public class BooleanPeriod implements BooleanSupplier {
     private boolean reading;
     private double period;
     private final BooleanSupplier supplier;
+    private boolean lastValue;
 
     public BooleanPeriod(BooleanSupplier supplier, double periodMs) {
         this.period = periodMs;
@@ -25,7 +26,12 @@ public class BooleanPeriod implements BooleanSupplier {
 
     public void update() {
         if (!reading) return;
-        if (!supplier.getAsBoolean()) timer.reset();
+        lastValue = supplier.getAsBoolean();
+        if (!lastValue) timer.reset();
+    }
+
+    public boolean isLastValue() {
+        return lastValue;
     }
 
     @Override

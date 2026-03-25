@@ -6,6 +6,7 @@ import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistance;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
@@ -58,17 +59,18 @@ public class RobotStateHandler {
 
         class Intake implements CycleState {
             public IntakeState INSTANCE = IntakeState.INTAKING;
+            public boolean update;
             public IntakeThread intakeThread;
 
             @Override
             public void update() {
-                if (INSTANCE == IntakeState.INTAKING)
+                if (update && INSTANCE == IntakeState.INTAKING)
                     intakeThread.update();
             }
 
-            public void init(SpindexerColorSensors colorManager, ArtifactColor[] tableCompartments) {
+            public void init(SpindexerColorSensors colorManager, ArtifactColor[] tableCompartments, IntakeDistance intakeDistance) {
                 INSTANCE = IntakeState.INTAKING;
-                intakeThread = new IntakeThread(tableCompartments, colorManager);
+                intakeThread = new IntakeThread(tableCompartments, colorManager, intakeDistance);
             }
 
             public double[] getTransitionVector() {

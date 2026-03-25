@@ -17,12 +17,15 @@ public class TableCompartmentManager {
     };
 
     public final IntakeThread intakeThread;
+    private final IntakeDistance intakeDistance;
     private final Supplier<Table.RelativeState> tableState;
 
-    public TableCompartmentManager(SpindexerColorSensors colorManager, Supplier<Table.RelativeState> tableState) {
+    public TableCompartmentManager(SpindexerColorSensors colorManager, IntakeDistance intakeDistance,
+                                   Supplier<Table.RelativeState> tableState) {
         this.tableState = tableState;
-        RobotStateHandler.CycleState.INTAKE.init(colorManager, compartmentColors);
+        RobotStateHandler.CycleState.INTAKE.init(colorManager, compartmentColors, intakeDistance);
         intakeThread = RobotStateHandler.CycleState.INTAKE.intakeThread;
+        this.intakeDistance = intakeDistance;
     }
 
     public boolean isEmpty() {
@@ -73,5 +76,6 @@ public class TableCompartmentManager {
         compartmentColors[0] = ArtifactColor.NONE;
         compartmentColors[1] = ArtifactColor.NONE;
         compartmentColors[2] = ArtifactColor.NONE;
+        intakeThread.reset();
     }
 }

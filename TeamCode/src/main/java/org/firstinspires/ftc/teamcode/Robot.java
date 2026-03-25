@@ -26,8 +26,10 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.IntakeTilt;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
@@ -59,6 +61,8 @@ public class Robot {
     public final IntakeMotor intakeMotor;
     public final SpindexerColorSensors intakeColor;
     public final IntakeDistance intakeDistance;
+    public final FeederWheel feederWheel;
+    public final IntakeTilt intakeTilt;
     public final TableCompartmentManager tableCompartments;
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
@@ -82,11 +86,12 @@ public class Robot {
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap);
         intakeColor = new SpindexerColorSensors(hardwareMap);
-        //intakeDistance = new IntakeDistance(hardwareMap);
-        intakeDistance = null;
+        intakeDistance = new IntakeDistance(hardwareMap);
+        feederWheel = new FeederWheel(hardwareMap);
+        intakeTilt = new IntakeTilt(hardwareMap);
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
-        tableCompartments = new TableCompartmentManager(intakeColor, table::getState);
+        tableCompartments = new TableCompartmentManager(intakeColor, intakeDistance, table::getState);
         if (!Globals.isTeleOp) initialize();
     }
 
@@ -94,6 +99,7 @@ public class Robot {
         popper.setPosition(Popper.NEUTRAL);
         table.setPosition(Table.BALL1);
         turret.move(ServoTurretState.PresetState.REST);
+        intakeTilt.intake();
     }
 
     public void update() {
@@ -105,7 +111,9 @@ public class Robot {
         intakeMotor.update();
         table.update();
         popper.update();
-        //intakeDistance.update();
+        intakeDistance.update();
+        intakeTilt.update();
+        feederWheel.update();
         hood.update();
         robotState.update();
     }
@@ -157,7 +165,11 @@ public class Robot {
     public ICommand shootAll() {
         return new Sequential(
                 new WaitUntil(() -> drivetrain.canShoot),
-                new Instant(intakeMotor::intake),
+                new Instant(() -> {
+                    intakeTilt.intake();
+                    intakeMotor.intake();
+                    CycleState.INTAKE.update = true;
+                }),
                 table.shoot()
         );
     }
@@ -168,6 +180,11 @@ public class Robot {
                 () -> delay.get() < 10,
                 shootAll(),
                 new Sequential(
+                        new Instant(() -> {
+                            intakeTilt.intake();
+                            intakeMotor.intake();
+                            CycleState.INTAKE.update = true;
+                        }),
                         new WaitUntil(() -> drivetrain.canShoot),
                         new Instant(() -> {
                             intakeMotor.intakeSlow();
@@ -209,6 +226,7 @@ public class Robot {
                 new Sequential(
                         new Instant(() -> {
                             intakeMotor.intake();
+                            intakeTilt.intake();
                             shootSequence.set(table.getState().getShootStates());
                         }),
                         new Instant(() -> table.setPosition(shootSequence.get()[0])),
@@ -287,11 +305,13 @@ public class Robot {
     public void shootNear() {
         hood.near();
         flywheel.near();
+        feederWheel.start();
     }
 
     public void shootCorner() {
         hood.corner();
         flywheel.corner();
+        feederWheel.start();
     }
 
     public ICommand shootFar() {
@@ -307,5 +327,6 @@ public class Robot {
     public void shootMedium() {
         hood.medium();
         flywheel.medium();
+        feederWheel.start();
     }
 }

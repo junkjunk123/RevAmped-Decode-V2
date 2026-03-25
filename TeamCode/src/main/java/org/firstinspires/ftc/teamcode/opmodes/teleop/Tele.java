@@ -12,9 +12,7 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
-import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
@@ -23,9 +21,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
@@ -48,9 +43,7 @@ public class Tele extends OpModeCommand {
     private TeleOpStateHandler tsh;
     private Prompter prompter;
     private DecodeLimelight limelight;
-
-    public static boolean updated = false;
-    public static Vector offsets;
+    private boolean transfer;
 
     @Override
     public void initialize() {
@@ -68,7 +61,6 @@ public class Tele extends OpModeCommand {
         gamepad_1.right_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_2.left_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_2.right_trigger_button(f -> f.greaterThan(0.3f));
-        //robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // Schedule robot update loop
         schedule(new Infinite(() -> {
@@ -159,6 +151,7 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(robot.flywheel::stop),
+                    new Instant(() -> robot.intakeTilt.intake()),
                     robot.resetTable(),
                     new Lazy(() -> {
                         if (TrackingThread.trackTurret) return robot.turret.resetTurret();
@@ -171,6 +164,7 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.right_trigger_button.isRisingEdge()) {
             if (robot.intakeMotor.atState(IntakeMotor.IntakeState.OUTTAKE)) robot.intakeMotor.stop();
             else robot.intakeMotor.outtake();
+            robot.intakeTilt.transfer();
         }
         if (gamepad_2.a.isRisingEdge()) tsh.setState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT);
         if (gamepad_2.right_bumper.isRisingEdge()) schedule(tsh.task(
@@ -187,10 +181,23 @@ public class Tele extends OpModeCommand {
                 ), new int[]{1, 0, 0}
         ));
 
-        if (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL)) {
+        if (tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
+            if (robot.tableCompartments.intakeThread.getNumBalls() == 3) {
+                robot.tableCompartments.populate();
+                transfer = true;
+                RobotStateHandler.CycleState.INTAKE.update = false;
+            }
+        }
+
+        if (transfer || (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL))) {
             schedule(tsh.runTransition(
                     new Parallel(
-                            new Instant(() -> robot.intakeMotor.outtake()),
+                            new Instant(() -> {
+                                transfer = false;
+                                robot.intakeMotor.outtake();
+                                robot.intakeTilt.intake();
+                                RobotStateHandler.CycleState.INTAKE.update = false;
+                            }),
                             robot.popper.pop(),
                             new Conditional(
                                     robot.flywheel::isStopped,
@@ -207,24 +214,16 @@ public class Tele extends OpModeCommand {
                     () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
                     new Sequential(
                             tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                            tsh.runTransition(new Conditional(
-                                    //() -> robot.hood.getCurrentState() == Hood.HoodState.FAR,
-                                    () -> false,
-                                    new Sequential(
-                                        robot.shootAll(25),
-                                        robot.resetAfterShooting()
+                            tsh.runTransition(new Sequential(
+                                    new Race(
+                                            new WaitUntil(gamepad_2.x::isRisingEdge),
+                                            new Sequential(
+                                                    robot.shootAll(),
+                                                    new Wait(50),
+                                                    new Instant(() -> robot.flywheel.setVelocity(robot.flywheel.getTargetVelocity() + 50))
+                                            )
                                     ),
-                                    new Sequential(
-                                            new Race(
-                                                    new WaitUntil(gamepad_2.x::isRisingEdge),
-                                                    new Sequential(
-                                                            robot.shootAll(),
-                                                            new Wait(50),
-                                                            new Instant(() -> robot.flywheel.setVelocity(robot.flywheel.getTargetVelocity() + 50))
-                                                    )
-                                            ),
-                                            robot.resetAfterShooting()
-                                    )
+                                    robot.resetAfterShooting()
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
                     tsh.task(
@@ -287,28 +286,12 @@ public class Tele extends OpModeCommand {
             );
         }
 
-//        if (gamepad_1.right_trigger_button.isRisingEdge()) {
-//            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//        } else if (gamepad_1.right_trigger_button.isFallingEdge()) {
-//            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        }
-//        if(gamepad_1.left_trigger_button.isTrue()){
-//            robot.turret.manualSOTM(8/255f);
-//        }else if(gamepad_1.right_trigger_button.isTrue()) {
-//            robot.turret.manualSOTM(-8/255f);
-//        } else {
-//            robot.turret.manual();
-//        }
+        if (gamepad2.left_stick_y < -0.3f) {
+            robot.intakeTilt.transfer();
+        } else if (gamepad2.left_stick_y > 0.3f) {
+            robot.intakeTilt.intake();
+        }
 
-
-        // Telemetry
-        telemetry.addData("updated", updated);
-        telemetry.addData("offsets", offsets);
         telemetry.update();
-    }
-
-    @Override
-    public void end() {
-        //Turret.startPos = 0;
     }
 }

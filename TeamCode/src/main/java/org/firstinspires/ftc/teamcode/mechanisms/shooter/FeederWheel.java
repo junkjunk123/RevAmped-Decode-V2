@@ -8,6 +8,7 @@ public class FeederWheel extends HwMotor {
     public static double kS;
     public static double kV;
     public static double P;
+    public static double TARGET_VEL;
 
     private double targetVelocity;
 
@@ -25,6 +26,10 @@ public class FeederWheel extends HwMotor {
         this.targetVelocity = targetVelocity;
         if (targetVelocity > 10) state = FeederState.RUNNING;
         else stop();
+    }
+
+    public void start() {
+        setTargetVelocity(TARGET_VEL);
     }
 
     public void stop() {

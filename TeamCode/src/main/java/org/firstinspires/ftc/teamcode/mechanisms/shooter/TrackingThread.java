@@ -58,7 +58,5 @@ public class TrackingThread {
 
         pinpoint.setX(robotPos.getXComponent());
         pinpoint.setY(robotPos.getYComponent());
-
-        Tele.updated = true;
     }
 }
