@@ -49,9 +49,6 @@ public class Tele extends OpModeCommand {
     private Prompter prompter;
     private DecodeLimelight limelight;
 
-    public static boolean updated = false;
-    public static Vector offsets;
-
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
@@ -287,28 +284,6 @@ public class Tele extends OpModeCommand {
             );
         }
 
-//        if (gamepad_1.right_trigger_button.isRisingEdge()) {
-//            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//        } else if (gamepad_1.right_trigger_button.isFallingEdge()) {
-//            robot.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        }
-//        if(gamepad_1.left_trigger_button.isTrue()){
-//            robot.turret.manualSOTM(8/255f);
-//        }else if(gamepad_1.right_trigger_button.isTrue()) {
-//            robot.turret.manualSOTM(-8/255f);
-//        } else {
-//            robot.turret.manual();
-//        }
-
-
-        // Telemetry
-        telemetry.addData("updated", updated);
-        telemetry.addData("offsets", offsets);
         telemetry.update();
-    }
-
-    @Override
-    public void end() {
-        //Turret.startPos = 0;
     }
 }

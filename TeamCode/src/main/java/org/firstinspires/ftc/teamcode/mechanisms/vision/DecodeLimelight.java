@@ -33,7 +33,7 @@ public class DecodeLimelight implements HwDevice {
     private LLResult latestResult;
     private Vector tagOffsets = new Vector();
     private long lastDetectionTime = 0;
-
+    public static Vector2D TAG_OFFSETS = new Vector2D(1.8, 1);
     public static ColoredDecodePose APRILTAG_POSE = new ColoredDecodePose(14.5, 132, 0);
     public static double CENTER_OFFSET = 6.9;
 
@@ -106,9 +106,8 @@ public class DecodeLimelight implements HwDevice {
             case SHOOTING_ALIGNMENT -> {
                 double[] output = latestResult.getPythonOutput();
                 Globals.telemetry.addData("lloutput", Arrays.toString(output));
-                if (Globals.allianceColor.getTagID() != output[0]) return;
+                if (Globals.allianceColor.getTagID() != output[0] || output[2] < 0.1) return;
                 tagOffsets = new Vector2D(output[2], output[1]);
-                Tele.offsets = getOffsets();
                 setCurrentPipeline(Pipeline.NONE);
             }
         }
@@ -142,6 +141,7 @@ public class DecodeLimelight implements HwDevice {
         return new Command()
                 .setStart(() -> setCurrentPipeline(Pipeline.SHOOTING_ALIGNMENT))
                 .setExecute(this::update)
-                .setDone(() -> getCurrentPipeline() != Pipeline.SHOOTING_ALIGNMENT);
+                .setDone(() -> getCurrentPipeline() != Pipeline.SHOOTING_ALIGNMENT)
+                .timeoutAfter(500);
     }
 }
