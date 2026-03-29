@@ -95,8 +95,8 @@ public class RobotStateHandler {
 
             @Override
             public void update() {
-                if (INSTANCE == DriveState.AUTO_TRACKING)
-                    autoTracker.update();
+                //if (INSTANCE == DriveState.AUTO_TRACKING)
+                    //autoTracker.update();
             }
 
             public static void toggleDefault() {

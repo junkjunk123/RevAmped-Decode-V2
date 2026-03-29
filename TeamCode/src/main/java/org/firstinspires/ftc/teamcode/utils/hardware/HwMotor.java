@@ -37,6 +37,7 @@ public class HwMotor implements HwDevice {
         this.id = id;
         this.encoder = initEncoder ? Encoder.fromMotor(get()) : null;
         if (encoder != null) resetPosition();
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public HwMotor(HardwareMap hardwareMap, String... ids) {
@@ -48,6 +49,7 @@ public class HwMotor implements HwDevice {
         this.id = Arrays.toString(ids);
         this.encoder = initEncoder ? Encoder.fromMotor(get()) : null;
         if (encoder != null) resetPosition();
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void setPower(double power) {

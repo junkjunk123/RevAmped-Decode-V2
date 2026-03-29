@@ -11,6 +11,11 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.Factory;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+
+import java.util.function.Function;
 
 public class RobotConstants {
     public void build() {
@@ -35,33 +40,25 @@ public class RobotConstants {
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants
+        ServoTurret.REST = 125/255f;
+        Function<Float, Float> turretPos = f -> Globals.allianceColor == AllianceColor.Red ? 2 * ServoTurret.REST - f : f;
         ServoTurret.FULL_ROTATION = 284/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
-        ServoTurret.REST = 125/255f;
         ServoTurret.FAR_PRESET_RED = 36/255f;
         //done
-        ServoTurret.FIFTEEN_OBELISK_DETECTION = 200/255f;
+        ServoTurret.FIFTEEN_OBELISK_DETECTION = turretPos.apply(200/255f);
         //preloads
-        ServoTurret.FIFTEEN_BALL_PRELOADS = 118/255f;
-        ServoTurret.UNSORTED_FINAL = 43/255f; // 1st spike
-        //Gate cycle
-        ServoTurret.UNSORTED_SET_2 = 42/255f;
-        //2nd spike
-        ServoTurret.AUTO_SET_1 = 59/255f;
-        //3nd spike
-        ServoTurret.AUTO_SET_3 = 33/255f;
+        ServoTurret.FIFTEEN_BALL_PRELOADS = turretPos.apply(118/255f);
+        ServoTurret.UNSORTED_FINAL = turretPos.apply(43/255f);
+        ServoTurret.AUTO_SET_1 = turretPos.apply(59/255f);
+        ServoTurret.AUTO_SET_2 = turretPos.apply(51/255f);
+        ServoTurret.AUTO_SET_3 = turretPos.apply(33/255f);
 
-
-        //Not used in 15 ball
-        ServoTurret.UNSORTED_SET_1 = 43/255f;
-        ServoTurret.UNSORTED_SET_3 = 5/255f;
-        ServoTurret.UNSORTED_SET_4 = 5/255f;
-        ServoTurret.UNSORTED_SET_5 = 5/255f;
-        ServoTurret.AUTO_SET_2 = 51/255f;
-
-        //Octocanum Constants
-        //OctocanumBack.ENGAGED = 162/255f; OctocanumBack.RAISED = 62/255f;
-        //OctocanumFront.ENGAGED = 216/255f; OctocanumFront.RAISED = 118/255f;
+        ServoTurret.UNSORTED_SET_1 = turretPos.apply(43/255f);
+        ServoTurret.UNSORTED_SET_2 = turretPos.apply(42/255f);
+        ServoTurret.UNSORTED_SET_3 = turretPos.apply(5/255f);
+        ServoTurret.UNSORTED_SET_4 = turretPos.apply(5/255f);
+        ServoTurret.UNSORTED_SET_5 = turretPos.apply(5/255f);
 
         //updated
         // each compartment is ~32 ticks

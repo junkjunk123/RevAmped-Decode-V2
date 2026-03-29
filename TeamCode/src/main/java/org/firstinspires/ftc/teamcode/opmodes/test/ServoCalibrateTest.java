@@ -44,7 +44,7 @@ public class ServoCalibrateTest extends OpMode {
     @Override
     public void init() {
         gamepad_1 = new GamepadEx(gamepad1);
-        servos = List.of("hood","popper","table","table2","turret","turret2");
+        servos = List.of("hood","popper","table","table2","turret","turret2","intakeTilt");
         telemetryA = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         //voltage = hardwareMap.get(AnalogInput.class,"popper_voltage");
         telemetry.addData(">>", "Press start to continue");
@@ -78,11 +78,13 @@ public class ServoCalibrateTest extends OpMode {
     }
 
     private ServoImplEx secondServo() {
-        if (currentServo.equals("table")) return hardwareMap.get(ServoImplEx.class, "table2");
-        else if (currentServo.equals("table2")) return hardwareMap.get(ServoImplEx.class, "table");
-        else if (currentServo.equals("turret")) return hardwareMap.get(ServoImplEx.class, "turret2");
-        else if (currentServo.equals("turret2")) return hardwareMap.get(ServoImplEx.class, "turret");
-        return null;
+        return switch (currentServo) {
+            case "table" -> hardwareMap.get(ServoImplEx.class, "table2");
+            case "table2" -> hardwareMap.get(ServoImplEx.class, "table");
+            case "turret" -> hardwareMap.get(ServoImplEx.class, "turret2");
+            case "turret2" -> hardwareMap.get(ServoImplEx.class, "turret");
+            default -> null;
+        };
     }
 
     @Override

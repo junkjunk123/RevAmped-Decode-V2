@@ -15,6 +15,7 @@ import java.util.Arrays;
 
 //Eric Debug Thanks
 public class IntakeThread {
+    public static boolean useSensors;
     public static double COLOR_DETECTION_DELAY = 50;
     public static int COLOR_DETECTION_PERIOD;
     private final SpindexerColorSensors colorSensors;
@@ -31,6 +32,7 @@ public class IntakeThread {
     }
 
     public void update() {
+        if (!useSensors) return;
         if (hypotheticalNumBalls < 2) {
             if (intakeDistance.artifactPassedThrough()) {
                 hypotheticalNumBalls = 2;

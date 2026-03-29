@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
@@ -44,6 +45,7 @@ public class Tele extends OpModeCommand {
     private Prompter prompter;
     private DecodeLimelight limelight;
     private boolean transfer;
+    private boolean canShoot;
 
     @Override
     public void initialize() {
@@ -104,8 +106,11 @@ public class Tele extends OpModeCommand {
 
         // Schedule commands based on triggers
         if (gamepad_1.a.isRisingEdge()) {
-            TrackingThread.trackTurret = !TrackingThread.trackTurret;
-            TrackingThread.trackHood = !TrackingThread.trackHood;
+            if (robot.getRobotState().equals(RobotStateHandler.CycleState.INTAKE)) IntakeThread.useSensors = !IntakeThread.useSensors;
+            else {
+                TrackingThread.trackTurret = !TrackingThread.trackTurret;
+                TrackingThread.trackHood = !TrackingThread.trackHood;
+            }
         }
 
         if (gamepad_1.b.isRisingEdge()) {
@@ -211,8 +216,9 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_2.dpad_up.isRisingEdge()) {
             schedule(new Conditional(
-                    () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
+                    () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT) && canShoot,
                     new Sequential(
+                            new Instant(() -> canShoot = false),
                             tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                             tsh.runTransition(new Sequential(
                                     new Race(
@@ -220,22 +226,14 @@ public class Tele extends OpModeCommand {
                                             new Sequential(
                                                     robot.shootAll(),
                                                     new Wait(50),
-                                                    new Instant(() -> robot.flywheel.setVelocity(robot.flywheel.getTargetVelocity() + 50))
+                                                    new Instant(() -> robot.flywheel.setVelocity(robot.flywheel.getTargetVelocity() + 50)),
+                                                    new Instant(() -> canShoot = true)
                                             )
                                     ),
                                     robot.resetAfterShooting()
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
-                    tsh.task(
-                            new Sequential(
-                                    new Instant(() -> {
-                                            robot.tableCompartments.populate(PURPLE, PURPLE, GREEN);
-                                            robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
-                                    }),
-                                    robot.sort()
-                            ),
-                            new int[] {1, 0, 0}
-                    )
+                    Commands.NOOP
             ));
         }
 
@@ -249,16 +247,7 @@ public class Tele extends OpModeCommand {
                                     robot.resetAfterShooting()
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
-                    tsh.task(
-                            new Sequential(
-                                    new Instant(() -> {
-                                        robot.tableCompartments.populate(GREEN, PURPLE, PURPLE);
-                                        robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
-                                    }),
-                                    robot.sort()
-                            ),
-                            new int[] {1, 0, 0}
-                    )
+                    Commands.NOOP
                 )
             );
         }
@@ -270,20 +259,7 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_right.isRisingEdge()) {
-            if (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT))
-                robot.drivetrain.follower.setPose(new ColoredDecodePose(72, 130.5, Math.PI).getPose());
-            else schedule(
-                    tsh.task(
-                            new Sequential(
-                                    new Instant(() -> {
-                                        robot.tableCompartments.populate(PURPLE, GREEN, PURPLE);
-                                        robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
-                                    }),
-                                    robot.sort()
-                            ),
-                            new int[] {1, 0, 0}
-                    )
-            );
+            robot.drivetrain.follower.setPose(new ColoredDecodePose(72, 130.5, Math.PI).getPose());
         }
 
         if (gamepad2.left_stick_y < -0.3f) {
