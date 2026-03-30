@@ -22,13 +22,13 @@ public class FifteenSortedPaths implements PathSupplier {
     public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(12, 59, Math.PI);
     public static ColoredDecodePose INTAKE_1_CONTROL = new ColoredDecodePose(45,59, Math.PI);
     public static ColoredDecodePose GATE_CONTROL = new ColoredDecodePose(56, 58);
-    public static ColoredDecodePose GATE = new ColoredDecodePose(13, 58.5, Math.toRadians(150));
+    public static ColoredDecodePose GATE = new ColoredDecodePose(13, 59, Math.toRadians(150));
     public static ColoredDecodePose INTAKE_SECOND_PRELOAD_CONTROL = new ColoredDecodePose(52, 84, Math.PI);
     public static ColoredDecodePose INTAKE_SECOND_PRELOAD = new ColoredDecodePose(18, 84, Math.PI);
     public static ColoredDecodePose SECOND_PRELOAD_SHOOT = new ColoredDecodePose(60, 102, Math.toRadians(240));
     public static ColoredDecodePose THIRD_INTAKE_ACTUAL_START = new ColoredDecodePose(52,39);
-    public static ColoredDecodePose THIRD_INTAKE_START = new ColoredDecodePose(52, 56, Math.toRadians(180));
-    public static ColoredDecodePose THIRD_INTAKE_END = new ColoredDecodePose(12, 39, Math.toRadians(180));
+    public static ColoredDecodePose THIRD_INTAKE_START = new ColoredDecodePose(52, 54, Math.toRadians(180));
+    public static ColoredDecodePose THIRD_INTAKE_END = new ColoredDecodePose(12, 37, Math.toRadians(180));
     public static ColoredDecodePose PARK = new ColoredDecodePose(53, 112, Math.toRadians(220));
 
     @Override

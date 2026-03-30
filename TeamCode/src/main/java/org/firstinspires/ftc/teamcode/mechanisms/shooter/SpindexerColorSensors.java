@@ -18,9 +18,11 @@ public class SpindexerColorSensors {
     }
 
     public void updateColors(){
+        /*
         ArtifactColor middleColor = List.of(leftColorSensor.getColor(), rightColorSensor.getColor()).contains(ArtifactColor.GREEN) ?
                 ArtifactColor.PURPLE : ArtifactColor.GREEN;
         compartmentColors = List.of(middleColor, leftColorSensor.getColor(), rightColorSensor.getColor());
+         */
     }
 
     public List<ArtifactColor> getCompartmentColors(){
@@ -28,7 +30,7 @@ public class SpindexerColorSensors {
     }
 
     public ArtifactColor getColor(int index, int currentIndex) {
-        return compartmentColors.get((index + currentIndex + 3) % 3);
+        return ArtifactColor.NONE;
     }
 
     public ArtifactColor getColor(int index) {

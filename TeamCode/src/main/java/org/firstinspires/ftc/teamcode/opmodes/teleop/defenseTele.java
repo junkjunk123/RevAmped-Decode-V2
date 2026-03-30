@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 
 @TeleOp
-@Disabled
 public class defenseTele extends OpModeCommand {
     private Drivetrain drivetrain;
     private GamepadEx gamepad_1;

@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
-import static org.firstinspires.ftc.teamcode.opmodes.AutoMethods.resetTableBlock;
+import static org.firstinspires.ftc.teamcode.opmodes.AutoMethods.resetTable;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Deadline;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
@@ -28,10 +29,12 @@ import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Functional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class FifteenSorted extends OpModeCommand {
     private Robot robot;
     private final ElapsedTime overallTimer = new ElapsedTime();
-    private static boolean testSlowShoot = false;
+    private static boolean testSlowShoot = true;
     private boolean transferredData = false;
 
     @Override
@@ -59,6 +62,7 @@ public class FifteenSorted extends OpModeCommand {
                         new Race(
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
                                 new Sequential(
+                                        new Wait(300),
                                         !testSlowShoot ? new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null) :
                                                 new Instant(() -> Globals.randomizationState = RandomizationState.GPP),
                                         new Instant(() -> robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS)),
@@ -75,19 +79,24 @@ public class FifteenSorted extends OpModeCommand {
                         }),
                         new Instant(() -> {
                             limelight.close();
-                            robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS); //looks fine
+                            robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS - 3/255f); //looks fine
                             robot.intakeMotor.intakeSlow();
                         }),
                         robot.popper.pop(),
-                        robot.autoFastShoot(),
-
-                        AutoMethods.intakePreload(robot, true),
-                        AutoMethods.shootPreload(robot, true), //uses unsorted final
-                        AutoMethods.intakeFromGate(robot, 0),
-                        AutoMethods.shootFromGate(robot, 0, true),//uses unsorted auto set 1
-                        AutoMethods.intakeForSort(robot, 0), //uses auto set 1
-                        AutoMethods.shootForSort(overallTimer, robot, 0),
-                        AutoMethods.intakeForSort(robot, 2),
+                        new Parallel(
+                                robot.autoFastShoot(),
+                                new Sequential(
+                                        new Wait(100),
+                                        new Instant(() -> robot.turret.setPosition(robot.turret.getPosition() + 3/255f))
+                                )
+                        ),
+                        intakePreload(robot, true),
+                        shootPreload(robot, true), //uses unsorted final
+                        intakeFromGate(robot, 0),
+                        shootFromGate(robot, 0, true),//uses unsorted auto set 1
+                        intakeForSort(robot, 0), //uses auto set 1
+                        shootForSort(overallTimer, robot, 0),
+                        intakeForSort(robot, 2),
                         intakeLastPreloadSet(),
                         shootLastPreloadSet(),
                         new Parallel(
@@ -121,7 +130,7 @@ public class FifteenSorted extends OpModeCommand {
                                     robot.flywheel.stop();
                                 })
                         ),
-                        resetTableBlock(robot),
+                        resetTable(robot),
                         new Instant(robot.intakeMotor::outtakeMidSlow),
                         robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), 4500)
                 )
@@ -133,61 +142,205 @@ public class FifteenSorted extends OpModeCommand {
         return new Sequential(
                 new Parallel(
                         robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), 4500),
-                        robot.popper.neutral(),
                         new Sequential(
+                                new Wait(200),
                                 new Instant(robot.intakeMotor::outtakeMidSlow),
-                                new Wait(200)
-                        ),
-                        new Instant(() -> {
-                            robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY-60);
-                            robot.hood.setPosition(Hood.NEAR_PRESET - 20/255f);
-                            robot.tableCompartments.populate(colors);
-                        }),
-                        new Sequential(
-                                new Wait(300),
-                                new Instant(robot.intakeMotor::intake),
-                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
                                 new Lazy(() -> {
                                     if (Globals.randomizationState != null) return robot.sortAuto();
                                     return Commands.NOOP;
                                 }),
-                                new Wait(150),
                                 robot.popper.pop()
-                        )
+                        ),
+                        new Instant(() -> {
+                            robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY-100);
+                            robot.hood.setPosition(Hood.NEAR_PRESET - 25/255f);
+                            robot.tableCompartments.populate(colors);
+                        })
                 ),
                 robot.autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
         );
     }
 
-    private ICommand shootSecondLastForSort() {
-        double driveTimeout = 2700;
-        ArtifactColor[] intakeColors = new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
+    public static ICommand intakeFromGate(Robot robot, int iteration) {
+        return new Sequential(
+                new Instant(() -> {
+                    robot.flywheel.stop();
+                    robot.intakeMotor.stop();
+                }),
+                new Parallel(
+                        resetTable(robot),
+                        new Sequential(
+                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), 3000),
+                                new Instant(() -> {
+                                    robot.turret.unsortedAutoSet(iteration + 1);
+                                    robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY-20);
+                                })
+                        ),
+                        new Sequential(
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
+                                new Instant(() -> {
+                                    robot.intakeMotor.intakeGate();
+                                    robot.turret.setPosition(robot.turret.getPosition() -
+                                            (int) Math.signum(robot.turret.getPosition()) - 8 / 255f);
+                                })
+                        )
+                ),
+                new Wait(1400)
+        );
+    }
+
+    public static ICommand shootFromGate(Robot robot, int iteration, boolean sort) {
+        return new Parallel(
+                robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), 3000),
+                new Sequential(
+                        new Instant(robot.intakeMotor::outtakeMidSlow),
+                        new Sequential(
+                                robot.popper.pop(),
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.80)),
+                                !sort ? robot.autoFastShoot() : robot.sortAndShootAuto()
+                        )
+                )
+        );
+    }
+
+    public static ICommand intakeForSort(Robot robot, int iteration) {
+        float turretPos = switch (iteration) {
+            case 0 -> ServoTurret.AUTO_SET_1;
+            case 1 -> ServoTurret.AUTO_SET_2;
+            default -> ServoTurret.AUTO_SET_3;
+        };
+        int driveTimeout = iteration == 2 ? 4500 : 3000;
 
         return new Sequential(
                 new Parallel(
-                        robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), driveTimeout),
-                        robot.popper.neutral(),
                         new Sequential(
-                                new Wait(200),
-                                new Instant(robot.intakeMotor::outtakeSlow)
+                                new Wait(300),
+                                new Instant(() -> {
+                                    robot.turret.setPosition(turretPos);
+                                    robot.intakeMotor.intake();
+                                    robot.flywheel.stop();
+                                })
+                        ),
+                        resetTable(robot),
+                        iteration == 0 ? new Sequential(
+                                new Wait(600),
+                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
+                        ) : robot.drivetrain.followNext(d -> d.tValueCondition(0.8) && d.velocityCondition(), driveTimeout)
+                )
+        );
+    }
+
+    public static ICommand shootForSort(ElapsedTime overallTimer, Robot robot, int iteration) {
+        double flywheelOffset = iteration == 2 ? 20 : 0;
+
+        double driveTimeout = switch (iteration) {
+            case 0 -> 3000;
+            case 1 -> 2700;
+            default -> 3500;
+        };
+
+        ArtifactColor[] intookColors = switch (iteration) {
+            case 0 -> new ArtifactColor[] {ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE};
+            case 1 -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
+            default -> new ArtifactColor[] {ArtifactColor.GREEN, ArtifactColor.PURPLE, ArtifactColor.PURPLE};
+        };
+
+        AtomicBoolean isSorting = new AtomicBoolean();
+        return new Sequential(
+                new Instant(() -> isSorting.set(iteration != 2 && Globals.randomizationState != null)),
+                new Parallel(
+                        robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), driveTimeout),
+                        new Conditional(
+                                () -> iteration == 0,
+                                Commands.NOOP,
+                                new Sequential(
+                                        new Wait(200),
+                                        new Instant(robot.intakeMotor::outtakeSlow)
+                                )
                         ),
                         new Instant(() -> {
-                            robot.hood.near();
-                            robot.flywheel.setVelocity(Flywheel.CLOSE_AUTO_VELOCITY + 50);
-                            robot.tableCompartments.populate(intakeColors);
+                            robot.hood.setPosition(Hood.MEDIUM_PRESET - 10/255f);
+                            robot.flywheel.setVelocity(Flywheel.CLOSE_AUTO_VELOCITY + flywheelOffset+10);
+                            robot.tableCompartments.populate(intookColors);
                         }),
                         new Sequential(
+                                new Race(
+                                        new WaitUntil(() -> iteration == 0),
+                                        new Wait(300),
+                                        new WaitUntil(() -> iteration == 2 && overallTimer.seconds() > 27)
+                                ),
                                 new Instant(robot.intakeMotor::intake),
-                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
+                                new Race(
+                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
+                                        new WaitUntil(() -> iteration == 2 && overallTimer.seconds() > 27.5
+                                                && overallTimer.seconds() < 28.7 && robot.drivetrain.distanceFromTarget() < 7)
+                                ),
                                 new Lazy(() -> {
-                                    if (Globals.randomizationState != null) return robot.sortAuto();
+                                    if (isSorting.get()) return robot.sortAuto();
                                     return Commands.NOOP;
                                 }),
                                 new Wait(150),
                                 robot.popper.pop()
                         )
                 ),
-                robot.autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
+                robot.autoShoot(() -> !isSorting.get() ? 0.0 : Table.SLOW_SHOOT_DELAY)
+        );
+    }
+
+    public static ICommand intakePreload(Robot robot, boolean isFirst) {
+        return new Sequential(
+                new Instant(() -> {
+                    if (!isFirst) {
+                        robot.turret.setPosition(ServoTurret.UNSORTED_FINAL - 1/255f);
+                        robot.hood.unsortedAuto();
+                        robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 10);
+                    }
+
+                    robot.intakeMotor.intake();
+                }),
+                new Parallel(
+                        resetTable(robot),
+                        new Sequential(
+                                new Wait(600),
+                                robot.drivetrain.followNext(d -> d.tValueCondition(0.8) &&
+                                        d.velocityCondition(), 3000),
+                                isFirst ? new Instant(robot.flywheel::unsortedAuto) : Commands.NOOP,
+                                new Sequential(
+                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
+                                        new Instant(() -> robot.turret.unsortedAutoSet(0))
+                                )
+                        )
+                )
+        );
+    }
+
+    public static ICommand shootPreload(Robot robot, boolean isFirst) {
+        return new Sequential(
+                new Instant(() -> {
+                    if (isFirst) {
+                        robot.flywheel.unsortedAuto();
+                        robot.hood.unsortedAuto();
+                    } else {
+                        robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 30);
+                        robot.hood.setPosition(Hood.NEAR_PRESET - 10/255f);
+                    }
+                }),
+                isFirst ? new Parallel(
+                        robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), 3000),
+                        preloadShootArmActions(robot)
+                ) : new Deadline(
+                        preloadShootArmActions(robot),
+                        robot.drivetrain.followNext(d -> d.velocityCondition() && d.tValueCondition(0.8), 3000)
+                )
+        );
+    }
+
+    private static ICommand preloadShootArmActions(Robot robot) {
+        return new Sequential(
+                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.25)),
+                robot.popper.pop(),
+                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
+                robot.autoFastShoot()
         );
     }
 

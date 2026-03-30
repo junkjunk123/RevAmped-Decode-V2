@@ -56,9 +56,9 @@ public class SimpleShooterMath {
         hoodPos = new Matrix(hoodPos).transposed().getMatrix();
 
         double[][] flywheelVel = {
-                { 590, 700, 865 },
-                { 640, 720, 920 },
-                { 720, 780, 925}
+                { 610, 720, 885 },
+                { 660, 740, 940 },
+                { 740, 800, 945}
         };
         flywheelVel = new Matrix(flywheelVel).transposed().getMatrix();
 

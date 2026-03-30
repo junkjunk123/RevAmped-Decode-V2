@@ -50,7 +50,7 @@ public class AutoMethods {
                                 })
                         )
                 ),
-                new Wait(1200)
+                new Wait(950)
         );
     }
 

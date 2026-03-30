@@ -212,9 +212,9 @@ public class Robot {
                             shootSequence.set(table.getState().getShootStates());
                         }),
                         new Instant(() -> table.setPosition(shootSequence.get()[0])),
-                        new Wait(delay.get() + 675),
+                        new Wait(delay.get() + 600),
                         new Instant(() -> table.setPosition(shootSequence.get()[1])),
-                        new Wait(delay.get() + 675),
+                        new Wait(delay.get() + 600),
                         new Instant(() -> table.setPosition(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3)),
                         new Wait(500),
                         new Instant(tableCompartments::removeAll)

@@ -94,7 +94,7 @@ public class Flywheel extends HwMotor {
     }
 
     public void unsortedAuto() {
-        runToVel(UNSORTED_AUTO_VELOCITY-10);
+        runToVel(UNSORTED_AUTO_VELOCITY);
         state = FlywheelState.TRACKING;
     }
 

@@ -132,7 +132,7 @@ public final class TeleOpStateHandler {
         return canStart(next, force);
     }
 
-    private boolean canStart(
+    public boolean canStart(
             RobotStateHandler.CycleState next,
             boolean force
     ) {

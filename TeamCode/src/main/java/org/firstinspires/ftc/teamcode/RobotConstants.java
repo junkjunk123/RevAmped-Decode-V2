@@ -16,15 +16,15 @@ public class RobotConstants {
     public void build() {
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.INTAKE_SLOW = 0.65f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.INTAKE_GATE = 1.0f;
-        IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
+        IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -1.0f;
 
         //Popper Constants
         Popper.POP = 123/255f; Popper.NEUTRAL = 27/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
-        Flywheel.CORNER_VELOCITY = 880;
-        Flywheel.UNSORTED_AUTO_VELOCITY = 730;
+        Flywheel.NEAR_VELOCITY = 700; Flywheel.MEDIUM_VELOCITY = 800; Flywheel.FAR_VELOCITY = 1100; Flywheel.CLOSE_AUTO_VELOCITY = 650;
+        Flywheel.CORNER_VELOCITY = 900;
+        Flywheel.UNSORTED_AUTO_VELOCITY = 740;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants
@@ -32,7 +32,7 @@ public class RobotConstants {
 
         //HOOD POSITIONS FOR TELEOP
         Hood.FAR_PRESET = 127/255f; Hood.NEAR_PRESET = 51/255f; Hood.MEDIUM_PRESET = 97/255f; Hood.CORNER_PRESET = 115/255f;
-        Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
+        Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 14.5f/255f;
 
         //Turret Constants
         ServoTurret.FULL_ROTATION = 284/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
@@ -40,16 +40,16 @@ public class RobotConstants {
         ServoTurret.REST = 125/255f;
         ServoTurret.FAR_PRESET_RED = 36/255f;
         //done
-        ServoTurret.FIFTEEN_OBELISK_DETECTION = 200/255f;
+        ServoTurret.FIFTEEN_OBELISK_DETECTION = 158/255f; //158/255f
         //preloads
         ServoTurret.FIFTEEN_BALL_PRELOADS = 118/255f;
-        ServoTurret.UNSORTED_FINAL = 43/255f; // 1st spike
+        ServoTurret.UNSORTED_FINAL = 36/255f; // 1st spike
         //Gate cycle
-        ServoTurret.UNSORTED_SET_2 = 42/255f;
+        ServoTurret.UNSORTED_SET_2 = 39/255f;
         //2nd spike
         ServoTurret.AUTO_SET_1 = 59/255f;
         //3nd spike
-        ServoTurret.AUTO_SET_3 = 33/255f;
+        ServoTurret.AUTO_SET_3 = 39/255f;
 
 
         //Not used in 15 ball

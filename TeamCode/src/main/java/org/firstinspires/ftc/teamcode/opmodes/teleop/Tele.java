@@ -48,6 +48,7 @@ public class Tele extends OpModeCommand {
     private TeleOpStateHandler tsh;
     private Prompter prompter;
     private DecodeLimelight limelight;
+    private boolean canShoot = true;
 
     @Override
     public void initialize() {
@@ -116,7 +117,11 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.b.isRisingEdge()) {
             schedule(new Sequential(
                         limelight.computeOffsets(),
-                        new Instant(() -> Globals.getTrackingThread().addLimelightMeasurement(limelight.getOffsets()))
+                        new WaitUntil(() -> limelight.getOffsets().equals(DecodeLimelight.DEFAULT_TAG_POSE)),
+                        new Instant(() -> {
+                                Globals.getTrackingThread().addLimelightMeasurement(limelight.getOffsets());
+                                gamepad_1.rumble();
+                        })
                     )
             );
         }
@@ -138,7 +143,7 @@ public class Tele extends OpModeCommand {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
             } else {
-                schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
+                robot.turret.next();
             }
         }
 
@@ -147,7 +152,7 @@ public class Tele extends OpModeCommand {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
             } else {
-                schedule(tsh.task(() -> robot.turret.previous(), new int[]{1, 1, 0}));
+                robot.turret.previous();
             }
         }
 
@@ -199,7 +204,7 @@ public class Tele extends OpModeCommand {
             ));
         }
 
-        if (gamepad_2.dpad_up.isRisingEdge()) {
+        if (gamepad_2.dpad_up.isRisingEdge() && canShoot) {
             schedule(new Conditional(
                     () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
                     new Sequential(
@@ -208,10 +213,13 @@ public class Tele extends OpModeCommand {
                                     //() -> robot.hood.getCurrentState() == Hood.HoodState.FAR,
                                     () -> false,
                                     new Sequential(
+                                        new Instant(() -> canShoot = false),
                                         robot.shootAll(25),
-                                        robot.resetAfterShooting()
+                                        robot.resetAfterShooting(),
+                                        new Instant(() -> canShoot = true)
                                     ),
                                     new Sequential(
+                                            new Instant(() -> canShoot = false),
                                             new Race(
                                                     new WaitUntil(gamepad_2.x::isRisingEdge),
                                                     new Sequential(
@@ -220,20 +228,12 @@ public class Tele extends OpModeCommand {
                                                             new Instant(() -> robot.flywheel.setVelocity(robot.flywheel.getTargetVelocity() + 50))
                                                     )
                                             ),
-                                            robot.resetAfterShooting()
+                                            robot.resetAfterShooting(),
+                                            new Instant(() -> canShoot = true)
                                     )
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
-                    tsh.task(
-                            new Sequential(
-                                    new Instant(() -> {
-                                            robot.tableCompartments.populate(PURPLE, PURPLE, GREEN);
-                                            robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING);
-                                    }),
-                                    robot.sort()
-                            ),
-                            new int[] {1, 0, 0}
-                    )
+                   Commands.NOOP
             ));
         }
 

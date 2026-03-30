@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
@@ -34,12 +35,16 @@ public class DecodeLimelight implements HwDevice {
     private Vector tagOffsets = new Vector();
     private long lastDetectionTime = 0;
     public static Vector2D TAG_OFFSETS = new Vector2D(1.8, 1);
+    public static Vector DEFAULT_TAG_POSE = new Vector();
     public static ColoredDecodePose APRILTAG_POSE = new ColoredDecodePose(14.5, 132, 0);
     public static double CENTER_OFFSET = 6.9;
+    public static int MAX_ITERATIONS;
+    private int iteration = 0;
+    private final Vector[] detectedOffsets = new Vector[MAX_ITERATIONS];
 
     public enum Pipeline {
         NONE(-1),
-        OBELISK(7),
+        OBELISK(1),
         SHOOTING_ALIGNMENT(0),
         ELEMENT_DETECTION(2);
 
@@ -78,7 +83,7 @@ public class DecodeLimelight implements HwDevice {
 
     private void computeLatestResult() {
         LLResult result = limelight.getLatestResult();
-        if (result != null && (result.isValid() || getCurrentPipeline() == Pipeline.SHOOTING_ALIGNMENT)) {
+        if (result != null && (result.isValid() || getCurrentPipeline() == Pipeline.SHOOTING_ALIGNMENT || getCurrentPipeline() == Pipeline.OBELISK)) {
             latestResult = result;
             lastDetectionTime = result.getControlHubTimeStampNanos();
         }
@@ -91,15 +96,15 @@ public class DecodeLimelight implements HwDevice {
 
         switch (currentPipeline) {
             case OBELISK -> {
-                if (latestResult.getFiducialResults() == null || latestResult.getFiducialResults().isEmpty())
-                    return;
-                LLResultTypes.FiducialResult result = latestResult.getFiducialResults().get(0);
-                int id = result.getFiducialId();
-                for (RandomizationState state : RandomizationState.values()) {
-                    if (id == state.getID()) {
-                        Globals.randomizationState = state;
-                        setCurrentPipeline(Pipeline.NONE);
-                        return;
+                double id  = latestResult.getPythonOutput()[0];
+                Globals.telemetry.addData("lloutput",Arrays.toString(latestResult.getPythonOutput()));
+                if(id != 0){ //0 mean no apriltag detected
+                    for (RandomizationState state : RandomizationState.values()) {
+                        if (id == state.getID()) {
+                            Globals.randomizationState = state;
+                            setCurrentPipeline(Pipeline.NONE);
+                            return;
+                        }
                     }
                 }
             }
@@ -107,8 +112,14 @@ public class DecodeLimelight implements HwDevice {
                 double[] output = latestResult.getPythonOutput();
                 Globals.telemetry.addData("lloutput", Arrays.toString(output));
                 if (Globals.allianceColor.getTagID() != output[0] || output[2] < 0.1) return;
-                tagOffsets = new Vector2D(output[2], output[1]);
-                setCurrentPipeline(Pipeline.NONE);
+                if (Math.abs(output[2] - detectedOffsets[iteration].getXComponent()) < 0.0005) return;
+                iteration++;
+                detectedOffsets[iteration] = new Vector2D(output[2], output[1]);
+
+                if (iteration == MAX_ITERATIONS) {
+                    tagOffsets = MathUtil.geometricMedian(detectedOffsets, 3);
+                    setCurrentPipeline(Pipeline.NONE);
+                }
             }
         }
     }
@@ -139,9 +150,14 @@ public class DecodeLimelight implements HwDevice {
 
     public ICommand computeOffsets() {
         return new Command()
-                .setStart(() -> setCurrentPipeline(Pipeline.SHOOTING_ALIGNMENT))
+                .setStart(() -> {
+                    setCurrentPipeline(Pipeline.SHOOTING_ALIGNMENT);
+                    iteration = 0;
+                    tagOffsets = DEFAULT_TAG_POSE;
+                    Arrays.fill(detectedOffsets, DEFAULT_TAG_POSE);
+                })
                 .setExecute(this::update)
                 .setDone(() -> getCurrentPipeline() != Pipeline.SHOOTING_ALIGNMENT)
-                .timeoutAfter(500);
+                .timeoutAfter(850);
     }
 }

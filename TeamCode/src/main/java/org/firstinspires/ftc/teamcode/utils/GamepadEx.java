@@ -36,6 +36,7 @@ public class GamepadEx {
 
     public BooleanSwitch right_trigger_button;
     public BooleanSwitch left_trigger_button;
+    private Gamepad gamepad;
 
     public GamepadEx(Gamepad gamepad) {
         a = new BooleanSwitch(() -> gamepad.a);
@@ -63,6 +64,7 @@ public class GamepadEx {
                 a, b, x, y, left_bumper, right_bumper, start, back, dpad_left, dpad_right, dpad_down, dpad_up, left_stick_button,
                 right_stick_button, touchpad
         ));
+        this.gamepad = gamepad;
     }
 
     public void apply(Function<BooleanSwitch, BooleanSwitch> function) {
@@ -81,5 +83,43 @@ public class GamepadEx {
 
     public void update() {
         for (BooleanSwitch button : buttons) button.update();
+    }
+
+    public void rumble(int durationms) {
+        gamepad.rumble(durationms);
+    }
+
+    public void rumble() {
+        rumble(500);
+    }
+
+    public void rumbleContinuous() {
+        gamepad.rumble(Gamepad.RUMBLE_DURATION_CONTINUOUS);
+    }
+
+    public void rumble(double rumble1, double rumble2, int ms) {
+        gamepad.rumble(rumble1, rumble2, ms);
+    }
+
+    public void rumble(Gamepad.RumbleEffect effect) {
+        gamepad.runRumbleEffect(effect);
+    }
+
+    public void rumbleBlips(int blips) {
+        gamepad.rumbleBlips(blips);
+    }
+
+    public void stopRumble() {
+        gamepad.stopRumble();
+    }
+
+    //This makes the PS5 controller change color
+
+    public void setLED(int r, int g, int b, int ms) {
+        gamepad.setLedColor(r,g,b,ms);
+    }
+
+    public void setLED(Gamepad.LedEffect effect) {
+        gamepad.runLedEffect(effect);
     }
 }

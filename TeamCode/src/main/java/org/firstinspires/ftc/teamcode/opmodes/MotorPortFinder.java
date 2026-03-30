@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
-@Disabled
 @TeleOp
 public class MotorPortFinder extends OpModeCommand{
     GamepadEx gamepad_1;
