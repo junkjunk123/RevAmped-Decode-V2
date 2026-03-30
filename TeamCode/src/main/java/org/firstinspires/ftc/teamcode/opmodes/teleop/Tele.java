@@ -1,8 +1,4 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
-
-import static org.firstinspires.ftc.teamcode.utils.ArtifactColor.GREEN;
-import static org.firstinspires.ftc.teamcode.utils.ArtifactColor.PURPLE;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.commands.Infinite;
@@ -13,7 +9,6 @@ import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
@@ -23,7 +18,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
-import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
@@ -43,14 +37,12 @@ public class Tele extends OpModeCommand {
     private Robot robot;
     private TeleOpStateHandler tsh;
     private Prompter prompter;
-    private DecodeLimelight limelight;
     private boolean transfer;
     private boolean canShoot;
 
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
-        limelight = new DecodeLimelight(hardwareMap);
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
@@ -115,8 +107,8 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_1.b.isRisingEdge()) {
             schedule(new Sequential(
-                        limelight.computeOffsets(),
-                        new Instant(() -> Globals.getTrackingThread().addLimelightMeasurement(limelight.getOffsets()))
+                        robot.limelight.computeOffsets(),
+                        new Instant(() -> Globals.getTrackingThread().addLimelightMeasurement(robot.limelight.getOffsets()))
                     )
             );
         }
@@ -151,12 +143,22 @@ public class Tele extends OpModeCommand {
             }
         }
 
-        if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(robot.popper.neutral(), RobotStateHandler.IntakeMessage.SORTING));
+        if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(
+                new Parallel(
+                        robot.intakeGate.open(),
+                        robot.popper.neutral(),
+                        robot.splitter.activate()
+                ), RobotStateHandler.IntakeMessage.SORTING)
+        );
 
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
-                    new Instant(robot.flywheel::stop),
-                    new Instant(() -> robot.intakeTilt.intake()),
+                    new Instant(() -> {
+                        robot.flywheel.stop();
+                        robot.intakeTilt.intake();
+                    }),
+                    robot.intakeGate.open(),
+                    robot.splitter.activate(),
                     robot.resetTable(),
                     new Lazy(() -> {
                         if (TrackingThread.trackTurret) return robot.turret.resetTurret();
@@ -175,6 +177,10 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.right_bumper.isRisingEdge()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
+                        new Parallel(
+                                robot.splitter.activate(),
+                                robot.intakeGate.close()
+                        ),
                         robot.table.previous()
                 ), new int[]{1, 0, 0}
         ));
@@ -182,11 +188,15 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.left_bumper.isRisingEdge()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
+                        new Parallel(
+                                robot.intakeGate.close(),
+                                robot.splitter.activate()
+                        ),
                         robot.table.next()
                 ), new int[]{1, 0, 0}
         ));
 
-        if (tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
+        if (IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
             if (robot.tableCompartments.intakeThread.getNumBalls() == 3) {
                 robot.tableCompartments.populate();
                 transfer = true;
@@ -204,6 +214,8 @@ public class Tele extends OpModeCommand {
                                 RobotStateHandler.CycleState.INTAKE.update = false;
                             }),
                             robot.popper.pop(),
+                            robot.splitter.neutral(),
+                            robot.intakeGate.close(),
                             new Conditional(
                                     robot.flywheel::isStopped,
                                     new Instant(robot::shootNear),

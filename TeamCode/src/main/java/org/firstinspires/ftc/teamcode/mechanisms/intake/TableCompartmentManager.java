@@ -17,15 +17,17 @@ public class TableCompartmentManager {
     };
 
     public final IntakeThread intakeThread;
-    private final IntakeDistance intakeDistance;
+    private final IntakeArtifactDetector intakeDistance;
+    private final IntakeArtifactDetector frontCompartmentSensor;
     private final Supplier<Table.RelativeState> tableState;
 
-    public TableCompartmentManager(SpindexerColorSensors colorManager, IntakeDistance intakeDistance,
-                                   Supplier<Table.RelativeState> tableState) {
+    public TableCompartmentManager(SpindexerColorSensors colorManager, IntakeArtifactDetector intakeDetector,
+                                   IntakeArtifactDetector frontSensor, Supplier<Table.RelativeState> tableState) {
         this.tableState = tableState;
-        RobotStateHandler.CycleState.INTAKE.init(colorManager, compartmentColors, intakeDistance);
+        RobotStateHandler.CycleState.INTAKE.init(colorManager, compartmentColors, intakeDetector, frontSensor);
         intakeThread = RobotStateHandler.CycleState.INTAKE.intakeThread;
-        this.intakeDistance = intakeDistance;
+        this.intakeDistance = intakeDetector;
+        this.frontCompartmentSensor = frontSensor;
     }
 
     public boolean isEmpty() {

@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 import com.pedropathing.telemetry.SelectableOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.opmodes.LiftTest;
-
 @TeleOp
 public class DecodeTester extends SelectableOpMode {
     public DecodeTester() {

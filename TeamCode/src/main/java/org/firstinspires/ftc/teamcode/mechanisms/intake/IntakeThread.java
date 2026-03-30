@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 
 import java.util.Arrays;
+import java.util.List;
 
 //Eric Debug Thanks
 public class IntakeThread {
@@ -21,22 +22,24 @@ public class IntakeThread {
     private final SpindexerColorSensors colorSensors;
     private final ArtifactColor[] tableCompartments;
     private final ArtifactColor[] relativeCompartments;
-    private final IntakeDistance intakeDistance;
+    private final IntakeArtifactDetector intakeDistance;
+    private final IntakeArtifactDetector frontDistance;
     private int hypotheticalNumBalls = 0;
 
-    public IntakeThread(ArtifactColor[] tableCompartments, SpindexerColorSensors colorManager, IntakeDistance intakeDistance) {
+    public IntakeThread(ArtifactColor[] tableCompartments, SpindexerColorSensors colorManager, IntakeArtifactDetector intakeDistance, IntakeArtifactDetector frontDistance) {
         this.colorSensors = colorManager;
         this.tableCompartments = tableCompartments;
         this.intakeDistance = intakeDistance;
+        this.frontDistance = frontDistance;
         relativeCompartments = new ArtifactColor[3];
     }
 
     public void update() {
         if (!useSensors) return;
         if (hypotheticalNumBalls < 2) {
-            if (intakeDistance.artifactPassedThrough()) {
+            if (intakeDistance.hasArtifact()) {
                 hypotheticalNumBalls = 2;
-                intakeDistance.setDetectionState(IntakeDistance.DetectionState.COMPARTMENT_THREE);
+                intakeDistance.stop();
                 Scheduler.getInstance().schedule(
                         new Sequential(
                                 new Wait(COLOR_DETECTION_DELAY),
@@ -57,10 +60,13 @@ public class IntakeThread {
                 );
             }
         } else if (hypotheticalNumBalls == 2) {
-            if (intakeDistance.hasArtifact()) {
+            if (!frontDistance.isOn()) frontDistance.start();
+
+            if (frontDistance.hasArtifact()) {
                 hypotheticalNumBalls = 3;
-                intakeDistance.setDetectionState(IntakeDistance.DetectionState.NONE);
-                colorSensors.expressThree();
+                expressThree();
+                intakeDistance.stop();
+                frontDistance.stop();
             }
         }
     }
@@ -75,6 +81,14 @@ public class IntakeThread {
         colorSensors.updateColors();
         for (int i = 0; i < relativeCompartments.length; i++)
             relativeCompartments[i] = colorSensors.getColor(i);
+        if (frontDistance.get()) expressThree();
+    }
+
+    public void expressThree() {
+        if (tableCompartments[1].equals(ArtifactColor.NONE) || tableCompartments[2].equals(ArtifactColor.NONE)) return;
+        ArtifactColor middleColor = List.of(tableCompartments[1], tableCompartments[2]).contains(ArtifactColor.GREEN) ?
+                ArtifactColor.PURPLE : ArtifactColor.GREEN;
+        tableCompartments[0] = middleColor;
     }
 
     public int getNumBalls() {
@@ -89,9 +103,11 @@ public class IntakeThread {
     public void reset() {
         hypotheticalNumBalls = 0;
         Arrays.fill(relativeCompartments, ArtifactColor.NONE);
+        intakeDistance.stop();
+        frontDistance.stop();
     }
 
     public void start() {
-        intakeDistance.setDetectionState(IntakeDistance.DetectionState.PASS_THROUGH_1);
+        intakeDistance.start();
     }
 }

@@ -37,7 +37,6 @@ public class FifteenSorted extends OpModeCommand {
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap, new FifteenSortedPaths());
-        DecodeLimelight limelight = new DecodeLimelight(hardwareMap);
         robot.tableCompartments.populate(ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE);
 
         schedule(
@@ -54,12 +53,12 @@ public class FifteenSorted extends OpModeCommand {
                             robot.flywheel.unsortedAuto();
                             robot.hood.unsortedAuto();
                             robot.intakeMotor.intakeSlow();
-                            limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
+                            robot.limelight.setCurrentPipeline(DecodeLimelight.Pipeline.OBELISK);
                         }),
                         new Race(
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4), 3000),
                                 new Sequential(
-                                        !testSlowShoot ? new Functional(() -> {}, limelight::update, () -> Globals.randomizationState != null) :
+                                        !testSlowShoot ? new WaitUntil(() -> Globals.randomizationState != null) :
                                                 new Instant(() -> Globals.randomizationState = RandomizationState.GPP),
                                         new Instant(() -> robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS)),
                                         new Infinite(() -> {})
@@ -68,13 +67,12 @@ public class FifteenSorted extends OpModeCommand {
                         new Lazy(() -> {
                             if (Globals.randomizationState != null) return Commands.NOOP;
                             return new Race(
-                                    new Functional(() -> {
-                                    }, limelight::update, () -> Globals.randomizationState != null),
+                                    new WaitUntil(() -> Globals.randomizationState != null),
                                     new Wait(4000)
                             );
                         }),
                         new Instant(() -> {
-                            limelight.close();
+                            robot.limelight.close();
                             robot.turret.setPosition(ServoTurret.FIFTEEN_BALL_PRELOADS); //looks fine
                             robot.intakeMotor.intakeSlow();
                         }),

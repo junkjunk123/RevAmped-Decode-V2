@@ -4,6 +4,7 @@ import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
 public abstract class OpModeCommand extends LinearOpMode {
@@ -26,6 +27,7 @@ public abstract class OpModeCommand extends LinearOpMode {
 
             if (isStopRequested()) {
                 reset();
+                if (Robot.INSTANCE != null) Robot.INSTANCE.close();
                 end();
             }
         }

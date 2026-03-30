@@ -1,40 +1,36 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
-import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.CycleState;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.DriveMessage;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.IntakeMessage;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistance;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
+import org.firstinspires.ftc.teamcode.mechanisms.lift.Tilt;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.IntakeTilt;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
@@ -60,10 +56,15 @@ public class Robot {
     public final Popper popper;
     public final IntakeMotor intakeMotor;
     public final SpindexerColorSensors intakeColor;
-    public final IntakeDistance intakeDistance;
+    public final IntakeArtifactDetector intakeDistance;
+    public final IntakeArtifactDetector frontDistance;
     public final FeederWheel feederWheel;
     public final IntakeTilt intakeTilt;
+    public final IntakeGate intakeGate;
+    public final Splitter splitter;
     public final TableCompartmentManager tableCompartments;
+    public final DecodeLimelight limelight;
+    public final Tilt lift;
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
     private CycleState robotState = CycleState.INTAKE;
@@ -78,7 +79,6 @@ public class Robot {
         setBulkReadMode(LynxModule.BulkCachingMode.MANUAL);
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         Globals.isTeleOp = pathSupplier == null;
-        //octocanum = teleop ? new Octocanum(hardwareMap) : null;
         turret = new ServoTurret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
@@ -86,12 +86,17 @@ public class Robot {
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap);
         intakeColor = new SpindexerColorSensors(hardwareMap);
-        intakeDistance = new IntakeDistance(hardwareMap);
+        intakeDistance = new IntakeArtifactDetector(hardwareMap, "intakeDistance", 25);
+        frontDistance = new IntakeArtifactDetector(hardwareMap, "frontDistance", 100, 1);
         feederWheel = new FeederWheel(hardwareMap);
         intakeTilt = new IntakeTilt(hardwareMap);
+        intakeGate = new IntakeGate(hardwareMap);
+        splitter = new Splitter(hardwareMap);
+        limelight = new DecodeLimelight(hardwareMap);
+        lift = new Tilt(hardwareMap);
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
-        tableCompartments = new TableCompartmentManager(intakeColor, intakeDistance, table::getState);
+        tableCompartments = new TableCompartmentManager(intakeColor, intakeDistance, frontDistance, table::getState);
         if (!Globals.isTeleOp) initialize();
     }
 
@@ -100,20 +105,25 @@ public class Robot {
         table.setPosition(Table.BALL1);
         turret.move(ServoTurretState.PresetState.REST);
         intakeTilt.intake();
+        intakeGate.setOpen();
+        splitter.setPositionActivated();
     }
 
     public void update() {
         clearBulkCache();
         drivetrain.update();
-        intakeColor.update();
         flywheel.update();
+        feederWheel.update();
+        limelight.update();
+        intakeColor.update();
         turret.update();
         intakeMotor.update();
         table.update();
         popper.update();
         intakeDistance.update();
         intakeTilt.update();
-        feederWheel.update();
+        intakeGate.update();
+        splitter.update();
         hood.update();
         robotState.update();
     }
@@ -328,5 +338,31 @@ public class Robot {
         hood.medium();
         flywheel.medium();
         feederWheel.start();
+    }
+
+    public void close() {
+        limelight.close();
+    }
+
+    public ICommand lift() {
+        return new Sequential(
+                new Instant(() -> {
+                    limelight.close();
+                    turret.deenergize();
+                    popper.deenergize();
+                    intakeMotor.deenergize();
+                    table.deenergize();
+                    hood.deenergize();
+                    intakeColor.close();
+                    intakeDistance.close();
+                    frontDistance.close();
+                    feederWheel.deenergize();
+                    intakeTilt.deenergize();
+                    intakeGate.deenergize();
+                    flywheel.deenergize();
+                    splitter.deenergize();
+                }),
+                lift.lift()
+        );
     }
 }

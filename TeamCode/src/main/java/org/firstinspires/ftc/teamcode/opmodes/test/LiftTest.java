@@ -1,13 +1,14 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 @Disabled
 @TeleOp
-public class LiftTest extends OpModeCommand{
+public class LiftTest extends OpModeCommand {
     //LIFT
     //GOES POSITIVE
     //LIFT 2 GOES NEGATIVE

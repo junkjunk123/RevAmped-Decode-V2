@@ -6,6 +6,7 @@ import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistance;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
@@ -68,9 +69,9 @@ public class RobotStateHandler {
                     intakeThread.update();
             }
 
-            public void init(SpindexerColorSensors colorManager, ArtifactColor[] tableCompartments, IntakeDistance intakeDistance) {
+            public void init(SpindexerColorSensors colorManager, ArtifactColor[] tableCompartments, IntakeArtifactDetector intakeDistance, IntakeArtifactDetector frontSensor) {
                 INSTANCE = IntakeState.INTAKING;
-                intakeThread = new IntakeThread(tableCompartments, colorManager, intakeDistance);
+                intakeThread = new IntakeThread(tableCompartments, colorManager, intakeDistance, frontSensor);
             }
 
             public double[] getTransitionVector() {

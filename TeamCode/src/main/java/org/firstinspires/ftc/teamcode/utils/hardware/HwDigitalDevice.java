@@ -19,6 +19,10 @@ public class HwDigitalDevice extends HwSensor<Boolean, DigitalChannel> {
         return this;
     }
 
+    public void close() {
+        sensor.close();
+    }
+
     @Override
     public Boolean get() {
         return sensor.getState() == !isFlipped;

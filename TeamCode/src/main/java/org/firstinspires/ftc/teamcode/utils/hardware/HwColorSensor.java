@@ -91,6 +91,10 @@ public abstract class HwColorSensor implements HwDevice {
         return sensor;
     }
 
+    public void close() {
+        sensor.close();
+    }
+
     @NonNull
     @Override
     public String toString() {
