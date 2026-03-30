@@ -16,7 +16,6 @@ public class DecodeTester extends SelectableOpMode {
             });
             s.folder("HardwareTest", l -> {
                 l.add("DriveMotorFrictionTest", DriveMotorFrictionTest::new);
-                l.add("LiftTest", LiftTest::new);
                 l.add("TableEncoderTest", TableEncoderTest::new);
                 l.add("TurretEncoderTest", TurretEncoderTest::new);
             });

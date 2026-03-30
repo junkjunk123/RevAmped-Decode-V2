@@ -23,7 +23,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
-import org.firstinspires.ftc.teamcode.mechanisms.lift.Tilt;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
@@ -64,7 +63,7 @@ public class Robot {
     public final Splitter splitter;
     public final TableCompartmentManager tableCompartments;
     public final DecodeLimelight limelight;
-    public final Tilt lift;
+    public final Lift lift;
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
     private CycleState robotState = CycleState.INTAKE;
@@ -93,7 +92,7 @@ public class Robot {
         intakeGate = new IntakeGate(hardwareMap);
         splitter = new Splitter(hardwareMap);
         limelight = new DecodeLimelight(hardwareMap);
-        lift = new Tilt(hardwareMap);
+        lift = new Lift(hardwareMap);
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
         tableCompartments = new TableCompartmentManager(intakeColor, intakeDistance, frontDistance, table::getState);
