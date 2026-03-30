@@ -44,7 +44,7 @@ public class ServoCalibrateTest extends OpMode {
     @Override
     public void init() {
         gamepad_1 = new GamepadEx(gamepad1);
-        servos = List.of("hood","popper","table","table2","turret","turret2","intakeTilt");
+        servos = List.of("hood","popper","table","table2","turret","turret2","intakeTilt","gate","splitter");
         telemetryA = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         //voltage = hardwareMap.get(AnalogInput.class,"popper_voltage");
         telemetry.addData(">>", "Press start to continue");
