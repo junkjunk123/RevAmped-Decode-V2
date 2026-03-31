@@ -85,6 +85,7 @@ public class Table extends HwServo {
     public static float BALL0_REV2;
     public static float BALL1_REV2;
     public static float FULL_REVOLUTION;
+    public static float SECOND_OFFSET;
     public static float SHOOT_INCREMENT;
     public static double MS_PER_REVOLUTION = 750;
     public static double SLOW_SHOOT_DELAY = 25;
@@ -283,7 +284,7 @@ public class Table extends HwServo {
 
     @Override
     public boolean setPosition(double pos) {
-        if (tableServo2 != null) tableServo2.setPosition(pos);
+        if (tableServo2 != null) tableServo2.setPosition(pos + SECOND_OFFSET);
         boolean moved = super.setPosition(pos);
         if (moved) encoder.reset();
         return moved;

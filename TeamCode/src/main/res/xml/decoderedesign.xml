@@ -5,9 +5,9 @@
             <goBILDA5202SeriesMotor name="intake" port="2"/>
             <goBILDA5202SeriesMotor name="flywheel_right" port="1"/>
             <goBILDA5202SeriesMotor name="flywheel_left" port="0"/>
-            <Servo name="gate" port="5"/>
-            <Servo name="hood" port="4"/>
-            <Servo name="splitter" port="3"/>
+            <Servo name="splitter" port="5"/>
+            <Servo name="gate" port="4"/>
+            <Servo name="hood" port="3"/>
             <Servo name="turret2" port="2"/>
             <Servo name="turret" port="1"/>
             <RevColorSensorV3 name="colorLeft" port="0" bus="2"/>

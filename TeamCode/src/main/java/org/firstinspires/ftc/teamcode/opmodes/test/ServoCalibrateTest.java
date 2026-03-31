@@ -34,6 +34,7 @@ public class ServoCalibrateTest extends OpMode {
     private final HashMap<String, Integer> calibratedPositions = new HashMap<>();
     private Prompter prompter;
     private GamepadEx gamepad_1;
+    private boolean displayAll;
 
     private enum TestState {
         SELECT,
@@ -132,12 +133,15 @@ public class ServoCalibrateTest extends OpMode {
                 if (gamepad_1.back.isRisingEdge() || gamepad_1.a.isRisingEdge())
                     setTestState(TestState.SELECT);
 
+                if (gamepad_1.dpad_up.isRisingEdge())
+                    displayAll = !displayAll;
+
                 telemetryA.addData("Servo", currentServo);
-                calibratedPositions.forEach((u, v) -> telemetryA.addData(u, Integer.toString(v)));
+                if (displayAll) calibratedPositions.forEach((u, v) -> telemetryA.addData(u, Integer.toString(v)));
+                else telemetryA.addLine("press dpad_up to display all previous calibrations");
                 telemetryA.addData("singleTickMode", singleTickMode);
                 telemetryA.addData("TICK_CHANGE", TICK_CHANGE);
-                telemetry.addData("PWM",
-                        Integer.toString((int) (posJoy1 * 1805.2 / 255f + 591.68)));
+                //telemetry.addData("PWM", Integer.toString((int) (posJoy1 * 1805.2 / 255f + 591.68)));
                 telemetryA.update();
             }
             case SELECT -> prompter.run();

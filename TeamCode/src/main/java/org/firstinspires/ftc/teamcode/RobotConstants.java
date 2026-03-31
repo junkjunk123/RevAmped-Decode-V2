@@ -3,8 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.DecodeColorSensor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
@@ -24,7 +27,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 123/255f; Popper.NEUTRAL = 27/255f; Popper.BLOCK = 111/255f;
+        Popper.POP = 123/255f; Popper.NEUTRAL = 119/255f; Popper.BLOCK = 111/255f;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
@@ -40,9 +43,9 @@ public class RobotConstants {
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants
-        ServoTurret.REST = 125/255f;
+        ServoTurret.REST = 132/255f;
         Function<Float, Float> turretPos = f -> Globals.allianceColor == AllianceColor.Red ? 2 * ServoTurret.REST - f : f;
-        ServoTurret.FULL_ROTATION = 284/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
+        ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
         ServoTurret.FAR_PRESET_RED = 36/255f;
         //done
@@ -59,6 +62,15 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_3 = turretPos.apply(5/255f);
         ServoTurret.UNSORTED_SET_4 = turretPos.apply(5/255f);
         ServoTurret.UNSORTED_SET_5 = turretPos.apply(5/255f);
+
+        //gate
+        IntakeGate.OPEN = 249/255f; IntakeGate.CLOSE = 102/255f;
+
+        //splitter
+        Splitter.ACTIVATED = 178/255f; Splitter.NEUTRAL = 61/255f;
+
+        //tilt
+        IntakeTilt.TRANSFER = 87/255f; IntakeTilt.INTAKE = 155/255f;
 
         //updated
         // each compartment is ~32 ticks
