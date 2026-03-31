@@ -27,11 +27,12 @@ public class IntakeThread {
     private int hypotheticalNumBalls = 0;
 
     public IntakeThread(ArtifactColor[] tableCompartments, SpindexerColorSensors colorManager, IntakeArtifactDetector intakeDistance, IntakeArtifactDetector frontDistance) {
+        useSensors = false;
         this.colorSensors = colorManager;
         this.tableCompartments = tableCompartments;
         this.intakeDistance = intakeDistance;
         this.frontDistance = frontDistance;
-        relativeCompartments = new ArtifactColor[3];
+        relativeCompartments = new ArtifactColor[] {ArtifactColor.NONE, ArtifactColor.NONE, ArtifactColor.NONE};
     }
 
     public void update() {

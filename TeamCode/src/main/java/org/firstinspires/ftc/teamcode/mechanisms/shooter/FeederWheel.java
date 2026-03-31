@@ -5,10 +5,10 @@ import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
 @Config
 public class FeederWheel extends HwMotor {
-    public static double kS;
-    public static double kV;
-    public static double P;
-    public static double TARGET_VEL;
+    public static double kS = 0.05;
+    public static double kV = 0.00039;
+    public static double P = 0.00045;
+    public static double TARGET_VEL = 2000;
 
     private double targetVelocity;
 

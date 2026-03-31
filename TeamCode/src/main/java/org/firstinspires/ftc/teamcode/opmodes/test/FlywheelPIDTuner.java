@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
-@Disabled
 @TeleOp
 @Config
 public class FlywheelPIDTuner extends OpMode {
@@ -55,6 +54,7 @@ public class FlywheelPIDTuner extends OpMode {
         }
 
         telemetry.addData("vel", flywheel.getVelocityImperial());
+        telemetry.addData("pos", flywheel.getPosition());
 
         flywheel.update();
         telemetry.update();

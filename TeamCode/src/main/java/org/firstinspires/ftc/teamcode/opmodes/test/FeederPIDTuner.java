@@ -21,6 +21,11 @@ public class FeederPIDTuner extends OpMode {
     public void loop() {
         feederWheel.setTargetVelocity(targetVelocity);
         feederWheel.update();
+
+        double vel = feederWheel.getVelocity();
+
+        telemetry.addData("velocity", vel);
+        telemetry.addData("error", targetVelocity - vel);
     }
 
 }
