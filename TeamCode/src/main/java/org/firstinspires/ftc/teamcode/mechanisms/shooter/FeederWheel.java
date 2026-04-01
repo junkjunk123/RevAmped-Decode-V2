@@ -8,7 +8,7 @@ public class FeederWheel extends HwMotor {
     public static double kS = 0.05;
     public static double kV = 0.00039;
     public static double P = 0.00045;
-    public static double TARGET_VEL = 2000;
+    public static double TARGET_VEL;
 
     private double targetVelocity;
 

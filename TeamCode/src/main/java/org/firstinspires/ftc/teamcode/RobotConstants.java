@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.DecodeColorSensor;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
@@ -27,7 +28,9 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 198/255f; Popper.NEUTRAL = 119/255f; Popper.BLOCK = 195/255f;
+        Popper.POP = 211/255f; Popper.NEUTRAL = 119/255f; Popper.BLOCK = 195/255f;
+
+        FeederWheel.TARGET_VEL = 2500;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
@@ -64,13 +67,13 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_5 = turretPos.apply(5/255f);
 
         //gate
-        IntakeGate.OPEN = 249/255f; IntakeGate.CLOSE = 102/255f;
+        IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;
 
         //splitter
         Splitter.ACTIVATED = 178/255f; Splitter.NEUTRAL = 61/255f;
 
         //tilt
-        IntakeTilt.TRANSFER = 87/255f; IntakeTilt.INTAKE = 155/255f;
+        IntakeTilt.TRANSFER = 87/255f; IntakeTilt.INTAKE = 154/255f;
 
         //updated
         // each compartment is ~32 ticks

@@ -55,4 +55,8 @@ public class Vector2D extends Vector {
         return new Vector2D(this.getXComponent() * scalar,
                 this.getYComponent() * scalar);
     }
+
+    public static String print(Vector vector) {
+        return "x: " + vector.getXComponent() + " y: " + vector.getYComponent();
+    }
 }

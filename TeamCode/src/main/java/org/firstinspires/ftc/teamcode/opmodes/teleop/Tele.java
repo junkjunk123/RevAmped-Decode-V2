@@ -38,7 +38,7 @@ public class Tele extends OpModeCommand {
     private TeleOpStateHandler tsh;
     private Prompter prompter;
     private boolean transfer;
-    private boolean canShoot;
+    private boolean canShoot = true;
 
     @Override
     public void initialize() {
@@ -56,6 +56,8 @@ public class Tele extends OpModeCommand {
         gamepad_2.left_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_2.right_trigger_button(f -> f.greaterThan(0.3f));
 
+        robot.initialize();
+
         // Schedule robot update loop
         schedule(new Infinite(() -> {
             robot.update();
@@ -65,11 +67,14 @@ public class Tele extends OpModeCommand {
         // Initialize robot
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
-                new Instant(robot::initialize),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                 tsh.runTransition(
                     new Sequential(
                         robot.shootAll(),
+                        new Parallel(
+                                robot.intakeGate.open(),
+                                robot.splitter.activate()
+                        ),
                         robot.resetAfterShooting()
                     ), RobotStateHandler.CycleState.INTAKE)
             )
@@ -156,10 +161,15 @@ public class Tele extends OpModeCommand {
                     new Instant(() -> {
                         robot.flywheel.stop();
                         robot.intakeTilt.intake();
+                        robot.feederWheel.stop();
                     }),
-                    robot.intakeGate.open(),
-                    robot.splitter.activate(),
-                    robot.resetTable(),
+                    new Sequential(
+                            robot.resetTable(),
+                            new Parallel(
+                                    robot.intakeGate.open(),
+                                    robot.splitter.activate()
+                            )
+                    ),
                     new Lazy(() -> {
                         if (TrackingThread.trackTurret) return robot.turret.resetTurret();
                         else return Commands.NOOP;
@@ -209,10 +219,13 @@ public class Tele extends OpModeCommand {
                     new Parallel(
                             new Instant(() -> {
                                 transfer = false;
-                                robot.intakeMotor.outtake();
-                                robot.intakeTilt.intake();
+                                robot.intakeTilt.transfer();
                                 RobotStateHandler.CycleState.INTAKE.update = false;
                             }),
+                            new Sequential(
+                                    new Wait(200),
+                                    new Instant(robot.intakeMotor::outtake)
+                            ),
                             robot.popper.pop(),
                             robot.splitter.neutral(),
                             robot.intakeGate.close(),
@@ -241,6 +254,11 @@ public class Tele extends OpModeCommand {
                                                     new Instant(() -> robot.flywheel.setVelocity(robot.flywheel.getTargetVelocity() + 50)),
                                                     new Instant(() -> canShoot = true)
                                             )
+                                    ),
+                                    new Instant(() -> robot.intakeTilt.intake()),
+                                    new Parallel(
+                                            robot.intakeGate.open(),
+                                            robot.splitter.activate()
                                     ),
                                     robot.resetAfterShooting()
                             ), RobotStateHandler.CycleState.INTAKE)

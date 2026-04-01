@@ -10,12 +10,16 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
+import com.pedropathing.localization.Localizer;
+import com.pedropathing.math.Vector;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.math.MathUtil;
+import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPaths;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
@@ -44,6 +48,10 @@ public class Drivetrain {
     public static float MAX_POWER = 1.0f;
     public boolean canShoot = true;
     private boolean holdingPose;
+    public static double CLAMP_POWER = 0;
+    public static double MAX_LAMBDA = 0.95;
+    public static double MAX_VELOCITY = 76;
+    public static boolean tipCorrection = true;
 
     public Drivetrain(HardwareMap hardwareMap) {
         follower = Constants.createFollowerTeleOp(hardwareMap);
@@ -236,6 +244,30 @@ public class Drivetrain {
                 y = x * Math.sin(-robotHeading) + y * Math.cos(robotHeading);
             }
 
+            if (tipCorrection) {
+                Localizer pinpoint = follower.poseTracker.getLocalizer();
+                double heading = pinpoint.getPose().getHeading();
+                Vector voltage = new Vector2D(x, y);
+                Vector vel = pinpoint.getVelocityVector();
+                Vector robotVel = vel.transform(MathUtil.rotMatrix(heading));
+                robotVel = new Vector2D(robotVel.getYComponent(), -robotVel.getXComponent());
+                Globals.telemetry.addData("robotVel", Vector2D.print(robotVel));
+                Globals.telemetry.addData("voltage", Vector2D.print(voltage));
+                double alpha = voltage.dot(robotVel) / (voltage.getMagnitude() * robotVel.getMagnitude() + 1e-9);
+
+                if (alpha < 0.2) {
+                    Vector forwardHeadingVector = new Vector(1, heading);
+                    double parallelVelNormalized = Math.abs(vel.dot(forwardHeadingVector)) / MAX_VELOCITY * 2;
+                    double lambda = getLambda(parallelVelNormalized, alpha);
+                    Vector e2 = new Vector2D(0, 1);
+                    Vector forwardVoltage = voltage.projectOnto(e2);
+                    Vector perpendicularVoltage = voltage.minus(forwardVoltage);
+                    Vector adjustedVoltage = forwardVoltage.times(lambda).plus(perpendicularVoltage);
+                    x = adjustedVoltage.getXComponent();
+                    y = adjustedVoltage.getYComponent();
+                }
+            }
+
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double frontLeftPow = (y + x + rx) / denominator;
             double backLeftPow = (y - x + rx) / denominator;
@@ -310,5 +342,16 @@ public class Drivetrain {
 
     public boolean isHoldingPose() {
         return holdingPose;
+    }
+
+    public double getLambda(double s, double alpha) {
+        Globals.telemetry.addData("s",s);
+        Globals.telemetry.addData("alpha", alpha);
+        double g = (1 - alpha)/2;
+        Globals.telemetry.addData("g", g);
+        double lambda = 1 - (1 - CLAMP_POWER) * s * s * g * g;
+        Globals.telemetry.addData("lambda", lambda);
+        if (lambda > MAX_LAMBDA) return 1.0;
+        return Math.max(lambda, 0);
     }
 }

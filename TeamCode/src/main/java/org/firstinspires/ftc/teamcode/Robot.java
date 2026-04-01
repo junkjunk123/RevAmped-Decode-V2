@@ -104,8 +104,8 @@ public class Robot {
         table.setPosition(Table.BALL1);
         turret.move(ServoTurretState.PresetState.REST);
         intakeTilt.intake();
-        intakeGate.setOpen();
-        splitter.setPositionActivated();
+        intakeGate.setClose();
+        splitter.setPositionNeutral();
     }
 
     public void update() {
@@ -257,6 +257,7 @@ public class Robot {
         return new Instant(() -> {
             flywheel.stop();
             hood.rest();
+            feederWheel.stop();
         });
     }
 
