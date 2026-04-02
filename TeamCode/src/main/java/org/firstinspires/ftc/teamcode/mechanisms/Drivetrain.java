@@ -51,7 +51,7 @@ public class Drivetrain {
     public static double CLAMP_POWER = 0;
     public static double MAX_LAMBDA = 0.95;
     public static double MAX_VELOCITY = 76;
-    public static boolean tipCorrection = true;
+    public static boolean tipCorrection = false;
 
     public Drivetrain(HardwareMap hardwareMap) {
         follower = Constants.createFollowerTeleOp(hardwareMap);

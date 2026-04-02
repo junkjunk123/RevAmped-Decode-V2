@@ -28,7 +28,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 211/255f; Popper.NEUTRAL = 119/255f; Popper.BLOCK = 195/255f;
+        Popper.POP = 216/255f; Popper.NEUTRAL = 119/255f; Popper.BLOCK = 195/255f;
 
         FeederWheel.TARGET_VEL = 2500;
 
@@ -84,6 +84,7 @@ public class RobotConstants {
         //ColorSensor Constants
         ColorManager.maxGreenDistanceOne = 60.0f; ColorManager.maxPurpleDistanceOne = 50.0f;
         ColorManager.maxGreenDistanceTwo = 60.0f; ColorManager.maxPurpleDistanceTwo = 60.0f;
+
         ColorManager.maxPurpleHueOne = 240.0f; ColorManager.minPurpleHueOne = 200.0f;
         ColorManager.maxPurpleHueTwo = 235.0f; ColorManager.minPurpleHueTwo = 195.0f;
         ColorManager.maxGreenHueOne = 165.0f; ColorManager.minGreenHueOne = 155.0f;
