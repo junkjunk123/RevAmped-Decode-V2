@@ -41,13 +41,13 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-        FollowParameters shootPreloads = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootPreloads = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(START_POSE, CONTROL_POINT_1, FIRST_SHOOT_POSE))
                 .setConstantHeadingInterpolation(FIRST_SHOOT_POSE.getHeading())
                 .build()
         );
 
-        FollowParameters intakeFirstSet = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters intakeFirstSet = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, INTAKE_1_CONTROL, INTAKE_1))
                 .setTangentHeadingInterpolation()
                 .build()
@@ -58,7 +58,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
                 .setConstantHeadingInterpolation(SHOOT_POSE.getHeading())
                 .build();
 
-        FollowParameters shootFirstSet = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootFirstSet = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(INTAKE_1, SHOOT_POSE))
                 .setTangentHeadingInterpolation()
                 .setReversed()
@@ -67,15 +67,15 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
 
         Function<Integer, FollowParameters> intakeToGate = getIntakeToGate(follower);
 
-        Supplier<FollowParameters> shootFromGate = () -> new FollowParameters(Constants.BACKWARD_PROPORTIONAL, shootingFromGate);
+        Supplier<FollowParameters> shootFromGate = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, shootingFromGate);
 
-        FollowParameters intakeFinalPresets = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters intakeFinalPresets = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, INTAKE_FINAL_PRELOAD_CONTROL, INTAKE_FINAL_PRELOAD))
                 .setConstantHeadingInterpolation(INTAKE_FINAL_PRELOAD.getHeading())
                 .build()
         );
 
-        FollowParameters shootFinalPresets = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootFinalPresets = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(INTAKE_FINAL_PRELOAD, PARK_CONTROL, PARK))
                 .setTangentHeadingInterpolation()
                 .setReversed()
@@ -89,7 +89,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
 
     @NonNull
     private static Function<Integer, FollowParameters> getIntakeToGate(Follower follower) {
-        return i -> new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        return i -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, GATE_CONTROL, getGatePose(i)))
                 .setConstantHeadingInterpolation(getGatePose(i).getHeading())
                 .build()

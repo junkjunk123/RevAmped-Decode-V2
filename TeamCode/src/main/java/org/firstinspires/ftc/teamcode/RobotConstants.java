@@ -28,7 +28,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 216/255f; Popper.NEUTRAL = 119/255f; Popper.BLOCK = 195/255f;
+        Popper.POP = 213/255f; Popper.NEUTRAL = 119/255f; Popper.BLOCK = 195/255f;
 
         FeederWheel.TARGET_VEL = 2500;
 

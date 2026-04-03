@@ -70,6 +70,7 @@ public class Tuning extends SelectableOpMode {
                 l.add("Forward Tuner", ForwardTuner::new);
                 l.add("Lateral Tuner", LateralTuner::new);
                 l.add("Turn Tuner", TurnTuner::new);
+                l.add("Offsets Tuner", OffsetsTuner::new);
             });
             s.folder("Automatic", a -> {
                 a.add("Forward Velocity Tuner", ForwardVelocityTuner::new);
@@ -1015,7 +1016,8 @@ class DriveTuner extends OpMode {
     }
 }
 
-class HeadingAutoTuner extends OpMode {
+class
+HeadingAutoTuner extends OpMode {
     private static final double ALPHA_LARGE = 0.6;
     private static final double ALPHA_SMALL = 0.9;
     private static final double POWER = 0.6;
@@ -1065,6 +1067,8 @@ class HeadingAutoTuner extends OpMode {
         double now = timer.getElapsedTimeSeconds();
         dt = now - lastTime;
         if (dt <= 0) dt = 1e-6;
+
+
         lastTime = now;
 
         follower.update();
@@ -1175,6 +1179,9 @@ class Line extends OpMode {
     private Path forwards;
     private Path backwards;
 
+    public static double FORWARD_P = 0.15;
+    public static double BACKWARD_P = 0.15;
+
     @Override
     public void init() {
         follower.setStartingPose(new Pose(72, 72));
@@ -1207,21 +1214,28 @@ class Line extends OpMode {
         follower.update();
         draw();
 
+        if (gamepad1.bWasPressed()) {
+            BACKWARD_P += -0.05;
+        }
+
+        if (gamepad1.xWasPressed()) {
+            BACKWARD_P += 0.05;
+        }
+
+        if (gamepad1.yWasPressed()) {
+            FORWARD_P += 0.05;
+        }
+
+        if (gamepad1.aWasPressed()) {
+            FORWARD_P -= 0.05;
+        }
+
         if (!follower.isBusy()) {
             if (forward) {
                 forward = false;
-                /*
                 follower.vectorCalculator.predictiveBrakingController.setCoefficients(
                         new PredictiveBrakingCoefficients(
-                                0.3,
-                                0.090,
-                                0.00125
-                        )
-                );
-                 */
-                follower.vectorCalculator.predictiveBrakingController = new SquIDBrakingController(
-                        new PredictiveBrakingCoefficients(
-                                0.6,
+                                BACKWARD_P,
                                 0.090,
                                 0.00125
                         )
@@ -1231,7 +1245,7 @@ class Line extends OpMode {
                 forward = true;
                 follower.vectorCalculator.predictiveBrakingController = new SquIDBrakingController(
                         new PredictiveBrakingCoefficients(
-                                0.4,
+                                FORWARD_P,
                                 0.090,
                                 0.00125
                         )
@@ -1241,6 +1255,8 @@ class Line extends OpMode {
         }
 
         telemetryM.debug("Driving Forward?: " + forward);
+        telemetryM.debug("forward_P", FORWARD_P);
+        telemetryM.debug("backward_P", BACKWARD_P);
         telemetryM.update(telemetry);
     }
 }

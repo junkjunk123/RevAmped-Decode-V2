@@ -138,7 +138,10 @@ public class ServoCalibrateTest extends OpMode {
 
                 telemetryA.addData("Servo", currentServo);
                 if (displayAll) calibratedPositions.forEach((u, v) -> telemetryA.addData(u, Integer.toString(v)));
-                else telemetryA.addLine("press dpad_up to display all previous calibrations");
+                else {
+                    telemetryA.addData("pos", posJoy1);
+                    telemetryA.addLine("press dpad_up to display all previous calibrations");
+                }
                 telemetryA.addData("singleTickMode", singleTickMode);
                 telemetryA.addData("TICK_CHANGE", TICK_CHANGE);
                 //telemetry.addData("PWM", Integer.toString((int) (posJoy1 * 1805.2 / 255f + 591.68)));

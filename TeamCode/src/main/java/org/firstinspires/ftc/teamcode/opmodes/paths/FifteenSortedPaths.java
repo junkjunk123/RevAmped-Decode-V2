@@ -3,16 +3,13 @@ package org.firstinspires.ftc.teamcode.opmodes.paths;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
 
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class FifteenSortedPaths implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(31.5, 134, -Math.PI / 2);
@@ -38,50 +35,50 @@ public class FifteenSortedPaths implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-        FollowParameters shootPreloads = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootPreloads = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(START_POSE, CONTROL_POINT_1, FIRST_SHOOT_POSE))
                 .setConstantHeadingInterpolation(FIRST_SHOOT_POSE.getHeading())
                 .build()
         );
 
-        FollowParameters intakeFirstSet = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters intakeFirstSet = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, INTAKE_1_CONTROL, INTAKE_1))
                 .setTangentHeadingInterpolation()
                 .build()
         );
 
-        FollowParameters shootFromGate = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootFromGate = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(GATE, SHOOT_POSE))
                 .setConstantHeadingInterpolation(SHOOT_POSE.getHeading())
                 .build()
         );
 
-        FollowParameters shootFirstSet = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootFirstSet = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(INTAKE_1, SHOOT_POSE))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()
         );
 
-        FollowParameters intakeToGate = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters intakeToGate = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, GATE_CONTROL, GATE))
                 .setConstantHeadingInterpolation(GATE.getHeading())
                 .build()
         );
 
-        FollowParameters intakeSecondPresets = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters intakeSecondPresets = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, INTAKE_SECOND_PRELOAD_CONTROL, INTAKE_SECOND_PRELOAD))
                 .setConstantHeadingInterpolation(INTAKE_SECOND_PRELOAD.getHeading())
                 .build()
         );
 
-        FollowParameters shootSecondSet = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootSecondSet = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(INTAKE_SECOND_PRELOAD, SECOND_PRELOAD_SHOOT))
                 .setConstantHeadingInterpolation(SECOND_PRELOAD_SHOOT.getHeading())
                 .build()
         );
 
-        FollowParameters intakeThirdSet = new FollowParameters(Constants.FORWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters intakeThirdSet = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SECOND_PRELOAD_SHOOT, THIRD_INTAKE_START))
                 .setLinearHeadingInterpolation(SECOND_PRELOAD_SHOOT.getHeading(), THIRD_INTAKE_END.getHeading(), 0.8)
                 .addPath(ColoredDecodePose.makeBezier(THIRD_INTAKE_ACTUAL_START, THIRD_INTAKE_END))
@@ -89,7 +86,7 @@ public class FifteenSortedPaths implements PathSupplier {
                 .build()
         );
 
-        FollowParameters park = new FollowParameters(Constants.BACKWARD_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters park = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(new BezierLine(THIRD_INTAKE_END, PARK))
                 .setConstantHeadingInterpolation(PARK.getHeading())
                 .build()

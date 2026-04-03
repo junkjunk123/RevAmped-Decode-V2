@@ -14,18 +14,18 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Constants {
     public static double DEFAULT_PROPORTIONAL = 0.25;
-    public static double SAFE_PROPORTIONAL = 0.15;
-    public static double FORWARD_PROPORTIONAL = 0.15;
-    public static double BACKWARD_PROPORTIONAL = 0.3;
+    public static double MEDIUM_PROPORTIONIAL = 0.2;
+    public static double CONSERVATIVE_PROPORTIONAL = 0.15;
+    public static double SAFE_PROPORTIONAL = 0.1;
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12.4)
-            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0, 0.01))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2, 0, 0.05, 0.0005))
+            .headingPIDFCoefficients(new PIDFCoefficients(1.04, 0, 0, 0.01))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2.33, 0, 0.13, 0.0005))
             .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(
                     DEFAULT_PROPORTIONAL,
-                    0.090,
-                    0.00125
+                    0.0838,
+                    0.00108
             ))
             .centripetalScaling(0.00055);
 
@@ -53,10 +53,10 @@ public class Constants {
             .yVelocity(70.47);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(3.5)
-            .strafePodX(-2)
+            .forwardPodY(3.75)
+            .strafePodX(-5.4)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,

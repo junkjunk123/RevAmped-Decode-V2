@@ -56,8 +56,6 @@ public class Tele extends OpModeCommand {
         gamepad_2.left_trigger_button(f -> f.greaterThan(0.3f));
         gamepad_2.right_trigger_button(f -> f.greaterThan(0.3f));
 
-        robot.initialize();
-
         // Schedule robot update loop
         schedule(new Infinite(() -> {
             robot.update();
@@ -67,15 +65,18 @@ public class Tele extends OpModeCommand {
         // Initialize robot
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
+                new Instant(robot::initialize),
+                new Wait(500),
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                 tsh.runTransition(
                     new Sequential(
                         robot.shootAll(),
+                        robot.resetAfterShooting(),
+                        new Wait(200),
                         new Parallel(
                                 robot.intakeGate.open(),
                                 robot.splitter.activate()
-                        ),
-                        robot.resetAfterShooting()
+                        )
                     ), RobotStateHandler.CycleState.INTAKE)
             )
         );
@@ -135,7 +136,7 @@ public class Tele extends OpModeCommand {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
             } else {
-                schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
+                schedule(tsh.task(() -> robot.turret.previous(), new int[]{1, 1, 0}));
             }
         }
 
@@ -144,7 +145,7 @@ public class Tele extends OpModeCommand {
                 SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
                 SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
             } else {
-                schedule(tsh.task(() -> robot.turret.previous(), new int[]{1, 1, 0}));
+                schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
             }
         }
 
@@ -256,11 +257,11 @@ public class Tele extends OpModeCommand {
                                             )
                                     ),
                                     new Instant(() -> robot.intakeTilt.intake()),
+                                    robot.resetAfterShooting(),
                                     new Parallel(
                                             robot.intakeGate.open(),
                                             robot.splitter.activate()
-                                    ),
-                                    robot.resetAfterShooting()
+                                    )
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
                     Commands.NOOP
