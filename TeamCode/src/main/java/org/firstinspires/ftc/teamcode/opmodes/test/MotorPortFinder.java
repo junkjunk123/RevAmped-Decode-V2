@@ -1,16 +1,17 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
 @Disabled
 @TeleOp
-public class MotorPortFinder extends OpModeCommand{
+public class MotorPortFinder extends OpModeCommand {
     GamepadEx gamepad_1;
     private HwMotor port0;
     private HwMotor port1;

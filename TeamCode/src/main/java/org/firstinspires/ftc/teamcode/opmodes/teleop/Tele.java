@@ -71,12 +71,7 @@ public class Tele extends OpModeCommand {
                 tsh.runTransition(
                     new Sequential(
                         robot.shootAll(),
-                        robot.resetAfterShooting(),
-                        new Wait(200),
-                        new Parallel(
-                                robot.intakeGate.open(),
-                                robot.splitter.activate()
-                        )
+                        robot.resetAfterShooting()
                     ), RobotStateHandler.CycleState.INTAKE)
             )
         );
@@ -257,11 +252,7 @@ public class Tele extends OpModeCommand {
                                             )
                                     ),
                                     new Instant(() -> robot.intakeTilt.intake()),
-                                    robot.resetAfterShooting(),
-                                    new Parallel(
-                                            robot.intakeGate.open(),
-                                            robot.splitter.activate()
-                                    )
+                                    robot.resetAfterShooting()
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
                     Commands.NOOP
@@ -270,16 +261,16 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_2.dpad_down.isRisingEdge()) {
             schedule(new Conditional(
-                    () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
-                    new Sequential(
-                            tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                            tsh.runTransition(new Sequential(
-                                    robot.shootAll(Table.SLOW_SHOOT_DELAY),
-                                    robot.resetAfterShooting()
-                            ), RobotStateHandler.CycleState.INTAKE)
-                    ),
-                    Commands.NOOP
-                )
+                            () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT),
+                            new Sequential(
+                                    tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                                    tsh.runTransition(new Sequential(
+                                            robot.shootAll(Table.SLOW_SHOOT_DELAY),
+                                            robot.resetAfterShooting()
+                                    ), RobotStateHandler.CycleState.INTAKE)
+                            ),
+                            Commands.NOOP
+                    )
             );
         }
 

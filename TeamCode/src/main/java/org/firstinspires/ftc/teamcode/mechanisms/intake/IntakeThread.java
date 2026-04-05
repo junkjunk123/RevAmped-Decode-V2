@@ -19,7 +19,7 @@ public class IntakeThread {
     public static boolean useSensors;
     public static double COLOR_DETECTION_DELAY = 50;
     public static int COLOR_DETECTION_PERIOD;
-    private final SpindexerColorSensors colorSensors;
+    public final SpindexerColorSensors colorSensors;
     private final ArtifactColor[] tableCompartments;
     private final ArtifactColor[] relativeCompartments;
     private final IntakeArtifactDetector intakeDistance;

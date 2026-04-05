@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import java.util.List;
 
 public class SpindexerColorSensors {
-    private final DecodeColorSensor leftColorSensor;
-    private final DecodeColorSensor rightColorSensor;
+    public final DecodeColorSensor leftColorSensor;
+    public final DecodeColorSensor rightColorSensor;
     private final ArtifactColor[] compartmentColors;
 
     public SpindexerColorSensors(HardwareMap hardwareMap){

@@ -5,6 +5,7 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -282,13 +283,21 @@ public class Robot {
         return new Sequential(
                 new Instant(intakeMotor::stop),
                 table.reset(),
-                new Instant(intakeMotor::intake),
-                popper.neutral()
+                popper.neutral(),
+                new Parallel(
+                        intakeGate.open(),
+                        splitter.activate()
+                ),
+                new Instant(intakeMotor::intake)
         );
     }
 
     public ICommand sortAndShootAuto() {
         return new Sequential(
+                new Race(
+                        tableCompartments.populateAuto(),
+                        new Wait(300)
+                ),
                 sortAuto(),
                 popper.pop(),
                 autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
@@ -363,6 +372,17 @@ public class Robot {
                     splitter.deenergize();
                 }),
                 lift.lift()
+        );
+    }
+
+    public ICommand intake() {
+        return new Sequential(
+                new Instant(intakeTilt::intake),
+                new Parallel(
+                     splitter.activate(),
+                     intakeGate.open()
+                ),
+                new Instant(intakeMotor::intake)
         );
     }
 }

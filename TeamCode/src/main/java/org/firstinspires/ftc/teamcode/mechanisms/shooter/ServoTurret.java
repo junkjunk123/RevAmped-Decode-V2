@@ -18,6 +18,14 @@ public class ServoTurret extends HwServo {
     public static double FULL_ROTATION;
     public static float REST;
 
+    public static float EIGHTEEN_DETECTION;
+    public static float EIGHTEEN_PRELOADS;
+    public static float EIGHTEEN_FIRST_SET;
+    public static float EIGHTEEN_SECOND_SET;
+    public static float EIGHTEEN_GATE_SHOOT;
+    public static float EIGHTEEN_THIRD_SET;
+    public static float EIGHTEEN_FOURTH_SET;
+
     public static float AUTO_PRELOADS;
     public static float AUTO_SET_1;
     public static float AUTO_SET_2;

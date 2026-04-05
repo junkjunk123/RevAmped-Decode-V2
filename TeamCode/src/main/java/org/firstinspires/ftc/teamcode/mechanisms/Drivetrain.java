@@ -146,6 +146,10 @@ public class Drivetrain {
         );
     }
 
+    public ICommand follow() {
+        return followNext(d -> d.velocityCondition(4), 3000);
+    }
+
     public Race followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
         return new Race(
                 followLast(isDone),

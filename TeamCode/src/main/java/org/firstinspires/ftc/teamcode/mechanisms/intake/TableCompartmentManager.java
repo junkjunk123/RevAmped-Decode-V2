@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.ICommand;
+
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -72,6 +76,24 @@ public class TableCompartmentManager {
 
     public void populate() {
         intakeThread.updateColors(tableState.get().ordinal());
+    }
+
+    public ICommand populateAuto() {
+        AtomicBoolean hasLeft = new AtomicBoolean(false);
+        AtomicBoolean hasRight = new AtomicBoolean(false);
+
+        return new Command()
+                .setStart(() -> {
+                    compartmentColors[2] = intakeThread.colorSensors.leftColorSensor.getColor();
+                    compartmentColors[0] = intakeThread.colorSensors.rightColorSensor.getColor();
+                    hasLeft.set(compartmentColors[2].equals(ArtifactColor.NONE));
+                    hasRight.set(compartmentColors[0].equals(ArtifactColor.NONE));
+                })
+                .setExecute(() -> {
+                    if (!hasLeft.get()) compartmentColors[2] = intakeThread.colorSensors.leftColorSensor.getColor();
+                    if (!hasRight.get()) compartmentColors[0] = intakeThread.colorSensors.rightColorSensor.getColor();
+                })
+                .setDone(() -> hasLeft.get() && hasRight.get());
     }
 
     public void removeAll() {

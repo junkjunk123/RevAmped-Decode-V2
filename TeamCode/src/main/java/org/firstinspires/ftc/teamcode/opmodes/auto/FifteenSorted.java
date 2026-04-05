@@ -1,5 +1,5 @@
-package org.firstinspires.ftc.teamcode.opmodes;
-import static org.firstinspires.ftc.teamcode.opmodes.AutoMethods.resetTableBlock;
+package org.firstinspires.ftc.teamcode.opmodes.auto;
+import static org.firstinspires.ftc.teamcode.opmodes.auto.AutoMethods.resetTableBlock;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
@@ -17,15 +17,14 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
+import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FifteenSortedPaths;
 import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
-import org.firstinspires.ftc.teamcode.utils.commands.Functional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 
 public class FifteenSorted extends OpModeCommand {
