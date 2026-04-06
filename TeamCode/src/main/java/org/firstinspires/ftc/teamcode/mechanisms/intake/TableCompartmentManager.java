@@ -63,8 +63,9 @@ public class TableCompartmentManager {
         }
 
         int targetGreenIndex = Globals.randomizationState.getGreenIndex();
+        int[] greenIndices = getGreenIndices();
+        if (greenIndices.length == 0) return curIndex;
         int curGreenIndex = getGreenIndices()[0];
-
         return (curGreenIndex - targetGreenIndex + 3) % 3;
     }
 

@@ -33,7 +33,7 @@ public class RobotConstants {
         FeederWheel.TARGET_VEL = 2500;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 780; Flywheel.FAR_VELOCITY = 1080; Flywheel.CLOSE_AUTO_VELOCITY = 630;
+        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 770; Flywheel.FAR_VELOCITY = 970; Flywheel.CLOSE_AUTO_VELOCITY = 630;
         Flywheel.CORNER_VELOCITY = 880;
         Flywheel.UNSORTED_AUTO_VELOCITY = 730;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
@@ -47,7 +47,12 @@ public class RobotConstants {
 
         //Turret Constants
         ServoTurret.REST = 132/255f;
+
+        //When calibrating blue
         Function<Float, Float> turretPos = f -> Globals.allianceColor == AllianceColor.Red ? 2 * ServoTurret.REST - f : f;
+
+        //When calibrating red
+        Function<Float, Float> turretPosInv = f -> Globals.allianceColor == AllianceColor.Blue ? 2 * ServoTurret.REST - f : f;
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
         ServoTurret.FAR_PRESET_RED = 36/255f;
@@ -66,6 +71,14 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_4 = turretPos.apply(5/255f);
         ServoTurret.UNSORTED_SET_5 = turretPos.apply(5/255f);
 
+        ServoTurret.EIGHTEEN_PRELOADS = turretPosInv.apply(216/255f);
+        ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(252/255f);
+        ServoTurret.EIGHTEEN_DETECTION = ServoTurret.REST;
+        ServoTurret.EIGHTEEN_SECOND_SET = turretPosInv.apply(200/255f);
+        ServoTurret.EIGHTEEN_GATE_SHOOT = turretPosInv.apply(190/255f);
+        ServoTurret.EIGHTEEN_THIRD_SET = turretPosInv.apply(202/255f);
+        ServoTurret.EIGHTEEN_FOURTH_SET = turretPosInv.apply(192/255f);
+
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;
 
@@ -77,7 +90,7 @@ public class RobotConstants {
 
         //updated
         // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 243/255f, TABLE_BALL_1 = 211/255f, TABLE_BALL_2 = 179/255f, TABLE_BALL_0_END = 70/255f, TABLE_BALL_1_END = 38/255f, TABLE_BALL_2_END = 6/255f, FULL_REVOLUTION_TICKS = -96/255f;
+        float TABLE_BALL_0 = 244/255f, TABLE_BALL_1 = 212/255f, TABLE_BALL_2 = 180/255f, TABLE_BALL_0_END = 70/255f, TABLE_BALL_1_END = 38/255f, TABLE_BALL_2_END = 6/255f, FULL_REVOLUTION_TICKS = -96/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 

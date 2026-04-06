@@ -135,7 +135,7 @@ public class DecodeLimelight implements HwDevice {
         return new Command()
                 .setStart(() -> setCurrentPipeline(Pipeline.OBELISK))
                 .setExecute(this::update)
-                .setDone(() -> getCurrentPipeline() != Pipeline.OBELISK);
+                .setDone(() -> Globals.randomizationState != null);
     }
 
     public ICommand computeOffsets() {

@@ -212,7 +212,10 @@ public class Robot {
 
     public ICommand autoFastShoot() {
         return new Sequential(
-                new Instant(intakeMotor::intake),
+                new Instant(() -> {
+                    intakeTilt.intake();
+                    intakeGate.open();
+                }),
                 new Lazy(() -> {
                     float pos = switch (table.getState()) {
                         case BALL0 -> Table.BALL0_END;
@@ -237,6 +240,7 @@ public class Robot {
                         new Instant(() -> {
                             intakeMotor.intake();
                             intakeTilt.intake();
+                            intakeGate.open();
                             shootSequence.set(table.getState().getShootStates());
                         }),
                         new Instant(() -> table.setPosition(shootSequence.get()[0])),
