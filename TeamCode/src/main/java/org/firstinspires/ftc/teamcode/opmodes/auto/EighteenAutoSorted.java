@@ -258,7 +258,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                 isSort.getAsBoolean() ? robot.sortAuto() : Commands.NOOP,
                 robot.popper.pop(),
                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.8)),
-                robot.autoShoot(() -> isSort.getAsBoolean() ? 0.0 : Table.SLOW_SHOOT_DELAY)
+                robot.autoShoot(() -> !isSort.getAsBoolean() ? 0.0 : Table.SLOW_SHOOT_DELAY)
         );
     }
 }
