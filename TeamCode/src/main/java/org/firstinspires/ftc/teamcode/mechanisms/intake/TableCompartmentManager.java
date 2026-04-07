@@ -94,7 +94,19 @@ public class TableCompartmentManager {
                     if (!hasLeft.get()) compartmentColors[2] = intakeThread.colorSensors.leftColorSensor.getColor();
                     if (!hasRight.get()) compartmentColors[0] = intakeThread.colorSensors.rightColorSensor.getColor();
                 })
-                .setDone(() -> hasLeft.get() && hasRight.get());
+                .setDone(() -> hasLeft.get() && hasRight.get())
+                .setEnd(c -> compartmentColors[1] =
+                        compartmentColors[2].equals(ArtifactColor.GREEN) || compartmentColors[0].equals(ArtifactColor.GREEN)
+                                ? ArtifactColor.PURPLE : ArtifactColor.GREEN);
+    }
+
+    public ICommand populateTeleOp() {
+        return new Command()
+                .setExecute(this::populate)
+                .setDone(() -> Arrays.stream(compartmentColors).filter(c -> !c.equals(ArtifactColor.NONE)).count() > 1)
+                .setEnd(c -> compartmentColors[1] =
+                        compartmentColors[2].equals(ArtifactColor.GREEN) || compartmentColors[0].equals(ArtifactColor.GREEN)
+                                ? ArtifactColor.PURPLE : ArtifactColor.GREEN);
     }
 
     public void removeAll() {

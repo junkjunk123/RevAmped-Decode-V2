@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
@@ -34,7 +35,9 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.Z3Element;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
@@ -43,6 +46,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -87,7 +91,7 @@ public class Robot {
         hood = new Hood(hardwareMap);
         intakeColor = new SpindexerColorSensors(hardwareMap);
         intakeDistance = new IntakeArtifactDetector(hardwareMap, "intakeDistance", 25);
-        frontDistance = new IntakeArtifactDetector(hardwareMap, "frontDistance", 100, 1);
+        frontDistance = new IntakeArtifactDetector(hardwareMap, "frontDistance", 100, 0);
         feederWheel = new FeederWheel(hardwareMap);
         intakeTilt = new IntakeTilt(hardwareMap);
         intakeGate = new IntakeGate(hardwareMap);
@@ -160,7 +164,37 @@ public class Robot {
 
     public ICommand sort() {
         return new Lazy(() -> {
-            if (Globals.randomizationState != null) return table.setState(tableCompartments::sort);
+            AtomicInteger indexLeft = new AtomicInteger();
+            AtomicInteger currentIndex = new AtomicInteger();
+            AtomicInteger indexRight = new AtomicInteger();
+            if (Globals.randomizationState != null)
+                return new Sequential(
+                        new Instant(() -> {
+                            currentIndex.set(table.getState().ordinal());
+                            Z3Element index = new Z3Element(currentIndex.get());
+                            indexLeft.set(index.plus(1).getVal());
+                            indexRight.set(index.minus(1).getVal());
+                            tableCompartments.compartmentColors[indexLeft.get()] = intakeColor.leftColorSensor.getColor();
+                            tableCompartments.compartmentColors[indexRight.get()] = intakeColor.rightColorSensor.getColor();
+                        }),
+                        new Lazy(() -> {
+                            List<ArtifactColor> colors = List.of(tableCompartments.compartmentColors[indexLeft.get()],
+                                    tableCompartments.compartmentColors[indexRight.get()]);
+                            if (colors.contains(ArtifactColor.NONE)) return Commands.NOOP;
+                            if (colors.contains(ArtifactColor.GREEN)) {
+                                return new Sequential(
+                                        new Instant(() -> tableCompartments.compartmentColors[currentIndex.get()] = ArtifactColor.PURPLE),
+                                        table.setState(() -> new Z3Element(currentIndex.get()).plus(tableCompartments.sort()).getVal())
+                                );
+                            }
+                            else {
+                                return new Sequential(
+                                        new Instant(() -> tableCompartments.compartmentColors[currentIndex.get()] = ArtifactColor.GREEN),
+                                        table.setState(() -> new Z3Element(currentIndex.get()).plus(tableCompartments.sort()).getVal())
+                                );
+                            }
+                        })
+                );
             return Commands.NOOP;
         });
     }
@@ -279,7 +313,10 @@ public class Robot {
                 new Instant(intakeMotor::stop),
                 popper.neutral(),
                 table.reset(),
-                new Instant(intakeMotor::intake)
+                new Instant(() -> {
+                    intakeMotor.intake();
+                    feederWheel.setIntake();
+                })
         );
     }
 
@@ -292,7 +329,10 @@ public class Robot {
                         intakeGate.open(),
                         splitter.activate()
                 ),
-                new Instant(intakeMotor::intake)
+                new Instant(() -> {
+                    intakeMotor.intake();
+                    feederWheel.setIntake();
+                })
         );
     }
 
@@ -386,7 +426,10 @@ public class Robot {
                      splitter.activate(),
                      intakeGate.open()
                 ),
-                new Instant(intakeMotor::intake)
+                new Instant(() -> {
+                    intakeMotor.intake();
+                    feederWheel.setIntake();
+                })
         );
     }
 }

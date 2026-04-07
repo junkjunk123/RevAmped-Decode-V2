@@ -42,7 +42,7 @@ public class RobotConstants {
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 127/255f; Hood.NEAR_PRESET = 51/255f; Hood.MEDIUM_PRESET = 97/255f; Hood.CORNER_PRESET = 115/255f;
+        Hood.FAR_PRESET = 129/255f; Hood.NEAR_PRESET = 51/255f; Hood.MEDIUM_PRESET = 97/255f; Hood.CORNER_PRESET = 115/255f;
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants
@@ -104,8 +104,8 @@ public class RobotConstants {
         ColorManager.maxGreenHueTwo = 165.0f; ColorManager.minGreenHueTwo = 155.0f;
 
         //ColorSensor Constants
-        DecodeColorSensor.DISTANCEMAX  = 40.0f; DecodeColorSensor.DISTANCEMIN = 0f;
-        DecodeColorSensor.GREENMAX = 170.0f; DecodeColorSensor.GREENMIN = 150.0f;
-        DecodeColorSensor.PURPLEMAX = 250.0f; DecodeColorSensor.PURPLEMIN = 200.0f;
+        DecodeColorSensor.DISTANCE_MAX = 40.0f;
+        DecodeColorSensor.GREEN_MAX = 170.0f; DecodeColorSensor.GREEN_MIN = 150.0f;
+        DecodeColorSensor.PURPLE_MAX = 250.0f; DecodeColorSensor.PURPLE_MIN = 200.0f;
     }
 }

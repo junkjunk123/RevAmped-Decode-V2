@@ -74,7 +74,11 @@ public class EighteenAutoSorted extends OpModeCommand {
                                         new Wait(600),
                                         transfer()
                                 ),
-                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_FIRST_SET))
+                                new Instant(() -> {
+                                    robot.turret.setPosition(ServoTurret.EIGHTEEN_FIRST_SET);
+                                    robot.feederWheel.start();
+                                    robot.hood.far();
+                                })
                         ),
                         robot.autoFastShoot(),
                         new Parallel(

@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 //Eric Debug Thanks
 public class IntakeThread {
@@ -76,6 +77,7 @@ public class IntakeThread {
         colorSensors.updateColors();
         for (int i = 0; i < tableCompartments.length; i++)
             tableCompartments[i] = colorSensors.getColor(i, currentIndex);
+        expressThree();
     }
 
     private void updateInternalColors() {
@@ -86,10 +88,20 @@ public class IntakeThread {
     }
 
     public void expressThree() {
-        if (tableCompartments[1].equals(ArtifactColor.NONE) || tableCompartments[2].equals(ArtifactColor.NONE)) return;
-        ArtifactColor middleColor = List.of(tableCompartments[1], tableCompartments[2]).contains(ArtifactColor.GREEN) ?
+        int[] stream = IntStream.range(0, 3)
+                .filter(i -> !tableCompartments[i].equals(ArtifactColor.NONE))
+                .toArray();
+        if (stream.length != 2) return;
+        if (tableCompartments[stream[0]].equals(ArtifactColor.NONE) || tableCompartments[stream[1]].equals(ArtifactColor.NONE))
+            return;
+        ArtifactColor middleColor = List.of(tableCompartments[stream[0]], tableCompartments[stream[1]]).contains(ArtifactColor.GREEN) ?
                 ArtifactColor.PURPLE : ArtifactColor.GREEN;
-        tableCompartments[0] = middleColor;
+
+        for (int i = 0; i < 3; i++)
+            if (tableCompartments[i].equals(ArtifactColor.NONE)) {
+                tableCompartments[i] = middleColor;
+                break;
+            }
     }
 
     public int getNumBalls() {

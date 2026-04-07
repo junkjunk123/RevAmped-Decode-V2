@@ -23,11 +23,14 @@ import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.RandomizationState;
+import org.firstinspires.ftc.teamcode.utils.Z3Element;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
+
+import java.util.Arrays;
 
 @Config
 @TeleOp(name = "DCTeleOp")
@@ -290,6 +293,12 @@ public class Tele extends OpModeCommand {
             robot.intakeTilt.intake();
         }
 
+        telemetry.addData("compartments", Arrays.toString(robot.tableCompartments.compartmentColors));
+        telemetry.addData("sortIndex", robot.tableCompartments.sort());
+        telemetry.addData("leftColor", robot.intakeColor.leftColorSensor.getColor());
+        telemetry.addData("rightColor", robot.intakeColor.rightColorSensor.getColor());
+        telemetry.addData("leftIndex", new Z3Element(robot.table.getState().ordinal()).plus(1).getVal());
+        telemetry.addData("rightIndex", new Z3Element(robot.table.getState().ordinal()).minus(1).getVal());
         telemetry.update();
     }
 }

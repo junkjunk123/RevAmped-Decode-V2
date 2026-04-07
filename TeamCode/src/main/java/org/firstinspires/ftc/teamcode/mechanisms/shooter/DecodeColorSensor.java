@@ -8,18 +8,19 @@ import org.firstinspires.ftc.teamcode.utils.hardware.HwColorSensor;
 
 @Config
 public class DecodeColorSensor extends HwColorSensor {
-    public static double GREENMIN = 150;
-    public static double GREENMAX = 170;
-    public static double PURPLEMIN = 200;
-    public static double PURPLEMAX = 250;
-    public static double DISTANCEMIN = 0;
-    public static double DISTANCEMAX = 40;
+    public static double GREEN_MIN = 150;
+    public static double GREEN_MAX = 170;
+    public static double PURPLE_MIN = 200;
+    public static double PURPLE_MAX = 250;
+    public static double DISTANCE_MAX = 40;
+
     public DecodeColorSensor(HardwareMap hardwareMap,String id){
         super(hardwareMap,id);
     }
+
     @Override
     public ArtifactColor getColor(double hue, double dist) {
-        if (objectDetected()){
+        if (objectDetected()) {
             if (greenDetected()) return ArtifactColor.GREEN;
             if (purpleDetected()) return ArtifactColor.PURPLE;
         }
@@ -39,14 +40,14 @@ public class DecodeColorSensor extends HwColorSensor {
     }
 
     public boolean purpleDetected(){
-        return PURPLEMIN <= getHue() && PURPLEMAX >= getHue();
+        return PURPLE_MIN <= getHue() && PURPLE_MAX >= getHue();
     }
 
     public boolean greenDetected(){
-        return GREENMIN <= getHue() && GREENMAX >= getHue();
+        return GREEN_MIN <= getHue() && GREEN_MAX >= getHue();
     }
 
-    public boolean objectDetected(){
-        return DISTANCEMIN <= getDistanceMM() && DISTANCEMAX >= getDistanceMM();
+    public boolean objectDetected() {
+        return DISTANCE_MAX >= getDistanceMM();
     }
 }
