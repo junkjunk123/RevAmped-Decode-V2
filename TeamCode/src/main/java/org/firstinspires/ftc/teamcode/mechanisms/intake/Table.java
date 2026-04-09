@@ -92,15 +92,15 @@ public class Table extends HwServo {
     private final int VELOCITY_THRESHOLD = 20;
     private final int VELOCITY_THRESHOLD_2 = 15;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
-    private final EncoderImpl encoder;
+    private final Encoder encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
     private final HwServo tableServo2;
     private boolean atRelativeState = true;
-    private boolean useEncoder;
+    private boolean useEncoder = true;
 
     public Table(HardwareMap hwMap, Encoder rawEncoder) {
         super(hwMap, "table");
-        this.encoder = new EncoderImpl(rawEncoder);
+        this.encoder = rawEncoder;
         tableServo2 = new HwServo(hwMap, "table2");
     }
 
@@ -187,10 +187,10 @@ public class Table extends HwServo {
         return new Sequential(
                 new Instant(() -> setPosition(reader.read().getFullRotation())),
                 new Race(
-                        new Wait(1000),
+                        new Wait(5000),
                         new Sequential(
-                                new Wait(600),
-                                new WaitUntil(() -> encoder.getVelocity() < VELOCITY_THRESHOLD_2)
+                                new Wait(400),
+                                new WaitUntil(() -> Math.abs(encoder.getVelocity()) < VELOCITY_THRESHOLD_2)
                         )
                 ),
                 new Instant(() -> atRelativeState = false)
@@ -271,7 +271,6 @@ public class Table extends HwServo {
 
     public void update() {
         super.update();
-        encoder.update();
     }
 
     public StateMachine<RelativeState> getStateHandler() {
@@ -285,9 +284,7 @@ public class Table extends HwServo {
     @Override
     public boolean setPosition(double pos) {
         if (tableServo2 != null) tableServo2.setPosition(pos + SECOND_OFFSET);
-        boolean moved = super.setPosition(pos);
-        if (moved) encoder.reset();
-        return moved;
+        return super.setPosition(pos);
     }
 
     public void setUseEncoder(boolean useEncoder) {
@@ -301,7 +298,7 @@ public class Table extends HwServo {
                 new Sequential(
                         new Race(
                                 new Wait(5000),
-                                new Infinite(() -> encoder.update(Math.abs(this.encoder.rawVelocity())))
+                                new Infinite(() -> encoder.update(Math.abs(this.encoder.getVelocity())))
                         ),
                         Channels.send(c, () -> {
                             if (encoder.getIntegral() > 15)

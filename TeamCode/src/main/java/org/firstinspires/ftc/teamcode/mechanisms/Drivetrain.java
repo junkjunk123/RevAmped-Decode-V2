@@ -118,6 +118,7 @@ public class Drivetrain {
     }
 
     public void stopHoldPose() {
+        if (!holdingPose) return;
         holdingPose = false;
         follower.startTeleOpDrive();
         follower.update();

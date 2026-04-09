@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 
-@Disabled
 @TeleOp
 public class TableEncoderTest extends OpMode {
     private Table table;

@@ -74,7 +74,25 @@ public class Tele extends OpModeCommand {
                 tsh.runTransition(
                     new Sequential(
                         robot.shootAll(),
-                        robot.resetAfterShooting()
+                        new Parallel(
+                                robot.resetShooter(),
+                                new Sequential(
+                                        new Instant(robot.intakeMotor::stop),
+                                        robot.table.reset(),
+                                        new Instant(() -> {
+                                            robot.intakeMotor.intake();
+                                            robot.feederWheel.setIntake();
+                                        }),
+                                        new Parallel(
+                                                robot.popper.neutral(),
+                                                robot.intakeGate.open(),
+                                                new Sequential(
+                                                        new Wait(300),
+                                                        robot.splitter.activate()
+                                                )
+                                        )
+                                )
+                        )
                     ), RobotStateHandler.CycleState.INTAKE)
             )
         );
@@ -249,12 +267,9 @@ public class Tele extends OpModeCommand {
                                             new WaitUntil(gamepad_2.x::isRisingEdge),
                                             new Sequential(
                                                     robot.shootAll(),
-                                                    new Wait(50),
-                                                    new Instant(() -> robot.flywheel.setVelocity(robot.flywheel.getTargetVelocity() + 50)),
                                                     new Instant(() -> canShoot = true)
                                             )
                                     ),
-                                    new Instant(() -> robot.intakeTilt.intake()),
                                     robot.resetAfterShooting()
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
@@ -293,12 +308,8 @@ public class Tele extends OpModeCommand {
             robot.intakeTilt.intake();
         }
 
-        telemetry.addData("compartments", Arrays.toString(robot.tableCompartments.compartmentColors));
-        telemetry.addData("sortIndex", robot.tableCompartments.sort());
-        telemetry.addData("leftColor", robot.intakeColor.leftColorSensor.getColor());
-        telemetry.addData("rightColor", robot.intakeColor.rightColorSensor.getColor());
-        telemetry.addData("leftIndex", new Z3Element(robot.table.getState().ordinal()).plus(1).getVal());
-        telemetry.addData("rightIndex", new Z3Element(robot.table.getState().ordinal()).minus(1).getVal());
+        telemetry.addData("tableEncoderPos", robot.table.getEncoder().getPosition());
+        telemetry.addData("tableEncoderVel", robot.table.getEncoder().getVelocity());
         telemetry.update();
     }
 }

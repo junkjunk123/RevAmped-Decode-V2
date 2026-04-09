@@ -86,7 +86,8 @@ public class Robot {
         turret = new ServoTurret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
-        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.leftRear));
+        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.rightRear
+        ));
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap);
         intakeColor = new SpindexerColorSensors(hardwareMap);
@@ -324,15 +325,15 @@ public class Robot {
         return new Sequential(
                 new Instant(intakeMotor::stop),
                 table.reset(),
-                popper.neutral(),
-                new Parallel(
-                        intakeGate.open(),
-                        splitter.activate()
-                ),
                 new Instant(() -> {
                     intakeMotor.intake();
                     feederWheel.setIntake();
-                })
+                }),
+                new Parallel(
+                        popper.neutral(),
+                        intakeGate.open(),
+                        splitter.activate()
+                )
         );
     }
 
