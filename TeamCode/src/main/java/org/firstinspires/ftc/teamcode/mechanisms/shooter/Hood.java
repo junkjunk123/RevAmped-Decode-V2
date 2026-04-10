@@ -11,6 +11,7 @@ public class Hood extends HwServo {
     public static float HOOD_MAX_RAD;
     public static float HOOD_MIN_POS;
     public static float HOOD_MAX_POS;
+    public static float HOOD_FAR_COMP;
 
     public static float REST;
     public static float CORNER_PRESET;
@@ -69,6 +70,10 @@ public class Hood extends HwServo {
     public void updateTracking(double pos) {
         setPosition(pos);
         state = HoodState.TRACKING;
+    }
+
+    public void farHoodComp(){
+        setPosition(HOOD_FAR_COMP);
     }
 
     public boolean atState(HoodState state) {
