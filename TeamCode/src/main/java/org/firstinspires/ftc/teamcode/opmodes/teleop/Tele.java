@@ -310,6 +310,7 @@ public class Tele extends OpModeCommand {
 
         telemetry.addData("tableEncoderPos", robot.table.getEncoder().getPosition());
         telemetry.addData("tableEncoderVel", robot.table.getEncoder().getVelocity());
+        telemetry.addData("Pose",robot.drivetrain.follower.getPose());
         telemetry.update();
     }
 }
