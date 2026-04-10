@@ -215,7 +215,17 @@ public class Robot {
                     intakeMotor.intake();
                     CycleState.INTAKE.update = true;
                 }),
-                table.shoot()
+                new Conditional(
+                    () -> hood.atState(Hood.HoodState.FAR),
+                    new Parallel(
+                        new Sequential(
+                            new Wait(50),
+                            new Instant(hood::farHoodComp)
+                            ),
+                        table.shoot()
+                    ),
+                    table.shoot()
+                )
         );
     }
 

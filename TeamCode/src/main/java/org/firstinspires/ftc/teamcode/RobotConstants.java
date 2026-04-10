@@ -28,12 +28,12 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 213/255f; Popper.NEUTRAL = 119/255f; Popper.BLOCK = 195/255f;
+        Popper.POP = 213/255f; Popper.NEUTRAL = 133/255f; Popper.BLOCK = 195/255f;
 
         FeederWheel.TARGET_VEL = 2500;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 770; Flywheel.FAR_VELOCITY = 970; Flywheel.CLOSE_AUTO_VELOCITY = 630;
+        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 770; Flywheel.FAR_VELOCITY = 1000; Flywheel.CLOSE_AUTO_VELOCITY = 630;
         Flywheel.CORNER_VELOCITY = 880;
         Flywheel.UNSORTED_AUTO_VELOCITY = 730;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
@@ -42,7 +42,7 @@ public class RobotConstants {
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 129/255f; Hood.NEAR_PRESET = 51/255f; Hood.MEDIUM_PRESET = 97/255f; Hood.CORNER_PRESET = 115/255f;
+        Hood.FAR_PRESET = 129/255f; Hood.NEAR_PRESET = 51/255f; Hood.MEDIUM_PRESET = 97/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants
@@ -86,7 +86,7 @@ public class RobotConstants {
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
 
         //tilt
-        IntakeTilt.TRANSFER = 87/255f; IntakeTilt.INTAKE = 154/255f;
+        IntakeTilt.TRANSFER = 93/255f; IntakeTilt.INTAKE = 152/255f;
 
         //updated
         // each compartment is ~32 ticks
