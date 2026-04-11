@@ -49,16 +49,16 @@ public class SimpleShooterMath {
         APRIL_TAG_POSE_RED = new Pose(redX, redY);
 
         double[][] hoodPos = {
-                {0.02, 0.3, 0.45},
-                {0.2, 0.35, 0.5},
-                {0.35, 0.38, 0.53}
+                {0.02, 0.08, 0.20},
+                {0.02, 0.18, 0.20},
+                {0.12, 0.27, 0.29}
         };
         hoodPos = new Matrix(hoodPos).transposed().getMatrix();
 
         double[][] flywheelVel = {
-                { 590, 700, 865 },
-                { 640, 720, 920 },
-                { 720, 780, 925}
+                { 600, 665, 825 },
+                { 635, 740, 850 },
+                { 710, 815, 875}
         };
         flywheelVel = new Matrix(flywheelVel).transposed().getMatrix();
 
