@@ -21,7 +21,7 @@ public class TrackingThread {
     private final Hood hood;
     private final Flywheel flywheel;
     private final Localizer pinpoint;
-    public static boolean trackHood = false;
+    public static boolean trackHood = true;
     public static boolean trackTurret = false;
 
     public TrackingThread(Follower pinpoint, ServoTurret turret, Flywheel flywheel, Hood hood) {
