@@ -63,6 +63,7 @@ public class Tele extends OpModeCommand {
         schedule(new Infinite(() -> {
             robot.update();
             if (!robot.drivetrain.isHoldingPose()) robot.drivetrain.arcadeDrive(gamepad1);
+            telemetry.update();
         }));
 
         // Initialize robot
@@ -97,7 +98,7 @@ public class Tele extends OpModeCommand {
             )
         );
 
-        TrackingThread.trackHood = false;
+        TrackingThread.trackHood = true;
         TrackingThread.trackTurret = false;
     }
 
@@ -241,7 +242,9 @@ public class Tele extends OpModeCommand {
                             }),
                             new Sequential(
                                     new Wait(200),
-                                    new Instant(robot.intakeMotor::outtake)
+                                    new Instant(robot.intakeMotor::outtake),
+                                    new Wait(500),
+                                    new Instant(robot.intakeMotor::stop)
                             ),
                             robot.popper.pop(),
                             robot.splitter.neutral(),
@@ -311,6 +314,5 @@ public class Tele extends OpModeCommand {
         telemetry.addData("tableEncoderPos", robot.table.getEncoder().getPosition());
         telemetry.addData("tableEncoderVel", robot.table.getEncoder().getVelocity());
         telemetry.addData("Pose",robot.drivetrain.follower.getPose());
-        telemetry.update();
     }
 }
