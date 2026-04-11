@@ -1,10 +1,5 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.teamcode.utils.AllianceColor;
-import org.firstinspires.ftc.teamcode.utils.Globals;
-
 public sealed interface ServoTurretState permits ServoTurretState.AutoTrack, ServoTurretState.Custom, ServoTurretState.PresetState {
     Turret.MoveState.AutoTrack AUTO_TRACK = new Turret.MoveState.AutoTrack();
 
@@ -17,7 +12,7 @@ public sealed interface ServoTurretState permits ServoTurretState.AutoTrack, Ser
         RIGHT_90,
         RIGHT_135;
 
-        public float targetPos() {
+        public double targetPos() {
             return (ordinal() - REST.ordinal()) * ServoTurret.ticksPerRotation() / 8 + ServoTurret.REST;
         }
 
@@ -32,9 +27,9 @@ public sealed interface ServoTurretState permits ServoTurretState.AutoTrack, Ser
         }
     }
 
-    float targetPos();
+    double targetPos();
 
-    record AutoTrack(float targetPos) implements ServoTurretState { }
+    record AutoTrack(double targetPos) implements ServoTurretState { }
 
-    record Custom(float targetPos) implements ServoTurretState { }
+    record Custom(double targetPos) implements ServoTurretState { }
 }

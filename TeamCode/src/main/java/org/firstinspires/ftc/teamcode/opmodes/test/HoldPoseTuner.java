@@ -31,6 +31,7 @@ public class HoldPoseTuner extends OpMode {
         follower = Constants.createFollowerTeleOp(hardwareMap);
         BezierPoint start = new BezierPoint(new Pose());
         follower.followPath(new Path(start));
+        follower.drivetrain.startTeleopDrive();
     }
 
     @Override

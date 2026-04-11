@@ -7,6 +7,7 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
+import com.pedropathing.ftc.localization.constants.TwoWheelConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -33,7 +34,7 @@ public class Constants {
             .mass(12.4)
             .headingPIDFCoefficients(new PIDFCoefficients(10, 0, 0, 0.01))
             .translationalPIDFCoefficients(new PIDFCoefficients(6, 0, 0, 0.02))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2, 0, 0.05, 0.01))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2.33, 0, 0.13, 0.01))
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0, 0.01))
             .translationalPIDFSwitch(0.5)
             .headingPIDFSwitch(Math.PI / 120)
@@ -53,8 +54,8 @@ public class Constants {
             .yVelocity(70.47);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(3.99)
-            .strafePodX(-1.78)
+            .forwardPodY(3.593)
+            .strafePodX(-5.347)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 

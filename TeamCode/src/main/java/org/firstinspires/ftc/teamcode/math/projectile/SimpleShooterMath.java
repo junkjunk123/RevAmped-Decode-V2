@@ -1,15 +1,11 @@
 package org.firstinspires.ftc.teamcode.math.projectile;
 
 import static org.firstinspires.ftc.teamcode.math.calc.Angle.normalizeAnglePi;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueX;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.blueY;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redX;
-import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.redY;
 import static org.firstinspires.ftc.teamcode.math.projectile.ShooterMath.velocityCompensation;
-import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.RAD_LIMIT;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
 import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Matrix;
@@ -26,6 +22,7 @@ import java.util.Arrays;
 import smile.interpolation.BilinearInterpolation;
 import smile.interpolation.Interpolation2D;
 
+@Config
 public class SimpleShooterMath {
     private final Localizer pinpoint;
     public static Pose APRIL_TAG_POSE_RED;
@@ -42,6 +39,12 @@ public class SimpleShooterMath {
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
     public static final int SOTM_ITERATIONS = 10;
+    public static double CALIBRATION_ANGLE = Math.PI;
+
+    public static double blueX = 9.5;
+    public static double blueY = 135;
+    public static double redX = 120.5;
+    public static double redY = 120;
 
     public SimpleShooterMath(Localizer pinpoint) {
         this.pinpoint = pinpoint;
@@ -71,14 +74,17 @@ public class SimpleShooterMath {
 
         //(0,0) -> (3, 0) : x increase
         //(0, 0) -> (0, 3) down : y decrease
-        double[][] turretPos = {
-                {-0.55, -0.23, -0.15},
-                {-1.0, -0.6, -0.45},
-                {-1.15, -0.77, -0.58}
-        };
-        turretPos = new Matrix(turretPos).transposed().getMatrix();
 
-        double[] X_BLUE = new double[] {-DIST_X[0], -DIST_X[1], -DIST_X[2]};
+        double[][] turretPos = {
+                {0.42, 0.455, 0.475},
+                {0.35, 0.41, 0.44},
+                {0.32, 0.365, 0.405}
+        };
+
+        turretPos = new Matrix(Arrays.stream(turretPos)
+                .map(d -> Arrays.stream(d).map(d1 -> ServoTurret.ticksToRad(d1)).toArray())
+                .toArray(double[][]::new))
+                .transposed().getMatrix();
 
         double[][] hoodSine = Arrays.stream(hoodPos)
                 .map(row -> Arrays.stream(row)
@@ -90,7 +96,7 @@ public class SimpleShooterMath {
         velocityInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, flywheelVel);
         hoodInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, hoodSine);
         airTime = new BilinearInterpolation(DIST_X, DIST_Y, airTimes);
-        turretInterpolation = new BilinearInterpolation(Globals.allianceColor == AllianceColor.Red ? DIST_X : X_BLUE, DIST_Y, turretPos);
+        turretInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, turretPos);
     }
 
     public void update(boolean trackTurret, boolean trackHood) {
@@ -101,6 +107,8 @@ public class SimpleShooterMath {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
             Pose currentPos = pinpoint.getPose();
             Vector displacement = getDispVector(targetPos, currentPos);
+            telemetry.addData("currentPos", currentPos);
+            telemetry.addData("disp vector", displacement);
 
             if (trackTurret) {
                 if (!velocityCompensation) {
@@ -128,20 +136,6 @@ public class SimpleShooterMath {
     public void reset(int turretPos, float hoodPos) {
         this.turretPos = turretPos;
         this.hoodPos = hoodPos;
-    }
-
-    private double angleTurretTo(Vector offset) {
-        double targetAngle = offset.getTheta() + Math.PI;
-        double currentAngle = pinpoint.getPose().getHeading();
-        double deltaAngle = normalizeAnglePi(targetAngle - currentAngle);
-        return Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
-    }
-
-    private double angleTurretTo(Pose offset) {
-        double targetAngle = offset.getAsVector().getTheta() + Math.PI;
-        double currentAngle = offset.getHeading();
-        double deltaAngle = normalizeAnglePi(targetAngle - currentAngle);
-        return Range.clip(deltaAngle, -RAD_LIMIT, RAD_LIMIT);
     }
 
     private Vector getDispVector(Pose target, Pose current) {
@@ -177,8 +171,9 @@ public class SimpleShooterMath {
     }
 
     public double getTurretPos(Vector offset, double heading) {
-        double pos = turretInterpolation.interpolate(offset.getXComponent(), offset.getYComponent());
-        double delta = normalizeAnglePi(pos - heading);
+        double pos = turretInterpolation.interpolate(Globals.allianceColor.equals(AllianceColor.Red) ? offset.getXComponent() :
+                -offset.getXComponent(), offset.getYComponent());
+        double delta = normalizeAnglePi(pos + heading + CALIBRATION_ANGLE);
         double ticks = ServoTurret.radToTicks(delta);
         return Range.clip(ticks, Math.min(ServoTurret.LEFT_TICKS_LIMIT, ServoTurret.RIGHT_TICKS_LIMIT),
                 Math.max(ServoTurret.RIGHT_TICKS_LIMIT, ServoTurret.LEFT_TICKS_LIMIT));

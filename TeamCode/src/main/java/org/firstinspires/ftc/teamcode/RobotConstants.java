@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.Servo;
+import static org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret.turretPos;
+import static org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret.turretPosInv;
 
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
@@ -14,9 +15,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.utils.AllianceColor;
-import org.firstinspires.ftc.teamcode.utils.Factory;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.function.Function;
@@ -48,14 +47,9 @@ public class RobotConstants {
         //Turret Constants
         ServoTurret.REST = 132/255f;
 
-        //When calibrating blue
-        Function<Float, Float> turretPos = f -> Globals.allianceColor == AllianceColor.Red ? 2 * ServoTurret.REST - f : f;
-
-        //When calibrating red
-        Function<Float, Float> turretPosInv = f -> Globals.allianceColor == AllianceColor.Blue ? 2 * ServoTurret.REST - f : f;
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
-        ServoTurret.FAR_PRESET_RED = 36/255f;
+        ServoTurret.FAR_PRESET = turretPosInv.apply(217/255f);
         //done
         ServoTurret.FIFTEEN_OBELISK_DETECTION = turretPos.apply(200/255f);
         //preloads

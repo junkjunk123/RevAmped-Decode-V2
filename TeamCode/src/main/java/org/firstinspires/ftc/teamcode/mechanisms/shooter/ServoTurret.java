@@ -6,13 +6,22 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.utils.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
+import java.util.function.Function;
+
 @Config
 public class ServoTurret extends HwServo {
+    //When calibrating blue
+    public static Function<Float, Float> turretPos = f -> Globals.allianceColor == AllianceColor.Red ? 2 * ServoTurret.REST - f : f;
+
+    //When calibrating red
+    public static Function<Float, Float> turretPosInv = f -> Globals.allianceColor == AllianceColor.Blue ? 2 * ServoTurret.REST - f : f;
+
     public static double LEFT_TICKS_LIMIT;
     public static double RIGHT_TICKS_LIMIT;
     public static double FULL_ROTATION;
@@ -41,8 +50,7 @@ public class ServoTurret extends HwServo {
     public static float UNSORTED_SET_4;
     public static float UNSORTED_SET_5;
     public static float UNSORTED_FINAL;
-    public static float FAR_PRESET_BLUE;
-    public static float FAR_PRESET_RED;
+    public static float FAR_PRESET;
     public static double MANUALSOTMOFFSET;
 
     public static double MS_PER_REVOLUTION = 1500;

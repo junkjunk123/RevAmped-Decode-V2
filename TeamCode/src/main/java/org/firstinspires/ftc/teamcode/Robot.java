@@ -19,7 +19,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
@@ -388,14 +387,11 @@ public class Robot {
         feederWheel.start();
     }
 
-    public ICommand shootFar() {
-        return new Sequential(
-                new Instant(() -> {
-                    hood.far();
-                    flywheel.far();
-                }),
-                new Instant(() -> turret.setPosition(Globals.allianceColor == AllianceColor.Red ? ServoTurret.FAR_PRESET_RED : ServoTurret.FAR_PRESET_BLUE))
-        );
+    public void shootFar() {
+        hood.far();
+        flywheel.far();
+        feederWheel.start();
+        turret.setPosition(ServoTurret.FAR_PRESET);
     }
 
     public void shootMedium() {

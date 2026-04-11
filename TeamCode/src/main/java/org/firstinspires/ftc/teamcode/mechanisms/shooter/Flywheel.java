@@ -53,7 +53,8 @@ public class Flywheel extends HwMotor {
 
         if (isRunning() && state != FlywheelState.NO_PID) {
             double power = controller.update(getVelocityImperial(), targetVelocity);
-            setPower(power * voltageSensor.getVoltageNormalized());
+            if (controller.getMode().equals(FlywheelController.Mode.SPINUP)) setPower(power);
+            else setPower(power * voltageSensor.getVoltageNormalized());
         }
     };
 

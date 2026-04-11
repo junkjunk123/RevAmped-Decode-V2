@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.math.MathUtil;
 import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPaths;
+import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
@@ -35,7 +36,7 @@ import java.util.function.Function;
 public class Drivetrain {
     public final Follower follower;
     private ArrayDeque<FollowParameters> paths;
-    public static Pose startPose = CloseAutoPaths.START_POSE.getPose(AllianceColor.Red);
+    public static Pose startPose = new ColoredDecodePose(34.5, 136, Math.toRadians(-90)).getPose(AllianceColor.Red);
     private final List<DcMotorEx> motors;
     public final DcMotorEx leftFront;
     public final DcMotorEx rightFront;
