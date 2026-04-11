@@ -393,6 +393,7 @@ public class Robot {
                 new Instant(() -> {
                     hood.far();
                     flywheel.far();
+                    feederWheel.start();
                 }),
                 new Instant(() -> turret.setPosition(Globals.allianceColor == AllianceColor.Red ? ServoTurret.FAR_PRESET_RED : ServoTurret.FAR_PRESET_BLUE))
         );

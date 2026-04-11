@@ -55,7 +55,7 @@ public class RobotConstants {
         Function<Float, Float> turretPosInv = f -> Globals.allianceColor == AllianceColor.Blue ? 2 * ServoTurret.REST - f : f;
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
-        ServoTurret.FAR_PRESET_RED = 36/255f;
+        ServoTurret.FAR_PRESET_RED = 217/255f;
         //done
         ServoTurret.FIFTEEN_OBELISK_DETECTION = turretPos.apply(200/255f);
         //preloads
