@@ -86,7 +86,7 @@ public class RobotConstants {
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
 
         //tilt
-        IntakeTilt.TRANSFER = 93/255f; IntakeTilt.INTAKE = 152/255f;
+        IntakeTilt.TRANSFER = 93/255f; IntakeTilt.INTAKE = 151/255f;
 
         //updated
         // each compartment is ~32 ticks
