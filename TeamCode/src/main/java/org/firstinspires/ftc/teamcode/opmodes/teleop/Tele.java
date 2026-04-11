@@ -98,7 +98,7 @@ public class Tele extends OpModeCommand {
             )
         );
 
-        TrackingThread.trackHood = true;
+        TrackingThread.trackHood = false;
         TrackingThread.trackTurret = false;
     }
 
