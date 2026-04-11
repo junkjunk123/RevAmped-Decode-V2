@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
