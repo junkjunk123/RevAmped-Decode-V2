@@ -68,7 +68,7 @@ public class RobotStateHandler {
 
             public void init(SpindexerColorSensors colorManager, ArtifactColor[] tableCompartments, IntakeArtifactDetector intakeDistance, IntakeArtifactDetector frontSensor) {
                 INSTANCE = IntakeState.INTAKING;
-                intakeThread = new IntakeThread(tableCompartments, colorManager, intakeDistance, frontSensor);
+                intakeThread = new IntakeThread(tableCompartments, colorManager, intakeDistance);
             }
 
             public double[] getTransitionVector() {

@@ -100,8 +100,8 @@ public class FarTrackingMath {
             if (target == null) throw new IllegalArgumentException();
 
             if (state.isFar()) {
-                f.setVelocity(target.flywheelVel());
-                h.setPosition(target.hoodPos());
+                //f.setVelocity(target.flywheelVel());
+                //h.setPosition(target.hoodPos());
             }
         };
     }

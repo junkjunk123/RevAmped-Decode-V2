@@ -212,7 +212,7 @@ public class Robot {
                 new WaitUntil(() -> drivetrain.canShoot),
                 new Instant(() -> {
                     intakeTilt.intake();
-                    intakeMotor.intake();
+                    intakeMotor.stop();
                     CycleState.INTAKE.update = true;
                 }),
                 new Conditional(
@@ -333,17 +333,19 @@ public class Robot {
 
     public ICommand resetTableTeleOp() {
         return new Sequential(
-                new Instant(intakeMotor::stop),
-                table.reset(),
+                new Parallel(
+                    new Instant(intakeMotor::stop),
+                    intakeGate.open(),
+                    table.reset()),
                 new Instant(() -> {
                     intakeMotor.intake();
                     feederWheel.setIntake();
                 }),
                 new Parallel(
                         popper.neutral(),
-                        intakeGate.open(),
                         splitter.activate()
                 )
+
         );
     }
 
@@ -389,6 +391,8 @@ public class Robot {
     }
 
     public void shootFar() {
+        flywheel.far();
+        hood.far();
         GyroThread.offer(TrackState.FAR_ONE);
     }
 
