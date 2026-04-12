@@ -335,15 +335,15 @@ public class Robot {
         return new Sequential(
                 new Instant(intakeMotor::stop),
                 table.reset(),
-                new Instant(() -> {
-                    intakeMotor.intake();
-                    feederWheel.setIntake();
-                }),
                 new Parallel(
                         popper.neutral(),
                         intakeGate.open(),
                         splitter.activate()
-                )
+                ),
+                new Instant(() -> {
+                    intakeMotor.intake();
+                    feederWheel.setIntake();
+                })
         );
     }
 
@@ -389,6 +389,8 @@ public class Robot {
     }
 
     public void shootFar() {
+        flywheel.far();
+        hood.far();
         GyroThread.offer(TrackState.FAR_ONE);
     }
 
