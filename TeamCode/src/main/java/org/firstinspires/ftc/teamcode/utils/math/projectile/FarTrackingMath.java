@@ -24,25 +24,35 @@ public class FarTrackingMath {
     private final EnumMap<TrackState, TrackState.Track> heatMap;
 
     //alliance color is the goal you calibrated on, the code automatically mirrors as needed
-    public static Track FAR_1 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 10,
-            207/255d, AllianceColor.Red);
-    public static Track FAR_2 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 20,
-            218/255d, AllianceColor.Red);
-    public static Track FAR_3 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY,
-            213/255d, AllianceColor.Red);
-    public static Track FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 30,
-            222/255d, AllianceColor.Red);
+    public static Track FAR_1;
+    public static Track FAR_2;
+    public static Track FAR_3;
+    public static Track FAR_4;
 
-    public static Track CLOSE_1 = trackCalibration(233/255d, AllianceColor.Red);
-    public static Track CLOSE_2 = trackCalibration(250/255d, AllianceColor.Red);
-    public static Track CLOSE_3 = trackCalibration(-26/255d, AllianceColor.Red);
-    public static Track CLOSE_4 = trackCalibration(-14/255d, AllianceColor.Red);
+    public static Track CLOSE_1;
+    public static Track CLOSE_2;
+    public static Track CLOSE_3;
+    public static Track CLOSE_4;
 
     private Track target;
 
     public FarTrackingMath(Localizer pinpoint) {
         this.pinpoint = pinpoint;
         target = new Track(Hood.NEAR_PRESET, 0, ServoTurret.REST);
+
+        FAR_1 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 10,
+                207/255d, AllianceColor.Red);
+        FAR_2 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 20,
+                218/255d, AllianceColor.Red);
+        FAR_3 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY,
+                213/255d, AllianceColor.Red);
+        FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 30,
+                222/255d, AllianceColor.Red);
+
+        CLOSE_1 = trackCalibration(233/255d, AllianceColor.Red);
+        CLOSE_2 = trackCalibration(250/255d, AllianceColor.Red);
+        CLOSE_3 = trackCalibration(-26/255d, AllianceColor.Red);
+        CLOSE_4 = trackCalibration(-14/255d, AllianceColor.Red);
 
         heatMap = MapBuilder.create(() -> new EnumMap<TrackState, Track>(TrackState.class))
                 .add(TrackState.FAR_ONE, FAR_1)
