@@ -333,17 +333,19 @@ public class Robot {
 
     public ICommand resetTableTeleOp() {
         return new Sequential(
-                new Instant(intakeMotor::stop),
-                table.reset(),
                 new Parallel(
-                        popper.neutral(),
-                        intakeGate.open(),
-                        splitter.activate()
-                ),
+                    new Instant(intakeMotor::stop),
+                    intakeGate.open(),
+                    table.reset()),
                 new Instant(() -> {
                     intakeMotor.intake();
                     feederWheel.setIntake();
-                })
+                }),
+                new Parallel(
+                        popper.neutral(),
+                        splitter.activate()
+                )
+
         );
     }
 
