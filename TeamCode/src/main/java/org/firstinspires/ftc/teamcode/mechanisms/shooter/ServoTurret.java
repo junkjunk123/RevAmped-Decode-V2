@@ -25,38 +25,38 @@ public class ServoTurret extends HwServo {
     public static double LEFT_TICKS_LIMIT;
     public static double RIGHT_TICKS_LIMIT;
     public static double FULL_ROTATION;
-    public static float REST;
+    public static double REST;
 
-    public static float EIGHTEEN_DETECTION;
-    public static float EIGHTEEN_PRELOADS;
-    public static float EIGHTEEN_FIRST_SET;
-    public static float EIGHTEEN_SECOND_SET;
-    public static float EIGHTEEN_GATE_SHOOT;
-    public static float EIGHTEEN_THIRD_SET;
-    public static float EIGHTEEN_FOURTH_SET;
+    public static double EIGHTEEN_DETECTION;
+    public static double EIGHTEEN_PRELOADS;
+    public static double EIGHTEEN_FIRST_SET;
+    public static double EIGHTEEN_SECOND_SET;
+    public static double EIGHTEEN_GATE_SHOOT;
+    public static double EIGHTEEN_THIRD_SET;
+    public static double EIGHTEEN_FOURTH_SET;
 
-    public static float AUTO_PRELOADS;
-    public static float AUTO_SET_1;
-    public static float AUTO_SET_2;
-    public static float AUTO_SET_3;
-    public static float FAR_AUTO;
-    public static float FIFTEEN_BALL_PRELOADS;
-    public static float FIFTEEN_OBELISK_DETECTION;
-    public static float UNSORTED_AUTO_PRELOADS; //doesn't matter for 15
-    public static float UNSORTED_GATE;
-    public static float UNSORTED_SET_1;
-    public static float UNSORTED_SET_2;
-    public static float UNSORTED_SET_3;
-    public static float UNSORTED_SET_4;
-    public static float UNSORTED_SET_5;
-    public static float UNSORTED_FINAL;
-    public static float FAR_PRESET;
+    public static double AUTO_PRELOADS;
+    public static double AUTO_SET_1;
+    public static double AUTO_SET_2;
+    public static double AUTO_SET_3;
+    public static double FAR_AUTO;
+    public static double FIFTEEN_BALL_PRELOADS;
+    public static double FIFTEEN_OBELISK_DETECTION;
+    public static double UNSORTED_AUTO_PRELOADS; //doesn't matter for 15
+    public static double UNSORTED_GATE;
+    public static double UNSORTED_SET_1;
+    public static double UNSORTED_SET_2;
+    public static double UNSORTED_SET_3;
+    public static double UNSORTED_SET_4;
+    public static double UNSORTED_SET_5;
+    public static double UNSORTED_FINAL;
+    public static double FAR_PRESET;
     public static double MANUALSOTMOFFSET;
 
     public static double MS_PER_REVOLUTION = 1500;
 
-    public static float ticksPerRotation() {
-        return (float) FULL_ROTATION;
+    public static double ticksPerRotation() {
+        return FULL_ROTATION;
     }
     public static double ticksPerDegree() {return FULL_ROTATION / 360.0;}
     public static double ticksPerRad() {return FULL_ROTATION / Math.PI / 2;}

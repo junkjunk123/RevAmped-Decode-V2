@@ -185,7 +185,7 @@ public class AutoMethods {
     }
 
     public static ICommand intakeForSort(Robot robot, int iteration) {
-        float turretPos = switch (iteration) {
+        double turretPos = switch (iteration) {
             case 0 -> ServoTurret.AUTO_SET_1;
             case 1 -> ServoTurret.AUTO_SET_2;
             default -> ServoTurret.AUTO_SET_3;
