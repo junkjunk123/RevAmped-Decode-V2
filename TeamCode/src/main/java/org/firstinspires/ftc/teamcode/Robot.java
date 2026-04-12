@@ -212,7 +212,7 @@ public class Robot {
                 new WaitUntil(() -> drivetrain.canShoot),
                 new Instant(() -> {
                     intakeTilt.intake();
-                    intakeMotor.intake();
+                    intakeMotor.stop();
                     CycleState.INTAKE.update = true;
                 }),
                 new Conditional(
