@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 
+import java.util.Arrays;
+
 public class SpindexerColorSensors {
     public final DecodeColorSensor leftColorSensor;
     public final DecodeColorSensor rightColorSensor;
@@ -43,6 +45,10 @@ public class SpindexerColorSensors {
     public void close() {
         leftColorSensor.close();
         rightColorSensor.close();
+    }
+
+    public void reset(){
+        Arrays.fill(compartmentColors,ArtifactColor.NONE);
     }
 
     public void update() {

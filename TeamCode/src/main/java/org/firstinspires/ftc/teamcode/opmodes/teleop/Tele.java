@@ -30,6 +30,8 @@ import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
 
+import java.util.Arrays;
+
 @Config
 @TeleOp(name = "DCTeleOp")
 public class Tele extends OpModeCommand {
@@ -194,17 +196,21 @@ public class Tele extends OpModeCommand {
                 robot.tableCompartments.populate();
                 transfer = true;
                 RobotStateHandler.CycleState.INTAKE.update = false;
+                robot.intakeTilt.transfer();
+                robot.intakeMotor.outtake();
             }
         }
 
         if (transfer || (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL))) {
+            transfer = false;
             schedule(new Sequential(
                         tsh.runTransition(
                                 new Parallel(
                                         new Instant(() -> robot.feederWheel.start()),
                                         robot.popper.pop(),
                                         robot.splitter.neutral(),
-                                        robot.intakeGate.close()
+                                        robot.intakeGate.close(),
+                                        new Instant(robot.intakeTilt::transfer)
                                 ),
                                 RobotStateHandler.CycleState.DRIVE_TO_SHOOT
                         ),
@@ -222,6 +228,7 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_up.isRisingEdge()) {
+            robot.tableCompartments.intakeThread.reset();
             schedule(new Conditional(
                     () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT) && canShoot,
                     new Sequential(
@@ -298,7 +305,9 @@ public class Tele extends OpModeCommand {
                 schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
             }
         }
-
+        telemetry.addData("Ball amount",robot.tableCompartments.intakeThread.getNumBalls());
+        telemetry.addData("hypothetical amount",robot.tableCompartments.intakeThread.getHypotheticalNumBalls());
+        telemetry.addData("compartments", Arrays.toString(robot.tableCompartments.intakeThread.getColors()));
         telemetry.update();
     }
 }
