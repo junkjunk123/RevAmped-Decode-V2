@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.control.KalmanFilterParameters;
 
-import org.firstinspires.ftc.teamcode.math.calc.SingleStateKalman;
+import org.firstinspires.ftc.teamcode.utils.math.calc.SingleStateKalman;
 
 /**
  * Triple-mode hybrid flywheel controller using enum for mode,

@@ -15,10 +15,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
-import org.firstinspires.ftc.teamcode.utils.AllianceColor;
-import org.firstinspires.ftc.teamcode.utils.Globals;
-
-import java.util.function.Function;
 
 public class RobotConstants {
     public void build() {

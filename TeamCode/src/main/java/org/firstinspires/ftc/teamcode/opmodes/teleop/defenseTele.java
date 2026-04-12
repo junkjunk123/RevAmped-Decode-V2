@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
-import org.firstinspires.ftc.teamcode.utils.GamepadEx;
+import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 
 @TeleOp
 @Disabled

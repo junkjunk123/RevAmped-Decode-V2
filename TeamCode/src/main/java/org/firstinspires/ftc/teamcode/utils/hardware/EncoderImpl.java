@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.hardware;
 
-import org.firstinspires.ftc.teamcode.math.calc.Differentiator;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Differentiator;
 
 public class EncoderImpl implements Encoder {
     private final Encoder rawEncoder;

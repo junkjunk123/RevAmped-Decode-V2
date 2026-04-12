@@ -2,18 +2,15 @@ package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Vector;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
-import org.firstinspires.ftc.teamcode.math.projectile.FarTrackingMath;
-import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
-import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
-import org.firstinspires.ftc.teamcode.utils.Globals;
 
 @Config
 public class TrackingThread {

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.utils.prompter;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.utils.GamepadEx;
+import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -5,17 +5,14 @@ import androidx.annotation.NonNull;
 import com.pedropathing.follower.Follower;
 
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistance;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
-import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
+import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 
 import java.util.List;
 

@@ -6,8 +6,8 @@ import com.pedropathing.math.MathFunctions;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
 
-import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
-import org.firstinspires.ftc.teamcode.math.calc.Vector3D;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Vector3D;
 
 public class ManualFusionLocalizer implements Localizer {
     private final Localizer deadReckoning;

@@ -5,7 +5,7 @@ import com.pedropathing.ivy.ICommand;
 
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
-import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
+import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.Arrays;

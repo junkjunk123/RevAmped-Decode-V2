@@ -5,7 +5,7 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Sequential;
 
-import org.firstinspires.ftc.teamcode.utils.AtomicReadOnce;
+import org.firstinspires.ftc.teamcode.utils.data.AtomicReadOnce;
 
 import java.util.ArrayDeque;
 import java.util.function.Supplier;

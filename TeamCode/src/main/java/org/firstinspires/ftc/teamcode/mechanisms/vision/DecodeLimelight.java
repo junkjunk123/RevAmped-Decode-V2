@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.mechanisms.vision;
 
 import androidx.annotation.NonNull;
 
-import com.pedropathing.ftc.FTCCoordinates;
-import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.math.Vector;
@@ -12,20 +10,13 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.math.calc.Vector2D;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
-import org.firstinspires.ftc.teamcode.opmodes.teleop.Tele;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.Globals;
-import org.firstinspires.ftc.teamcode.utils.RandomizationState;
+import org.firstinspires.ftc.teamcode.utils.commands.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDevice;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
 
 public class DecodeLimelight implements HwDevice {
     public final Limelight3A limelight;

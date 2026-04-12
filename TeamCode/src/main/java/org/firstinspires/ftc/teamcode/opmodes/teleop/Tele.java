@@ -6,12 +6,11 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
-import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.math.projectile.FarTrackingMath;
-import org.firstinspires.ftc.teamcode.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
@@ -19,17 +18,15 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
-import org.firstinspires.ftc.teamcode.utils.AllianceColor;
-import org.firstinspires.ftc.teamcode.utils.GamepadEx;
+import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.Globals;
-import org.firstinspires.ftc.teamcode.utils.RandomizationState;
+import org.firstinspires.ftc.teamcode.utils.commands.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
 
@@ -43,6 +40,7 @@ public class Tele extends OpModeCommand {
     private Prompter prompter;
     private boolean transfer;
     private boolean canShoot = true;
+    private GyroThread gyroThread;
 
     @Override
     public void initialize() {
@@ -50,6 +48,7 @@ public class Tele extends OpModeCommand {
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
+        gyroThread = new GyroThread(robot);
         prompter = new Prompter(this, gamepad_1)
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
                 .onComplete(() -> Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState))
@@ -64,6 +63,7 @@ public class Tele extends OpModeCommand {
         schedule(new Infinite(() -> {
             robot.update();
             if (!robot.drivetrain.isHoldingPose()) robot.drivetrain.arcadeDrive(gamepad1);
+            gyroThread.update();
             telemetry.update();
         }));
 
@@ -98,9 +98,6 @@ public class Tele extends OpModeCommand {
                     ), RobotStateHandler.CycleState.INTAKE)
             )
         );
-
-        TrackingThread.trackHood = false;
-        TrackingThread.trackTurret = false;
     }
 
     @Override
@@ -122,54 +119,21 @@ public class Tele extends OpModeCommand {
         gamepad_1.update();
         gamepad_2.update();
 
-        if (RobotStateHandler.CycleState.DRIVE_TO_SHOOT.INSTANCE == RobotStateHandler.DriveState.AUTO_TRACKING) {
-            RobotStateHandler.CycleState.DRIVE_TO_SHOOT.autoTracker.turretMath.setTarget(FarTrackingMath.TURRET_PRESET_FORWARD);
-            RobotStateHandler.CycleState.DRIVE_TO_SHOOT.autoTracker.update();
-        }
-
         // Schedule commands based on triggers
         if (gamepad_1.a.isRisingEdge()) {
-            TrackingThread.trackTurret = !TrackingThread.trackTurret;
-            TrackingThread.trackHood = !TrackingThread.trackHood;
-        }
-
-        if (gamepad_1.b.isRisingEdge()) {
-            schedule(new Sequential(
-                        robot.limelight.computeOffsets(),
-                        new Instant(() -> Globals.getTrackingThread().addLimelightMeasurement(robot.limelight.getOffsets()))
-                    )
-            );
+            GyroThread.trackTurret = !GyroThread.trackTurret;
+            GyroThread.trackTraj = !GyroThread.trackTraj;
         }
 
         if (gamepad_1.y.isRisingEdge()) {
-            if (!robot.drivetrain.isHoldingPose())
-                schedule(robot.drivetrain.holdPose());
-            else
-                robot.drivetrain.stopHoldPose();
+            if (!robot.drivetrain.isHoldingPose()) schedule(robot.drivetrain.holdPose());
+            else robot.drivetrain.stopHoldPose();
         }
 
         if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootCorner));
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
         if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
-
-        if (gamepad_1.right_bumper.isRisingEdge()) {
-            if (TrackingThread.trackTurret) {
-                SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
-                SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
-            } else {
-                schedule(tsh.task(() -> robot.turret.previous(), new int[]{1, 1, 0}));
-            }
-        }
-
-        if (gamepad_1.left_bumper.isRisingEdge()) {
-            if (TrackingThread.trackTurret) {
-                SimpleShooterMath.APRIL_TAG_POSE_BLUE = SimpleShooterMath.APRIL_TAG_POSE_BLUE.plus(new Pose(3, 3));
-                SimpleShooterMath.APRIL_TAG_POSE_RED = SimpleShooterMath.APRIL_TAG_POSE_RED.plus(new Pose(3, -3));
-            } else {
-                schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
-            }
-        }
 
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(
                 new Parallel(
@@ -192,11 +156,7 @@ public class Tele extends OpModeCommand {
                                     robot.intakeGate.open(),
                                     robot.splitter.activate()
                             )
-                    ),
-                    new Lazy(() -> {
-                        if (TrackingThread.trackTurret) return robot.turret.resetTurret();
-                        else return Commands.NOOP;
-                    })
+                    )
             ), RobotStateHandler.CycleState.INTAKE));
         }
 
@@ -241,6 +201,7 @@ public class Tele extends OpModeCommand {
             schedule(new Sequential(
                         tsh.runTransition(
                                 new Parallel(
+                                        new Instant(() -> robot.feederWheel.start()),
                                         robot.popper.pop(),
                                         robot.splitter.neutral(),
                                         robot.intakeGate.close()
@@ -308,6 +269,33 @@ public class Tele extends OpModeCommand {
             robot.intakeTilt.transfer();
         } else if (gamepad2.left_stick_y > 0.3f) {
             robot.intakeTilt.intake();
+        }
+
+        if (gamepad_1.left_trigger_button.isRisingEdge()) {
+            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_FOUR);
+        }
+
+        if (gamepad_1.right_trigger_button.isRisingEdge()) {
+            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_THREE);
+            else gyroThread.setState(TrackState.FAR_THREE);
+        }
+
+        if (gamepad_1.right_bumper.isRisingEdge()) {
+            if (GyroThread.trackTurret) {
+                if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_ONE);
+                else gyroThread.setState(TrackState.FAR_ONE);
+            } else {
+                schedule(tsh.task(() -> robot.turret.previous(), new int[]{1, 1, 0}));
+            }
+        }
+
+        if (gamepad_1.left_bumper.isRisingEdge()) {
+            if (GyroThread.trackTurret) {
+                if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_TWO);
+                else gyroThread.setState(TrackState.FAR_TWO);
+            } else {
+                schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
+            }
         }
 
         telemetry.update();

@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.utils.prompter;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.utils.BooleanSwitch;
-import org.firstinspires.ftc.teamcode.utils.GamepadEx;
+import org.firstinspires.ftc.teamcode.utils.data.BooleanSwitch;
+import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 
 public abstract class Prompt<T> {
     protected GamepadEx input;

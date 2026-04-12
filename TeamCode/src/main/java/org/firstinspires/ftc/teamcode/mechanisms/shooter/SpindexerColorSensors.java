@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
-
-import java.util.List;
+import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 
 public class SpindexerColorSensors {
     public final DecodeColorSensor leftColorSensor;

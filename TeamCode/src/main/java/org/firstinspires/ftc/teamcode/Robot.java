@@ -19,7 +19,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
@@ -27,6 +26,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
@@ -34,16 +34,16 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
-import org.firstinspires.ftc.teamcode.utils.AllianceColor;
-import org.firstinspires.ftc.teamcode.utils.ArtifactColor;
+import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
-import org.firstinspires.ftc.teamcode.utils.Z3Element;
+import org.firstinspires.ftc.teamcode.utils.math.Z3Element;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -379,26 +379,23 @@ public class Robot {
     public void shootNear() {
         hood.near();
         flywheel.near();
-        feederWheel.start();
+        GyroThread.offer(TrackState.CLOSE_ONE);
     }
 
     public void shootCorner() {
         hood.corner();
         flywheel.corner();
-        feederWheel.start();
+        GyroThread.offer(TrackState.CLOSE_ONE);
     }
 
     public void shootFar() {
-        hood.far();
-        flywheel.far();
-        feederWheel.start();
-        turret.setPosition(ServoTurret.FAR_PRESET);
+        GyroThread.offer(TrackState.FAR_ONE);
     }
 
     public void shootMedium() {
         hood.medium();
         flywheel.medium();
-        feederWheel.start();
+        GyroThread.offer(TrackState.CLOSE_ONE);
     }
 
     public void close() {
