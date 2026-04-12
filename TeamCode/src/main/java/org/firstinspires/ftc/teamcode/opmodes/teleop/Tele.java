@@ -273,6 +273,7 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_1.left_trigger_button.isRisingEdge()) {
             if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_FOUR);
+            else gyroThread.setState(TrackState.FAR_FOUR);
         }
 
         if (gamepad_1.right_trigger_button.isRisingEdge()) {

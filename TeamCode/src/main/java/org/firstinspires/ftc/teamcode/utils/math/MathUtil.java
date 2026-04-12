@@ -12,4 +12,14 @@ public class MathUtil {
         };
         return new Matrix(vals);
     }
+
+    /**
+     * Normalizes an angle in radians to the range [-π, π).
+     *
+     * @param angleRadians The angle in radians to normalize.
+     * @return The normalized angle in radians, in the range [-π, π).
+     */
+    public static double normalizeAnglePi(double angleRadians) {
+        return Math.atan2(Math.sin(angleRadians), Math.cos(angleRadians));
+    }
 }

@@ -51,7 +51,6 @@ public class ServoTurret extends HwServo {
     public static double UNSORTED_SET_5;
     public static double UNSORTED_FINAL;
     public static double FAR_PRESET;
-    public static double MANUALSOTMOFFSET;
 
     public static double MS_PER_REVOLUTION = 1500;
 

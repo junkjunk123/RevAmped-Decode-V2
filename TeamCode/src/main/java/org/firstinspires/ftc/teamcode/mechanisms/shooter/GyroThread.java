@@ -42,7 +42,7 @@ public class GyroThread {
     }
 
     public void update() {
-        tracker.update();
+        turret.setPosition(tracker.update());
     }
 
     public boolean isFar() {
