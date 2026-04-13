@@ -308,4 +308,8 @@ public class Table extends HwServo {
                 )
         );
     }
+
+    public boolean isAtRelativeState() {
+        return atRelativeState;
+    }
 }

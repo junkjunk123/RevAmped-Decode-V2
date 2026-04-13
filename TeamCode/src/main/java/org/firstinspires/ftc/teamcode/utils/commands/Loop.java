@@ -30,6 +30,16 @@ public class Loop extends Sequential {
 
     /**
      * Constructs a new Loop command group that runs the given command for the
+     * specified number of iterations.
+     *
+     * @param command    the command to run in a loop
+     */
+    public Loop(ICommand command) {
+        this(command, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Constructs a new Loop command group that runs the given command for the
      * specified number of iterations supplied by the given IntSupplier.
      *
      * @param command            the command to run in a loop

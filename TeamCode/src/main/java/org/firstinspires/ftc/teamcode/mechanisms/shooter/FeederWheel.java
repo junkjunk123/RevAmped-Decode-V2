@@ -34,7 +34,7 @@ public class FeederWheel extends HwMotor {
         setTargetVelocity(TARGET_VEL);
     }
 
-    public void setIntake() {
+    public void intakeState() {
         state = FeederState.INTAKING;
         setPower(-0.5);
     }

@@ -151,6 +151,10 @@ public class Drivetrain {
         return followNext(d -> d.velocityCondition(4), 3000);
     }
 
+    public void skip() {
+        paths.poll();
+    }
+
     public Race followLast(Function<Drivetrain, Boolean> isDone, double timeout) {
         return new Race(
                 followLast(isDone),

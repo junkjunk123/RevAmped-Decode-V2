@@ -10,7 +10,6 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
@@ -25,12 +24,9 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
-import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
-
-import java.util.Arrays;
 
 @Config
 @TeleOp(name = "DCTeleOp")
@@ -145,7 +141,7 @@ public class Tele extends OpModeCommand {
                                                     robot.table.reset()),
                                             new Instant(() -> {
                                                 robot.intakeMotor.intake();
-                                                robot.feederWheel.setIntake();
+                                                robot.feederWheel.intakeState();
                                             }),
                                             new Parallel(
                                                     new Sequential(

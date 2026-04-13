@@ -325,7 +325,7 @@ public class Robot {
                 table.reset(),
                 new Instant(() -> {
                     intakeMotor.intake();
-                    feederWheel.setIntake();
+                    feederWheel.intakeState();
                 })
         );
     }
@@ -338,7 +338,7 @@ public class Robot {
                     table.reset()),
                 new Instant(() -> {
                     intakeMotor.intake();
-                    feederWheel.setIntake();
+                    feederWheel.intakeState();
                 }),
                 new Parallel(
                         popper.neutral(),
@@ -435,7 +435,7 @@ public class Robot {
                 ),
                 new Instant(() -> {
                     intakeMotor.intake();
-                    feederWheel.setIntake();
+                    feederWheel.intakeState();
                 })
         );
     }
