@@ -59,7 +59,8 @@ public class ShooterMath {
                 projectedRobotPose = RobotKinematicsCalculator.getProjectedPoseWithConstantVelocity(
                         currentPos,
                         BALL_LAUNCH_MS / 1000.0,
-                        robotVelPose
+                        robotVelPose.getAsVector(),
+                        robotVelPose.getHeading()
                 );
             }
             double deltaAngle;

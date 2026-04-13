@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.math.calc;
 
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
 
 public class Vector2D extends Vector {
@@ -34,6 +35,15 @@ public class Vector2D extends Vector {
 
     public static Vector2D fromVector(Vector v) {
         return new Vector2D(v.getXComponent(), v.getYComponent());
+    }
+
+    @Override
+    public Vector2D normalize() {
+        return (Vector2D) super.normalize();
+    }
+
+    public double quadraticForm(Matrix m) {
+        return dot(transform(m));
     }
 
     public static Vector2D fromPose(Pose p) {

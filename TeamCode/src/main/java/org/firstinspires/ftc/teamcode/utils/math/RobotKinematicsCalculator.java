@@ -64,11 +64,11 @@ public final class RobotKinematicsCalculator {
     public static Pose getProjectedPoseWithConstantVelocity(
             Pose initialPose,
             double time,
-            Pose velocity
+            Vector velocity,
+            double omega
     ) {
-        double vx = velocity.getX();
-        double vy = velocity.getY();
-        double omega = velocity.getHeading();
+        double vx = velocity.getXComponent();
+        double vy = velocity.getYComponent();
 
         double theta0 = initialPose.getHeading();
 
