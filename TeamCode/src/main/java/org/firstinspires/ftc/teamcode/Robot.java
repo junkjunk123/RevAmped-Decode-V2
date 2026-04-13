@@ -379,25 +379,21 @@ public class Robot {
     public void shootNear() {
         hood.near();
         flywheel.near();
-        GyroThread.offer(TrackState.CLOSE_ONE);
     }
 
     public void shootCorner() {
         hood.corner();
         flywheel.corner();
-        GyroThread.offer(TrackState.CLOSE_ONE);
     }
 
     public void shootFar() {
         flywheel.far();
         hood.far();
-        GyroThread.offer(TrackState.FAR_ONE);
     }
 
     public void shootMedium() {
         hood.medium();
         flywheel.medium();
-        GyroThread.offer(TrackState.CLOSE_ONE);
     }
 
     public void close() {

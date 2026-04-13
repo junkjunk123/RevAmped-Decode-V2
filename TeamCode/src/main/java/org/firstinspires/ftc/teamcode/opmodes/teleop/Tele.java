@@ -109,10 +109,10 @@ public class Tele extends OpModeCommand {
             else robot.drivetrain.stopHoldPose();
         }
 
-        if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootCorner));
-        if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear));
-        if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium));
-        if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar));
+        if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootCorner),new Instant(gyroThread::close));
+        if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear), new Instant(gyroThread::close));
+        if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium), new Instant(gyroThread::close));
+        if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar), new Instant(gyroThread::far));
 
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(
                 new Parallel(
