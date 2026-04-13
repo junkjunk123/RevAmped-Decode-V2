@@ -106,8 +106,7 @@ public class Robot {
     }
 
     public void initialize() {
-        popper.setPosition(Popper.NEUTRAL);
-        table.setPosition(Table.BALL1);
+        //table.setPosition(Table.BALL1);
         turret.move(ServoTurretState.PresetState.REST);
         intakeTilt.intake();
         intakeGate.setClose();
@@ -345,7 +344,6 @@ public class Robot {
                         popper.neutral(),
                         splitter.activate()
                 )
-
         );
     }
 

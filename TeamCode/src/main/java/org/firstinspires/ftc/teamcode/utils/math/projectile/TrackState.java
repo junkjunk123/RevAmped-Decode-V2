@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.math.projectile;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 
 public enum TrackState {
+    REST,
     FAR_ONE,
     FAR_TWO,
     FAR_THREE,

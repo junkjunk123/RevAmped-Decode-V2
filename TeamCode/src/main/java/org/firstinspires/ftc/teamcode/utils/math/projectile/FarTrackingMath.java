@@ -34,11 +34,14 @@ public class FarTrackingMath {
     public static Track CLOSE_3;
     public static Track CLOSE_4;
 
+    public static Track REST;
+
     private Track target;
 
     public FarTrackingMath(Localizer pinpoint) {
         this.pinpoint = pinpoint;
-        target = new Track(Hood.NEAR_PRESET, 0, ServoTurret.REST);
+
+        REST = trackCalibration(ServoTurret.REST, AllianceColor.Blue);
 
         FAR_1 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 10,
                 207/255d, AllianceColor.Red);
@@ -55,6 +58,7 @@ public class FarTrackingMath {
         CLOSE_4 = trackCalibration(-14/255d, AllianceColor.Red);
 
         heatMap = MapBuilder.create(() -> new EnumMap<TrackState, Track>(TrackState.class))
+                .add(TrackState.REST, REST)
                 .add(TrackState.FAR_ONE, FAR_1)
                 .add(TrackState.FAR_TWO, FAR_2)
                 .add(TrackState.FAR_THREE, FAR_3)
@@ -94,14 +98,14 @@ public class FarTrackingMath {
         ), 0, 1);
     }
 
-    public BiConsumer<Flywheel, Hood> setState(TrackState state) {
+    public BiConsumer<Flywheel, Hood> setState(TrackState state, boolean trackTraj) {
         return (f, h) -> {
             this.target = heatMap.get(state);
             if (target == null) throw new IllegalArgumentException();
 
-            if (state.isFar()) {
-                //f.setVelocity(target.flywheelVel());
-                //h.setPosition(target.hoodPos());
+            if (state.isFar() && trackTraj) {
+                f.setVelocity(target.flywheelVel());
+                h.setPosition(target.hoodPos());
             }
         };
     }

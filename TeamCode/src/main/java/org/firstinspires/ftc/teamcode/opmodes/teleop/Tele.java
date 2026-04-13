@@ -43,6 +43,7 @@ public class Tele extends OpModeCommand {
     private boolean transfer;
     private boolean canShoot = true;
     private GyroThread gyroThread;
+    private boolean firstTime = true;
 
     @Override
     public void initialize() {
@@ -51,6 +52,7 @@ public class Tele extends OpModeCommand {
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
         gyroThread = new GyroThread(robot);
+        gyroThread.setState(TrackState.REST);
         prompter = new Prompter(this, gamepad_1)
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
                 .onComplete(() -> Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState))
@@ -69,35 +71,14 @@ public class Tele extends OpModeCommand {
             telemetry.update();
         }));
 
+        tsh.setState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT);
+
         // Initialize robot
         schedule(new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
                 new Wait(500),
-                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
-                tsh.runTransition(
-                    new Sequential(
-                        robot.shootAll(),
-                        new Parallel(
-                                robot.resetShooter(),
-                                new Sequential(
-                                        new Instant(robot.intakeMotor::stop),
-                                        robot.table.reset(),
-                                        new Instant(() -> {
-                                            robot.intakeMotor.intake();
-                                            robot.feederWheel.setIntake();
-                                        }),
-                                        new Parallel(
-                                                robot.popper.neutral(),
-                                                robot.intakeGate.open(),
-                                                new Sequential(
-                                                        new Wait(300),
-                                                        robot.splitter.activate()
-                                                )
-                                        )
-                                )
-                        )
-                    ), RobotStateHandler.CycleState.INTAKE)
+                robot.popper.pop()
             )
         );
     }
@@ -153,7 +134,28 @@ public class Tele extends OpModeCommand {
                         robot.feederWheel.stop();
                     }),
                     new Sequential(
-                            robot.resetTable(),
+                            new Conditional(
+                                    () -> !firstTime,
+                                    robot.resetTableTeleOp(),
+                                    new Sequential(
+                                            new Instant(() -> firstTime = false),
+                                            new Parallel(
+                                                    new Instant(robot.intakeMotor::stop),
+                                                    robot.intakeGate.open(),
+                                                    robot.table.reset()),
+                                            new Instant(() -> {
+                                                robot.intakeMotor.intake();
+                                                robot.feederWheel.setIntake();
+                                            }),
+                                            new Parallel(
+                                                    new Sequential(
+                                                            robot.popper.neutral(),
+                                                            new Wait(200)
+                                                    ),
+                                                    robot.splitter.activate()
+                                            )
+                                    )
+                            ),
                             new Parallel(
                                     robot.intakeGate.open(),
                                     robot.splitter.activate()
@@ -305,9 +307,5 @@ public class Tele extends OpModeCommand {
                 schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
             }
         }
-        telemetry.addData("Ball amount",robot.tableCompartments.intakeThread.getNumBalls());
-        telemetry.addData("hypothetical amount",robot.tableCompartments.intakeThread.getHypotheticalNumBalls());
-        telemetry.addData("compartments", Arrays.toString(robot.tableCompartments.intakeThread.getColors()));
-        telemetry.update();
     }
 }

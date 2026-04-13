@@ -34,7 +34,7 @@ public class GyroThread {
 
     public void setState(TrackState state) {
         isFar = state.isFar();
-        tracker.setState(state).accept(flywheel, hood);
+        tracker.setState(state, trackTraj).accept(flywheel, hood);
     }
 
     public static void offer(TrackState state) {
@@ -42,7 +42,7 @@ public class GyroThread {
     }
 
     public void update() {
-        turret.setPosition(tracker.update());
+        if (trackTurret) turret.setPosition(tracker.update());
     }
 
     public boolean isFar() {
