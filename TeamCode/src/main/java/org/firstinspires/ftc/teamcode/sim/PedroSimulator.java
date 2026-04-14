@@ -8,11 +8,11 @@ public class PedroSimulator {
     private PedroRobot robot;
 
     public PedroSimulator() {
-        robot = new PedroRobot();
+        //robot = new PedroRobot();
     }
 
     public void update() {
-        robot.update();
+        //robot.update();
     }
 
     public double elapsedTime() {

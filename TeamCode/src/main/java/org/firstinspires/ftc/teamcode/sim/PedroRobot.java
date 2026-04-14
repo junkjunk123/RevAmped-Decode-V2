@@ -1,14 +1,8 @@
 package org.firstinspires.ftc.teamcode.sim;
 
-import android.app.Application;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeManagerNotifier;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.utils.math.Ellipse2D;
 import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 
@@ -22,7 +16,7 @@ public class PedroRobot {
         this.follower = follower;
         this.velocityEllipse = velocityEllipse;
         this.maxAngularVel = maxAngularVel;
-        localizer = new PedroRobotLocalizer(this);
+        localizer = new PedroRobotLocalizer();
         localizer.setStartPose(startPose);
     }
 

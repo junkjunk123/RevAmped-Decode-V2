@@ -7,14 +7,9 @@ import com.pedropathing.math.Vector;
 import org.firstinspires.ftc.teamcode.utils.math.RobotKinematicsCalculator;
 
 public class PedroRobotLocalizer implements Localizer {
-    private final PedroRobot robot;
     private Pose currentPose;
     private Vector velocity;
     private double angularVelocity;
-
-    public PedroRobotLocalizer(PedroRobot robot) {
-        this.robot = robot;
-    }
 
     @Override
     public Pose getPose() {
