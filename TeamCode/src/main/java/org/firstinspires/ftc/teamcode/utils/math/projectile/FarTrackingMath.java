@@ -43,14 +43,14 @@ public class FarTrackingMath {
 
         REST = trackCalibration(ServoTurret.REST, AllianceColor.Blue);
 
-        FAR_1 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 10,
-                207/255d, AllianceColor.Red);
-        FAR_2 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 20,
-                218/255d, AllianceColor.Red);
-        FAR_3 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY,
+        FAR_1 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 15,
                 213/255d, AllianceColor.Red);
-        FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 30,
-                222/255d, AllianceColor.Red);
+        FAR_2 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 5,
+                218/255d, AllianceColor.Red);
+        FAR_3 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 15,
+                228/255d, AllianceColor.Red);
+        FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 25,
+                229/255d, AllianceColor.Red);
 
         CLOSE_1 = trackCalibration(233/255d, AllianceColor.Red);
         CLOSE_2 = trackCalibration(250/255d, AllianceColor.Red);
