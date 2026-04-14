@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils.math.projectile;
 
-import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.normalizeAnglePi;
-import static org.firstinspires.ftc.teamcode.utils.math.projectile.ShooterMath.velocityCompensation;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
 import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
+import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.normalizeAnglePi;
+import static org.firstinspires.ftc.teamcode.utils.math.projectile.ShooterMath.velocityCompensation;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
-import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
 import java.util.Arrays;
 

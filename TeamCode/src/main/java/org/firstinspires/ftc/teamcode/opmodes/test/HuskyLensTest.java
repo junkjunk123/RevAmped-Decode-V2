@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;

@@ -8,11 +8,9 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
-import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 
-import java.nio.channels.NonReadableChannelException;
 import java.util.Arrays;
 
 @TeleOp

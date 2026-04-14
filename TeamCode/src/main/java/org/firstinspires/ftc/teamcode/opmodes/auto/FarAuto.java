@@ -5,7 +5,6 @@ import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
-import com.pedropathing.ivy.groups.Deadline;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -19,12 +18,9 @@ import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.Loop;
-import org.firstinspires.ftc.teamcode.utils.data.AtomicReadOnce;
 import org.firstinspires.ftc.teamcode.utils.math.Z3Element;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 
 public class FarAuto extends OpModeCommand {
     private Robot robot;

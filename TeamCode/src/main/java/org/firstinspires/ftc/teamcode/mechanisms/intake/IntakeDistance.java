@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.teamcode.utils.data.BooleanPeriod;
+
 import org.firstinspires.ftc.teamcode.utils.control.FirstOrderLowPass;
+import org.firstinspires.ftc.teamcode.utils.data.BooleanPeriod;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDistance;
 
 //Eric Debug Thanks

@@ -6,11 +6,11 @@ import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Vector;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
-import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 
 @Config
 public class TrackingThread {

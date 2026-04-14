@@ -9,7 +9,6 @@ import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
-import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 
 import java.util.Arrays;

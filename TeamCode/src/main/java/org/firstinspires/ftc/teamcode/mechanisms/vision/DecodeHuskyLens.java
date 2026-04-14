@@ -5,9 +5,9 @@ import androidx.annotation.NonNull;
 import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwDevice;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 
 import java.util.Comparator;
 import java.util.function.ToDoubleFunction;

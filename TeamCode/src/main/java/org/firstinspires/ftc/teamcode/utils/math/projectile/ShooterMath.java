@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.utils.math.projectile;
 
-import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.normalizeAnglePi;
-import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.servoPosFromRad;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.RAD_LIMIT;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret.TICKS_LIMIT;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
+import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.normalizeAnglePi;
+import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.servoPosFromRad;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
@@ -13,11 +13,11 @@ import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.math.MathUtil;
 import org.firstinspires.ftc.teamcode.utils.math.RobotKinematicsCalculator;
 import org.firstinspires.ftc.teamcode.utils.math.calc.Vector3D;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
-import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
 @Config
 public class ShooterMath {

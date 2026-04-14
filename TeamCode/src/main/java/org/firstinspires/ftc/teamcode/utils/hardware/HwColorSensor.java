@@ -9,9 +9,9 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.math.calc.HSVValue;
 import org.firstinspires.ftc.teamcode.utils.math.calc.RGBValue;
-import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 
 public abstract class HwColorSensor implements HwDevice {
     private ArtifactColor color;

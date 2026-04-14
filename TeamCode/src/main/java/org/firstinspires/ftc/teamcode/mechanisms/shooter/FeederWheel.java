@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 
 @Config
