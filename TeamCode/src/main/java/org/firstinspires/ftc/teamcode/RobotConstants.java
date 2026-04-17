@@ -23,7 +23,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 213/255f; Popper.NEUTRAL = 133/255f; Popper.BLOCK = 195/255f;
+        Popper.POP = 217/255f; Popper.NEUTRAL = 133/255f; Popper.BLOCK = 195/255f;
 
         FeederWheel.TARGET_VEL = 2500;
 
@@ -61,13 +61,13 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_4 = turretPos.apply(5/255d);
         ServoTurret.UNSORTED_SET_5 = turretPos.apply(5/255d);
 
-        ServoTurret.EIGHTEEN_PRELOADS = turretPosInv.apply(216/255d);
-        ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(252/255d);
+        ServoTurret.EIGHTEEN_PRELOADS = turretPosInv.apply(212/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(250/255d);
         ServoTurret.EIGHTEEN_DETECTION = ServoTurret.REST;
         ServoTurret.EIGHTEEN_SECOND_SET = turretPosInv.apply(200/255d);
         ServoTurret.EIGHTEEN_GATE_SHOOT = turretPosInv.apply(190/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = turretPosInv.apply(202/255d);
-        ServoTurret.EIGHTEEN_FOURTH_SET = turretPosInv.apply(192/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET = turretPosInv.apply(196/255d);
+        ServoTurret.EIGHTEEN_FOURTH_SET = turretPosInv.apply(186/255d);
 
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;
