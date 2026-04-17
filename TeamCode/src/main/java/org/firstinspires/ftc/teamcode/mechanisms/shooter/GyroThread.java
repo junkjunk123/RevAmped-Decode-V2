@@ -42,6 +42,10 @@ public class GyroThread {
     }
 
     public void update() {
+        update(GyroThread.trackTurret);
+    }
+
+    public void update(boolean trackTurret) {
         if (trackTurret) turret.setPosition(tracker.update());
     }
 

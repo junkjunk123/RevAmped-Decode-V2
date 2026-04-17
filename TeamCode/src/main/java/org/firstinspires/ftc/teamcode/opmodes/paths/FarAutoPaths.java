@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 @Configurable
 public class FarAutoPaths implements PathSupplier {
-    public static ColoredDecodePose START_POSE = new ColoredDecodePose(58, 8.75, Math.PI);
+    public static ColoredDecodePose START_POSE = new ColoredDecodePose(61, 8.75, Math.PI);
     public static ColoredDecodePose PRELOAD_SHOOT = new ColoredDecodePose(58, 20, Math.toRadians(150));
     public static ColoredDecodePose INTAKE_FIRST_SET = new ColoredDecodePose(15, 36);
     public static ColoredDecodePose FIRST_INTAKE_CONTROL = new ColoredDecodePose(45, 36);
@@ -43,14 +43,8 @@ public class FarAutoPaths implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-        FollowParameters shootPreloads = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(START_POSE, PRELOAD_SHOOT))
-                .setLinearHeadingInterpolation(START_POSE.getHeading(), PRELOAD_SHOOT.getHeading())
-                .build()
-        );
-
         FollowParameters intakeFirstSet = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(PRELOAD_SHOOT, FIRST_INTAKE_CONTROL, INTAKE_FIRST_SET))
+                .addPath(ColoredDecodePose.makeBezier(START_POSE, FIRST_INTAKE_CONTROL, INTAKE_FIRST_SET))
                 .build()
         );
 
@@ -66,7 +60,7 @@ public class FarAutoPaths implements PathSupplier {
         );
 
         FollowParameters shootSecondSet = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(INTAKE_FIRST_SET, SHOOT_SECOND_SET))
+                .addPath(ColoredDecodePose.makeBezier(INTAKE_SECOND_SET, SHOOT_SECOND_SET))
                 .setReversed()
                 .build()
         );
@@ -116,19 +110,16 @@ public class FarAutoPaths implements PathSupplier {
         );
 
         Supplier<List<FollowParameters>> cycle = () -> List.of(
-                intakeNear, shootNear.get(),
-                intakeMiddle.get(), shootMiddle.get(),
-                intakeFar.get(), shootFar.get()
+                intakeMiddle.get(), shootMiddle.get(), intakeFar.get(), shootFar.get(),
+                intakeNear, shootNear.get()
         );
 
         ArrayList<FollowParameters> paths = new ArrayList<>(312);
 
         paths.addAll(List.of(
-                shootPreloads, intakeFirstSet, shootFirstSet,
+                intakeFirstSet, shootFirstSet,
                 intakeSecondSet, shootSecondSet,
-                intakeNearOne, shootNear.get(),
-                intakeMiddle.get(), shootMiddle.get(),
-                intakeFar.get(), shootFar.get()
+                intakeNearOne, shootNear.get()
         ));
 
         for (int i = 0; i < 50; i++) {

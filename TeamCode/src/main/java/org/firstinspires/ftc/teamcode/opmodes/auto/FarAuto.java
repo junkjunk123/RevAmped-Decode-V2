@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
@@ -10,15 +11,16 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
-import org.firstinspires.ftc.teamcode.utils.commands.Loop;
 import org.firstinspires.ftc.teamcode.utils.math.Z3Element;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,80 +28,103 @@ public class FarAuto extends OpModeCommand {
     private Robot robot;
     private GyroThread gyroThread;
     private final ElapsedTime overallTimer = new ElapsedTime();
-    private Z3Element cyclePath;
+    private Z3Element cyclePath = new Z3Element(-1);
+    private boolean stop = false;
 
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap, new FarAutoPaths());
         gyroThread = new GyroThread(robot);
+        gyroThread.setState(TrackState.FAR_ONE);
 
         schedule(
-                new Instant(overallTimer::reset),
-                new Instant(() -> {
-                    robot.flywheel.far();
-                    robot.hood.far();
-                    robot.feederWheel.start();
-                    robot.popper.popCommandless();
+                new Infinite(() -> {
+                    robot.update();
+                    gyroThread.update(true);
+                    Pose pose = robot.drivetrain.follower.getPose();
+                    if (pose.distanceFrom(new Pose()) > 0.01) Drivetrain.startPose = robot.drivetrain.follower.getPose();
                 }),
-                new Wait(800),
-                robot.autoFastShoot(),
-                new Parallel(
-                        intake(false),
-                        robot.drivetrain.follow(),
-                        new Instant(() -> robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 5))
-                ),
-                new Wait(300),
-                new Parallel(
-                        robot.drivetrain.follow(),
-                        new Sequential(
-                                new Wait(600),
-                                transfer()
-                        ),
+                new Instant(overallTimer::reset),
+                new Sequential(
                         new Instant(() -> {
-                            robot.turret.setPosition(ServoTurret.EIGHTEEN_FIRST_SET);
+                            robot.hood.far();
+                            robot.flywheel.far();
                             robot.feederWheel.start();
-                        })
-                ),
-                robot.autoFastShoot(),
-                new Parallel(
-                        intake(true),
-                        robot.drivetrain.follow()
-                ),
-                new Parallel(
-                        robot.drivetrain.follow(),
-                        new Instant(() -> {
-                            robot.feederWheel.start();
-                            robot.turret.setPosition(ServoTurret.EIGHTEEN_SECOND_SET);
+                            robot.popper.popCommandless();
                         }),
-                        transfer()
-                ),
-                robot.autoFastShoot(),
-                new Parallel(
-                        new WaitUntil(() -> overallTimer.seconds() > 29),
-                        new Loop(cycle()),
-                        new Infinite(() -> gyroThread.update())
-                ),
-                robot.drivetrain.followLast(d -> d.velocityCondition(4))
+                        new Wait(800),
+                        shoot(),
+                        new Parallel(
+                                intake(),
+                                new Sequential(
+                                        new Wait(400),
+                                        robot.drivetrain.follow()
+                                )
+                        ),
+                        new Wait(250),
+                        new Parallel(
+                                robot.drivetrain.follow(),
+                                new Sequential(
+                                        new Wait(200),
+                                        transferLate()
+                                ),
+                                new Instant(() -> {robot.feederWheel.start(); robot.flywheel.far();})
+                        ),
+                        shoot(),
+                        new Parallel(
+                                intake(),
+                                robot.drivetrain.follow()
+                        ),
+                        new Wait(250),
+                        new Parallel(
+                                robot.drivetrain.follow(),
+                                new Instant(() -> {robot.feederWheel.start(); robot.flywheel.far();}),
+                                new Sequential(
+                                        new Wait(200),
+                                        transferLate()
+                                )
+                        ),
+                        shoot(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle(),
+                        cycle()
+                )
         );
     }
 
     public ICommand cycle() {
-        AtomicInteger selectedPath = new AtomicInteger();
         return new Sequential(
                 new Parallel(
-                        intake(true),
-                        new Instant(() -> selectedPath.set(selectPath())),
-                        followCycle(selectedPath)
+                        intake(),
+                        robot.drivetrain.follow()
                 ),
+                new Wait(250),
                 new Parallel(
-                        followCycle(selectedPath),
+                        robot.drivetrain.follow(),
                         new Instant(() -> {
+                            robot.flywheel.far();
                             robot.feederWheel.start();
-                            robot.turret.setPosition(ServoTurret.EIGHTEEN_SECOND_SET);
                         }),
-                        transfer()
+                        new Sequential(
+                                new Wait(200),
+                                transferLate()
+                        )
                 ),
-                robot.autoFastShoot()
+                shoot()
         );
     }
 
@@ -121,33 +146,62 @@ public class FarAuto extends OpModeCommand {
         );
     }
 
-    public ICommand intake(boolean stopShooter) {
+    public ICommand shoot() {
+        return new Sequential(
+                new Instant(() -> robot.intakeMotor.stop()),
+                robot.autoFastShoot()
+        );
+    }
+
+    public ICommand intake() {
         return new Sequential(
                 new Instant(() -> {
-                    if (stopShooter) {
-                        robot.flywheel.stop();
-                        robot.feederWheel.intakeState();
-                    }
+                    robot.flywheel.stop();
+                    robot.feederWheel.intakeState();
                 }),
                 new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
-                new Wait(725),
+                new Wait(300),
                 new Parallel(
-                        robot.popper.neutral(),
+                        new Sequential(
+                                new Wait(300),
+                                robot.popper.neutral()
+                        ),
                         robot.intake()
                 )
         );
     }
 
     public ICommand transfer() {
-        return new Parallel(
-                new Instant(() -> robot.intakeTilt.transfer()),
+        return new Conditional(
+                () -> robot.intakeDistance.hasArtifact(),
                 new Sequential(
-                        new Wait(200),
-                        new Instant(robot.intakeMotor::outtake)
+                        new Instant(() -> {robot.intakeTilt.transfer(); robot.intakeMotor.outtake();}),
+                        new Wait(600),
+                        robot.popper.pop(),
+                        robot.splitter.neutral(),
+                        robot.intakeGate.close()
                 ),
-                robot.popper.pop(),
-                robot.splitter.neutral(),
-                robot.intakeGate.close()
+                new Sequential(
+                        new Parallel(
+                                robot.intakeGate.close(),
+                                new Wait(600)
+                        ),
+                        new Instant(() -> {robot.intakeTilt.transfer(); robot.intakeMotor.outtake();}),
+                        robot.popper.pop(),
+                        robot.splitter.neutral()
+                )
+        );
+    }
+
+    public ICommand transferLate() {
+        return new Sequential(
+                new Wait(600),
+                new Instant(() -> {robot.intakeTilt.transfer(); robot.intakeMotor.outtake();}),
+                new Parallel(
+                        robot.popper.pop(),
+                        robot.splitter.neutral(),
+                        robot.intakeGate.close()
+                )
         );
     }
 }

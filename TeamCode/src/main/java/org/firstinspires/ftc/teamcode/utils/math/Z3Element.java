@@ -8,6 +8,10 @@ public class Z3Element {
         val = element % 3;
     }
 
+    public Z3Element() {
+        this(0);
+    }
+
     public int getVal() {
         return val;
     }

@@ -1,18 +1,16 @@
 package org.firstinspires.ftc.teamcode.opmodes.colorautos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.opmodes.auto.FifteenSorted;
+import org.firstinspires.ftc.teamcode.opmodes.auto.FarAuto;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
 @Autonomous
-@Disabled
-public class RedFifteenSorted extends FifteenSorted {
+public class BlueFarAuto extends FarAuto {
     @Override
     public void initialize() {
-        Globals.setAllianceColor(AllianceColor.Red);
+        Globals.setAllianceColor(AllianceColor.Blue);
         super.initialize();
     }
 }

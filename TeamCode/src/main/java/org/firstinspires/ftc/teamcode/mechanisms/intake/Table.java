@@ -152,6 +152,31 @@ public class Table extends HwServo {
         });
     }
 
+    public ICommand setRelativeState(Supplier<RelativeState> relativeState, boolean overrideLowk) {
+        AtomicReadOnce<RelativeState> stateVal = new AtomicReadOnce<>(relativeState);
+        AtomicReadOnce<Double> accelTime = getAccelerationTime(true);
+        return new Lazy(() -> {
+            if (!overrideLowk && atPos(stateVal.read().target())) return Commands.NOOP;
+            return stateHandler.runTransition(
+                    new Sequential(
+                            new Instant(() -> {
+                                distance.set(Math.abs(stateVal.read().target() - getPosition()));
+                                setPosition(stateVal.read().target());
+                            }),
+                            useEncoder ? new Race(
+                                    new Sequential(
+                                            new Wait(accelTime.read()),
+                                            new WaitUntil(() -> Math.abs(encoder.getVelocity()) < VELOCITY_THRESHOLD)
+                                    ),
+                                    new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION))
+                            ) : new Wait(Math.min(Math.abs(distance.get() / FULL_REVOLUTION * MS_PER_REVOLUTION), MS_PER_REVOLUTION - 150)),
+                            new Instant(() -> atRelativeState = true)
+                    ),
+                    stateVal::read
+            );
+        });
+    }
+
     public void setStateCommandless(RelativeState relativeState) {
         stateHandler.setCurrentState(relativeState);
         setPosition(relativeState.target());

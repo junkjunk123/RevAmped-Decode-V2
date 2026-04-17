@@ -52,6 +52,7 @@ public class Drivetrain {
     public static double MAX_LAMBDA = 0.95;
     public static double MAX_VELOCITY = 76;
     public static boolean tipCorrection = false;
+    public static Function<Drivetrain, Boolean> isDone = d -> d.velocityCondition(4);
 
     public Drivetrain(HardwareMap hardwareMap) {
         follower = Constants.createFollowerTeleOp(hardwareMap);

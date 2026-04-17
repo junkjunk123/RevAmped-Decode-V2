@@ -87,6 +87,11 @@ public class Popper extends HwServo {
         setPosition(POP);
         stateMachine.setCurrentState(PopperState.POP);
     }
+    public void neutralCommandless() {
+        setPosition(NEUTRAL);
+        stateMachine.setCurrentState(PopperState.NEUTRAL);
+    }
+
 
     public String getState() {
         return stateMachine.getPendingState().name();

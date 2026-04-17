@@ -106,7 +106,11 @@ public class Robot {
     }
 
     public void initialize() {
-        //table.setPosition(Table.BALL1);
+        if (!Globals.isTeleOp) {
+            table.setPosition(Table.BALL1);
+            popper.neutralCommandless();
+        }
+
         turret.move(ServoTurretState.PresetState.REST);
         intakeTilt.intake();
         intakeGate.setClose();
@@ -260,18 +264,39 @@ public class Robot {
                     intakeTilt.intake();
                     intakeGate.open();
                 }),
-                new Lazy(() -> {
-                    float pos = switch (table.getState()) {
-                        case BALL0 -> Table.BALL0_END;
-                        case BALL1 -> Table.BALL1_END;
-                        case BALL2 -> Table.BALL2_END;
-                    };
+                new Conditional(
+                        () -> hood.atState(Hood.HoodState.FAR),
+                        new Parallel(
+                                new Sequential(
+                                        new Wait(50),
+                                        new Instant(hood::farHoodComp)
+                                ),
+                                new Lazy(() -> {
+                                    float pos = switch (table.getState()) {
+                                        case BALL0 -> Table.BALL0_END;
+                                        case BALL1 -> Table.BALL1_END;
+                                        case BALL2 -> Table.BALL2_END;
+                                    };
 
-                    return new Sequential(
-                            new Instant(() -> table.setPosition(pos)),
-                            new Wait(650)
-                    );
-                })
+                                    return new Sequential(
+                                            new Instant(() -> table.setPosition(pos)),
+                                            new Wait(500)
+                                    );
+                                })
+                        ),
+                        new Lazy(() -> {
+                            float pos = switch (table.getState()) {
+                                case BALL0 -> Table.BALL0_END;
+                                case BALL1 -> Table.BALL1_END;
+                                case BALL2 -> Table.BALL2_END;
+                            };
+
+                            return new Sequential(
+                                    new Instant(() -> table.setPosition(pos)),
+                                    new Wait(500)
+                            );
+                        })
+                )
         );
     }
 
