@@ -26,7 +26,6 @@ public class FarAuto extends OpModeCommand {
     private GyroThread gyroThread;
     private final ElapsedTime overallTimer = new ElapsedTime();
     private Z3Element cyclePath = new Z3Element(-1);
-    private boolean stop = false;
 
     @Override
     public void initialize() {
