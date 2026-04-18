@@ -34,6 +34,7 @@ public class ServoTurret extends HwServo {
     public static double EIGHTEEN_GATE_SHOOT;
     public static double EIGHTEEN_THIRD_SET;
     public static double EIGHTEEN_FOURTH_SET;
+    public static double EIGHTEEN_FIFTH_SET;
 
     public static double AUTO_PRELOADS;
     public static double AUTO_SET_1;

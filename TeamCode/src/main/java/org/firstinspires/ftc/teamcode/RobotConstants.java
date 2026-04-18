@@ -40,7 +40,7 @@ public class RobotConstants {
         Hood.FAR_PRESET = 129/255f; Hood.NEAR_PRESET = 51/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
-        //Turret Constants
+        //Turret Constants - = left + = right
         ServoTurret.REST = 132/255f;
 
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
@@ -62,12 +62,13 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_5 = turretPos.apply(5/255d);
 
         ServoTurret.EIGHTEEN_PRELOADS = turretPosInv.apply(212/255d);
-        ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(250/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(249/255d);
         ServoTurret.EIGHTEEN_DETECTION = ServoTurret.REST;
-        ServoTurret.EIGHTEEN_SECOND_SET = turretPosInv.apply(200/255d);
+        ServoTurret.EIGHTEEN_SECOND_SET = turretPosInv.apply(194/255d);
         ServoTurret.EIGHTEEN_GATE_SHOOT = turretPosInv.apply(190/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = turretPosInv.apply(196/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET = turretPosInv.apply(198/255d);
         ServoTurret.EIGHTEEN_FOURTH_SET = turretPosInv.apply(186/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET = turretPosInv.apply(217/255d);
 
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;
