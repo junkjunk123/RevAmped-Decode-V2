@@ -18,7 +18,7 @@ public class EighteenPaths implements PathSupplier {
     public static ColoredDecodePose FIRST_INTAKE = new ColoredDecodePose(10, 9, Math.toRadians(180));
     public static ColoredDecodePose FIRST_SHOOT = new ColoredDecodePose(55, 18, Math.toRadians(140));
     public static ColoredDecodePose SECOND_INTAKE_CONTROL = new ColoredDecodePose(52, 58);
-    public static ColoredDecodePose SECOND_INTAKE = new ColoredDecodePose(14, 58);
+    public static ColoredDecodePose SECOND_INTAKE = new ColoredDecodePose(10, 58);
 
     public static ColoredDecodePose SECOND_SHOOT_CONTROL = new ColoredDecodePose(40, 60);
     public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(57, 77);
@@ -26,7 +26,7 @@ public class EighteenPaths implements PathSupplier {
     public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(33, 62);
     public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(50, 88);
 
-    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(9.5, 58, Math.toRadians(150));
+    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(9.5, 57, Math.toRadians(150));
 
     public static ColoredDecodePose THIRD_INTAKE_CONTROL = new ColoredDecodePose(48, 84);
     public static ColoredDecodePose THIRD_INTAKE = new ColoredDecodePose(19, 84, Math.toRadians(180));
@@ -34,7 +34,7 @@ public class EighteenPaths implements PathSupplier {
     public static ColoredDecodePose THIRD_SHOOT = new ColoredDecodePose(50, 88, Math.toRadians(225));
 
     public static ColoredDecodePose FOURTH_INTAKE_CONTROL = new ColoredDecodePose(18, 67);
-    public static ColoredDecodePose FOURTH_INTAKE = new ColoredDecodePose(20, 38);
+    public static ColoredDecodePose FOURTH_INTAKE = new ColoredDecodePose(20, 33);
 
     public static ColoredDecodePose PARK = new ColoredDecodePose(41, 73);
 

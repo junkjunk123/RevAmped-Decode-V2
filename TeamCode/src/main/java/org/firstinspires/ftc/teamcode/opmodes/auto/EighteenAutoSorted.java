@@ -47,6 +47,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(overallTimer::reset),
                         new Instant(() -> {
+                            //Preloads=======
                             robot.flywheel.far();
                             robot.hood.far();
                             robot.feederWheel.start();
@@ -64,10 +65,12 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 new Wait(800)
                         ),
                         robot.autoFastShoot(),
+
+                        //First set=====
                         new Parallel(
                                 intake(false),
                                 robot.drivetrain.follow(),
-                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 5))
+                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 25))
                         ),
                         new Wait(250),
                         new Parallel(
@@ -82,6 +85,8 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 })
                         ),
                         robot.autoFastShoot(),
+
+                        //Second set=======
                         new Parallel(
                                 intake(true),
                                 robot.drivetrain.follow()
@@ -96,6 +101,8 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 transfer()
                         ),
                         robot.autoFastShoot(),
+
+                        //Third Set=======
                         new Parallel(
                                 intakeFromGate(),
                                 robot.drivetrain.follow()
@@ -118,6 +125,8 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 new Instant(() -> robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY + 10))
                         ),
                         robot.autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY),
+
+                        //fourth set========
                         new Parallel(
                                 intake(true),
                                 robot.drivetrain.follow(),
