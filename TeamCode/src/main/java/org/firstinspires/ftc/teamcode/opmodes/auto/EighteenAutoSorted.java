@@ -249,7 +249,11 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 robot.intake()
                         )
                 ),
-                new Wait(1600)
+                new Race(
+                    new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                    new Wait(1600)
+                )
+
                 /*
                 new Race(
                         new Wait(1200),

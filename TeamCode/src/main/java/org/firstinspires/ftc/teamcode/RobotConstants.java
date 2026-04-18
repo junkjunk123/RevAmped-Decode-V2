@@ -95,7 +95,7 @@ public class RobotConstants {
         ColorManager.maxGreenHueTwo = 165.0f; ColorManager.minGreenHueTwo = 155.0f;
 
         //ColorSensor Constants
-        DecodeColorSensor.DISTANCE_MAX = 40.0f;
+        DecodeColorSensor.DISTANCE_MAX = 60.0f;
         DecodeColorSensor.GREEN_MAX = 170.0f; DecodeColorSensor.GREEN_MIN = 150.0f;
         DecodeColorSensor.PURPLE_MAX = 250.0f; DecodeColorSensor.PURPLE_MIN = 200.0f;
     }

@@ -305,5 +305,6 @@ public class Tele extends OpModeCommand {
                 schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
             }
         }
+        telemetry.addData("num balls",robot.tableCompartments.intakeThread.getNumBalls());
     }
 }
