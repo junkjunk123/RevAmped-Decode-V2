@@ -5,7 +5,6 @@ import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
-import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -16,8 +15,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
-import org.firstinspires.ftc.teamcode.utils.commands.Commands;
-import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.math.Z3Element;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
@@ -66,9 +63,9 @@ public class FarAuto extends OpModeCommand {
                                 robot.drivetrain.follow(),
                                 new Sequential(
                                         new Wait(200),
-                                        transferLate()
+                                        transfer()
                                 ),
-                                new Instant(() -> {robot.feederWheel.start(); robot.flywheel.far();})
+                                new Instant(() -> robot.flywheel.far())
                         ),
                         shoot(),
                         new Parallel(
@@ -78,10 +75,10 @@ public class FarAuto extends OpModeCommand {
                         new Wait(250),
                         new Parallel(
                                 robot.drivetrain.follow(),
-                                new Instant(() -> {robot.feederWheel.start(); robot.flywheel.far();}),
+                                new Instant(() -> robot.flywheel.far()),
                                 new Sequential(
                                         new Wait(200),
-                                        transferLate()
+                                        transfer()
                                 )
                         ),
                         shoot(),
@@ -115,13 +112,10 @@ public class FarAuto extends OpModeCommand {
                 new Wait(250),
                 new Parallel(
                         robot.drivetrain.follow(),
-                        new Instant(() -> {
-                            robot.flywheel.far();
-                            robot.feederWheel.start();
-                        }),
+                        new Instant(() -> robot.flywheel.far()),
                         new Sequential(
                                 new Wait(200),
-                                transferLate()
+                                transfer()
                         )
                 ),
                 shoot()
@@ -172,35 +166,17 @@ public class FarAuto extends OpModeCommand {
     }
 
     public ICommand transfer() {
-        return new Conditional(
-                () -> robot.intakeDistance.hasArtifact(),
-                new Sequential(
-                        new Instant(() -> {robot.intakeTilt.transfer(); robot.intakeMotor.outtake();}),
-                        new Wait(600),
-                        robot.popper.pop(),
-                        robot.splitter.neutral(),
-                        robot.intakeGate.close()
-                ),
-                new Sequential(
-                        new Parallel(
-                                robot.intakeGate.close(),
-                                new Wait(600)
-                        ),
-                        new Instant(() -> {robot.intakeTilt.transfer(); robot.intakeMotor.outtake();}),
-                        robot.popper.pop(),
-                        robot.splitter.neutral()
-                )
-        );
-    }
-
-    public ICommand transferLate() {
         return new Sequential(
                 new Wait(600),
-                new Instant(() -> {robot.intakeTilt.transfer(); robot.intakeMotor.outtake();}),
+                new Instant(() -> {
+                    robot.intakeTilt.transfer();
+                    robot.intakeMotor.outtake();
+                }),
                 new Parallel(
                         robot.popper.pop(),
                         robot.splitter.neutral(),
-                        robot.intakeGate.close()
+                        robot.intakeGate.close(),
+                        new Instant(() -> robot.feederWheel.start())
                 )
         );
     }
