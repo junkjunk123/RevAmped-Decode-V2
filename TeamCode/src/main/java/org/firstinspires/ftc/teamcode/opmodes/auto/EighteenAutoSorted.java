@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import android.support.v4.app.INotificationSideChannel;
+
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
@@ -13,8 +15,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.EighteenPaths;
@@ -40,15 +44,17 @@ public class EighteenAutoSorted extends OpModeCommand {
         schedule(
                 new Infinite(() -> {
                     robot.update();
+                    robot.tableCompartments.intakeThread.update();
                     Pose pose = robot.drivetrain.follower.getPose();
                     if (pose.distanceFrom(new Pose()) > 0.01) Drivetrain.startPose = robot.drivetrain.follower.getPose();
+
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(overallTimer::reset),
                         new Instant(() -> {
                             //Preloads=======
-                            robot.flywheel.far();
+                            robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 20);
                             robot.hood.far();
                             robot.feederWheel.start();
                             robot.popper.popCommandless();
@@ -65,8 +71,12 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 new Wait(800)
                         ),
                         robot.autoFastShoot(),
+                        new Parallel(
+                                robot.intake(),
+                                robot.intakeGate.open()
+                        ),
 
-                        //First set=====
+                        //Second set=====
                         new Parallel(
                                 intake(false),
                                 robot.drivetrain.follow(),
@@ -86,7 +96,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                         ),
                         robot.autoFastShoot(),
 
-                        //Second set=======
+                        //Third set=======
                         new Parallel(
                                 intake(true),
                                 robot.drivetrain.follow()
@@ -95,22 +105,34 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 robot.drivetrain.follow(),
                                 new Instant(() -> {
                                     robot.hood.medium();
-                                    robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 40);
+                                    robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 10);
                                     robot.turret.setPosition(ServoTurret.EIGHTEEN_SECOND_SET);
                                 }),
                                 transfer()
                         ),
                         robot.autoFastShoot(),
 
-                        //Third Set=======
+                        //Fourth Set=======
                         new Parallel(
                                 intakeFromGate(),
-                                robot.drivetrain.follow()
+                                robot.drivetrain.follow(),
+                                new Instant(() -> {
+                                    robot.hood.near();
+                                    robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY+15);
+                                })
+                        ),
+                        new Sequential(
+                                new Parallel(
+                                    robot.drivetrain.follow(),
+                                    new Instant(() -> robot.intakeMotor.outtake())
+                                ),
+                                new Wait(1500)
                         ),
                         new Parallel(
                                 robot.drivetrain.follow(),
                                 shootFromGate(() -> Globals.randomizationState != null)
                         ),
+                        //Fifth set=======
                         new Parallel(
                                 intake(true),
                                 new Sequential(
@@ -122,21 +144,30 @@ public class EighteenAutoSorted extends OpModeCommand {
                         new Parallel(
                                 robot.drivetrain.follow(),
                                 transferSorted(),
-                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY + 10))
+                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY))
                         ),
                         robot.autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY),
 
-                        //fourth set========
+                        //Sixth set========
                         new Parallel(
                                 intake(true),
-                                robot.drivetrain.follow(),
-                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_FOURTH_SET))
+                                new Race(
+                                    new Parallel(
+                                        robot.drivetrain.follow(),
+                                        new Wait(300)
+                                        ),
+                                    new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3)
+                                ),
+                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_FIFTH_SET))
                         ),
-                        new Wait(300),
                         new Parallel(
                                 robot.drivetrain.follow(),
                                 transferSorted(),
-                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY + 10))
+                                new Instant(() -> {
+                                    robot.hood.far();
+                                    robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY-50);
+                                    robot.feederWheel.start();
+                                })
                         ),
                         robot.autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY),
                         new Parallel(
@@ -243,7 +274,11 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 robot.intake()
                         )
                 ),
-                new Wait(1100)
+                new Race(
+                    new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                    new Wait(1600)
+                )
+
                 /*
                 new Race(
                         new Wait(1200),

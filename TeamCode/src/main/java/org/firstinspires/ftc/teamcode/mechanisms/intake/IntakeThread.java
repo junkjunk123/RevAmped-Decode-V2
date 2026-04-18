@@ -18,13 +18,21 @@ import java.util.stream.IntStream;
 //Eric Debug Thanks
 public class IntakeThread {
     public static boolean useSensors;
-    public static double COLOR_DETECTION_DELAY = 50;
-    public static int COLOR_DETECTION_PERIOD;
+    public static double COLOR_DETECTION_DELAY = 200;
+    public static int COLOR_DETECTION_PERIOD = 100;
     public final SpindexerColorSensors colorSensors;
     private final ArtifactColor[] tableCompartments;
     private final ArtifactColor[] relativeCompartments;
     private final IntakeArtifactDetector intakeDistance;
     private int hypotheticalNumBalls = 0;
+    private enum DetectionState{
+        IDLE,
+        WAITINGTODETECT,
+        DETECTING
+
+    }
+
+    private DetectionState detectionState = DetectionState.IDLE;
 
     public IntakeThread(ArtifactColor[] tableCompartments, SpindexerColorSensors colorManager, IntakeArtifactDetector intakeDistance) {
         useSensors = true;
@@ -36,19 +44,19 @@ public class IntakeThread {
 
     public void update() {
         if (!useSensors) return;
-        if (intakeDistance.state()){
+        if (intakeDistance.hasArtifact()){
             hypotheticalNumBalls = 1;
             intakeDistance.stop();
             Scheduler.getInstance().schedule(
                 new Sequential(
+                        new Instant(() -> detectionState = DetectionState.WAITINGTODETECT),
                         new Wait(COLOR_DETECTION_DELAY),
+                        new Instant(() -> detectionState = DetectionState.DETECTING),
                         new Race(
-                                new Sequential(
-                                    new Command()
-                                            .setExecute(this::updateInternalColors)
-                                            .setDone(() -> getNumBalls() > hypotheticalNumBalls),
-                                    new Instant(()->{hypotheticalNumBalls = getNumBalls();})
-                                        ),
+                                new Command()
+                                        .setExecute(this::updateInternalColors)
+                                        .setDone(() -> getNumBalls() > hypotheticalNumBalls)
+                                        .setEnd(c -> hypotheticalNumBalls = getNumBalls()),
                                 new Sequential(
                                         new Wait(COLOR_DETECTION_PERIOD),
                                         new Instant(this::start)
@@ -56,7 +64,8 @@ public class IntakeThread {
                                 new Sequential(
                                     new WaitUntil(() -> hypotheticalNumBalls == 3)
                                 )
-                        )
+                        ),
+                        new Instant(() -> detectionState = DetectionState.IDLE)
                 )
         );
 
@@ -134,6 +143,10 @@ public class IntakeThread {
             if (!color.equals(ArtifactColor.NONE))
                 balls++;
         return balls+1;
+    }
+
+    public DetectionState getDetectionState(){
+        return detectionState;
     }
 
     public int getHypotheticalNumBalls(){

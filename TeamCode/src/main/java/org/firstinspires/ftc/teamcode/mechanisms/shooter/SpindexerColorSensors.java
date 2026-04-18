@@ -10,6 +10,7 @@ public class SpindexerColorSensors {
     public final DecodeColorSensor leftColorSensor;
     public final DecodeColorSensor rightColorSensor;
     private final ArtifactColor[] compartmentColors;
+    private boolean checkRight = true;
 
     public SpindexerColorSensors(HardwareMap hardwareMap){
         leftColorSensor = new DecodeColorSensor(hardwareMap, "colorLeft");
@@ -18,12 +19,13 @@ public class SpindexerColorSensors {
     }
 
     public void updateColors() {
-        if (compartmentColors[2].equals(ArtifactColor.NONE)) {
+        //idk if need 2nd part of condition
+        if (checkRight && compartmentColors[2].equals(ArtifactColor.NONE)) {
             compartmentColors[2] = rightColorSensor.getColor();
-            return;
+        }else if (!checkRight && compartmentColors[1].equals(ArtifactColor.NONE)) {
+            compartmentColors[1] = leftColorSensor.getColor();
         }
-
-        if (compartmentColors[1].equals(ArtifactColor.NONE)) compartmentColors[1] = leftColorSensor.getColor();
+        checkRight = !checkRight;
     }
 
     public ArtifactColor[] getCompartmentColors(){

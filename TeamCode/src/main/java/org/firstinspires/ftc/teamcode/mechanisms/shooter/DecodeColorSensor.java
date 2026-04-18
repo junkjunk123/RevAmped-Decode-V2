@@ -12,7 +12,7 @@ public class DecodeColorSensor extends HwColorSensor {
     public static double GREEN_MAX = 170;
     public static double PURPLE_MIN = 200;
     public static double PURPLE_MAX = 250;
-    public static double DISTANCE_MAX = 40;
+    public static double DISTANCE_MAX = 60;
 
     public DecodeColorSensor(HardwareMap hardwareMap,String id){
         super(hardwareMap,id);

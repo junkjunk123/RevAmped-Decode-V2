@@ -26,17 +26,19 @@ public class EighteenPaths implements PathSupplier {
     public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(33, 62);
     public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(50, 88);
 
-    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(9.5, 57, Math.toRadians(150));
+    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(9, 58.5, Math.toRadians(150));
+    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(14, 63, Math.toRadians(180));
 
     public static ColoredDecodePose THIRD_INTAKE_CONTROL = new ColoredDecodePose(48, 84);
     public static ColoredDecodePose THIRD_INTAKE = new ColoredDecodePose(19, 84, Math.toRadians(180));
 
     public static ColoredDecodePose THIRD_SHOOT = new ColoredDecodePose(50, 88, Math.toRadians(225));
 
-    public static ColoredDecodePose FOURTH_INTAKE_CONTROL = new ColoredDecodePose(18, 67);
-    public static ColoredDecodePose FOURTH_INTAKE = new ColoredDecodePose(20, 33);
+//    public static ColoredDecodePose FOURTH_INTAKE_CONTROL = new ColoredDecodePose(18, 67);
+    public static ColoredDecodePose FOURTH_INTAKE = new ColoredDecodePose(11, 12);
+    public static ColoredDecodePose FOURTH_SHOOT = new ColoredDecodePose(49, 9);
 
-    public static ColoredDecodePose PARK = new ColoredDecodePose(41, 73);
+    public static ColoredDecodePose PARK = new ColoredDecodePose(36, 10);
 
     @Override
     public Pose startPose() {
@@ -77,39 +79,45 @@ public class EighteenPaths implements PathSupplier {
         );
 
         FollowParameters path6 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(GATE_INTAKE, GATE_SHOOT_CONTROL, GATE_SHOOT))
+                .addPath(ColoredDecodePose.makeBezier(GATE_INTAKE, GATE_HOLD))
+                .setLinearHeadingInterpolation(GATE_INTAKE.getHeading(), GATE_HOLD.getHeading())
+                .build()
+        );
+
+        FollowParameters path7 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_HOLD, GATE_SHOOT_CONTROL, GATE_SHOOT))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()
         );
 
-        FollowParameters path7 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters path8 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SECOND_SHOOT, THIRD_INTAKE_CONTROL, THIRD_INTAKE))
                 .setConstantHeadingInterpolation(THIRD_INTAKE.getHeading())
                 .build()
         );
 
-        FollowParameters path8 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters path9 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(THIRD_INTAKE, THIRD_SHOOT))
                 .setLinearHeadingInterpolation(THIRD_INTAKE.getHeading(), THIRD_SHOOT.getHeading())
                 .build()
         );
 
-        FollowParameters path9 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(THIRD_SHOOT, FOURTH_INTAKE_CONTROL, FOURTH_INTAKE))
+        FollowParameters path10 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(THIRD_SHOOT, FOURTH_INTAKE))
                 .setTangentHeadingInterpolation()
                 .build()
         );
 
-        FollowParameters path10 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(FOURTH_INTAKE, THIRD_SHOOT))
+        FollowParameters path11 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(FOURTH_INTAKE, FOURTH_SHOOT))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()
         );
 
-        FollowParameters path11 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(THIRD_SHOOT, PARK))
+        FollowParameters path12 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(FOURTH_SHOOT, PARK))
                 .setTangentHeadingInterpolation()
                 .build()
         );
@@ -125,7 +133,8 @@ public class EighteenPaths implements PathSupplier {
                 path8,
                 path9,
                 path10,
-                path11
+                path11,
+                path12
         );
     }
 }

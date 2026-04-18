@@ -79,6 +79,14 @@ public class TableCompartmentManager {
         intakeThread.updateColors(tableState.get().ordinal());
     }
 
+    public void findLastColor(){
+        for (int i = 0; i<3 ; i++){
+            if (compartmentColors[i].equals(ArtifactColor.NONE)){
+                compartmentColors[i] = compartmentColors[(i+1)%3].equals(ArtifactColor.PURPLE) && compartmentColors[(i+2)%3].equals(ArtifactColor.PURPLE) ? ArtifactColor.GREEN : ArtifactColor.PURPLE;
+            }
+        }
+    }
+
     public ICommand populateAuto() {
         AtomicBoolean hasLeft = new AtomicBoolean(false);
         AtomicBoolean hasRight = new AtomicBoolean(false);
