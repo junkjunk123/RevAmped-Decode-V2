@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import android.support.v4.app.INotificationSideChannel;
+
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
@@ -13,6 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
@@ -41,8 +44,10 @@ public class EighteenAutoSorted extends OpModeCommand {
         schedule(
                 new Infinite(() -> {
                     robot.update();
+                    robot.tableCompartments.intakeThread.update();
                     Pose pose = robot.drivetrain.follower.getPose();
                     if (pose.distanceFrom(new Pose()) > 0.01) Drivetrain.startPose = robot.drivetrain.follower.getPose();
+
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
@@ -116,6 +121,13 @@ public class EighteenAutoSorted extends OpModeCommand {
                                     robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY+15);
                                 })
                         ),
+                        new Sequential(
+                                new Parallel(
+                                    robot.drivetrain.follow(),
+                                    new Instant(() -> robot.intakeMotor.outtake())
+                                ),
+                                new Wait(1500)
+                        ),
                         new Parallel(
                                 robot.drivetrain.follow(),
                                 shootFromGate(() -> Globals.randomizationState != null)
@@ -139,10 +151,15 @@ public class EighteenAutoSorted extends OpModeCommand {
                         //Sixth set========
                         new Parallel(
                                 intake(true),
-                                robot.drivetrain.follow(),
+                                new Race(
+                                    new Parallel(
+                                        robot.drivetrain.follow(),
+                                        new Wait(300)
+                                        ),
+                                    new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3)
+                                ),
                                 new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_FIFTH_SET))
                         ),
-                        new Wait(300),
                         new Parallel(
                                 robot.drivetrain.follow(),
                                 transferSorted(),
