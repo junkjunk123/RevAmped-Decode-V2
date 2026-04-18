@@ -5,13 +5,17 @@ import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
@@ -32,6 +36,7 @@ public class FarAuto extends OpModeCommand {
         robot = new Robot(hardwareMap, new FarAutoPaths());
         gyroThread = new GyroThread(robot);
         gyroThread.setState(TrackState.FAR_ONE);
+        robot.hood.far();
 
         schedule(
                 new Infinite(() -> {
@@ -39,12 +44,15 @@ public class FarAuto extends OpModeCommand {
                     gyroThread.update(true);
                     Pose pose = robot.drivetrain.follower.getPose();
                     if (pose.distanceFrom(new Pose()) > 0.01) Drivetrain.startPose = robot.drivetrain.follower.getPose();
+                    if (robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE)) robot.tableCompartments.intakeThread.update();
+                    telemetry.addData("balls", robot.tableCompartments.intakeThread.getNumBalls());
+                    telemetry.update();
                 }),
+                new WaitUntil(() -> !opModeInInit()),
                 new Instant(overallTimer::reset),
                 new Sequential(
                         new Instant(() -> {
-                            robot.hood.far();
-                            robot.flywheel.far();
+                            robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 15);
                             robot.feederWheel.start();
                             robot.popper.popCommandless();
                         }),
@@ -54,7 +62,10 @@ public class FarAuto extends OpModeCommand {
                                 intake(),
                                 new Sequential(
                                         new Wait(400),
-                                        robot.drivetrain.follow()
+                                        new Race(
+                                                new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                                                robot.drivetrain.follow()
+                                        )
                                 )
                         ),
                         new Wait(250),
@@ -64,17 +75,20 @@ public class FarAuto extends OpModeCommand {
                                         new Wait(200),
                                         transfer()
                                 ),
-                                new Instant(() -> robot.flywheel.far())
+                                new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true))
                         ),
                         shoot(),
                         new Parallel(
                                 intake(),
-                                robot.drivetrain.follow()
+                                new Race(
+                                        new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                                        robot.drivetrain.follow()
+                                )
                         ),
                         new Wait(250),
                         new Parallel(
                                 robot.drivetrain.follow(),
-                                new Instant(() -> robot.flywheel.far()),
+                                new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
                                 new Sequential(
                                         new Wait(200),
                                         transfer()
@@ -106,12 +120,15 @@ public class FarAuto extends OpModeCommand {
         return new Sequential(
                 new Parallel(
                         intake(),
-                        robot.drivetrain.follow()
+                        new Race(
+                                new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                                robot.drivetrain.follow()
+                        )
                 ),
                 new Wait(250),
                 new Parallel(
                         robot.drivetrain.follow(),
-                        new Instant(() -> robot.flywheel.far()),
+                        new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
                         new Sequential(
                                 new Wait(200),
                                 transfer()
@@ -141,8 +158,18 @@ public class FarAuto extends OpModeCommand {
 
     public ICommand shoot() {
         return new Sequential(
-                new Instant(() -> robot.intakeMotor.stop()),
-                robot.autoFastShoot()
+                new Instant(() -> {
+                    robot.intakeMotor.stop();
+                    robot.drivetrain.follower.useTranslational = false;
+                    robot.drivetrain.follower.useDrive = false;
+                    robot.drivetrain.follower.useHeading = false;
+                }),
+                robot.autoFastShoot(),
+                new Instant(() -> {
+                    robot.drivetrain.follower.useTranslational = true;
+                    robot.drivetrain.follower.useDrive = true;
+                    robot.drivetrain.follower.useHeading = true;
+                })
         );
     }
 
@@ -166,7 +193,7 @@ public class FarAuto extends OpModeCommand {
 
     public ICommand transfer() {
         return new Sequential(
-                new Wait(600),
+                new Wait(300),
                 new Instant(() -> {
                     robot.intakeTilt.transfer();
                     robot.intakeMotor.outtake();

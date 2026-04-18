@@ -36,11 +36,13 @@ public class FarTrackingMath {
     public static Track CLOSE_3;
     public static Track CLOSE_4;
 
+    public static Track FAR_AUTO;
+
     public static Track REST;
 
     private Track target;
 
-    public static double ANGULAR_CONSTANT;
+    public static double ANGULAR_CONSTANT = 0.06;
 
     public FarTrackingMath(Localizer pinpoint) {
         this.pinpoint = (PinpointLocalizer) pinpoint;
@@ -55,6 +57,9 @@ public class FarTrackingMath {
                 228/255d, AllianceColor.Red);
         FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 25,
                 229/255d, AllianceColor.Red);
+
+        FAR_AUTO = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 25,
+                215.25/255d, AllianceColor.Red);
 
         CLOSE_1 = trackCalibration(233/255d, AllianceColor.Red);
         CLOSE_2 = trackCalibration(250/255d, AllianceColor.Red);
@@ -71,6 +76,7 @@ public class FarTrackingMath {
                 .add(TrackState.CLOSE_TWO, CLOSE_2)
                 .add(TrackState.CLOSE_THREE, CLOSE_3)
                 .add(TrackState.CLOSE_FOUR, CLOSE_4)
+                .add(TrackState.FAR_AUTO, FAR_AUTO)
                 .getMap();
     }
 

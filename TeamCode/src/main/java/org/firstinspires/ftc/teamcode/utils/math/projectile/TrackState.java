@@ -11,10 +11,11 @@ public enum TrackState {
     CLOSE_ONE,
     CLOSE_TWO,
     CLOSE_THREE,
-    CLOSE_FOUR;
+    CLOSE_FOUR,
+    FAR_AUTO;
 
     public boolean isFar() {
-        return this.equals(FAR_ONE) || this.equals(FAR_TWO) || this.equals(FAR_THREE) || this.equals(FAR_FOUR);
+        return this.equals(FAR_ONE) || this.equals(FAR_TWO) || this.equals(FAR_THREE) || this.equals(FAR_FOUR) || this.equals(FAR_AUTO);
     }
 
     public record Track(double hoodPos, double flywheelVel, double turretPos) {

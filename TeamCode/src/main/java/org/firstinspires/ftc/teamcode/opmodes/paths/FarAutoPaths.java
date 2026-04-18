@@ -75,7 +75,7 @@ public class FarAutoPaths implements PathSupplier {
                 .build()
         );
 
-        Supplier<FollowParameters> shootNear = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        Supplier<FollowParameters> shootNear = () -> new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(INTAKE_NEAR, SHOOT_NEAR_CONTROL, SHOOT))
                 .setReversed()
                 .build()
@@ -86,7 +86,7 @@ public class FarAutoPaths implements PathSupplier {
                 .build()
         );
 
-        Supplier<FollowParameters> shootMiddle = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        Supplier<FollowParameters> shootMiddle = () -> new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(INTAKE_MIDDLE, SHOOT))
                 .setReversed()
                 .build()
@@ -97,7 +97,7 @@ public class FarAutoPaths implements PathSupplier {
                 .build()
         );
 
-        Supplier<FollowParameters> shootFar = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        Supplier<FollowParameters> shootFar = () -> new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(INTAKE_FAR, SHOOT_FAR_CONTROL, SHOOT))
                 .setReversed()
                 .build()

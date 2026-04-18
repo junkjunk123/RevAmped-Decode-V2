@@ -32,6 +32,11 @@ public class GyroThread {
         this(robot.drivetrain.follower, robot.turret, robot.flywheel, robot.hood);
     }
 
+    public void setState(TrackState state, boolean trackTraj) {
+        isFar = state.isFar();
+        tracker.setState(state, trackTraj).accept(flywheel, hood);
+    }
+
     public void setState(TrackState state) {
         isFar = state.isFar();
         tracker.setState(state, trackTraj).accept(flywheel, hood);
