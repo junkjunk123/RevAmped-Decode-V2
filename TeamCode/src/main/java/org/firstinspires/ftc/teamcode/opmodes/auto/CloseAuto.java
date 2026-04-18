@@ -39,6 +39,7 @@ public class CloseAuto extends OpModeCommand {
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(() -> {
                             robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 60);
+                            robot.feederWheel.start();
                             overallTimer.reset();
                         }),
                         shootFirstThree(),
