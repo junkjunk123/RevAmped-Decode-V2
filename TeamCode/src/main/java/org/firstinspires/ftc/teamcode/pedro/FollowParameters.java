@@ -26,8 +26,13 @@ public record FollowParameters(PathChain pathChain, boolean holdEnd, double maxP
     }
 
     public void follow(Follower follower) {
+        follow(follower, 1.0);
+    }
+
+    public void follow(Follower follower, double brakingStrength) {
+        brakingStrength = 1 / brakingStrength;
         follower.vectorCalculator.predictiveBrakingController.setCoefficients(
-                new PredictiveBrakingCoefficients(kP, Constants.K_LINEAR_BRAKE, Constants.K_QUADRATIC_BRAKE));
+                new PredictiveBrakingCoefficients(kP, Constants.K_LINEAR_BRAKE * brakingStrength, Constants.K_QUADRATIC_BRAKE * brakingStrength));
         follower.followPath(pathChain, maxPower, holdEnd);
     }
 

@@ -91,9 +91,31 @@ public class Drivetrain {
         }
     }
 
+    public void followNext(double brakingStrength) {
+        if (!paths.isEmpty()) {
+            paths.poll().follow(follower, brakingStrength);
+        } else {
+            BezierPoint point = new BezierPoint(follower.getPose());
+            Path path = new Path(point);
+            path.setConstantHeadingInterpolation(follower.getHeading());
+            follower.followPath(path);
+        }
+    }
+
     public void followLast() {
         if (!paths.isEmpty()) {
             paths.pollLast().follow(follower);
+        } else {
+            BezierPoint point = new BezierPoint(follower.getPose());
+            Path path = new Path(point);
+            path.setConstantHeadingInterpolation(follower.getHeading());
+            follower.followPath(path);
+        }
+    }
+
+    public void followLast(double brakingStrength) {
+        if (!paths.isEmpty()) {
+            paths.pollLast().follow(follower, brakingStrength);
         } else {
             BezierPoint point = new BezierPoint(follower.getPose());
             Path path = new Path(point);
@@ -148,8 +170,24 @@ public class Drivetrain {
         );
     }
 
+    public Race followNext(Function<Drivetrain, Boolean> isDone, double timeout, double brakingStrength) {
+        return new Race(
+                followNext(isDone),
+                new Wait(timeout)
+        );
+    }
+
     public ICommand follow() {
         return followNext(d -> d.velocityCondition(4), 3000);
+    }
+
+    public ICommand follow(double brakingStrength) {
+        return new Race(
+                new Command()
+                        .setStart(() -> followNext(brakingStrength))
+                        .setDone(() -> isDone.apply(this)),
+                new Wait(3000)
+        );
     }
 
     public void skip() {
