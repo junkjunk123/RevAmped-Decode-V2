@@ -23,18 +23,18 @@ public class FarAutoPaths implements PathSupplier {
     public static ColoredDecodePose INTAKE_FIRST_SET = new ColoredDecodePose(15, 36);
     public static ColoredDecodePose FIRST_INTAKE_CONTROL = new ColoredDecodePose(45, 36);
     public static ColoredDecodePose SHOOT_FIRST_SET = new ColoredDecodePose(58, 20);
-    public static ColoredDecodePose INTAKE_SECOND_SET = new ColoredDecodePose(10, 9);
+    public static ColoredDecodePose INTAKE_SECOND_SET = new ColoredDecodePose(11, 9);
     public static ColoredDecodePose SECOND_INTAKE_CONTROL = new ColoredDecodePose(25, 9);
     public static ColoredDecodePose SHOOT_SECOND_SET = new ColoredDecodePose(50, 9);
     public static ColoredDecodePose INTAKE_NEAR = new ColoredDecodePose(11, 36);
     public static ColoredDecodePose INTAKE_NEAR_CONTROL = new ColoredDecodePose(36, 32);
-    public static ColoredDecodePose INTAKE_NEAR_CONTROL_2 = new ColoredDecodePose(36, 35);
+    public static ColoredDecodePose INTAKE_NEAR_CONTROL_2 = new ColoredDecodePose(36, 36);
     public static ColoredDecodePose SHOOT = new ColoredDecodePose(52, 16);
     public static ColoredDecodePose SHOOT_NEAR_CONTROL = new ColoredDecodePose(36, 16);
     public static ColoredDecodePose INTAKE_MIDDLE = new ColoredDecodePose(10, 16);
     public static ColoredDecodePose INTAKE_FAR = new ColoredDecodePose(10, 11);
     public static ColoredDecodePose INTAKE_FAR_CONTROL = new ColoredDecodePose(32, 11);
-    public static ColoredDecodePose SHOOT_FAR_CONTROL = new ColoredDecodePose(43, 18);
+    public static ColoredDecodePose SHOOT_FAR_CONTROL = new ColoredDecodePose(43, 16);
     public static ColoredDecodePose PARK = new ColoredDecodePose(38, 11);
 
     @Override
@@ -77,7 +77,7 @@ public class FarAutoPaths implements PathSupplier {
         );
 
         Supplier<FollowParameters> shootNear = () -> new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(INTAKE_NEAR, SHOOT_NEAR_CONTROL, SHOOT))
+                .addPath(ColoredDecodePose.makeBezier(INTAKE_NEAR, SHOOT))
                 .setReversed()
                 .build()
         );
@@ -99,7 +99,7 @@ public class FarAutoPaths implements PathSupplier {
         );
 
         Supplier<FollowParameters> shootFar = () -> new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(INTAKE_FAR, SHOOT_FAR_CONTROL, SHOOT))
+                .addPath(ColoredDecodePose.makeBezier(INTAKE_FAR, SHOOT))
                 .setReversed()
                 .build()
         );

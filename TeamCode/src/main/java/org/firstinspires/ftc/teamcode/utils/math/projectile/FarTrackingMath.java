@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -104,10 +105,14 @@ public class FarTrackingMath {
          */
 
         double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
-        return Range.clip(ServoTurret.radToTicks(MathUtil.normalizeAnglePi(
+        double pos = ServoTurret.radToTicks(
+                MathUtil.normalizeAnglePi(
                 ServoTurret.ticksToRad(target.getTurretPosFromRedCalibration()) +
-                        pinpointPose.getHeading() + omegaComp)
-        ), 0, 1);
+                        pinpointPose.getHeading() + omegaComp
+                )
+        );
+        pos -= GyroThread.NEUTRAL_OFFSET * Math.signum(ServoTurret.REST - pos);
+        return pos;
     }
 
     public BiConsumer<Flywheel, Hood> setState(TrackState state, boolean trackTraj) {

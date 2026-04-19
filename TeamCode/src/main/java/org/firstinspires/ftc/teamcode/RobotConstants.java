@@ -37,7 +37,7 @@ public class RobotConstants {
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 129/255f; Hood.NEAR_PRESET = 51/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
+        Hood.FAR_PRESET = 129/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants - = left + = right
@@ -47,13 +47,13 @@ public class RobotConstants {
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
         ServoTurret.FAR_PRESET = turretPosInv.apply(217/255d);
 
-        ServoTurret.UNSORTED_AUTO_PRELOADS = turretPosInv.apply(152/255d);
-        ServoTurret.UNSORTED_SET_1 = turretPos.apply(42/255d);
-        ServoTurret.UNSORTED_SET_2 = turretPos.apply(41/255d);
-        ServoTurret.UNSORTED_SET_3 = turretPos.apply(41/255d);
-        ServoTurret.UNSORTED_SET_4 = turretPos.apply(41/255d);
-        ServoTurret.UNSORTED_SET_5 = turretPos.apply(41/255d);
-        ServoTurret.UNSORTED_FINAL = turretPos.apply(50/255d);
+        ServoTurret.UNSORTED_AUTO_PRELOADS = turretPosInv.apply(138/255d);
+        ServoTurret.UNSORTED_SET_1 = turretPos.apply(56/255d);
+        ServoTurret.UNSORTED_SET_2 = turretPos.apply(56/255d);
+        ServoTurret.UNSORTED_SET_3 = turretPos.apply(56/255d);
+        ServoTurret.UNSORTED_SET_4 = turretPos.apply(56/255d);
+        ServoTurret.UNSORTED_SET_5 = turretPos.apply(56/255d);
+        ServoTurret.UNSORTED_FINAL = turretPos.apply(59/255d);
 
         ServoTurret.EIGHTEEN_PRELOADS = turretPosInv.apply(212/255d);
         ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(249/255d);
@@ -71,7 +71,7 @@ public class RobotConstants {
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
 
         //tilt
-        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 164/255f;
+        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 163/255f;
 
         //updated
         // each compartment is ~32 ticks

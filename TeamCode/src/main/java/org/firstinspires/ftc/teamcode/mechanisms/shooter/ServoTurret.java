@@ -36,15 +36,7 @@ public class ServoTurret extends HwServo {
     public static double EIGHTEEN_FOURTH_SET;
     public static double EIGHTEEN_FIFTH_SET;
 
-    public static double AUTO_PRELOADS;
-    public static double AUTO_SET_1;
-    public static double AUTO_SET_2;
-    public static double AUTO_SET_3;
-    public static double FAR_AUTO;
-    public static double FIFTEEN_BALL_PRELOADS;
-    public static double FIFTEEN_OBELISK_DETECTION;
     public static double UNSORTED_AUTO_PRELOADS; //doesn't matter for 15
-    public static double UNSORTED_GATE;
     public static double UNSORTED_SET_1;
     public static double UNSORTED_SET_2;
     public static double UNSORTED_SET_3;
@@ -93,17 +85,6 @@ public class ServoTurret extends HwServo {
 
     public ICommand resetTurret() {
         return setState(ServoTurretState.PresetState.REST);
-    }
-
-    public void unsortedAutoSet(int setNum) {
-        switch (setNum + 1) {
-            case 1 -> setPosition(UNSORTED_SET_1);
-            case 2 -> setPosition(UNSORTED_SET_2);
-            case 3 -> setPosition(UNSORTED_SET_3);
-            case 4 -> setPosition(UNSORTED_SET_4);
-            case 5 -> setPosition(UNSORTED_SET_5);
-            default -> setPosition(UNSORTED_AUTO_PRELOADS);
-        }
     }
 
     public void move(ServoTurretState state) {

@@ -117,8 +117,8 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 intakeFromGate(),
                                 robot.drivetrain.follow(),
                                 new Instant(() -> {
-                                    robot.hood.near();
-                                    robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY+15);
+                                    robot.hood.setPosition(Hood.MEDIUM_PRESET - 14/255f);
+                                    robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY + 15);
                                 })
                         ),
                         new Sequential(
@@ -278,13 +278,6 @@ public class EighteenAutoSorted extends OpModeCommand {
                     new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                     new Wait(1600)
                 )
-
-                /*
-                new Race(
-                        new Wait(1200),
-                        new WaitUntil(() -> robot.frontDistance.hasArtifact())
-                )
-                 */
         );
     }
 

@@ -30,7 +30,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose GATE_2 = new ColoredDecodePose(13, 58.5, Math.toRadians(150));
     public static ColoredDecodePose GATE_3 = new ColoredDecodePose(13.5, 58.5, Math.toRadians(150));
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD_CONTROL = new ColoredDecodePose(52, 84, Math.PI);
-    public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(18, 84, Math.PI);
+    public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(23.5, 84, Math.PI);
     public static ColoredDecodePose PARK_CONTROL = new ColoredDecodePose(30.5, 84);
     public static ColoredDecodePose PARK = new ColoredDecodePose(53, 112, Math.toRadians(220));
 
@@ -83,8 +83,8 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
         );
 
         return List.of(shootPreloads, intakeFirstSet, shootFirstSet, intakeToGate.apply(0), shootFromGate.get(),
-                intakeToGate.apply(1), shootFromGate.get(), intakeToGate.apply(2), shootFromGate.get(),
-                intakeFinalPresets, shootFinalPresets);
+                intakeToGate.apply(1), shootFromGate.get(), intakeToGate.apply(2), shootFromGate.get(), intakeToGate.apply(3),
+                shootFromGate.get(), intakeFinalPresets, shootFinalPresets);
     }
 
     @NonNull

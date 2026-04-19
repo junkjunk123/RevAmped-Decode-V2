@@ -17,6 +17,8 @@ public class GyroThread {
     public static boolean trackTurret;
     public static boolean trackTraj;
 
+    public static double NEUTRAL_OFFSET; //away from neutral
+
     private boolean isFar;
 
     public GyroThread(Follower pinpoint, ServoTurret turret, Flywheel flywheel, Hood hood) {

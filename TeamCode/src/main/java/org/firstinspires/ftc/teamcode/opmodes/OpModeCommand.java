@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 public abstract class OpModeCommand extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
+        preInit();
         Globals.init(telemetry);
         initialize();
 
@@ -56,4 +57,6 @@ public abstract class OpModeCommand extends LinearOpMode {
     public void onStart() {}
 
     public void end() {}
+
+    public void preInit() {}
 }
