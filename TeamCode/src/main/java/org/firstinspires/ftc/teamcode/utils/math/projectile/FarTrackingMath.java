@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.utils.math.projectile;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
@@ -19,7 +21,7 @@ import java.util.function.BiConsumer;
 
 @Config
 public class FarTrackingMath {
-    private final Localizer pinpoint;
+    private final PinpointLocalizer pinpoint;
 
     private final EnumMap<TrackState, TrackState.Track> heatMap;
 
@@ -34,12 +36,16 @@ public class FarTrackingMath {
     public static Track CLOSE_3;
     public static Track CLOSE_4;
 
+    public static Track FAR_AUTO;
+
     public static Track REST;
 
     private Track target;
 
+    public static double ANGULAR_CONSTANT = 0.06;
+
     public FarTrackingMath(Localizer pinpoint) {
-        this.pinpoint = pinpoint;
+        this.pinpoint = (PinpointLocalizer) pinpoint;
 
         REST = trackCalibration(ServoTurret.REST, AllianceColor.Blue);
 
@@ -51,6 +57,9 @@ public class FarTrackingMath {
                 228/255d, AllianceColor.Red);
         FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 25,
                 229/255d, AllianceColor.Red);
+
+        FAR_AUTO = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 25,
+                215.25/255d, AllianceColor.Red);
 
         CLOSE_1 = trackCalibration(233/255d, AllianceColor.Red);
         CLOSE_2 = trackCalibration(250/255d, AllianceColor.Red);
@@ -67,6 +76,7 @@ public class FarTrackingMath {
                 .add(TrackState.CLOSE_TWO, CLOSE_2)
                 .add(TrackState.CLOSE_THREE, CLOSE_3)
                 .add(TrackState.CLOSE_FOUR, CLOSE_4)
+                .add(TrackState.FAR_AUTO, FAR_AUTO)
                 .getMap();
     }
 
@@ -93,8 +103,10 @@ public class FarTrackingMath {
         ), 0, 1);
          */
 
+        double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
         return Range.clip(ServoTurret.radToTicks(MathUtil.normalizeAnglePi(
-                ServoTurret.ticksToRad(target.getTurretPosFromRedCalibration()) + pinpointPose.getHeading())
+                ServoTurret.ticksToRad(target.getTurretPosFromRedCalibration()) +
+                        pinpointPose.getHeading() + omegaComp)
         ), 0, 1);
     }
 

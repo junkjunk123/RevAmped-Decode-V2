@@ -86,8 +86,7 @@ public class Robot {
         turret = new ServoTurret(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intakeMotor = new IntakeMotor(hardwareMap);
-        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.rightRear
-        ));
+        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.rightRear));
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap);
         intakeColor = new SpindexerColorSensors(hardwareMap);
