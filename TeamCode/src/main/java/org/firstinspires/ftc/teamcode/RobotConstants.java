@@ -46,20 +46,14 @@ public class RobotConstants {
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
         ServoTurret.FAR_PRESET = turretPosInv.apply(217/255d);
-        //done
-        ServoTurret.FIFTEEN_OBELISK_DETECTION = turretPos.apply(200/255d);
-        //preloads
-        ServoTurret.FIFTEEN_BALL_PRELOADS = turretPos.apply(118/255d);
-        ServoTurret.UNSORTED_FINAL = turretPos.apply(43/255d);
-        ServoTurret.AUTO_SET_1 = turretPos.apply(59/255d);
-        ServoTurret.AUTO_SET_2 = turretPos.apply(51/255d);
-        ServoTurret.AUTO_SET_3 = turretPos.apply(33/255d);
 
-        ServoTurret.UNSORTED_SET_1 = turretPos.apply(43/255d);
-        ServoTurret.UNSORTED_SET_2 = turretPos.apply(42/255d);
-        ServoTurret.UNSORTED_SET_3 = turretPos.apply(5/255d);
-        ServoTurret.UNSORTED_SET_4 = turretPos.apply(5/255d);
-        ServoTurret.UNSORTED_SET_5 = turretPos.apply(5/255d);
+        ServoTurret.UNSORTED_AUTO_PRELOADS = turretPosInv.apply(152/255d);
+        ServoTurret.UNSORTED_SET_1 = turretPos.apply(42/255d);
+        ServoTurret.UNSORTED_SET_2 = turretPos.apply(41/255d);
+        ServoTurret.UNSORTED_SET_3 = turretPos.apply(41/255d);
+        ServoTurret.UNSORTED_SET_4 = turretPos.apply(41/255d);
+        ServoTurret.UNSORTED_SET_5 = turretPos.apply(41/255d);
+        ServoTurret.UNSORTED_FINAL = turretPos.apply(50/255d);
 
         ServoTurret.EIGHTEEN_PRELOADS = turretPosInv.apply(212/255d);
         ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(249/255d);

@@ -7,8 +7,8 @@ import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Deadline;
 import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
@@ -39,8 +39,11 @@ public class CloseAuto extends OpModeCommand {
                         new Instant(() -> {
                             robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 60);
                             robot.feederWheel.start();
+                            robot.splitter.neutral();
+                            robot.intakeGate.close();
                             overallTimer.reset();
                         }),
+                        robot.popper.pop(),
                         shootFirstThree(),
                         new Parallel(
                                 intake(1),
@@ -62,8 +65,7 @@ public class CloseAuto extends OpModeCommand {
                                 new Sequential(
                                         new Wait(500),
                                         robot.drivetrain.follow()
-                                ),
-                                new Instant(() -> robot.turret.setPosition(ServoTurret.UNSORTED_FINAL))
+                                )
                         ),
                         new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
                         new Wait(600),
@@ -106,10 +108,20 @@ public class CloseAuto extends OpModeCommand {
 
     public ICommand intake(int i) {
         return new Sequential(
-                resetShooter(i),
+                resetShooter(),
                 new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
                 new Wait(300),
                 new Parallel(
+                        new Instant(() -> {
+                            switch (i) {
+                                case 1: robot.turret.setPosition(ServoTurret.UNSORTED_SET_1);
+                                case 2: robot.turret.setPosition(ServoTurret.UNSORTED_SET_2);
+                                case 3: robot.turret.setPosition(ServoTurret.UNSORTED_SET_3);
+                                case 4: robot.turret.setPosition(ServoTurret.UNSORTED_SET_4);
+                                case 5: robot.turret.setPosition(ServoTurret.UNSORTED_SET_5);
+                                case 6: robot.turret.setPosition(ServoTurret.UNSORTED_FINAL);
+                            }
+                        }),
                         new Sequential(
                                 new Wait(300),
                                 robot.popper.neutral()
@@ -135,31 +147,29 @@ public class CloseAuto extends OpModeCommand {
         );
     }
 
-    public ICommand resetShooter(int i) {
+    public ICommand resetShooter() {
         return new Instant(() -> {
             robot.flywheel.stop();
             robot.feederWheel.stop();
-
-            switch (i) {
-                case 1: robot.turret.setPosition(ServoTurret.UNSORTED_SET_1);
-                case 2: robot.turret.setPosition(ServoTurret.UNSORTED_SET_2);
-                case 3: robot.turret.setPosition(ServoTurret.UNSORTED_SET_3);
-                case 4: robot.turret.setPosition(ServoTurret.UNSORTED_SET_4);
-                case 5: robot.turret.setPosition(ServoTurret.UNSORTED_SET_5);
-                case 6: robot.turret.setPosition(ServoTurret.EIGHTEEN_THIRD_SET);
-            }
         });
     }
 
     public ICommand intakeFromGate(int i) {
         return new Sequential(
-                resetShooter(i),
-                new Instant(() -> {
-                    robot.turret.setPosition(ServoTurret.EIGHTEEN_GATE_SHOOT);
-                    robot.table.setStateCommandless(Table.RelativeState.BALL1);
-                }),
+                resetShooter(),
+                new Instant(() -> robot.table.setStateCommandless(Table.RelativeState.BALL1)),
                 new Wait(300),
                 new Parallel(
+                        new Instant(() -> {
+                            switch (i) {
+                                case 1: robot.turret.setPosition(ServoTurret.UNSORTED_SET_1);
+                                case 2: robot.turret.setPosition(ServoTurret.UNSORTED_SET_2);
+                                case 3: robot.turret.setPosition(ServoTurret.UNSORTED_SET_3);
+                                case 4: robot.turret.setPosition(ServoTurret.UNSORTED_SET_4);
+                                case 5: robot.turret.setPosition(ServoTurret.UNSORTED_SET_5);
+                                case 6: robot.turret.setPosition(ServoTurret.UNSORTED_FINAL);
+                            }
+                        }),
                         new Sequential(
                                 new Wait(300),
                                 robot.popper.neutral()
@@ -169,13 +179,10 @@ public class CloseAuto extends OpModeCommand {
                                 robot.intake()
                         )
                 ),
-                new Wait(1100)
-                /*
                 new Race(
-                        new Wait(1200),
-                        new WaitUntil(() -> robot.frontDistance.hasArtifact())
+                    new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                    new Wait(1300)
                 )
-                 */
         );
     }
 
