@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 //Eric Debug Thanks
 public class IntakeThread {
     public static boolean useSensors;
+    public boolean hasThree;
     public static double COLOR_DETECTION_DELAY = 200;
     public static int COLOR_DETECTION_PERIOD = 100;
     public final SpindexerColorSensors colorSensors;
@@ -36,6 +37,7 @@ public class IntakeThread {
 
     public IntakeThread(ArtifactColor[] tableCompartments, SpindexerColorSensors colorManager, IntakeArtifactDetector intakeDistance) {
         useSensors = true;
+        hasThree = false;
         this.colorSensors = colorManager;
         this.tableCompartments = tableCompartments;
         this.intakeDistance = intakeDistance;
@@ -44,6 +46,15 @@ public class IntakeThread {
 
     public void update() {
         if (!useSensors) return;
+        if (getNumBalls() == 3 && !hasThree){
+            Scheduler.getInstance().schedule(
+                    new Sequential(
+                        new Wait(100),
+                        new Instant(() -> hasThree = true)
+                    )
+            );
+            return;
+        }
         if (intakeDistance.hasArtifact()){
             hypotheticalNumBalls = 1;
             intakeDistance.stop();
@@ -162,6 +173,7 @@ public class IntakeThread {
         Arrays.fill(relativeCompartments, ArtifactColor.NONE);
         colorSensors.reset();
         intakeDistance.stop();
+        hasThree = false;
     }
 
     public void start() {

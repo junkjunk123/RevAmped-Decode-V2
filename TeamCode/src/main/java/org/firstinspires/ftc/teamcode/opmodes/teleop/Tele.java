@@ -111,7 +111,12 @@ public class Tele extends OpModeCommand {
             else robot.drivetrain.stopHoldPose();
         }
 
-        if (gamepad_1.dpad_up.isRisingEdge()) schedule(tsh.setting(robot::shootCorner),new Instant(gyroThread::close));
+        if (gamepad_1.dpad_up.isRisingEdge()){
+            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_THREE);
+            else gyroThread.setState(TrackState.FAR_THREE);
+            schedule(tsh.setting(robot::shootCorner),
+                    new Instant(gyroThread::close));
+        }
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear), new Instant(gyroThread::close));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium), new Instant(gyroThread::close));
         if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar), new Instant(gyroThread::far));
@@ -192,7 +197,7 @@ public class Tele extends OpModeCommand {
         ));
 
         if (IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
-            if (robot.tableCompartments.intakeThread.getNumBalls() == 3) {
+            if (robot.tableCompartments.intakeThread.hasThree) {
                 robot.tableCompartments.populate();
                 transfer = true;
                 RobotStateHandler.CycleState.INTAKE.update = false;
@@ -278,15 +283,15 @@ public class Tele extends OpModeCommand {
             robot.intakeTilt.intake();
         }
 
-        if (gamepad_1.left_trigger_button.isRisingEdge()) {
-            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_FOUR);
-            else gyroThread.setState(TrackState.FAR_FOUR);
-        }
+//        if (gamepad_1.left_trigger_button.isRisingEdge()) {
+//            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_FOUR);
+//            else gyroThread.setState(TrackState.FAR_FOUR);
+//        }
 
-        if (gamepad_1.right_trigger_button.isRisingEdge()) {
-            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_THREE);
-            else gyroThread.setState(TrackState.FAR_THREE);
-        }
+//        if (gamepad_1.right_trigger_button.isRisingEdge()) {
+//            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_THREE);
+//            else gyroThread.setState(TrackState.FAR_THREE);
+//        }
 
         if (gamepad_1.right_bumper.isRisingEdge()) {
             if (GyroThread.trackTurret) {
@@ -306,5 +311,6 @@ public class Tele extends OpModeCommand {
             }
         }
         telemetry.addData("num balls",robot.tableCompartments.intakeThread.getNumBalls());
+        telemetry.addData("has three",robot.tableCompartments.intakeThread.hasThree);
     }
 }

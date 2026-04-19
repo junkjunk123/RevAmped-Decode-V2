@@ -156,7 +156,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                         robot.drivetrain.follow(),
                                         new Wait(300)
                                         ),
-                                    new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3)
+                                    new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree)
                                 ),
                                 new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_FIFTH_SET))
                         ),
@@ -275,7 +275,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                         )
                 ),
                 new Race(
-                    new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                    new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                     new Wait(1600)
                 )
 
