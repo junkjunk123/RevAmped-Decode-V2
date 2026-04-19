@@ -19,11 +19,19 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
+import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channel;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
+import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.math.Z3Element;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class FarAuto extends OpModeCommand {
     private Robot robot;
@@ -136,6 +144,57 @@ public class FarAuto extends OpModeCommand {
                 ),
                 shoot()
         );
+    }
+
+    public ICommand visionCycle() {
+        Channel<Integer> selectedCycle = Channels.oneshot();
+        FollowParameters[] selectedPaths = new FollowParameters[2];
+        AtomicBoolean foundPath = new AtomicBoolean();
+
+        return new Sequential(
+                new Parallel(
+                        getPathFromVision().subscribe(selectedCycle),
+                        intake(),
+                        new Race(
+                                new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                                new Sequential(
+                                        robot.drivetrain.follow(),
+                                        new WaitUntil(foundPath::get)
+                                ),
+                                new Sequential(
+                                        selectedCycle.listen(),
+                                        new Instant(() -> {
+                                            Integer selected = Channels.receive(selectedCycle);
+                                            if (selected == null) throw new IllegalArgumentException("Camera short-circuited trust not the code");
+                                            FollowParameters[] cycle = FarAutoPaths.getCycle(selected, robot.drivetrain);
+                                            selectedPaths[0] = cycle[0];
+                                            selectedPaths[1] = cycle[1];
+                                            foundPath.set(true);
+                                        }),
+                                        selectedPaths[0].followCommand(robot.drivetrain)
+                                )
+                        )
+                ),
+                new Wait(250),
+                new Parallel(
+                        new Conditional(
+                                foundPath::get,
+                                selectedPaths[1].followCommand(robot.drivetrain),
+                                robot.drivetrain.follow()
+                        ),
+                        robot.drivetrain.follow(),
+                        new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
+                        new Sequential(
+                                new Wait(200),
+                                transfer()
+                        )
+                ),
+                shoot()
+        );
+    }
+
+    public Speaker<Integer> getPathFromVision() {
+        return new Speaker<>(c -> Commands.NOOP);
     }
 
     private int selectPath() {

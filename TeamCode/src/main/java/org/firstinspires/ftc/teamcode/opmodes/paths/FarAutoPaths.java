@@ -6,6 +6,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
 
+import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
@@ -129,5 +130,58 @@ public class FarAutoPaths implements PathSupplier {
         paths.add(park);
 
         return paths;
+    }
+
+    public static FollowParameters[] nearCycle(Follower follower) {
+        FollowParameters intakeNear = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(SHOOT, INTAKE_NEAR_CONTROL_2, INTAKE_NEAR))
+                .build()
+        );
+
+        FollowParameters shootNear = new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(INTAKE_NEAR, SHOOT_NEAR_CONTROL, SHOOT))
+                .setReversed()
+                .build()
+        );
+
+        return new FollowParameters[] {intakeNear, shootNear};
+    }
+
+    public static FollowParameters[] middleCycle(Follower follower) {
+        FollowParameters intakeMiddle = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(SHOOT, INTAKE_MIDDLE))
+                .build()
+        );
+
+        FollowParameters shootMiddle = new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(INTAKE_MIDDLE, SHOOT))
+                .setReversed()
+                .build()
+        );
+
+        return new FollowParameters[] {intakeMiddle, shootMiddle};
+    }
+
+    public static FollowParameters[] farCycle(Follower follower) {
+        FollowParameters intakeFar = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(SHOOT, INTAKE_FAR_CONTROL, INTAKE_FAR))
+                .build()
+        );
+
+        FollowParameters shootFar = new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(INTAKE_FAR, SHOOT_FAR_CONTROL, SHOOT))
+                .setReversed()
+                .build()
+        );
+
+        return new FollowParameters[] {intakeFar, shootFar};
+    }
+
+    public static FollowParameters[] getCycle(int i, Drivetrain follower) {
+        return switch (i) {
+            case 0 -> nearCycle(follower.follower);
+            case 1 -> middleCycle(follower.follower);
+            default -> farCycle(follower.follower);
+        };
     }
 }

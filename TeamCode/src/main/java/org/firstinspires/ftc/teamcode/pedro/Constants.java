@@ -17,6 +17,8 @@ public class Constants {
     public static double MEDIUM_PROPORTIONIAL = 0.2;
     public static double CONSERVATIVE_PROPORTIONAL = 0.15;
     public static double SAFE_PROPORTIONAL = 0.1;
+    public static double K_LINEAR_BRAKE = 0.0838;
+    public static double K_QUADRATIC_BRAKE = 0.00108;
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12.4)
@@ -24,8 +26,8 @@ public class Constants {
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2.33, 0, 0.13, 0.0005))
             .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(
                     DEFAULT_PROPORTIONAL,
-                    0.0838,
-                    0.00108
+                    K_LINEAR_BRAKE,
+                    K_QUADRATIC_BRAKE
             ))
             .centripetalScaling(0.00055);
 
