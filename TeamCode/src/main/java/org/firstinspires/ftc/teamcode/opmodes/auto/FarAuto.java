@@ -72,7 +72,7 @@ public class FarAuto extends OpModeCommand {
                                 new Sequential(
                                         new Wait(400),
                                         new Race(
-                                                new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                                                new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                                 robot.drivetrain.follow()
                                         )
                                 )
@@ -90,7 +90,7 @@ public class FarAuto extends OpModeCommand {
                         new Parallel(
                                 intake(),
                                 new Race(
-                                        new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                                        new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                         robot.drivetrain.follow()
                                 )
                         ),
@@ -130,7 +130,7 @@ public class FarAuto extends OpModeCommand {
                 new Parallel(
                         intake(),
                         new Race(
-                                new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                                new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                 robot.drivetrain.follow()
                         )
                 ),
@@ -157,7 +157,7 @@ public class FarAuto extends OpModeCommand {
                         getPathFromVision().subscribe(selectedCycle),
                         intake(),
                         new Race(
-                                new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                                new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                 new Sequential(
                                         robot.drivetrain.follow(),
                                         new WaitUntil(foundPath::get)

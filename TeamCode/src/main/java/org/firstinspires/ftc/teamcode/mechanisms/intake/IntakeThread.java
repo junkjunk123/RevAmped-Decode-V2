@@ -53,6 +53,7 @@ public class IntakeThread {
                         new Instant(() -> hasThree = true)
                     )
             );
+            return;
         }
         if (intakeDistance.hasArtifact()){
             hypotheticalNumBalls = 1;
