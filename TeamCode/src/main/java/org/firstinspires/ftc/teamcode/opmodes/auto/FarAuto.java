@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class FarAuto extends OpModeCommand {
@@ -148,7 +149,7 @@ public class FarAuto extends OpModeCommand {
 
     public ICommand visionCycle() {
         Channel<Integer> selectedCycle = Channels.oneshot();
-        FollowParameters[] selectedPaths = new FollowParameters[2];
+        AtomicReferenceArray<FollowParameters> selectedPaths = new AtomicReferenceArray<>(2);
         AtomicBoolean foundPath = new AtomicBoolean();
 
         return new Sequential(
@@ -167,11 +168,11 @@ public class FarAuto extends OpModeCommand {
                                             Integer selected = Channels.receive(selectedCycle);
                                             if (selected == null) throw new IllegalArgumentException("Camera short-circuited trust not the code");
                                             FollowParameters[] cycle = FarAutoPaths.getCycle(selected, robot.drivetrain);
-                                            selectedPaths[0] = cycle[0];
-                                            selectedPaths[1] = cycle[1];
+                                            selectedPaths.set(0, cycle[0]);
+                                            selectedPaths.set(1, cycle[1]);
                                             foundPath.set(true);
                                         }),
-                                        selectedPaths[0].followCommand(robot.drivetrain)
+                                        selectedPaths.get(0).followCommand(robot.drivetrain)
                                 )
                         )
                 ),
@@ -179,7 +180,7 @@ public class FarAuto extends OpModeCommand {
                 new Parallel(
                         new Conditional(
                                 foundPath::get,
-                                selectedPaths[1].followCommand(robot.drivetrain),
+                                selectedPaths.get(1).followCommand(robot.drivetrain),
                                 robot.drivetrain.follow()
                         ),
                         robot.drivetrain.follow(),
