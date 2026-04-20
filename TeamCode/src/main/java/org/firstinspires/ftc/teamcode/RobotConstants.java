@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret.turretPos;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret.turretPosInv;
 
+import android.graphics.Color;
+
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -15,6 +17,9 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
+import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
+import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
+import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 public class RobotConstants {
     public void build() {
@@ -92,5 +97,16 @@ public class RobotConstants {
         DecodeColorSensor.DISTANCE_MAX = 60.0f;
         DecodeColorSensor.GREEN_MAX = 170.0f; DecodeColorSensor.GREEN_MIN = 150.0f;
         DecodeColorSensor.PURPLE_MAX = 250.0f; DecodeColorSensor.PURPLE_MIN = 200.0f;
+
+        BlobProcessor.debug = true;
+        BlobProcessor.blur = 15; BlobProcessor.erode = 30; BlobProcessor.dilate = 30;
+        BlobProcessor.morphOperation = ColorBlobLocatorProcessor.MorphOperationType.CLOSING;
+        BlobProcessor.boxFitColor = Color.rgb(255,120,31);
+        BlobProcessor.circleFitColor = 0;
+        BlobProcessor.roiColor = Color.rgb(255,255,255);
+        BlobProcessor.contourColor = Color.rgb(3,227,252);
+
+        DecodeBlobCamera.resWidth = 1920;
+        DecodeBlobCamera.resHeight = 1080;
     }
 }
