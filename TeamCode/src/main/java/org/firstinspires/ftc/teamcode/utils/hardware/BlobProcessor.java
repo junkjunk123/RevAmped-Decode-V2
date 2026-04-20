@@ -23,15 +23,15 @@ import java.util.List;
 public class BlobProcessor {
     public ColorBlobLocatorProcessor blobProcessor;
     public List<ColorBlobLocatorProcessor.Blob> blobs;
-    public static boolean debug = true;
-    public static int blur = 15;
-    public static int erode = 0;
-    public static int dilate = 0;
-    public static int boxFitColor = Color.rgb(255,120,31);
-    public static int circleFitColor = 0;
-    public static int roiColor = Color.rgb(255,255,255);
-    public static int contourColor = Color.rgb(3,227,252);
-    public static ColorBlobLocatorProcessor.MorphOperationType morphOperation = ColorBlobLocatorProcessor.MorphOperationType.CLOSING;
+    public static boolean debug;
+    public static int blur;
+    public static int erode;
+    public static int dilate;
+    public static int boxFitColor;
+    public static int circleFitColor;
+    public static int roiColor;
+    public static int contourColor;
+    public static ColorBlobLocatorProcessor.MorphOperationType morphOperation;
 
     /**
      * Blob detection using Camera
