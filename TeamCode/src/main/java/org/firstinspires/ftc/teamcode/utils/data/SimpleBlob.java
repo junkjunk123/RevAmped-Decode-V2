@@ -1,12 +1,28 @@
 package org.firstinspires.ftc.teamcode.utils.data;
 
-public class SimpleBlob {
-    public Point one;
-    public Point two;
-    public Point three;
-    public Point four;
+import androidx.annotation.NonNull;
+
+import java.util.Iterator;
+
+public class SimpleBlob implements Iterable<Point> {
+    public final Point one;
+    public final Point two;
+    public final Point three;
+    public final Point four;
 
     private double area = -1;
+
+    public SimpleBlob(Point one, Point two, Point three, Point four) {
+        this.one = one;
+        this.two = two;
+        this.three = three;
+        this.four = four;
+    }
+
+    public SimpleBlob(Point[] points) {
+        this(points[0], points[1], points[2], points[3]);
+        if (points.length != 4) throw new IllegalArgumentException("Blob is a quadrilateral please cause I'm not coding more complex ones");
+    }
 
     public double area() {
         if (area == -1) {
@@ -16,5 +32,33 @@ public class SimpleBlob {
         }
 
         return area;
+    }
+
+    @NonNull
+    @Override
+    public Iterator<Point> iterator() {
+        return new Iterator<>() {
+            int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i <= 3;
+            }
+
+            @Override
+            public Point next() {
+                i++;
+                return switch (i) {
+                    case 1 -> one;
+                    case 2 -> two;
+                    case 3 -> three;
+                    default -> four;
+                };
+            }
+        };
+    }
+
+    public Point[] points() {
+        return new Point[] {one, two, three, four};
     }
 }

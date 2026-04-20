@@ -222,8 +222,4 @@ public class Vector3D {
     public Matrix outerProduct(Vector3D other) {
         return this.tensorProduct(other);
     }
-
-    public Vector3D transform(Matrix matrix) {
-
-    }
 }
