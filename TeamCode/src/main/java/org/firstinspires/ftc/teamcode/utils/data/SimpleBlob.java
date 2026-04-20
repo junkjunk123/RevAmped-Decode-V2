@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.utils.data;
 
 import androidx.annotation.NonNull;
 
+import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
+
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class SimpleBlob implements Iterable<Point> {
@@ -17,6 +20,11 @@ public class SimpleBlob implements Iterable<Point> {
         this.two = two;
         this.three = three;
         this.four = four;
+    }
+
+    public SimpleBlob(ColorBlobLocatorProcessor.Blob blob) {
+        this(Arrays.stream(blob.getContourPoints()).map(p -> new Point(p.x, p.y)).toArray(Point[]::new));
+        area = blob.getContourArea();
     }
 
     public SimpleBlob(Point[] points) {
