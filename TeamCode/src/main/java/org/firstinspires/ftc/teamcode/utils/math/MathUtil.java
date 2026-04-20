@@ -13,6 +13,17 @@ public class MathUtil {
         return new Matrix(vals);
     }
 
+    public static Matrix rotMatrix3D(double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        double[][] vals = new double[][] {
+                {1, 0, 0},
+                {0, cos, -sin},
+                {0, -sin, cos}
+        };
+        return new Matrix(vals);
+    }
+
     /**
      * Normalizes an angle in radians to the range [-π, π).
      *
