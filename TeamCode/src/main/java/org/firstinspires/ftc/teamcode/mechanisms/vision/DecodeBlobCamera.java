@@ -21,8 +21,8 @@ public class DecodeBlobCamera {
     private VisionPortal portal;
     private BlobProcessor purpleBlobProcessor;
     private BlobProcessor greenBlobProcessor;
-    public static int resWidth = 1920;
-    public static int resHeight = 1080;
+    public static int resWidth;
+    public static int resHeight;
     public DecodeBlobCamera(HardwareMap hardwareMap){
         purpleBlobProcessor = new BlobProcessor(ColorRange.ARTIFACT_PURPLE);
         purpleBlobProcessor.addPreFilter(new ColorBlobLocatorProcessor.BlobFilter(ColorBlobLocatorProcessor.BlobCriteria.BY_CONTOUR_AREA,50,999999999));

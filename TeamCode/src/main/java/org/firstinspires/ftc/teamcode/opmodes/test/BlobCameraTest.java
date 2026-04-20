@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
 
 @TeleOp
 public class BlobCameraTest extends OpMode {
@@ -12,6 +13,7 @@ public class BlobCameraTest extends OpMode {
     @Override
     public void init() {
         Globals.init(telemetry);
+        BlobProcessor.debug = true;
         camera = new DecodeBlobCamera(hardwareMap);
     }
 
