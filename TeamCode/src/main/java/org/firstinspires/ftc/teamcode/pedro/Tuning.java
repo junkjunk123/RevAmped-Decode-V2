@@ -1018,8 +1018,7 @@ class DriveTuner extends OpMode {
     }
 }
 
-class
-HeadingAutoTuner extends OpMode {
+class HeadingAutoTuner extends OpMode {
     private static final double ALPHA_LARGE = 0.6;
     private static final double ALPHA_SMALL = 0.9;
     private static final double POWER = 0.6;

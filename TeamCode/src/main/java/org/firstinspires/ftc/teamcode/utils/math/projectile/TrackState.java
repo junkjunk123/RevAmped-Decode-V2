@@ -24,7 +24,7 @@ public enum TrackState {
         }
 
         double getTurretPosFromBlueCalibration() {
-            return ServoTurret.turretPosInv.apply(turretPos);
+            return ServoTurret.turretPos.apply(turretPos);
         }
     }
 }
