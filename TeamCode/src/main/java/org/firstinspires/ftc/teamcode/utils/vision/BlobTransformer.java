@@ -1,10 +1,9 @@
-package org.firstinspires.ftc.teamcode.utils;
+package org.firstinspires.ftc.teamcode.utils.vision;
 
 import com.pedropathing.math.Matrix;
 
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.utils.data.Point;
-import org.firstinspires.ftc.teamcode.utils.data.SimpleBlob;
 import org.firstinspires.ftc.teamcode.utils.math.calc.Vector3D;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 

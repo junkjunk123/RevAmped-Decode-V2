@@ -20,6 +20,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
+import org.firstinspires.ftc.teamcode.utils.math.ILUT;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 public class RobotConstants {
@@ -69,6 +71,17 @@ public class RobotConstants {
         ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(198/255d);
         ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
         ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(217/255d);
+
+        FarTrackingMath.offsetInterpol = new ILUT.Builder()
+                .add(0, 0)
+                .add(Math.PI / 4, 35/255d)
+                .add(Math.PI / 2, 70/255d)
+                .add(Math.PI * 3.0 / 2.0, -178/255d)
+                .add(Math.PI, -138/255d)
+                .add(5.0 * Math.PI / 4, -105/255d)
+                .add(3 * Math.PI / 2.0, -71/255d)
+                .add(7 * Math.PI / 4.0, -37/255d)
+                .build();
 
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;

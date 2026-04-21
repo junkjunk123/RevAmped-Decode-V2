@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
@@ -14,6 +13,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.data.MapBuilder;
+import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 import org.firstinspires.ftc.teamcode.utils.math.MathUtil;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState.Track;
 
@@ -40,6 +40,8 @@ public class FarTrackingMath {
     public static Track FAR_AUTO;
 
     public static Track REST;
+
+    public static ILUT offsetInterpol;
 
     private Track target;
 
@@ -117,7 +119,7 @@ public class FarTrackingMath {
         double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
         double pos = ServoTurret.radToTicks(
                 MathUtil.normalizeAnglePi(
-                ServoTurret.ticksToRad(target.turretPos()) +
+                ServoTurret.ticksToRad(target.turretPos() + offsetInterpol.interpolate(pinpointPose.getHeading())) +
                         pinpointPose.getHeading() + omegaComp
                 )
         );
