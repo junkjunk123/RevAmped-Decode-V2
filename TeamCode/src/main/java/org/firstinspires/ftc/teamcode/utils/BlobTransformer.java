@@ -15,20 +15,14 @@ import java.util.List;
 import java.util.TreeSet;
 
 public class BlobTransformer {
-    public static double PHI = 120; //deg
-    public static double FOCAL_LENGTH = (DecodeBlobCamera.resWidth / 2.0) / Math.tan(PHI / 2);
+    public static double PHI;
+    public static double FOCAL_LENGTH;
 
     public static double X_1;
     public static double X_2;
 
-    public static Matrix K = new Matrix(
-            new double[][]{
-                    {FOCAL_LENGTH, 0, DecodeBlobCamera.resWidth / 2.0},
-                    {0, FOCAL_LENGTH, DecodeBlobCamera.resHeight / 2.0},
-                    {0, 0, 1}
-            }
-    );
-    public static Matrix K_INV = K.inverse();
+    public static Matrix K;
+    public static Matrix K_INV;
 
     private final Matrix homography;
 
@@ -68,7 +62,7 @@ public class BlobTransformer {
             for (Point p : b.points())
                 xSet.add(p.x());
 
-        Double[] xVals = xSet.toArray(Double[]::new);
+        Double[] xVals = xSet.toArray(new Double[0]);
         double[] area = new double[3];
 
         for (int i = 0; i < xVals.length - 1; i++) {

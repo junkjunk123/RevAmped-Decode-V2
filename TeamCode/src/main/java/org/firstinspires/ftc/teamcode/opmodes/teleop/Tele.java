@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
@@ -53,7 +54,11 @@ public class Tele extends OpModeCommand {
         gyroThread.setState(TrackState.REST);
         prompter = new Prompter(this, gamepad_1)
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
-                .onComplete(() -> Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState))
+                .prompt("alliance", new StatePrompt<>("Select the alliance color", AllianceColor.class))
+                .onComplete(() -> {
+                    Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState);
+                    Globals.allianceColor = prompter.getOrDefault("alliance", Globals.allianceColor);
+                })
                 .thenDisplay("Good luck! We're rooting for you. --- Havish & Eric");
         
         gamepad_1.left_trigger_button(f -> f.greaterThan(0.3f));

@@ -5,6 +5,8 @@ import static org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret.turr
 
 import android.graphics.Color;
 
+import com.pedropathing.math.Matrix;
+
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -18,6 +20,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
+import org.firstinspires.ftc.teamcode.utils.BlobTransformer;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
@@ -109,5 +112,16 @@ public class RobotConstants {
 
         DecodeBlobCamera.resWidth = 1920;
         DecodeBlobCamera.resHeight = 1080;
+
+        BlobTransformer.PHI = Math.toRadians(120);
+        BlobTransformer.FOCAL_LENGTH = (DecodeBlobCamera.resWidth / 2.0) / Math.tan(BlobTransformer.PHI / 2);
+        BlobTransformer.K = new Matrix(
+                new double[][]{
+                        {BlobTransformer.FOCAL_LENGTH, 0, DecodeBlobCamera.resWidth / 2.0},
+                        {0, BlobTransformer.FOCAL_LENGTH, DecodeBlobCamera.resHeight / 2.0},
+                        {0, 0, 1}
+                }
+        );
+        BlobTransformer.K_INV = BlobTransformer.K.inverse();
     }
 }
