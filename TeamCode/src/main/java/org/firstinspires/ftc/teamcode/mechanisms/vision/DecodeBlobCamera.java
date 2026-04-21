@@ -23,6 +23,9 @@ public class DecodeBlobCamera {
     private BlobProcessor greenBlobProcessor;
     public static int resWidth;
     public static int resHeight;
+
+    private boolean running = false;
+
     public DecodeBlobCamera(HardwareMap hardwareMap){
         purpleBlobProcessor = new BlobProcessor(ColorRange.ARTIFACT_PURPLE);
         purpleBlobProcessor.addPreFilter(new ColorBlobLocatorProcessor.BlobFilter(ColorBlobLocatorProcessor.BlobCriteria.BY_CONTOUR_AREA,50,999999999));
@@ -36,9 +39,11 @@ public class DecodeBlobCamera {
                 .build();
     }
 
-    public void update(){
-        purpleBlobProcessor.update();
-        greenBlobProcessor.update();
+    public void update() {
+        if (running) {
+            purpleBlobProcessor.update();
+            greenBlobProcessor.update();
+        }
     }
 
     public List<ColorBlobLocatorProcessor.Blob> getPurpleBlobs(){
@@ -52,5 +57,9 @@ public class DecodeBlobCamera {
     public List<ColorBlobLocatorProcessor.Blob> getAllBlobs(){
         return Stream.concat(getPurpleBlobs().stream(), getGreenBlobs().stream())
                 .collect(Collectors.toList());
+    }
+
+    private void stop() {
+        running = false;
     }
 }
