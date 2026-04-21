@@ -132,7 +132,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                     new Instant(() -> robot.intakeMotor.outtake())
                                 ),
                                 new Wait(1500),
-                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_GATE_SHOOT))
+                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_GATE_SHOOT.getPos()))
                         ),
                         new Parallel(
                                 robot.drivetrain.follow(),
