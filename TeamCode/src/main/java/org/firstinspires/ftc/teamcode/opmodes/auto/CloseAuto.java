@@ -27,7 +27,7 @@ public class CloseAuto extends OpModeCommand {
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap, new UnsortedCloseAutoPaths());
-        robot.turret.setPosition(ServoTurret.UNSORTED_AUTO_PRELOADS);
+        robot.turret.setPosition(ServoTurret.UNSORTED_AUTO_PRELOADS.getPos());
         robot.hood.unsortedAuto();
         robot.table.setStateCommandless(Table.RelativeState.BALL0);
 
@@ -204,12 +204,12 @@ public class CloseAuto extends OpModeCommand {
 
     public void aimTurret(int i) {
         switch (i) {
-            case 1 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_1);
-            case 2 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_2);
-            case 3 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_3);
-            case 4 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_4);
-            case 5 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_5);
-            case 6 -> robot.turret.setPosition(ServoTurret.UNSORTED_FINAL);
+            case 1 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_1.getPos());
+            case 2 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_2.getPos());
+            case 3 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_3.getPos());
+            case 4 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_4.getPos());
+            case 5 -> robot.turret.setPosition(ServoTurret.UNSORTED_SET_5.getPos());
+            case 6 -> robot.turret.setPosition(ServoTurret.UNSORTED_FINAL.getPos());
         }
     }
 }

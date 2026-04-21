@@ -40,7 +40,7 @@ public class EighteenAutoSorted extends OpModeCommand {
     public void initialize() {
         robot = new Robot(hardwareMap, new EighteenPaths());
         robot.tableCompartments.populate(ArtifactColor.PURPLE, ArtifactColor.GREEN, ArtifactColor.PURPLE);
-        robot.turret.setPosition(ServoTurret.EIGHTEEN_DETECTION);
+        robot.turret.setPosition(ServoTurret.EIGHTEEN_DETECTION.getPos());
 
         schedule(
                 new Infinite(() -> {
@@ -65,7 +65,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                                 robot.limelight.detectMotif(),
                                                 new Wait(3000)
                                         ) : new Instant(() -> Globals.randomizationState = RandomizationState.GPP),
-                                        new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_PRELOADS)),
+                                        new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_PRELOADS.getPos())),
                                         new Wait(400)
                                 ),
                                 new Wait(800)
@@ -90,7 +90,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                         transfer()
                                 ),
                                 new Instant(() -> {
-                                    robot.turret.setPosition(ServoTurret.EIGHTEEN_FIRST_SET);
+                                    robot.turret.setPosition(ServoTurret.EIGHTEEN_FIRST_SET.getPos());
                                     robot.hood.far();
                                 })
                         ),
@@ -106,7 +106,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 new Instant(() -> {
                                     robot.hood.medium();
                                     robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 10);
-                                    robot.turret.setPosition(ServoTurret.EIGHTEEN_SECOND_SET);
+                                    robot.turret.setPosition(ServoTurret.EIGHTEEN_SECOND_SET.getPos());
                                 }),
                                 transfer()
                         ),
@@ -139,7 +139,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                         new Wait(500),
                                         robot.drivetrain.follow()
                                 ),
-                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_THIRD_SET))
+                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_THIRD_SET.getPos()))
                         ),
                         new Parallel(
                                 robot.drivetrain.follow(),
@@ -158,7 +158,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                         ),
                                     new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree)
                                 ),
-                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_FIFTH_SET))
+                                new Instant(() -> robot.turret.setPosition(ServoTurret.EIGHTEEN_FIFTH_SET.getPos()))
                         ),
                         new Parallel(
                                 robot.drivetrain.follow(),
@@ -260,7 +260,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                     robot.feederWheel.stop();
                 }),
                 new Instant(() -> {
-                    robot.turret.setPosition(ServoTurret.EIGHTEEN_GATE_SHOOT);
+                    robot.turret.setPosition(ServoTurret.EIGHTEEN_GATE_SHOOT.getPos());
                     robot.table.setStateCommandless(Table.RelativeState.BALL1);
                 }),
                 new Wait(300),
