@@ -46,7 +46,7 @@ public class RobotConstants {
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants - = left + = right
-        ServoTurret.REST = 132/255f;
+        ServoTurret.REST = 129/255f;
 
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
@@ -62,12 +62,11 @@ public class RobotConstants {
 
         ServoTurret.EIGHTEEN_PRELOADS = turretPosInv.apply(212/255d);
         ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(249/255d);
-        ServoTurret.EIGHTEEN_DETECTION = ServoTurret.REST;
+        ServoTurret.EIGHTEEN_DETECTION = turretPosInv.apply(193/255d);
         ServoTurret.EIGHTEEN_SECOND_SET = turretPosInv.apply(194/255d);
-        ServoTurret.EIGHTEEN_GATE_SHOOT = turretPosInv.apply(190/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = turretPosInv.apply(198/255d);
-        ServoTurret.EIGHTEEN_FOURTH_SET = turretPosInv.apply(186/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET = turretPosInv.apply(217/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT = turretPosInv.apply(188/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET = turretPosInv.apply(196/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET = turretPosInv.apply(218/255d);
 
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;
@@ -80,7 +79,7 @@ public class RobotConstants {
 
         //updated
         // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 246/255f, TABLE_BALL_1 = 214/255f, TABLE_BALL_2 = 182/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
+        float TABLE_BALL_0 = 247/255f, TABLE_BALL_1 = 215/255f, TABLE_BALL_2 = 185/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 

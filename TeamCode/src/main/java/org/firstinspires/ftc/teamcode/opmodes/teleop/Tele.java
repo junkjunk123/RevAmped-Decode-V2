@@ -76,7 +76,21 @@ public class Tele extends OpModeCommand {
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
                 new Wait(500),
-                robot.popper.pop()
+                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                tsh.runTransition(
+                        new Sequential(
+                                robot.popper.neutral(),
+                                robot.shootAll(),
+                                new Parallel(
+                                        robot.resetShooter(),
+                                        new Sequential(
+                                                new Instant(robot.intakeMotor::stop),
+                                                robot.table.reset(),
+                                                robot.intake()
+                                        )
+                                )
+                        ),
+                RobotStateHandler.CycleState.INTAKE)
             )
         );
     }
@@ -120,6 +134,12 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear), new Instant(gyroThread::close));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium), new Instant(gyroThread::close));
         if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar), new Instant(gyroThread::far));
+
+        if (gamepad_1.start.isRisingEdge()){
+            schedule(
+                    robot.turret.resetTurret()
+            );
+        }
 
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(
                 new Parallel(
@@ -225,9 +245,7 @@ public class Tele extends OpModeCommand {
                                 Commands.NOOP
                         ),
                         new Wait(200),
-                        new Instant(robot.intakeMotor::outtake),
-                        new Wait(500),
-                        new Instant(robot.intakeMotor::stop)
+                        new Instant(robot.intakeMotor::outtake)
                     )
             );
         }

@@ -71,6 +71,7 @@ public class FarAuto extends OpModeCommand {
                         shoot(),
                         new Parallel(
                                 intake(),
+                                robot.turret.resetTurret(),
                                 new Sequential(
                                         new Wait(400),
                                         new Race(
@@ -95,6 +96,7 @@ public class FarAuto extends OpModeCommand {
                         ),
                         new Parallel(
                                 intake(),
+                                robot.turret.resetTurret(),
                                 new Race(
                                         new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                         new Sequential(
@@ -112,6 +114,7 @@ public class FarAuto extends OpModeCommand {
                                         shoot()
                                 )
                         ),
+                        new Wait(500),
                         cycle(),
                         cycle(),
                         cycle(),
@@ -137,6 +140,7 @@ public class FarAuto extends OpModeCommand {
         return new Sequential(
                 new Parallel(
                         intake(),
+                        robot.turret.resetTurret(),
                         new Race(
                                 new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                 new Sequential(

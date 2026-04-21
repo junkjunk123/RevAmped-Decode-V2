@@ -31,7 +31,7 @@ public class DecodeLimelight implements HwDevice {
 
     public enum Pipeline {
         NONE(-1),
-        OBELISK(7),
+        OBELISK(1),
         SHOOTING_ALIGNMENT(0),
         ELEMENT_DETECTION(2);
 
