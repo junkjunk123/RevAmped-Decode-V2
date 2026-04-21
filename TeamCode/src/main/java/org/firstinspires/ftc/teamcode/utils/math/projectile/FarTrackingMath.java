@@ -118,10 +118,10 @@ public class FarTrackingMath {
          */
 
         double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
-        Globals.telemetry.addData("robotHeading", pinpointPose.getHeading());
-        Globals.telemetry.addData("interpolVal", offsetInterpol.interpolate(pinpointPose.getHeading()));
-        Globals.telemetry.addData("target", target.turretPos());
-        Globals.telemetry.addData("newTarg", target.turretPos() + offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading())));
+        //Globals.telemetry.addData("robotHeading", pinpointPose.getHeading());
+        //Globals.telemetry.addData("interpolVal", offsetInterpol.interpolate(pinpointPose.getHeading()));
+        //Globals.telemetry.addData("target", target.turretPos());
+        //Globals.telemetry.addData("newTarg", target.turretPos() + offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading())));
         double pos = ServoTurret.radToTicks(
                 MathUtil.normalizeAnglePi(
                 ServoTurret.ticksToRad(target.turretPos() + offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading()))) +
