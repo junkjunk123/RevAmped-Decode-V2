@@ -916,7 +916,6 @@ class HeadingTuner extends OpMode {
      */
     @Override
     public void loop() {
-        follower.setSecondaryHeadingPIDFCoefficients(new PIDFCoefficients(Globals.P, Globals.I, Globals.D, Globals.F));
         follower.update();
         draw();
 
