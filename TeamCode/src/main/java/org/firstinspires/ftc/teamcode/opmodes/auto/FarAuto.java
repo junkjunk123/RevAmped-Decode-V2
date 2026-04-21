@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
+import org.firstinspires.ftc.teamcode.utils.BlobTransformer;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
@@ -206,7 +207,12 @@ public class FarAuto extends OpModeCommand {
     }
 
     public Speaker<Integer> getPathFromVision() {
-        return new Speaker<>(c -> Commands.NOOP);
+        return new Speaker<>(c -> new Sequential(
+                new Instant(robot.intakeCamera::start),
+                new WaitUntil(robot.intakeCamera::hasBlobs),
+                Channels.send(c, () -> BlobTransformer.computeIntakeRegion(robot.intakeCamera.getAllBlobs(), robot.drivetrain.follower.getHeading())),
+                new Instant(robot.intakeCamera::stop)
+        ));
     }
 
     private int selectPath() {

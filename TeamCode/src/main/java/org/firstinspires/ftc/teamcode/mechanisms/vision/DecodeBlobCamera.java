@@ -59,7 +59,20 @@ public class DecodeBlobCamera {
                 .collect(Collectors.toList());
     }
 
-    private void stop() {
+    public boolean hasBlobs() {
+        return !getPurpleBlobs().isEmpty() || !getGreenBlobs().isEmpty();
+    }
+
+    public void stop() {
         running = false;
+    }
+
+    public void start() {
+        running = true;
+    }
+
+    public void close() {
+        stop();
+        portal.close();
     }
 }

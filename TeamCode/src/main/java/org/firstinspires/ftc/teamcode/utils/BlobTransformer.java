@@ -48,17 +48,17 @@ public class BlobTransformer {
         return new SimpleBlob(transformed);
     }
 
-    public static int computeIntakeRegion(ColorBlobLocatorProcessor.Blob[] blobs, double curHeading) {
+    public static int computeIntakeRegion(List<ColorBlobLocatorProcessor.Blob> blobs, double curHeading) {
+        if (blobs.isEmpty()) return -1;
         BlobTransformer transformer = new BlobTransformer(curHeading);
-        return transformer.computeIntakeRegion(blobs);
+        SimpleBlob[] blobArray = blobs.stream()
+                .map(b -> transformer.transform(new SimpleBlob(b)))
+                .toArray(SimpleBlob[]::new);
+        return transformer.computeIntakeRegion(blobArray);
     }
 
-    public int computeIntakeRegion(ColorBlobLocatorProcessor.Blob[] blobs) {
-        if (blobs.length == 0) return -1;
-
-        SimpleBlob[] blobArray = Arrays.stream(blobs)
-                .map(b -> transform(new SimpleBlob(b)))
-                .toArray(SimpleBlob[]::new);
+    public int computeIntakeRegion(SimpleBlob[] blobArray) {
+        if (blobArray.length == 0) return -1;
 
         TreeSet<Double> xSet = new TreeSet<>();
         xSet.add(X_1);

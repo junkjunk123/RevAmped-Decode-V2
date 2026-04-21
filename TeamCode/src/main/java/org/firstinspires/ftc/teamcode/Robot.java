@@ -32,6 +32,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
+import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -69,6 +70,8 @@ public class Robot {
     public final TableCompartmentManager tableCompartments;
     public final DecodeLimelight limelight;
     public final Lift lift;
+    public final DecodeBlobCamera intakeCamera;
+
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
     private CycleState robotState = CycleState.INTAKE;
@@ -98,6 +101,7 @@ public class Robot {
         splitter = new Splitter(hardwareMap);
         limelight = new DecodeLimelight(hardwareMap);
         lift = new Lift(hardwareMap);
+        intakeCamera = new DecodeBlobCamera(hardwareMap);
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
         tableCompartments = new TableCompartmentManager(intakeColor, intakeDistance, frontDistance, table::getState);
@@ -122,6 +126,7 @@ public class Robot {
         flywheel.update();
         feederWheel.update();
         limelight.update();
+        intakeCamera.update();
         intakeColor.update();
         turret.update();
         intakeMotor.update();
@@ -424,6 +429,7 @@ public class Robot {
 
     public void close() {
         limelight.close();
+        intakeCamera.close();
     }
 
     public ICommand lift() {
