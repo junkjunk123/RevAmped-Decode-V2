@@ -442,7 +442,6 @@ public class Robot {
                     table.deenergize();
                     hood.deenergize();
                     intakeColor.close();
-                    intakeDistance.close();
                     frontDistance.close();
                     feederWheel.deenergize();
                     intakeTilt.deenergize();

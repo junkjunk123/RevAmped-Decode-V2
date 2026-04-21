@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.utils.math.projectile;
-
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
 public enum TrackState {
     REST,
@@ -15,16 +15,13 @@ public enum TrackState {
     FAR_AUTO;
 
     public boolean isFar() {
-        return this.equals(FAR_ONE) || this.equals(FAR_TWO) || this.equals(FAR_THREE) || this.equals(FAR_FOUR) || this.equals(FAR_AUTO);
+        return equals(FAR_ONE) || equals(FAR_TWO) || equals(FAR_THREE) || equals(FAR_FOUR) || equals(FAR_AUTO);
     }
 
-    public record Track(double hoodPos, double flywheelVel, double turretPos) {
-        double getTurretPosFromRedCalibration() {
-            return ServoTurret.turretPosInv.apply(turretPos);
-        }
-
-        double getTurretPosFromBlueCalibration() {
-            return ServoTurret.turretPos.apply(turretPos);
+    public record Track(double hoodPos, double flywheelVel, double turretPosRed, double turretPosBlue) {
+        public double turretPos() {
+            if (Globals.allianceColor.equals(AllianceColor.Red)) return turretPosRed;
+            return turretPosBlue;
         }
     }
 }
