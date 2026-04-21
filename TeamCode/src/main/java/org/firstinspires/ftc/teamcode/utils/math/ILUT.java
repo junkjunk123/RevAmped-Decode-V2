@@ -25,6 +25,14 @@ public class ILUT {
         build();
     }
 
+    private ILUT(List<Double> input, List<Double> output, int identifier) {
+        if (input == null || input.size() < 2 || output == null) throw new IllegalArgumentException("There must be at least two control "
+                + "points and the arrays must be of equal length.");
+        mX = input;
+        mY = output;
+        build();
+    }
+
     public static class Builder {
         private final List<Double> mX = new ArrayList<>();
         private final List<Double> mY = new ArrayList<>();
@@ -36,7 +44,7 @@ public class ILUT {
         }
 
         public ILUT build() {
-            return new ILUT(mX, mY);
+            return new ILUT(mX, mY, 1);
         }
     }
 
@@ -65,10 +73,10 @@ public class ILUT {
 
         // Compute slopes of secant lines between successive points.
         for (int i = 0; i < n - 1; i++) {
-            Double h = x.get(i + 1) - x.get(i);
+            double h = x.get(i + 1) - x.get(i);
             if (h <= 0f) {
                 throw new IllegalArgumentException("The control points must all "
-                        + "have strictly increasing X values.");
+                        + "have strictly increasing X values. " + x.get(i + 1) + " <= " + x.get(i));
             }
             d[i] = (y.get(i + 1) - y.get(i)) / h;
         }

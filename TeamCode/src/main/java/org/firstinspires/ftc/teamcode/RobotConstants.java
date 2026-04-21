@@ -20,12 +20,14 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
-import org.firstinspires.ftc.teamcode.utils.BlobTransformer;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
 import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
+import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
+
+import java.util.List;
 
 public class RobotConstants {
     public void build() {
@@ -75,16 +77,14 @@ public class RobotConstants {
         ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
         ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d);
 
-        FarTrackingMath.offsetInterpol = new ILUT.Builder()
-                .add(0, 0)
-                .add(Math.PI / 4, 35/255d)
-                .add(Math.PI / 2, 70/255d)
-                .add(Math.PI * 3.0 / 2.0, -178/255d)
-                .add(Math.PI, -138/255d)
-                .add(5.0 * Math.PI / 4, -105/255d)
-                .add(3 * Math.PI / 2.0, -71/255d)
-                .add(7 * Math.PI / 4.0, -37/255d)
-                .build();
+        List<Double> turretPositions = List.of(185/255d, 220/255d, 1.0d, 7/255d, 47/255d, 80/255d, 114/255d, 148/255d);
+        List<Double> xVals = List.of(0d, Math.PI / 4, Math.PI / 2, Math.PI * 3.0 / 4.0, Math.PI, 5.0 * Math.PI / 4, 3 * Math.PI / 2.0, 7 * Math.PI / 4.0);
+        ILUT.Builder builder = new ILUT.Builder();
+        for (int i = 0; i < xVals.size(); i++) {
+            double heading = xVals.get(i);
+            builder.add(heading, ServoTurret.radToTicks(ServoTurret.ticksToRad(turretPositions.get(i)) - heading) - turretPositions.get(0));
+        }
+        FarTrackingMath.offsetInterpol = builder.build();
 
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;

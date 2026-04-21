@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
+import com.pedropathing.math.MathFunctions;
 
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
@@ -117,9 +118,13 @@ public class FarTrackingMath {
          */
 
         double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
+        Globals.telemetry.addData("robotHeading", pinpointPose.getHeading());
+        Globals.telemetry.addData("interpolVal", offsetInterpol.interpolate(pinpointPose.getHeading()));
+        Globals.telemetry.addData("target", target.turretPos());
+        Globals.telemetry.addData("newTarg", target.turretPos() + offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading())));
         double pos = ServoTurret.radToTicks(
                 MathUtil.normalizeAnglePi(
-                ServoTurret.ticksToRad(target.turretPos() + offsetInterpol.interpolate(pinpointPose.getHeading())) +
+                ServoTurret.ticksToRad(target.turretPos() + offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading()))) +
                         pinpointPose.getHeading() + omegaComp
                 )
         );
