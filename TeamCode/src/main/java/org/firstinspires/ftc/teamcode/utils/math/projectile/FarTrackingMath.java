@@ -53,20 +53,20 @@ public class FarTrackingMath {
         REST = trackCalibration(ServoTurret.REST, AllianceColor.Blue);
 
         FAR_1 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 15,
-                213/255d, AllianceColor.Red);
+                213/255d, 181/255d);
         FAR_2 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 5,
-                218/255d, AllianceColor.Red);
+                218/255d, 181/255d);
         FAR_3 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 15,
-                228/255d, AllianceColor.Red);
+                228/255d, 174/255d);
         FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 25,
-                229/255d, AllianceColor.Red);
+                229/255d, 173/255d);
 
         FAR_AUTO = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 25,
                 215.25/255d, AllianceColor.Red);
 
-        CLOSE_1 = trackCalibration(233/255d, AllianceColor.Red);
-        CLOSE_2 = trackCalibration(250/255d, AllianceColor.Red);
-        CLOSE_3 = trackCalibration(-26/255d, AllianceColor.Red);
+        CLOSE_1 = trackCalibration(233/255d, 166/255d);
+        CLOSE_2 = trackCalibration(250/255d, 147/255d);
+        CLOSE_3 = trackCalibration(-26/255d, 135/255d);
         CLOSE_4 = trackCalibration(-14/255d, AllianceColor.Red);
 
         heatMap = MapBuilder.create(() -> new EnumMap<TrackState, Track>(TrackState.class))

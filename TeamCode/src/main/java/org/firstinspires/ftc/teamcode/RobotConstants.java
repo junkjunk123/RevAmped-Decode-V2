@@ -5,6 +5,8 @@ import static org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret.turr
 
 import android.graphics.Color;
 
+import com.pedropathing.math.Matrix;
+
 import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -18,6 +20,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
+import org.firstinspires.ftc.teamcode.utils.BlobTransformer;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
 import org.firstinspires.ftc.teamcode.utils.math.ILUT;
@@ -49,7 +52,7 @@ public class RobotConstants {
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants - = left + = right
-        ServoTurret.REST = 132/255f;
+        ServoTurret.REST = 129/255f;
 
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
@@ -61,16 +64,16 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_3 = TurretCalibration.fromRed(208/255d);
         ServoTurret.UNSORTED_SET_4 = TurretCalibration.fromRed(208/255d);
         ServoTurret.UNSORTED_SET_5 = TurretCalibration.fromRed(208/255d);
-        ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(205/255d);
+        ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(199/255d);
 
         ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(212/255d);
         ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(249/255d);
-        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(ServoTurret.REST);
+        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(193/255d);
         ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(194/255d);
-        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(190/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(198/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(188/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d);
         ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(217/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d);
 
         FarTrackingMath.offsetInterpol = new ILUT.Builder()
                 .add(0, 0)
@@ -94,7 +97,7 @@ public class RobotConstants {
 
         //updated
         // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 246/255f, TABLE_BALL_1 = 214/255f, TABLE_BALL_2 = 182/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
+        float TABLE_BALL_0 = 247/255f, TABLE_BALL_1 = 215/255f, TABLE_BALL_2 = 185/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 
@@ -122,5 +125,16 @@ public class RobotConstants {
 
         DecodeBlobCamera.resWidth = 1920;
         DecodeBlobCamera.resHeight = 1080;
+
+        BlobTransformer.PHI = Math.toRadians(120);
+        BlobTransformer.FOCAL_LENGTH = (DecodeBlobCamera.resWidth / 2.0) / Math.tan(BlobTransformer.PHI / 2);
+        BlobTransformer.K = new Matrix(
+                new double[][]{
+                        {BlobTransformer.FOCAL_LENGTH, 0, DecodeBlobCamera.resWidth / 2.0},
+                        {0, BlobTransformer.FOCAL_LENGTH, DecodeBlobCamera.resHeight / 2.0},
+                        {0, 0, 1}
+                }
+        );
+        BlobTransformer.K_INV = BlobTransformer.K.inverse();
     }
 }

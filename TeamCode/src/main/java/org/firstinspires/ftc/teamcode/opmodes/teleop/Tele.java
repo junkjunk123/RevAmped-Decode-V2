@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
@@ -53,7 +54,11 @@ public class Tele extends OpModeCommand {
         gyroThread.setState(TrackState.REST);
         prompter = new Prompter(this, gamepad_1)
                 .prompt("motif", new StatePrompt<>("Select the motif pattern", RandomizationState.class))
-                .onComplete(() -> Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState))
+                .prompt("alliance", new StatePrompt<>("Select the alliance color", AllianceColor.class))
+                .onComplete(() -> {
+                    Globals.randomizationState = prompter.getOrDefault("motif", Globals.randomizationState);
+                    Globals.allianceColor = prompter.getOrDefault("alliance", Globals.allianceColor);
+                })
                 .thenDisplay("Good luck! We're rooting for you. --- Havish & Eric");
         
         gamepad_1.left_trigger_button(f -> f.greaterThan(0.3f));
@@ -76,7 +81,21 @@ public class Tele extends OpModeCommand {
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
                 new Wait(500),
-                robot.popper.pop()
+                tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
+                tsh.runTransition(
+                        new Sequential(
+                                robot.popper.neutral(),
+                                robot.shootAll(),
+                                new Parallel(
+                                        robot.resetShooter(),
+                                        new Sequential(
+                                                new Instant(robot.intakeMotor::stop),
+                                                robot.table.reset(),
+                                                robot.intake()
+                                        )
+                                )
+                        ),
+                RobotStateHandler.CycleState.INTAKE)
             )
         );
     }
@@ -120,6 +139,12 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear), new Instant(gyroThread::close));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium), new Instant(gyroThread::close));
         if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar), new Instant(gyroThread::far));
+
+        if (gamepad_1.start.isRisingEdge()){
+            schedule(
+                    robot.turret.resetTurret()
+            );
+        }
 
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(
                 new Parallel(
@@ -225,9 +250,7 @@ public class Tele extends OpModeCommand {
                                 Commands.NOOP
                         ),
                         new Wait(200),
-                        new Instant(robot.intakeMotor::outtake),
-                        new Wait(500),
-                        new Instant(robot.intakeMotor::stop)
+                        new Instant(robot.intakeMotor::outtake)
                     )
             );
         }

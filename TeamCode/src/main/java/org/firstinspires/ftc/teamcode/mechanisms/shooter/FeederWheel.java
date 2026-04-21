@@ -38,7 +38,7 @@ public class FeederWheel extends HwMotor {
 
     public void intakeState() {
         state = FeederState.INTAKING;
-        setPower(-0.5);
+        setPower(-1.0);
     }
 
     public void stop() {
