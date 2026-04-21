@@ -28,6 +28,7 @@ public class GyroThread {
         this.flywheel = flywheel;
         tracker = new FarTrackingMath(this.pinpoint);
         INSTANCE = this;
+        NEUTRAL_OFFSET = 0;
     }
 
     public GyroThread(Robot robot) {

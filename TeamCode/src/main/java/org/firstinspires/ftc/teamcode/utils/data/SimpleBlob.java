@@ -56,13 +56,17 @@ public class SimpleBlob implements Iterable<Point> {
             @Override
             public Point next() {
                 i++;
-                return switch (i) {
-                    case 1 -> one;
-                    case 2 -> two;
-                    case 3 -> three;
-                    default -> four;
-                };
+                return get(i);
             }
+        };
+    }
+
+    public Point get(int i) {
+        return switch (i) {
+            case 1 -> one;
+            case 2 -> two;
+            case 3 -> three;
+            default -> four;
         };
     }
 

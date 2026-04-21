@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
+import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
@@ -50,23 +51,24 @@ public class RobotConstants {
 
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
         ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
-        ServoTurret.FAR_PRESET = turretPosInv.apply(217/255d);
+        ServoTurret.FAR_PRESET = TurretCalibration.fromRed(217/255d);
 
-        ServoTurret.UNSORTED_AUTO_PRELOADS = turretPosInv.apply(138/255d);
-        ServoTurret.UNSORTED_SET_1 = turretPos.apply(56/255d);
-        ServoTurret.UNSORTED_SET_2 = turretPos.apply(56/255d);
-        ServoTurret.UNSORTED_SET_3 = turretPos.apply(56/255d);
-        ServoTurret.UNSORTED_SET_4 = turretPos.apply(56/255d);
-        ServoTurret.UNSORTED_SET_5 = turretPos.apply(56/255d);
-        ServoTurret.UNSORTED_FINAL = turretPos.apply(59/255d);
+        ServoTurret.UNSORTED_AUTO_PRELOADS = TurretCalibration.fromRed(138/255d);
+        ServoTurret.UNSORTED_SET_1 = TurretCalibration.fromRed(208/255d);
+        ServoTurret.UNSORTED_SET_2 = TurretCalibration.fromRed(208/255d);
+        ServoTurret.UNSORTED_SET_3 = TurretCalibration.fromRed(208/255d);
+        ServoTurret.UNSORTED_SET_4 = TurretCalibration.fromRed(208/255d);
+        ServoTurret.UNSORTED_SET_5 = TurretCalibration.fromRed(208/255d);
+        ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(199/255d);
 
-        ServoTurret.EIGHTEEN_PRELOADS = turretPosInv.apply(212/255d);
-        ServoTurret.EIGHTEEN_FIRST_SET = turretPosInv.apply(249/255d);
-        ServoTurret.EIGHTEEN_DETECTION = turretPosInv.apply(193/255d);
-        ServoTurret.EIGHTEEN_SECOND_SET = turretPosInv.apply(194/255d);
-        ServoTurret.EIGHTEEN_GATE_SHOOT = turretPosInv.apply(188/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = turretPosInv.apply(196/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET = turretPosInv.apply(218/255d);
+        ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(212/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(249/255d);
+        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(193/255d);
+        ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(194/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(188/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d);
+        ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d);
 
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
+import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.function.Function;
@@ -27,23 +28,23 @@ public class ServoTurret extends HwServo {
     public static double FULL_ROTATION;
     public static double REST;
 
-    public static double EIGHTEEN_DETECTION;
-    public static double EIGHTEEN_PRELOADS;
-    public static double EIGHTEEN_FIRST_SET;
-    public static double EIGHTEEN_SECOND_SET;
-    public static double EIGHTEEN_GATE_SHOOT;
-    public static double EIGHTEEN_THIRD_SET;
-    public static double EIGHTEEN_FOURTH_SET;
-    public static double EIGHTEEN_FIFTH_SET;
+    public static TurretCalibration EIGHTEEN_DETECTION;
+    public static TurretCalibration EIGHTEEN_PRELOADS;
+    public static TurretCalibration EIGHTEEN_FIRST_SET;
+    public static TurretCalibration EIGHTEEN_SECOND_SET;
+    public static TurretCalibration EIGHTEEN_GATE_SHOOT;
+    public static TurretCalibration EIGHTEEN_THIRD_SET;
+    public static TurretCalibration EIGHTEEN_FOURTH_SET;
+    public static TurretCalibration EIGHTEEN_FIFTH_SET;
 
-    public static double UNSORTED_AUTO_PRELOADS; //doesn't matter for 15
-    public static double UNSORTED_SET_1;
-    public static double UNSORTED_SET_2;
-    public static double UNSORTED_SET_3;
-    public static double UNSORTED_SET_4;
-    public static double UNSORTED_SET_5;
-    public static double UNSORTED_FINAL;
-    public static double FAR_PRESET;
+    public static TurretCalibration UNSORTED_AUTO_PRELOADS; //doesn't matter for 15
+    public static TurretCalibration UNSORTED_SET_1;
+    public static TurretCalibration UNSORTED_SET_2;
+    public static TurretCalibration UNSORTED_SET_3;
+    public static TurretCalibration UNSORTED_SET_4;
+    public static TurretCalibration UNSORTED_SET_5;
+    public static TurretCalibration UNSORTED_FINAL;
+    public static TurretCalibration FAR_PRESET;
 
     public static double MS_PER_REVOLUTION = 1500;
 

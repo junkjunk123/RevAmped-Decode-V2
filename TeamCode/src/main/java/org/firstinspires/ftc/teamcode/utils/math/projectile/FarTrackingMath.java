@@ -83,12 +83,22 @@ public class FarTrackingMath {
 
     public static Track trackCalibration(double hoodPos, double flywheelVel, double turretPos, AllianceColor allianceColor) {
         return new Track(hoodPos, flywheelVel,
-                allianceColor.equals(AllianceColor.Blue) ? ServoTurret.turretPos.apply(turretPos) : turretPos);
+                allianceColor.equals(AllianceColor.Blue) ? ServoTurret.turretPos.apply(turretPos) : turretPos,
+                allianceColor.equals(AllianceColor.Blue) ? turretPos : ServoTurret.turretPosInv.apply(turretPos));
+    }
+
+    public static Track trackCalibration(double hoodPos, double flywheelVel, double turretPosRed, double turretPosBlue) {
+        return new Track(hoodPos, flywheelVel, turretPosRed, turretPosBlue);
+    }
+
+    public static Track trackCalibration(double turretPosRed, double turretPosBlue) {
+        return new Track(0, 0, turretPosRed, turretPosBlue);
     }
 
     public static Track trackCalibration(double turretPos, AllianceColor allianceColor) {
         return new Track(0, 0,
-                allianceColor.equals(AllianceColor.Blue) ? ServoTurret.turretPos.apply(turretPos) : turretPos);
+                allianceColor.equals(AllianceColor.Blue) ? ServoTurret.turretPos.apply(turretPos) : turretPos,
+                allianceColor.equals(AllianceColor.Blue) ? turretPos : ServoTurret.turretPosInv.apply(turretPos));
     }
 
     public double update() {
@@ -107,7 +117,7 @@ public class FarTrackingMath {
         double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
         double pos = ServoTurret.radToTicks(
                 MathUtil.normalizeAnglePi(
-                ServoTurret.ticksToRad(target.getTurretPosFromRedCalibration()) +
+                ServoTurret.ticksToRad(target.turretPos()) +
                         pinpointPose.getHeading() + omegaComp
                 )
         );
