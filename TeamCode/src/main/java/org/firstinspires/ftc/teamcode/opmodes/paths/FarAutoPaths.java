@@ -184,4 +184,8 @@ public class FarAutoPaths implements PathSupplier {
             default -> farCycle(follower.follower);
         };
     }
+
+    public static FollowParameters[] getDefaultCycle(Drivetrain follower) {
+        return getCycle(2, follower);
+    }
 }

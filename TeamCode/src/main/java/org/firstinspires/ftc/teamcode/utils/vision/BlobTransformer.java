@@ -17,12 +17,14 @@ public class BlobTransformer {
     public static double PHI;
     public static double FOCAL_LENGTH;
 
-    public static double X_1;
-    public static double X_2;
+    public static double X_1 = 594; //near-middle
+    public static double X_2 = 920; //middle-far
+    public static double X_MIN = 260;
+
+    public static double Y_MAX = 480;
 
     public static Matrix K;
     public static Matrix K_INV;
-
     private final Matrix homography;
 
     public BlobTransformer(double theta) {
@@ -32,13 +34,16 @@ public class BlobTransformer {
     public SimpleBlob transform(SimpleBlob blob) {
         Point[] blobPoints = blob.points();
         Point[] transformed = Arrays.stream(blobPoints)
-                .map(p -> {
-                    Vector3D homogeneousCoords = new Vector3D(p.x(), p.y(), 1);
-                    Vector3D transformedCoords = homogeneousCoords.transform(homography);
-                    return new Point(transformedCoords.getX(), transformedCoords.getY()).times(1.0 / transformedCoords.getZ());
-                })
+                .map(this::transform)
                 .toArray(Point[]::new);
-        return new SimpleBlob(transformed);
+        Point newCenter = transform(blob.center);
+        return new SimpleBlob(newCenter, transformed);
+    }
+
+    private Point transform(Point p) {
+        Vector3D homogeneousCoords = new Vector3D(p.x(), p.y(), 1);
+        Vector3D transformedCoords = homogeneousCoords.transform(homography);
+        return new Point(transformedCoords.getX(), transformedCoords.getY()).times(1.0 / transformedCoords.getZ());
     }
 
     public static int computeIntakeRegion(List<ColorBlobLocatorProcessor.Blob> blobs, double curHeading) {
@@ -46,6 +51,7 @@ public class BlobTransformer {
         BlobTransformer transformer = new BlobTransformer(curHeading);
         SimpleBlob[] blobArray = blobs.stream()
                 .map(b -> transformer.transform(new SimpleBlob(b)))
+                .filter(b -> b.center.y() < Y_MAX && b.center.x() > X_MIN)
                 .toArray(SimpleBlob[]::new);
         return transformer.computeIntakeRegion(blobArray);
     }

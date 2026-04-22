@@ -48,10 +48,16 @@ public class DecodeBlobCamera {
     }
 
     public List<ColorBlobLocatorProcessor.Blob> getPurpleBlobs(){
+        if (purpleBlobProcessor.getBlobs() == null){
+            return List.of();
+        }
         return purpleBlobProcessor.getBlobs();
     }
 
     public List<ColorBlobLocatorProcessor.Blob> getGreenBlobs(){
+        if (greenBlobProcessor.getBlobs() == null){
+            return List.of();
+        }
         return greenBlobProcessor.getBlobs();
     }
 
