@@ -27,6 +27,8 @@ import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.commands.RandomizationState;
+import org.firstinspires.ftc.teamcode.utils.data.BooleanSwitch;
+import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
@@ -61,10 +63,12 @@ public class Tele extends OpModeCommand {
                 })
                 .thenDisplay("Good luck! We're rooting for you. --- Havish & Eric");
         
-        gamepad_1.left_trigger_button(f -> f.greaterThan(0.3f));
-        gamepad_1.right_trigger_button(f -> f.greaterThan(0.3f));
-        gamepad_2.left_trigger_button(f -> f.greaterThan(0.3f));
-        gamepad_2.right_trigger_button(f -> f.greaterThan(0.3f));
+        gamepad_1.left_trigger_button(FloatSupplier::isPress);
+        gamepad_1.right_trigger_button(FloatSupplier::isPress);
+        gamepad_2.left_trigger_button(FloatSupplier::isPress);
+        gamepad_2.right_trigger_button(FloatSupplier::isPress);
+        gamepad_2.left_stick_y_button(FloatSupplier::isPress);
+        gamepad_2.right_stick_y_button(FloatSupplier::isPress);
 
         // Schedule robot update loop
         schedule(new Infinite(() -> {
@@ -89,9 +93,21 @@ public class Tele extends OpModeCommand {
                                 new Parallel(
                                         robot.resetShooter(),
                                         new Sequential(
-                                                new Instant(robot.intakeMotor::stop),
-                                                robot.table.reset(),
-                                                robot.intake()
+                                                new Parallel(
+                                                        new Instant(robot.intakeMotor::stop),
+                                                        robot.intakeGate.open(),
+                                                        robot.table.reset()),
+                                                new Instant(() -> {
+                                                    robot.intakeMotor.intake();
+                                                    robot.feederWheel.intakeState();
+                                                }),
+                                                new Parallel(
+                                                        robot.popper.neutral(),
+                                                        new Sequential(
+                                                                new Wait(300),
+                                                                robot.splitter.activate()
+                                                        )
+                                                )
                                         )
                                 )
                         ),
@@ -141,9 +157,7 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar), new Instant(gyroThread::far));
 
         if (gamepad_1.start.isRisingEdge()){
-            schedule(
-                    robot.turret.resetTurret()
-            );
+            schedule(robot.turret.resetTurret());
         }
 
         if (gamepad_1.x.isRisingEdge()) schedule(tsh.override(
@@ -198,7 +212,7 @@ public class Tele extends OpModeCommand {
             else robot.intakeMotor.outtake();
             robot.intakeTilt.transfer();
         }
-        if (gamepad_2.a.isRisingEdge()) tsh.setState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT);
+
         if (gamepad_2.right_bumper.isRisingEdge()) schedule(tsh.task(
                 new Sequential(
                         new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
@@ -250,7 +264,9 @@ public class Tele extends OpModeCommand {
                                 Commands.NOOP
                         ),
                         new Wait(200),
-                        new Instant(robot.intakeMotor::outtake)
+                        new Instant(robot.intakeMotor::outtake),
+                        new Wait(500),
+                        new Instant(robot.intakeMotor::stop)
                     )
             );
         }
@@ -295,26 +311,29 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_right.isRisingEdge()) {
-            Pose reset = new ColoredDecodePose(132.5, 8.75).getPose();
-            robot.drivetrain.follower.setX(reset.getX());
-            robot.drivetrain.follower.setY(reset.getY());
+            Pose reset = new ColoredDecodePose().getPose();
+            robot.drivetrain.follower.setHeading(reset.getHeading());
         }
 
-        if (gamepad2.left_stick_y < -0.3f) {
-            robot.intakeTilt.transfer();
-        } else if (gamepad2.left_stick_y > 0.3f) {
-            robot.intakeTilt.intake();
+        if (gamepad_2.left_stick_y_button.isRisingEdge()) {
+            if (gamepad2.left_stick_y < -0.3f) robot.intakeTilt.transfer();
+            else if (gamepad2.left_stick_y > 0.3f) robot.intakeTilt.intake();
         }
 
-//        if (gamepad_1.left_trigger_button.isRisingEdge()) {
-//            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_FOUR);
-//            else gyroThread.setState(TrackState.FAR_FOUR);
-//        }
+        if (gamepad_2.right_stick_y_button.isRisingEdge()) {
+            if (gamepad2.right_stick_y < -0.3f) robot.hood.finetuneFar(10/255d);
+            else if (gamepad2.right_stick_y > 0.3f) robot.hood.finetuneFar(-10/255d);
+        }
 
-//        if (gamepad_1.right_trigger_button.isRisingEdge()) {
-//            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_THREE);
-//            else gyroThread.setState(TrackState.FAR_THREE);
-//        }
+        if (gamepad_1.left_trigger_button.isRisingEdge()) {
+            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_FOUR);
+            else gyroThread.setState(TrackState.FAR_FOUR);
+        }
+
+        if (gamepad_1.right_trigger_button.isRisingEdge()) {
+            if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_THREE);
+            else gyroThread.setState(TrackState.FAR_THREE);
+        }
 
         if (gamepad_1.right_bumper.isRisingEdge()) {
             if (GyroThread.trackTurret) {
@@ -333,7 +352,7 @@ public class Tele extends OpModeCommand {
                 schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
             }
         }
-        telemetry.addData("num balls",robot.tableCompartments.intakeThread.getNumBalls());
-        telemetry.addData("has three",robot.tableCompartments.intakeThread.hasThree);
+
+        telemetry.addData("voltage", robot.voltageSensor.getVoltage());
     }
 }

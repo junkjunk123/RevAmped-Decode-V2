@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.MapBuilder;
 import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 import org.firstinspires.ftc.teamcode.utils.math.MathUtil;
@@ -54,20 +55,20 @@ public class FarTrackingMath {
         REST = trackCalibration(ServoTurret.REST, AllianceColor.Blue);
 
         FAR_1 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 15,
-                213/255d, 181/255d);
+                215/255d, 185/255d);
         FAR_2 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 5,
                 218/255d, 181/255d);
         FAR_3 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 15,
-                228/255d, 174/255d);
-        FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 25,
+                225/255d, 174/255d);
+        FAR_4 = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY + 45,
                 229/255d, 173/255d);
 
         FAR_AUTO = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 25,
                 215.25/255d, AllianceColor.Red);
 
-        CLOSE_1 = trackCalibration(233/255d, 166/255d);
-        CLOSE_2 = trackCalibration(250/255d, 147/255d);
-        CLOSE_3 = trackCalibration(-26/255d, 135/255d);
+        CLOSE_1 = trackCalibration(231/255d, 166/255d);
+        CLOSE_2 = trackCalibration(250/255d, 149/255d);
+        CLOSE_3 = trackCalibration(-26/255d, 140/255d);
         CLOSE_4 = trackCalibration(-14/255d, AllianceColor.Red);
 
         heatMap = MapBuilder.create(() -> new EnumMap<TrackState, Track>(TrackState.class))
@@ -81,7 +82,7 @@ public class FarTrackingMath {
                 .add(TrackState.CLOSE_THREE, CLOSE_3)
                 .add(TrackState.CLOSE_FOUR, CLOSE_4)
                 .add(TrackState.FAR_AUTO, FAR_AUTO)
-                .getMap();
+                .build();
     }
 
     public static Track trackCalibration(double hoodPos, double flywheelVel, double turretPos, AllianceColor allianceColor) {
@@ -139,8 +140,19 @@ public class FarTrackingMath {
 
             if (state.isFar() && trackTraj) {
                 f.setVelocity(target.flywheelVel());
-                h.setPosition(target.hoodPos());
+                //h.setPosition(target.hoodPos());
             }
         };
+    }
+
+    public static void buildOffsetILUT(ListMap<Double, Double> turretOffsets) {
+        ILUT.Builder builder = new ILUT.Builder();
+        double initial = turretOffsets.get(0).val();
+        for (int i = 0; i < turretOffsets.size(); i++) {
+            ListMap.Entry<Double, Double> calibration = turretOffsets.get(i);
+            double heading = calibration.key();
+            builder.add(heading, ServoTurret.radToTicks(ServoTurret.ticksToRad(calibration.val()) - heading) - initial);
+        }
+        offsetInterpol = builder.build();
     }
 }

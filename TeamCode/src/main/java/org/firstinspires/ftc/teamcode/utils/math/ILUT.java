@@ -107,7 +107,6 @@ public class ILUT {
         mX = x;
         mY = y;
         mM = Arrays.asList(m);
-
     }
 
     /**

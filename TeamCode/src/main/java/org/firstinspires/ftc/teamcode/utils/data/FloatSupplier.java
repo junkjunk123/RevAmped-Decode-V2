@@ -29,4 +29,8 @@ public class FloatSupplier {
     public BooleanSwitch lessThan(float thresholdMax) {
         return new BooleanSwitch(() -> getVal() < thresholdMax).setUpdateFunction(this::update);
     }
+
+    public BooleanSwitch isPress() {
+        return new BooleanSwitch(() -> Math.abs(getVal()) >= 0.3f).setUpdateFunction(this::update);
+    }
 }

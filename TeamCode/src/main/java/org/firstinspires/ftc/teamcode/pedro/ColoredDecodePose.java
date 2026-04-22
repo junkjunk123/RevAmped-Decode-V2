@@ -39,6 +39,10 @@ public class ColoredDecodePose implements FuturePose {
         this(new Pose(x, y), AllianceColor.Blue);
     }
 
+    public ColoredDecodePose() {
+        this(0, 0);
+    }
+
     public Pose getPose(AllianceColor desiredColor) {
         if (desiredColor.equals(AllianceColor.Red)) {
             if (red == null) red = pose.mirror();

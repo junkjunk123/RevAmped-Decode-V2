@@ -39,6 +39,10 @@ public class GamepadEx {
 
     public BooleanSwitch right_trigger_button;
     public BooleanSwitch left_trigger_button;
+    public BooleanSwitch left_stick_x_button;
+    public BooleanSwitch left_stick_y_button;
+    public BooleanSwitch right_stick_x_button;
+    public BooleanSwitch right_stick_y_button;
 
     public GamepadEx(Gamepad gamepad) {
         a = new BooleanSwitch(() -> gamepad.a);
@@ -80,6 +84,30 @@ public class GamepadEx {
     public void right_trigger_button(Function<FloatSupplier, BooleanSwitch> f) {
         right_trigger_button = f.apply(right_trigger);
         buttons.add(right_trigger_button);
+    }
+
+    public void left_stick_x_button(Function<FloatSupplier, BooleanSwitch> f) {
+        left_stick_x_button = f.apply(left_stick_x);
+        buttons.add(left_stick_x_button);
+    }
+
+    public void left_stick_y_button(Function<FloatSupplier, BooleanSwitch> f) {
+        left_stick_y_button = f.apply(left_stick_y);
+        buttons.add(left_stick_y_button);
+    }
+
+    public void right_stick_x_button(Function<FloatSupplier, BooleanSwitch> f) {
+        right_stick_x_button = f.apply(right_stick_x);
+        buttons.add(right_stick_x_button);
+    }
+
+    public void right_stick_y_button(Function<FloatSupplier, BooleanSwitch> f) {
+        right_stick_y_button = f.apply(right_stick_y);
+        buttons.add(right_stick_y_button);
+    }
+
+    public void addButton(BooleanSwitch button) {
+        buttons.add(button);
     }
 
     public void update() {
