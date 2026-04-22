@@ -36,6 +36,7 @@ public class DecodeBlobCamera {
                 .setCameraResolution(new Size(resWidth,resHeight))
                 .addProcessor(purpleBlobProcessor.getProcessor())
                 .addProcessor(greenBlobProcessor.getProcessor())
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
     }
 
