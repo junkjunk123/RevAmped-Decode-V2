@@ -4,6 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
+import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
+import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 
 @Config
 public class Hood extends HwServo {
@@ -30,10 +32,18 @@ public class Hood extends HwServo {
     }
 
     private HoodState state = HoodState.REST;
+    private double farPos;
+    private final HwVoltageSensor voltageSensor;
+
+    public Hood(HardwareMap hwMap, HwVoltageSensor voltageSensor) {
+        super(hwMap, "hood");
+        this.voltageSensor = voltageSensor;
+        rest();
+        farPos = FAR_PRESET;
+    }
 
     public Hood(HardwareMap hwMap) {
-        super(hwMap, "hood");
-        rest();
+        this(hwMap, null);
     }
 
     public void rest() {
@@ -47,7 +57,7 @@ public class Hood extends HwServo {
     }
 
     public void far() {
-        setPosition(FAR_PRESET);
+        setPosition(farPos);
         state = HoodState.FAR;
     }
 
@@ -55,7 +65,6 @@ public class Hood extends HwServo {
         setPosition(CORNER_PRESET);
         state = HoodState.CORNER;
     }
-
 
     public void medium() {
         setPosition(MEDIUM_PRESET);
@@ -80,8 +89,12 @@ public class Hood extends HwServo {
         return state == this.state;
     }
 
+    public void finetuneFar(double ticks) {
+        farPos += ticks;
+        if (atState(HoodState.FAR)) setPosition(farPos);
+    }
+
     public String getState() {
         return state.name();
     }
-    public HoodState getCurrentState(){return state;}
 }

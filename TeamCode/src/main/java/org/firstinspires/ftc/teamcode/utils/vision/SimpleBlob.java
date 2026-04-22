@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.utils.data;
+package org.firstinspires.ftc.teamcode.utils.vision;
 
 import androidx.annotation.NonNull;
 
+import org.firstinspires.ftc.teamcode.utils.data.Point;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 import java.util.Arrays;

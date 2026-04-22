@@ -37,9 +37,9 @@ public class Flywheel extends HwMotor {
     }
     private FlywheelState state = FlywheelState.STOPPED;
 
-    public Flywheel(HardwareMap hardwareMap) {
+    public Flywheel(HardwareMap hardwareMap, HwVoltageSensor voltageSensor) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
-        voltageSensor = new HwVoltageSensor(hardwareMap);
+        this.voltageSensor = voltageSensor;
         setEncoder(Encoder.fromMotor(get()).reverse());
         resetPosition();
         hardware[0].setDirection(DcMotorSimple.Direction.REVERSE);
@@ -47,14 +47,16 @@ public class Flywheel extends HwMotor {
         controller = new FlywheelController();
     }
 
+    public Flywheel(HardwareMap hardwareMap) {
+        this(hardwareMap, null);
+    }
+
     public void update() {
         super.update();
-        voltageSensor.update();
 
         if (isRunning() && state != FlywheelState.NO_PID) {
             double power = controller.update(getVelocityImperial(), targetVelocity);
-            if (controller.getMode().equals(FlywheelController.Mode.SPINUP)) setPower(power);
-            else setPower(power * voltageSensor.getVoltageNormalized());
+            setPower(power);
         }
     };
 

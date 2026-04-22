@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret.turretPos;
-import static org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret.turretPosInv;
-
 import android.graphics.Color;
 
 import com.pedropathing.math.Matrix;
@@ -20,9 +17,12 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
-import org.firstinspires.ftc.teamcode.utils.BlobTransformer;
+import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
+import org.firstinspires.ftc.teamcode.utils.math.ILUT;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
+import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 public class RobotConstants {
@@ -46,7 +46,7 @@ public class RobotConstants {
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 129/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
+        Hood.FAR_PRESET = 170/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants - = left + = right
@@ -72,6 +72,18 @@ public class RobotConstants {
         ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d);
         ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
         ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d);
+
+        FarTrackingMath.buildOffsetILUT(
+                new ListMap<Double, Double>()
+                    .add(0d, 185/255d)
+                    .add(Math.PI / 4, 219/255d)
+                    .add(Math.PI / 2, 256/255d)
+                    .add(Math.PI * 3 / 4.0, 8/255d)
+                    .add(Math.PI, 45/255d)
+                    .add(Math.PI * 5 / 4.0, 79/255d)
+                    .add(Math.PI * 3 / 2.0, 114/255d)
+                    .add(Math.PI * 7 / 4.0, 148/255d)
+        );
 
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;

@@ -43,6 +43,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 import org.firstinspires.ftc.teamcode.utils.math.Z3Element;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 
@@ -71,6 +72,7 @@ public class Robot {
     public final DecodeLimelight limelight;
     public final Lift lift;
     public final DecodeBlobCamera intakeCamera;
+    public final HwVoltageSensor voltageSensor;
 
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
@@ -84,14 +86,15 @@ public class Robot {
         this.hardwareMap = hardwareMap;
         hubs = hardwareMap.getAll(LynxModule.class);
         setBulkReadMode(LynxModule.BulkCachingMode.MANUAL);
+        voltageSensor = new HwVoltageSensor(hardwareMap);
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         Globals.isTeleOp = pathSupplier == null;
         turret = new ServoTurret(hardwareMap);
-        flywheel = new Flywheel(hardwareMap);
+        flywheel = new Flywheel(hardwareMap, voltageSensor);
         intakeMotor = new IntakeMotor(hardwareMap);
         table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.rightRear));
         popper = new Popper(hardwareMap);
-        hood = new Hood(hardwareMap);
+        hood = new Hood(hardwareMap, voltageSensor);
         intakeColor = new SpindexerColorSensors(hardwareMap);
         intakeDistance = new IntakeArtifactDetector(hardwareMap, "intakeDistance", 25);
         frontDistance = new IntakeArtifactDetector(hardwareMap, "frontDistance", 100, 0);
@@ -122,6 +125,7 @@ public class Robot {
 
     public void update() {
         clearBulkCache();
+        voltageSensor.update();
         drivetrain.update();
         flywheel.update();
         feederWheel.update();

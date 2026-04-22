@@ -24,7 +24,7 @@ public class MapBuilder<T, V, K extends AbstractMap<T, V>> {
         return this;
     }
 
-    public K getMap() {
+    public K build() {
         return map;
     }
 }
