@@ -92,7 +92,7 @@ public class Robot {
         turret = new ServoTurret(hardwareMap);
         flywheel = new Flywheel(hardwareMap, voltageSensor);
         intakeMotor = new IntakeMotor(hardwareMap);
-        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.rightRear));
+        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.leftFront));
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap, voltageSensor);
         intakeColor = new SpindexerColorSensors(hardwareMap);
@@ -353,18 +353,6 @@ public class Robot {
         );
     }
 
-    public ICommand resetTable() {
-        return new Sequential(
-                new Instant(intakeMotor::stop),
-                popper.neutral(),
-                table.reset(),
-                new Instant(() -> {
-                    intakeMotor.intake();
-                    feederWheel.intakeState();
-                })
-        );
-    }
-
     public ICommand resetTableTeleOp() {
         return new Sequential(
                 new Parallel(
@@ -384,35 +372,6 @@ public class Robot {
                         splitter.activate()
                 )
         );
-    }
-
-    public ICommand sortAndShootAuto() {
-        return new Sequential(
-                new Race(
-                        tableCompartments.populateAuto(),
-                        new Wait(300)
-                ),
-                sortAuto(),
-                popper.pop(),
-                autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
-        );
-    }
-
-    public Notifier shootAndReset() {
-        return new Notifier(c -> new Sequential(
-                shootAll(),
-                Channels.send(c, Channels::signal),
-                new Parallel(
-                        new Sequential(
-                                resetTable(),
-                                Channels.send(c, Channels::signal)
-                        ),
-                        new Sequential(
-                                resetShooter(),
-                                Channels.send(c, Channels::signal)
-                        )
-                )
-        ));
     }
 
     public void shootNear() {

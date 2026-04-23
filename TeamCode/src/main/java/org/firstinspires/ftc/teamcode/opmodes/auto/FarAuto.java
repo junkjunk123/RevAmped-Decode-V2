@@ -40,7 +40,7 @@ public class FarAuto extends OpModeCommand {
     private GyroThread gyroThread;
     private final ElapsedTime overallTimer = new ElapsedTime();
     private Z3Element cyclePath = new Z3Element(-1);
-    public static boolean useVision = false;
+    public static boolean useVision = true;
     private final AtomicInteger cameraFailures = new AtomicInteger(0);
 
     public static int MAX_CAM_FAILURES = 3;
@@ -90,7 +90,7 @@ public class FarAuto extends OpModeCommand {
                         new Parallel(
                                 transfer(),
                                 new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
-                                new Race(
+                                new Parallel(
                                         robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
                                         new Sequential(
                                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
@@ -175,6 +175,8 @@ public class FarAuto extends OpModeCommand {
     public ICommand visionCycle() {
         Channel<Integer> selectedCycle = Channels.oneshot();
         AtomicReferenceArray<FollowParameters> selectedPaths = new AtomicReferenceArray<>(2);
+        AtomicBoolean aborted = new AtomicBoolean(false);
+        AtomicBoolean foundPath = new AtomicBoolean(false);
 
         return new Sequential(
                 new Parallel(
@@ -195,31 +197,35 @@ public class FarAuto extends OpModeCommand {
                                         new Race(
                                                 new Sequential(
                                                         selectedCycle.listen(),
+                                                        new WaitUntil(() -> !aborted.get()),
                                                         new Instant(() -> {
                                                             Integer selected = Channels.receive(selectedCycle);
                                                             if (selected == null) throw new IllegalArgumentException("Camera short-circuited trust not the code");
                                                             FollowParameters[] cycle = FarAutoPaths.getCycle(selected, robot.drivetrain);
                                                             selectedPaths.set(0, cycle[0]);
                                                             selectedPaths.set(1, cycle[1]);
+                                                            foundPath.set(true);
                                                         })
                                                 ),
                                                 new Sequential(
                                                         new Wait(400),
+                                                        new WaitUntil(() -> !foundPath.get()),
                                                         new Instant(() -> {
                                                             FollowParameters[] cycle = FarAutoPaths.getDefaultCycle(robot.drivetrain);
                                                             selectedPaths.set(0, cycle[0]);
                                                             selectedPaths.set(1, cycle[1]);
                                                             cameraFailures.getAndIncrement();
+                                                            aborted.set(true);
                                                         })
                                                 )
                                         ),
-                                        selectedPaths.get(0).followCommand(robot.drivetrain),
+                                        new Lazy(() -> selectedPaths.get(0).followCommand(robot.drivetrain)),
                                         new Wait(250)
                                 )
                         )
                 ),
                 new Parallel(
-                        selectedPaths.get(1).followCommand(robot.drivetrain),
+                        new Lazy(() -> selectedPaths.get(1).followCommand(robot.drivetrain)),
                         new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
                         transfer(),
                         new Sequential(

@@ -33,7 +33,7 @@ import java.util.function.BooleanSupplier;
 public class EighteenAutoSorted extends OpModeCommand {
     private Robot robot;
     private final ElapsedTime overallTimer = new ElapsedTime();
-    private static boolean testSlowShoot = true;
+    private static boolean testSlowShoot = false;
 
     @Override
     public void initialize() {

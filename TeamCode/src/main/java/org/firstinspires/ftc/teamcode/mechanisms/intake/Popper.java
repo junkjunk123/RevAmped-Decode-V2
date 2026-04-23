@@ -39,7 +39,7 @@ public class Popper extends HwServo {
                 );
             }
 
-            return Commands.NOOP;
+            return new Instant(() -> setPosition(POP));
         });
     }
 
@@ -65,7 +65,7 @@ public class Popper extends HwServo {
                 return moveToNeutral();
             }
 
-            return Commands.NOOP;
+            return new Instant(() -> setPosition(NEUTRAL));
         });
     }
 
@@ -73,7 +73,7 @@ public class Popper extends HwServo {
         return stateMachine.runTransition(
                 new Sequential(
                         new Instant(() -> setPosition(NEUTRAL)),
-                        new Wait(500)
+                        new Wait(250)
                 ),
                 PopperState.NEUTRAL
         );

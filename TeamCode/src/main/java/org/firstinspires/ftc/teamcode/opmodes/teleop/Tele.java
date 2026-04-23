@@ -44,7 +44,6 @@ public class Tele extends OpModeCommand {
     private boolean transfer;
     private boolean canShoot = true;
     private GyroThread gyroThread;
-    private boolean firstTime = true;
 
     @Override
     public void initialize() {
@@ -176,28 +175,7 @@ public class Tele extends OpModeCommand {
                         robot.feederWheel.stop();
                     }),
                     new Sequential(
-                            new Conditional(
-                                    () -> !firstTime,
-                                    robot.resetTableTeleOp(),
-                                    new Sequential(
-                                            new Instant(() -> firstTime = false),
-                                            new Parallel(
-                                                    new Instant(robot.intakeMotor::stop),
-                                                    robot.intakeGate.open(),
-                                                    robot.table.reset()),
-                                            new Instant(() -> {
-                                                robot.intakeMotor.intake();
-                                                robot.feederWheel.intakeState();
-                                            }),
-                                            new Parallel(
-                                                    new Sequential(
-                                                            robot.popper.neutral(),
-                                                            new Wait(200)
-                                                    ),
-                                                    robot.splitter.activate()
-                                            )
-                                    )
-                            ),
+                            robot.resetTableTeleOp(),
                             new Parallel(
                                     robot.intakeGate.open(),
                                     robot.splitter.activate()
@@ -303,12 +281,6 @@ public class Tele extends OpModeCommand {
             );
         }
 
-        if (gamepad_2.dpad_left.isRisingEdge()) {
-            schedule(tsh.task(robot.popper.block(), RobotStateHandler.CycleState.INTAKE));
-        } else if (gamepad_2.dpad_left.isFallingEdge()) {
-            schedule(tsh.task(robot.popper.neutral(), RobotStateHandler.CycleState.INTAKE));
-        }
-
         if (gamepad_2.dpad_right.isRisingEdge()) {
             Pose reset = new ColoredDecodePose().getPose();
             robot.drivetrain.follower.setHeading(reset.getHeading());
@@ -353,5 +325,10 @@ public class Tele extends OpModeCommand {
         }
 
         telemetry.addData("voltage", robot.voltageSensor.getVoltage());
+        telemetry.addData("popper_state", robot.popper.getState());
+        telemetry.addData("robot_state", robot.getRobotState());
+        telemetry.addData("hasThree", robot.tableCompartments.intakeThread.hasThree);
+        telemetry.addData("encoderPos", robot.table.getEncoder().getPosition());
+        telemetry.addData("encoderVel", robot.table.getEncoder().getVelocity());
     }
 }
