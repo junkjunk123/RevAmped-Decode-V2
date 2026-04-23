@@ -181,7 +181,16 @@ public class FarAuto extends OpModeCommand {
                         getPathFromVision().subscribe(selectedCycle),
                         intake(),
                         new Race(
-                                new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
+                                new Sequential(
+                                        new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
+                                        new Instant(() -> {
+                                            if (selectedPaths.get(0) == null) {
+                                                FollowParameters[] cycle = FarAutoPaths.getDefaultCycle(robot.drivetrain);
+                                                selectedPaths.set(0, cycle[0]);
+                                                selectedPaths.set(1, cycle[1]);
+                                            }
+                                        })
+                                ),
                                 new Sequential(
                                         new Race(
                                                 new Sequential(
