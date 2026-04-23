@@ -50,39 +50,39 @@ public class RobotConstants {
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants - = left + = right
-        ServoTurret.REST = 129/255f;
+        ServoTurret.REST = 127/255f;
 
         ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
-        ServoTurret.LEFT_TICKS_LIMIT = 5/255f; ServoTurret.RIGHT_TICKS_LIMIT = 250/255f;
-        ServoTurret.FAR_PRESET = TurretCalibration.fromRed(217/255d);
+        ServoTurret.LEFT_TICKS_LIMIT = 0/255f; ServoTurret.RIGHT_TICKS_LIMIT = 255/255f;
+        ServoTurret.FAR_PRESET = TurretCalibration.fromRed(215/255d);
 
-        ServoTurret.UNSORTED_AUTO_PRELOADS = TurretCalibration.fromRed(138/255d);
-        ServoTurret.UNSORTED_SET_1 = TurretCalibration.fromRed(208/255d);
-        ServoTurret.UNSORTED_SET_2 = TurretCalibration.fromRed(208/255d);
-        ServoTurret.UNSORTED_SET_3 = TurretCalibration.fromRed(208/255d);
-        ServoTurret.UNSORTED_SET_4 = TurretCalibration.fromRed(208/255d);
-        ServoTurret.UNSORTED_SET_5 = TurretCalibration.fromRed(208/255d);
-        ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(199/255d);
+        ServoTurret.UNSORTED_AUTO_PRELOADS = TurretCalibration.fromRed(136/255d);
+        ServoTurret.UNSORTED_SET_1 = TurretCalibration.fromRed(206/255d);
+        ServoTurret.UNSORTED_SET_2 = TurretCalibration.fromRed(206/255d);
+        ServoTurret.UNSORTED_SET_3 = TurretCalibration.fromRed(206/255d);
+        ServoTurret.UNSORTED_SET_4 = TurretCalibration.fromRed(206/255d);
+        ServoTurret.UNSORTED_SET_5 = TurretCalibration.fromRed(206/255d);
+        ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(197/255d);
 
-        ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(212/255d);
-        ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(249/255d);
-        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(193/255d);
-        ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(194/255d);
-        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(188/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d);
-        ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d);
+        ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(219/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(247/255d);
+        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(191/255d);
+        ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(192/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(186/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(194/255d);
+        ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(184/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(216/255d);
 
         FarTrackingMath.buildOffsetILUT(
                 new ListMap<Double, Double>()
-                    .add(0d, 185/255d)
-                    .add(Math.PI / 4, 219/255d)
-                    .add(Math.PI / 2, 256/255d)
-                    .add(Math.PI * 3 / 4.0, 8/255d)
-                    .add(Math.PI, 45/255d)
-                    .add(Math.PI * 5 / 4.0, 79/255d)
-                    .add(Math.PI * 3 / 2.0, 114/255d)
-                    .add(Math.PI * 7 / 4.0, 148/255d)
+                    .add(0d, 183/255d)
+                    .add(Math.PI / 4, 217/255d)
+                    .add(Math.PI / 2, 1.0d)
+                    .add(Math.PI * 3 / 4.0, 6/255d)
+                    .add(Math.PI, 43/255d)
+                    .add(Math.PI * 5 / 4.0, 77/255d)
+                    .add(Math.PI * 3 / 2.0, 112/255d)
+                    .add(Math.PI * 7 / 4.0, 146/255d)
         );
 
         //gate

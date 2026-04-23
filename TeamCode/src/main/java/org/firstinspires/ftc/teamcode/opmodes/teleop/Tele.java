@@ -88,7 +88,7 @@ public class Tele extends OpModeCommand {
                 tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                 tsh.runTransition(
                         new Sequential(
-                                robot.popper.neutral(),
+                                robot.popper.moveToNeutral(),
                                 robot.shootAll(),
                                 new Parallel(
                                         robot.resetShooter(),
@@ -249,14 +249,15 @@ public class Tele extends OpModeCommand {
             transfer = false;
             schedule(new Sequential(
                         tsh.runTransition(
-                                new Parallel(
-                                        new Instant(() -> robot.feederWheel.start()),
-                                        robot.popper.pop(),
-                                        robot.splitter.neutral(),
-                                        robot.intakeGate.close(),
-                                        new Instant(robot.intakeTilt::transfer)
-                                ),
+                                Commands.NOOP,
                                 RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                        ),
+                        new Parallel(
+                            new Instant(() -> robot.feederWheel.start()),
+                            robot.popper.pop(),
+                            robot.splitter.neutral(),
+                            robot.intakeGate.close(),
+                            new Instant(robot.intakeTilt::transfer)
                         ),
                         new Conditional(
                                 robot.flywheel::isStopped,

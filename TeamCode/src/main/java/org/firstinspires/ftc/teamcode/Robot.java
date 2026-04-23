@@ -370,11 +370,15 @@ public class Robot {
                 new Parallel(
                     new Instant(intakeMotor::stop),
                     intakeGate.open(),
-                    table.reset()),
-                new Instant(() -> {
-                    intakeMotor.intake();
-                    feederWheel.intakeState();
-                }),
+                    table.reset(),
+                    new Sequential(
+                            new Wait(300),
+                            new Instant(() -> {
+                                intakeMotor.intake();
+                                feederWheel.intakeState();
+                            })
+                    )
+                ),
                 new Parallel(
                         popper.neutral(),
                         splitter.activate()
@@ -460,14 +464,13 @@ public class Robot {
     public ICommand intake() {
         return new Sequential(
                 new Instant(intakeTilt::intake),
-                new Parallel(
-                     splitter.activate(),
-                     intakeGate.open()
-                ),
+                intakeGate.open(),
                 new Instant(() -> {
                     intakeMotor.intake();
                     feederWheel.intakeState();
-                })
+                }),
+                new Wait(300),
+                splitter.activate()
         );
     }
 }
