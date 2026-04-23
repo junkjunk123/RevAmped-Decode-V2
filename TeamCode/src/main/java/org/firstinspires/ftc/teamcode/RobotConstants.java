@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
-import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
@@ -46,7 +45,7 @@ public class RobotConstants {
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 170/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
+        Hood.FAR_PRESET = 160/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants - = left + = right
@@ -64,14 +63,24 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_5 = TurretCalibration.fromRed(208/255d);
         ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(199/255d);
 
-        ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(212/255d);
-        ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(249/255d);
-        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(193/255d);
-        ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(194/255d);
-        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(188/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d);
-        ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d);
+        ServoTurret.EIGHTEEN_PRELOADS_RED = TurretCalibration.fromRed(212/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET_RED = TurretCalibration.fromRed(249/255d);
+        ServoTurret.EIGHTEEN_DETECTION_RED = TurretCalibration.fromRed(193/255d);
+        ServoTurret.EIGHTEEN_SECOND_SET_RED = TurretCalibration.fromRed(194/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT_RED = TurretCalibration.fromRed(188/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET_RED = TurretCalibration.fromRed(196/255d);
+        ServoTurret.EIGHTEEN_FOURTH_SET_RED = TurretCalibration.fromRed(186/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET_RED = TurretCalibration.fromRed(218/255d);
+
+        //left + right -
+        ServoTurret.EIGHTEEN_PRELOADS_BLUE = TurretCalibration.fromRed(215/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET_BLUE = TurretCalibration.fromRed(252/255d);
+        ServoTurret.EIGHTEEN_DETECTION_BLUE = TurretCalibration.fromRed(193/255d);
+        ServoTurret.EIGHTEEN_SECOND_SET_BLUE = TurretCalibration.fromRed(197/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT_BLUE = TurretCalibration.fromRed(191/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET_BLUE = TurretCalibration.fromRed(199/255d);
+        ServoTurret.EIGHTEEN_FOURTH_SET_BLUE = TurretCalibration.fromRed(189/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET_BLUE = TurretCalibration.fromRed(223/255d);
 
         FarTrackingMath.buildOffsetILUT(
                 new ListMap<Double, Double>()
@@ -92,7 +101,7 @@ public class RobotConstants {
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
 
         //tilt
-        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 163/255f;
+        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 162/255f;
 
         //updated
         // each compartment is ~32 ticks

@@ -166,7 +166,7 @@ public class FarAuto extends OpModeCommand {
 
     public ICommand cycle() {
         return new Conditional(
-                () -> useVision && cameraFailures.get() <= MAX_CAM_FAILURES,
+                () -> useVision && (cameraFailures.get() <= MAX_CAM_FAILURES),
                 visionCycle(),
                 cycleWithoutVision()
         );
@@ -204,7 +204,6 @@ public class FarAuto extends OpModeCommand {
                                                         })
                                                 )
                                         ),
-                                        selectedPaths.get(0).followCommand(robot.drivetrain),
                                         new Wait(250)
                                 )
                         )
