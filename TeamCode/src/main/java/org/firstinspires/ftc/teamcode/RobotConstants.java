@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
-import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
