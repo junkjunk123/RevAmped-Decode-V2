@@ -28,23 +28,14 @@ public class ServoTurret extends HwServo {
     public static double FULL_ROTATION;
     public static double REST;
 
-    public static TurretCalibration EIGHTEEN_DETECTION_RED;
-    public static TurretCalibration EIGHTEEN_PRELOADS_RED;
-    public static TurretCalibration EIGHTEEN_FIRST_SET_RED;
-    public static TurretCalibration EIGHTEEN_SECOND_SET_RED;
-    public static TurretCalibration EIGHTEEN_GATE_SHOOT_RED;
-    public static TurretCalibration EIGHTEEN_THIRD_SET_RED;
-    public static TurretCalibration EIGHTEEN_FOURTH_SET_RED;
-    public static TurretCalibration EIGHTEEN_FIFTH_SET_RED;
-
-    public static TurretCalibration EIGHTEEN_DETECTION_BLUE;
-    public static TurretCalibration EIGHTEEN_PRELOADS_BLUE;
-    public static TurretCalibration EIGHTEEN_FIRST_SET_BLUE;
-    public static TurretCalibration EIGHTEEN_SECOND_SET_BLUE;
-    public static TurretCalibration EIGHTEEN_GATE_SHOOT_BLUE;
-    public static TurretCalibration EIGHTEEN_THIRD_SET_BLUE;
-    public static TurretCalibration EIGHTEEN_FOURTH_SET_BLUE;
-    public static TurretCalibration EIGHTEEN_FIFTH_SET_BLUE;
+    public static TurretCalibration EIGHTEEN_DETECTION;
+    public static TurretCalibration EIGHTEEN_PRELOADS;
+    public static TurretCalibration EIGHTEEN_FIRST_SET;
+    public static TurretCalibration EIGHTEEN_SECOND_SET;
+    public static TurretCalibration EIGHTEEN_GATE_SHOOT;
+    public static TurretCalibration EIGHTEEN_THIRD_SET;
+    public static TurretCalibration EIGHTEEN_FOURTH_SET;
+    public static TurretCalibration EIGHTEEN_FIFTH_SET;
 
     public static TurretCalibration UNSORTED_AUTO_PRELOADS; //doesn't matter for 15
     public static TurretCalibration UNSORTED_SET_1;
