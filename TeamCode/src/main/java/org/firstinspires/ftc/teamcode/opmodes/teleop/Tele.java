@@ -265,9 +265,7 @@ public class Tele extends OpModeCommand {
                                 Commands.NOOP
                         ),
                         new Wait(200),
-                        new Instant(robot.intakeMotor::outtake),
-                        new Wait(500),
-                        new Instant(robot.intakeMotor::stop)
+                        new Instant(robot.intakeMotor::outtake)
                     )
             );
         }

@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import java.util.List;
 
 @Configurable
-public class EighteenPaths implements PathSupplier {
+public class EighteenPathsBlue implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(45, 8.75, Math.toRadians(180));
 
     public static ColoredDecodePose FIRST_INTAKE = new ColoredDecodePose(10, 9, Math.toRadians(180));
@@ -23,22 +23,22 @@ public class EighteenPaths implements PathSupplier {
     public static ColoredDecodePose SECOND_SHOOT_CONTROL = new ColoredDecodePose(40, 60);
     public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(57, 77);
 
-    public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(33, 62);
-    public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(50, 88);
+    public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(34, 65);
+    public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(51, 91);
 
-    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(9, 59, Math.toRadians(150));
-    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(14, 63, Math.toRadians(180));
+    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(10.5, 62, Math.toRadians(150));
+    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(15.5, 66, Math.toRadians(180));
 
-    public static ColoredDecodePose THIRD_INTAKE_CONTROL = new ColoredDecodePose(48, 84);
-    public static ColoredDecodePose THIRD_INTAKE = new ColoredDecodePose(19, 84, Math.toRadians(180));
+    public static ColoredDecodePose THIRD_INTAKE_CONTROL = new ColoredDecodePose(49, 87);
+    public static ColoredDecodePose THIRD_INTAKE = new ColoredDecodePose(20, 87, Math.toRadians(180));
 
-    public static ColoredDecodePose THIRD_SHOOT = new ColoredDecodePose(50, 88, Math.toRadians(225));
+    public static ColoredDecodePose THIRD_SHOOT = new ColoredDecodePose(51, 91, Math.toRadians(225));
 
 //    public static ColoredDecodePose FOURTH_INTAKE_CONTROL = new ColoredDecodePose(18, 67);
-    public static ColoredDecodePose FOURTH_INTAKE = new ColoredDecodePose(11, 12);
-    public static ColoredDecodePose FOURTH_SHOOT = new ColoredDecodePose(49, 9);
+    public static ColoredDecodePose FOURTH_INTAKE = new ColoredDecodePose(12, 18);
+    public static ColoredDecodePose FOURTH_SHOOT = new ColoredDecodePose(50, 15);
 
-    public static ColoredDecodePose PARK = new ColoredDecodePose(36, 10);
+    public static ColoredDecodePose PARK = new ColoredDecodePose(37, 16);
 
     @Override
     public Pose startPose() {

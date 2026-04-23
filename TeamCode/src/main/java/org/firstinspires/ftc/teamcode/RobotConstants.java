@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
+import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
@@ -45,7 +46,7 @@ public class RobotConstants {
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 170/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
+        Hood.FAR_PRESET = 160/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
 
         //Turret Constants - = left + = right
@@ -63,14 +64,23 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_5 = TurretCalibration.fromRed(206/255d);
         ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(197/255d);
 
-        ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(219/255d);
-        ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(247/255d);
-        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(191/255d);
-        ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(192/255d);
-        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(186/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(194/255d);
-        ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(184/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(216/255d);
+        ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(210/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(249/255d);
+        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(193/255d);
+        ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(194/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(188/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d);
+        ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d);
+
+        ServoTurret.EIGHTEEN_PRELOADS_BLUE = TurretCalibration.fromRed(215/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET_BLUE = TurretCalibration.fromRed(252/255d);
+        ServoTurret.EIGHTEEN_DETECTION_BLUE = TurretCalibration.fromRed(193/255d);
+        ServoTurret.EIGHTEEN_SECOND_SET_BLUE = TurretCalibration.fromRed(197/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT_BLUE = TurretCalibration.fromRed(191/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET_BLUE = TurretCalibration.fromRed(199/255d);
+        ServoTurret.EIGHTEEN_FOURTH_SET_BLUE = TurretCalibration.fromRed(189/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET_BLUE = TurretCalibration.fromRed(223/255d);
 
         FarTrackingMath.buildOffsetILUT(
                 new ListMap<Double, Double>()
@@ -91,11 +101,11 @@ public class RobotConstants {
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
 
         //tilt
-        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 163/255f;
+        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 162/255f;
 
         //updated
         // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 247/255f, TABLE_BALL_1 = 215/255f, TABLE_BALL_2 = 185/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
+        float TABLE_BALL_0 = 244/255f, TABLE_BALL_1 = 212/255f, TABLE_BALL_2 = 180/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 

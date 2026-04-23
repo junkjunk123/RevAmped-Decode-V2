@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import org.firstinspires.ftc.teamcode.utils.data.Point;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
+import org.opencv.core.Point3;
+import org.opencv.core.RotatedRect;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -14,23 +16,26 @@ public class SimpleBlob implements Iterable<Point> {
     public final Point three;
     public final Point four;
 
+    public final Point center;
     private double area = -1;
 
-    public SimpleBlob(Point one, Point two, Point three, Point four) {
+    public SimpleBlob(Point center, Point one, Point two, Point three, Point four) {
         this.one = one;
         this.two = two;
         this.three = three;
         this.four = four;
+        this.center = center;
     }
 
     public SimpleBlob(ColorBlobLocatorProcessor.Blob blob) {
-        this(Arrays.stream(blob.getContourPoints()).map(p -> new Point(p.x, p.y)).toArray(Point[]::new));
+        this(Point.of(blob.getBoxFit().center), Point.getPoints(blob.getBoxFit()));
         area = blob.getContourArea();
     }
 
-    public SimpleBlob(Point[] points) {
-        this(points[0], points[1], points[2], points[3]);
-        if (points.length != 4) throw new IllegalArgumentException("Blob is a quadrilateral please cause I'm not coding more complex ones");
+    public SimpleBlob(Point center, Point[] points) {
+        this(center, points[1], points[2], points[3], points[4]);
+        if (points.length != 5)
+            throw new IllegalArgumentException("Blob is a quadrilateral please cause I'm not coding more complex ones");
     }
 
     public double area() {
