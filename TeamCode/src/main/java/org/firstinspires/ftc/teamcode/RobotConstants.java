@@ -64,23 +64,14 @@ public class RobotConstants {
         ServoTurret.UNSORTED_SET_5 = TurretCalibration.fromRed(206/255d);
         ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(197/255d);
 
-        ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(210/255d);
-        ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(249/255d);
-        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(193/255d);
-        ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(194/255d);
-        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(188/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d);
-        ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d);
-
-        ServoTurret.EIGHTEEN_PRELOADS_BLUE = TurretCalibration.fromRed(215/255d);
-        ServoTurret.EIGHTEEN_FIRST_SET_BLUE = TurretCalibration.fromRed(252/255d);
-        ServoTurret.EIGHTEEN_DETECTION_BLUE = TurretCalibration.fromRed(193/255d);
-        ServoTurret.EIGHTEEN_SECOND_SET_BLUE = TurretCalibration.fromRed(197/255d);
-        ServoTurret.EIGHTEEN_GATE_SHOOT_BLUE = TurretCalibration.fromRed(191/255d);
-        ServoTurret.EIGHTEEN_THIRD_SET_BLUE = TurretCalibration.fromRed(199/255d);
-        ServoTurret.EIGHTEEN_FOURTH_SET_BLUE = TurretCalibration.fromRed(189/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET_BLUE = TurretCalibration.fromRed(223/255d);
+        ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(210/255d).withBlue(41/255d);
+        ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(249/255d).withBlue(4/255d);
+        ServoTurret.EIGHTEEN_DETECTION = TurretCalibration.fromRed(193/255d).withBlue(63/255d);
+        ServoTurret.EIGHTEEN_SECOND_SET = TurretCalibration.fromRed(194/255d).withBlue(59/255d);
+        ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(188/255d).withBlue(65/255d);
+        ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d).withBlue(67/255d);
+        ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d).withBlue(68/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d).withBlue(31/255d);
 
         FarTrackingMath.buildOffsetILUT(
                 new ListMap<Double, Double>()
