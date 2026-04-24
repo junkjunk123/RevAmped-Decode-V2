@@ -92,7 +92,7 @@ public class Robot {
         turret = new ServoTurret(hardwareMap);
         flywheel = new Flywheel(hardwareMap, voltageSensor);
         intakeMotor = new IntakeMotor(hardwareMap);
-        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.rightRear));
+        table = new Table(hardwareMap, Encoder.fromMotor(drivetrain.leftFront));
         popper = new Popper(hardwareMap);
         hood = new Hood(hardwareMap, voltageSensor);
         intakeColor = new SpindexerColorSensors(hardwareMap);
@@ -353,62 +353,25 @@ public class Robot {
         );
     }
 
-    public ICommand resetTable() {
-        return new Sequential(
-                new Instant(intakeMotor::stop),
-                popper.neutral(),
-                table.reset(),
-                new Instant(() -> {
-                    intakeMotor.intake();
-                    feederWheel.intakeState();
-                })
-        );
-    }
-
     public ICommand resetTableTeleOp() {
         return new Sequential(
                 new Parallel(
                     new Instant(intakeMotor::stop),
                     intakeGate.open(),
-                    table.reset()),
-                new Instant(() -> {
-                    intakeMotor.intake();
-                    feederWheel.intakeState();
-                }),
+                    table.reset(),
+                    new Sequential(
+                            new Wait(300),
+                            new Instant(() -> {
+                                intakeMotor.intake();
+                                feederWheel.intakeState();
+                            })
+                    )
+                ),
                 new Parallel(
                         popper.neutral(),
                         splitter.activate()
                 )
         );
-    }
-
-    public ICommand sortAndShootAuto() {
-        return new Sequential(
-                new Race(
-                        tableCompartments.populateAuto(),
-                        new Wait(300)
-                ),
-                sortAuto(),
-                popper.pop(),
-                autoShoot(() -> Globals.randomizationState == null ? 0.0 : Table.SLOW_SHOOT_DELAY)
-        );
-    }
-
-    public Notifier shootAndReset() {
-        return new Notifier(c -> new Sequential(
-                shootAll(),
-                Channels.send(c, Channels::signal),
-                new Parallel(
-                        new Sequential(
-                                resetTable(),
-                                Channels.send(c, Channels::signal)
-                        ),
-                        new Sequential(
-                                resetShooter(),
-                                Channels.send(c, Channels::signal)
-                        )
-                )
-        ));
     }
 
     public void shootNear() {
@@ -460,14 +423,13 @@ public class Robot {
     public ICommand intake() {
         return new Sequential(
                 new Instant(intakeTilt::intake),
-                new Parallel(
-                     splitter.activate(),
-                     intakeGate.open()
-                ),
+                intakeGate.open(),
                 new Instant(() -> {
                     intakeMotor.intake();
                     feederWheel.intakeState();
-                })
+                }),
+                new Wait(300),
+                splitter.activate()
         );
     }
 }

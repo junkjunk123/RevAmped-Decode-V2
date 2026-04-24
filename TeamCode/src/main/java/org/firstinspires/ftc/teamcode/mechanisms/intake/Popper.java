@@ -39,7 +39,7 @@ public class Popper extends HwServo {
                 );
             }
 
-            return Commands.NOOP;
+            return new Instant(() -> setPosition(POP));
         });
     }
 
@@ -62,17 +62,21 @@ public class Popper extends HwServo {
     public ICommand neutral() {
         return new Lazy(() -> {
             if (!movingToState(PopperState.NEUTRAL)) {
-                return stateMachine.runTransition(
-                        new Sequential(
-                                new Instant(() -> setPosition(NEUTRAL)),
-                                new Wait(500)
-                        ),
-                        PopperState.NEUTRAL
-                );
+                return moveToNeutral();
             }
 
-            return Commands.NOOP;
+            return new Instant(() -> setPosition(NEUTRAL));
         });
+    }
+
+    public ICommand moveToNeutral() {
+        return stateMachine.runTransition(
+                new Sequential(
+                        new Instant(() -> setPosition(NEUTRAL)),
+                        new Wait(250)
+                ),
+                PopperState.NEUTRAL
+        );
     }
 
     public boolean atState(PopperState popperState) {

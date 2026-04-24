@@ -19,6 +19,13 @@ public class ColoredDecodePose implements FuturePose {
     private Pose blue;
     private Pose red;
 
+    public ColoredDecodePose(Pose blue, Pose red) {
+        pose = blue;
+        color = AllianceColor.Blue;
+        this.blue = blue;
+        this.red = red;
+    }
+
     public ColoredDecodePose(double posX, double posY, double heading, AllianceColor allianceColor) {
         this(new Pose(posX, posY, heading), allianceColor);
     }

@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 import org.firstinspires.ftc.teamcode.utils.math.calc.Integrator;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -66,6 +67,10 @@ public class Table extends HwServo {
             }
         }
 
+        public float halfShootEncoderPos() {
+            return (getFullRotation() - target()) / FULL_REVOLUTION * TICKS_PER_ROT / 2;
+        }
+
         public RelativeState next() {
             return values()[(ordinal() + 1) % values().length];
         }
@@ -86,6 +91,7 @@ public class Table extends HwServo {
     public static float FULL_REVOLUTION;
     public static float SECOND_OFFSET;
     public static float SHOOT_INCREMENT;
+    public static int TICKS_PER_ROT = 8192;
     public static double MS_PER_REVOLUTION = 750;
     public static double SLOW_SHOOT_DELAY = 25;
     private final int VELOCITY_THRESHOLD = 20;
@@ -208,12 +214,16 @@ public class Table extends HwServo {
 
     public ICommand shoot() {
         AtomicReadOnce<RelativeState> reader = pendingStateReader();
+        AtomicInteger pos = new AtomicInteger();
         return new Sequential(
-                new Instant(() -> setPosition(reader.read().getFullRotation())),
+                new Instant(() -> {setPosition(reader.read().getFullRotation()); pos.set(encoder.getPosition());}),
                 new Race(
-                        new Wait(5000),
+                        new Wait(700),
                         new Sequential(
-                                new Wait(400),
+                                new Race(
+                                        new WaitUntil(() -> encoder.getPosition() > reader.read().halfShootEncoderPos() + pos.get()),
+                                        new Wait(400)
+                                ),
                                 new WaitUntil(() -> Math.abs(encoder.getVelocity()) < VELOCITY_THRESHOLD_2)
                         )
                 ),

@@ -186,6 +186,6 @@ public class FarAutoPaths implements PathSupplier {
     }
 
     public static FollowParameters[] getDefaultCycle(Drivetrain follower) {
-        return getCycle(2, follower);
+        return getCycle(1, follower);
     }
 }
