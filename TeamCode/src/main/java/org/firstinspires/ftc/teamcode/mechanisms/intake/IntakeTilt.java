@@ -7,10 +7,12 @@ import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 public class IntakeTilt extends HwServo {
     public static double INTAKE;
     public static double TRANSFER;
+    public static double GATE;
 
     private enum TiltState {
         INTAKE,
-        TRANSFER
+        TRANSFER,
+        GATE
     }
     private TiltState state = TiltState.INTAKE;
 
@@ -26,5 +28,10 @@ public class IntakeTilt extends HwServo {
     public void transfer() {
         setPosition(TRANSFER);
         state = TiltState.TRANSFER;
+    }
+
+    public void gate(){
+        setPosition(GATE);
+        state = TiltState.GATE;
     }
 }

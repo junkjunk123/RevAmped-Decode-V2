@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
@@ -167,6 +168,12 @@ public class Tele extends OpModeCommand {
                 ), RobotStateHandler.IntakeMessage.SORTING)
         );
 
+        if (gamepad_1.back.isRisingEdge()){
+            schedule(
+                robot.lift.lift()
+            );
+        }
+
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(() -> {
@@ -218,8 +225,6 @@ public class Tele extends OpModeCommand {
                 robot.tableCompartments.populate();
                 transfer = true;
                 RobotStateHandler.CycleState.INTAKE.update = false;
-                robot.intakeTilt.transfer();
-                robot.intakeMotor.outtake();
             }
         }
 
@@ -234,7 +239,6 @@ public class Tele extends OpModeCommand {
                             new Instant(() -> robot.feederWheel.start()),
                             robot.popper.pop(),
                             robot.splitter.neutral(),
-                            robot.intakeGate.close(),
                             new Instant(robot.intakeTilt::transfer)
                         ),
                         new Conditional(
@@ -242,8 +246,12 @@ public class Tele extends OpModeCommand {
                                 new Instant(robot::shootNear),
                                 Commands.NOOP
                         ),
-                        new Wait(200),
-                        new Instant(robot.intakeMotor::outtake)
+                        new Sequential(
+                            new Instant(robot.intakeMotor::outtakeSlow),
+                            new Wait(50),
+                            robot.intakeGate.close(),
+                            new Instant(robot.intakeMotor::stop)
+                        )
                     )
             );
         }
@@ -289,6 +297,10 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.left_stick_y_button.isRisingEdge()) {
             if (gamepad2.left_stick_y < -0.3f) robot.intakeTilt.transfer();
             else if (gamepad2.left_stick_y > 0.3f) robot.intakeTilt.intake();
+        }
+
+        if (gamepad2.left_stick_x > 0.3f){
+            robot.intakeTilt.gate();
         }
 
         if (gamepad_2.right_stick_y_button.isRisingEdge()) {

@@ -172,7 +172,13 @@ public class CloseAuto extends OpModeCommand {
                         ),
                         new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
+                                new Instant(() -> robot.intakeTilt.gate()),
                                 robot.intake()
+                        ),
+                        new Sequential(
+                                new WaitUntil(() -> robot.drivetrain.follower.atParametricEnd()),
+                                new Wait(150),
+                                new Instant(robot.intakeTilt::intake)
                         )
                 ),
                 new Wait(1400)

@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.DecodeColorSensor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
@@ -92,7 +93,9 @@ public class RobotConstants {
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
 
         //tilt
-        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 162/255f;
+        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 162/255f; IntakeTilt.GATE = 169/255f;
+
+        Lift.TIME = 1500f;
 
         //updated
         // each compartment is ~32 ticks

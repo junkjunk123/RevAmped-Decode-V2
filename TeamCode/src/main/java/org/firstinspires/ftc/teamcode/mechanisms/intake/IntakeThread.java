@@ -179,4 +179,8 @@ public class IntakeThread {
     public void start() {
         intakeDistance.start();
     }
+
+    public boolean getIntakeDistanceState(){
+        return intakeDistance.state();
+    }
 }
