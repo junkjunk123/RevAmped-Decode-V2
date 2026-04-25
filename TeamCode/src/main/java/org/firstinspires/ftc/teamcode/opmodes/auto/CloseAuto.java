@@ -230,16 +230,18 @@ public class CloseAuto extends OpModeCommand {
                 new Parallel(
                         robot.splitter.neutral(),
                         robot.intakeGate.close(),
-                        robot.popper.pop()
+                        robot.popper.pop(),
+                        new Instant(() -> robot.feederWheel.start())
                 ),
-                new Instant(robot.intakeMotor::intake),
-                new Wait(200),
-                new Instant(() -> {
-                    robot.intakeMotor.stop();
-                    robot.feederWheel.start();
-                }),
-                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                i < 5 ? robot.autoFastShoot(IntakeTilt.TiltState.GATE_INTAKE) : robot.autoFastShoot(IntakeTilt.TiltState.INTAKE)
+                new Parallel(
+                        new Sequential(
+                                new Instant(robot.intakeMotor::intake),
+                                new Wait(200),
+                                new Instant(() -> robot.intakeMotor.stop())
+                        ),
+                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
+                        i < 5 ? robot.autoFastShoot(IntakeTilt.TiltState.GATE_INTAKE) : robot.autoFastShoot(IntakeTilt.TiltState.INTAKE)
+                )
         );
     }
 
