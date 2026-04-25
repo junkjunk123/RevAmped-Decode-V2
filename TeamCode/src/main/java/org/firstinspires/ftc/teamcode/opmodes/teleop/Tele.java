@@ -300,7 +300,7 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad2.left_stick_x > 0.3f){
-            robot.intakeTilt.gate();
+            robot.intakeTilt.gateIntake();
         }
 
         if (gamepad_2.right_stick_y_button.isRisingEdge()) {

@@ -40,7 +40,7 @@ public class FarAuto extends OpModeCommand {
     private GyroThread gyroThread;
     private final ElapsedTime overallTimer = new ElapsedTime();
     private Z3Element cyclePath = new Z3Element(-1);
-    public static boolean useVision = true;
+    public static boolean useVision = false;
     private final AtomicInteger cameraFailures = new AtomicInteger(0);
 
     public static int MAX_CAM_FAILURES = 3;

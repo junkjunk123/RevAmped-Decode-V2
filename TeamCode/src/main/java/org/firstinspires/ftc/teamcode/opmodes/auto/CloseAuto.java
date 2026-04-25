@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.UnsortedCloseAutoPaths;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 
 public class CloseAuto extends OpModeCommand {
     private Robot robot;
@@ -36,6 +38,11 @@ public class CloseAuto extends OpModeCommand {
                 new Infinite(() -> {
                     robot.update();
                     Drivetrain.startPose = robot.drivetrain.follower.getPose();
+                    if (!robot.intakeTilt.atState(IntakeTilt.TiltState.TRANSFER) && robot.intakeMotor.getPower() > 0)
+                        robot.tableCompartments.intakeThread.update();
+                    telemetry.addData("numBalls", robot.tableCompartments.intakeThread.getNumBalls());
+                    telemetry.addData("hasThree", robot.tableCompartments.intakeThread.hasThree);
+                    telemetry.update();
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
@@ -46,16 +53,19 @@ public class CloseAuto extends OpModeCommand {
                             robot.intakeGate.close();
                             overallTimer.reset();
                         }),
-                        shootFirstThree(),
                         new Parallel(
-                                intake(1),
                                 new Sequential(
                                         robot.drivetrain.follow(),
                                         new Wait(200)
                                 ),
                                 new Sequential(
-                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                                        new Instant(() -> robot.intakeTilt.gateIntake())
+                                        shootFirstThree(),
+                                        intake(1)
+                                ),
+                                new Sequential(
+                                        new WaitUntil(() -> robot.drivetrain.follower.getCurrentPath().getLastControlPoint()
+                                                .distanceFrom(UnsortedCloseAutoPaths.INTAKE_1.getPose()) < 4 &&
+                                                robot.drivetrain.tValueCondition(0.95))
                                 )
                         ),
                         new Parallel(
@@ -63,26 +73,26 @@ public class CloseAuto extends OpModeCommand {
                                 transfer(),
                                 new Instant(() -> {robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 65); robot.hood.near();})
                         ),
-                        robot.autoFastShoot(IntakeTilt.TiltState.GATE_INTAKE),
-                        gateCycle(2),
-                        robot.drivetrain.follow(),
-                        new Wait(750),
+                        gateHoldCycle(2),
                         gateCycle(3),
                         gateCycle(4),
                         gateCycle(5),
                         new Parallel(
                                 intake(6),
-                                new Sequential(
-                                        new Wait(500),
+                                new Race(
+                                        new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                         robot.drivetrain.follow()
                                 )
                         ),
                         new Parallel(
                                 robot.drivetrain.follow(),
-                                transfer(),
+                                new Sequential(
+                                       transfer(),
+                                       new WaitUntil(() -> robot.drivetrain.tValueCondition(0.85)),
+                                       robot.autoFastShoot(IntakeTilt.TiltState.INTAKE)
+                                ),
                                 new Instant(() -> robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 30))
                         ),
-                        robot.autoFastShoot(),
                         new Instant(() -> {robot.table.setStateCommandless(Table.RelativeState.BALL1); robot.intakeMotor.stop();})
                 )
         );
@@ -90,14 +100,11 @@ public class CloseAuto extends OpModeCommand {
 
     public ICommand gateCycle(int i) {
         return new Sequential(
-                new Race(
-                        new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
-                        new Parallel(
-                                intakeFromGate(i),
-                                new Sequential(
-                                        robot.drivetrain.follow(),
-                                        robot.drivetrain.follow()
-                                )
+                new Parallel(
+                        intakeFromGate(i),
+                        new Sequential(
+                                robot.drivetrain.follow(),
+                                robot.drivetrain.follow()
                         )
                 ),
                 new Parallel(
@@ -107,23 +114,40 @@ public class CloseAuto extends OpModeCommand {
         );
     }
 
-    public ICommand shootFirstThree() {
-        return new Deadline(
-                new Sequential(
-                        robot.popper.pop(),
-                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.4)),
-                        new Parallel(
-                                robot.autoFastShoot(),
-                                new Sequential(
-                                        new Wait(150),
-                                        new Instant(() -> {robot.turret.setPosition(
-                                                robot.turret.getPosition() +
-                                                        4/255f * (int) Math.signum(ServoTurret.REST - robot.turret.getPosition())
-                                        ); robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 90);})
-                                )
+    public ICommand gateHoldCycle(int i) {
+        return new Sequential(
+                new Parallel(
+                        intakeFromGate(i),
+                        new Sequential(
+                                robot.drivetrain.follow(),
+                                robot.drivetrain.follow()
                         )
                 ),
-                robot.drivetrain.followNext(d -> d.tValueCondition(0.9), 3000)
+                new Parallel(
+                        new Sequential(
+                                robot.drivetrain.follow(),
+                                new Wait(750),
+                                robot.drivetrain.follow()
+                        ),
+                        shootFromGate(i)
+                )
+        );
+    }
+
+    public ICommand shootFirstThree() {
+        return new Sequential(
+                robot.popper.pop(),
+                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.4)),
+                new Parallel(
+                        robot.autoFastShoot(),
+                        new Sequential(
+                                new Wait(150),
+                                new Instant(() -> {robot.turret.setPosition(
+                                        robot.turret.getPosition() +
+                                                4/255f * (int) Math.signum(ServoTurret.REST - robot.turret.getPosition())
+                                ); robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 90);})
+                        )
+                )
         );
     }
 
@@ -151,7 +175,7 @@ public class CloseAuto extends OpModeCommand {
 
     public ICommand transfer() {
         return new Sequential(
-                new Wait(600),
+                new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                 new Instant(() -> {
                     robot.intakeTilt.transfer();
                     robot.intakeMotor.outtake();
@@ -188,12 +212,16 @@ public class CloseAuto extends OpModeCommand {
                                 robot.gateIntake()
                         )
                 ),
-                new Wait(1400)
+                new Race(
+                        new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() == 3),
+                        new Wait(1400)
+                )
         );
     }
 
     public ICommand shootFromGate(int i) {
         return new Sequential(
+                new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                 new Instant(() -> {
                     robot.intakeTilt.transfer();
                     robot.intakeMotor.outtake();
@@ -201,15 +229,15 @@ public class CloseAuto extends OpModeCommand {
                 }),
                 new Parallel(
                         robot.splitter.neutral(),
-                        robot.intakeGate.close()
+                        robot.intakeGate.close(),
+                        robot.popper.pop()
                 ),
-                new Sequential(
-                        new Instant(robot.intakeMotor::intake),
-                        new Wait(200),
-                        new Instant(robot.intakeMotor::stop)
-                ),
-                new Instant(() -> robot.feederWheel.start()),
-                robot.popper.pop(),
+                new Instant(robot.intakeMotor::intake),
+                new Wait(200),
+                new Instant(() -> {
+                    robot.intakeMotor.stop();
+                    robot.feederWheel.start();
+                }),
                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
                 i < 5 ? robot.autoFastShoot(IntakeTilt.TiltState.GATE_INTAKE) : robot.autoFastShoot(IntakeTilt.TiltState.INTAKE)
         );
