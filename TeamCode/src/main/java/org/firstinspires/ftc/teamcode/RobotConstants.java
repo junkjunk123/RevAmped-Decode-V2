@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
+import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.DecodeColorSensor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
@@ -94,9 +95,11 @@ public class RobotConstants {
         //tilt
         IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 162/255f; IntakeTilt.GATE_INTAKE = 167/255f;
 
+        Lift.TIME = 1500f;
+
         //updated
         // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 244/255f, TABLE_BALL_1 = 212/255f, TABLE_BALL_2 = 180/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
+        float TABLE_BALL_0 = 245/255f, TABLE_BALL_1 = 213/255f, TABLE_BALL_2 = 181/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 
