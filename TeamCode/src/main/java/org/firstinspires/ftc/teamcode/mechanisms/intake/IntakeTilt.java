@@ -9,7 +9,7 @@ public class IntakeTilt extends HwServo {
     public static double TRANSFER;
     public static double GATE_INTAKE;
 
-    private enum TiltState {
+    public enum TiltState {
         INTAKE,
         TRANSFER,
         GATE_INTAKE
@@ -33,5 +33,13 @@ public class IntakeTilt extends HwServo {
     public void gateIntake() {
         setPosition(GATE_INTAKE);
         state = TiltState.GATE_INTAKE;
+    }
+
+    public boolean atState(TiltState state) {
+        return this.state.equals(state);
+    }
+
+    public String getState() {
+        return state.name();
     }
 }

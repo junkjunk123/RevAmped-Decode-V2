@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
@@ -62,7 +63,7 @@ public class CloseAuto extends OpModeCommand {
                                 transfer(),
                                 new Instant(() -> {robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 65); robot.hood.near();})
                         ),
-                        robot.autoFastShoot(),
+                        robot.autoFastShoot(IntakeTilt.TiltState.GATE_INTAKE),
                         gateCycle(2),
                         robot.drivetrain.follow(),
                         new Wait(750),
@@ -93,12 +94,15 @@ public class CloseAuto extends OpModeCommand {
                         new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                         new Parallel(
                                 intakeFromGate(i),
-                                robot.drivetrain.follow()
+                                new Sequential(
+                                        robot.drivetrain.follow(),
+                                        robot.drivetrain.follow()
+                                )
                         )
                 ),
                 new Parallel(
                         robot.drivetrain.follow(),
-                        shootFromGate()
+                        shootFromGate(i)
                 )
         );
     }
@@ -180,7 +184,7 @@ public class CloseAuto extends OpModeCommand {
                                 robot.popper.neutral()
                         ),
                         new Sequential(
-                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.85)),
                                 robot.gateIntake()
                         )
                 ),
@@ -188,7 +192,7 @@ public class CloseAuto extends OpModeCommand {
         );
     }
 
-    public ICommand shootFromGate() {
+    public ICommand shootFromGate(int i) {
         return new Sequential(
                 new Instant(() -> {
                     robot.intakeTilt.transfer();
@@ -207,7 +211,7 @@ public class CloseAuto extends OpModeCommand {
                 new Instant(() -> robot.feederWheel.start()),
                 robot.popper.pop(),
                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                robot.autoFastShoot()
+                i < 5 ? robot.autoFastShoot(IntakeTilt.TiltState.GATE_INTAKE) : robot.autoFastShoot(IntakeTilt.TiltState.INTAKE)
         );
     }
 

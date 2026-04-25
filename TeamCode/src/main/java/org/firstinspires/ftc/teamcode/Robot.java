@@ -266,10 +266,11 @@ public class Robot {
         );
     }
 
-    public ICommand autoFastShoot() {
+    public ICommand autoFastShoot(IntakeTilt.TiltState tiltState) {
         return new Sequential(
                 new Instant(() -> {
-                    intakeTilt.intake();
+                    if (tiltState.equals(IntakeTilt.TiltState.INTAKE)) intakeTilt.intake();
+                    else if (tiltState.equals(IntakeTilt.TiltState.GATE_INTAKE)) intakeTilt.gateIntake();
                     intakeGate.open();
                 }),
                 new Conditional(
@@ -307,6 +308,10 @@ public class Robot {
                 ),
                 new Instant(tableCompartments.intakeThread::reset)
         );
+    }
+
+    public ICommand autoFastShoot() {
+        return autoFastShoot(IntakeTilt.TiltState.INTAKE);
     }
 
     public ICommand autoShoot(Supplier<Double> delay) {
