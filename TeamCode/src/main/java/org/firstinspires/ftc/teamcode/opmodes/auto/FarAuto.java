@@ -173,14 +173,13 @@ public class FarAuto extends OpModeCommand {
     }
 
     public ICommand visionCycle() {
-        Channel<Integer> selectedCycle = Channels.oneshot();
+        AtomicInteger selectedCycle = new AtomicInteger(-1);
         AtomicReferenceArray<FollowParameters> selectedPaths = new AtomicReferenceArray<>(2);
         AtomicBoolean aborted = new AtomicBoolean(false);
         AtomicBoolean foundPath = new AtomicBoolean(false);
 
         return new Sequential(
                 new Parallel(
-                        getPathFromVision().subscribe(selectedCycle),
                         intake(),
                         new Race(
                                 new Sequential(
@@ -196,11 +195,13 @@ public class FarAuto extends OpModeCommand {
                                 new Sequential(
                                         new Race(
                                                 new Sequential(
-                                                        selectedCycle.listen(),
+                                                        new Instant(robot.intakeCamera::start),
+                                                        new WaitUntil(robot.intakeCamera::hasBlobs),
+                                                        new Instant(() -> selectedCycle.set(BlobTransformer.computeIntakeRegion(robot.intakeCamera.getAllBlobs(), robot.drivetrain.follower.getHeading()))),
+                                                        new Instant(robot.intakeCamera::stop),
                                                         new WaitUntil(() -> !aborted.get()),
                                                         new Instant(() -> {
-                                                            Integer selected = Channels.receive(selectedCycle);
-                                                            if (selected == null) throw new IllegalArgumentException("Camera short-circuited trust not the code");
+                                                            int selected = selectedCycle.get();
                                                             FollowParameters[] cycle = FarAutoPaths.getCycle(selected, robot.drivetrain);
                                                             selectedPaths.set(0, cycle[0]);
                                                             selectedPaths.set(1, cycle[1]);
@@ -234,15 +235,6 @@ public class FarAuto extends OpModeCommand {
                         )
                 )
         );
-    }
-
-    public Speaker<Integer> getPathFromVision() {
-        return new Speaker<>(c -> new Sequential(
-                new Instant(robot.intakeCamera::start),
-                new WaitUntil(robot.intakeCamera::hasBlobs),
-                Channels.send(c, () -> BlobTransformer.computeIntakeRegion(robot.intakeCamera.getAllBlobs(), robot.drivetrain.follower.getHeading())),
-                new Instant(robot.intakeCamera::stop)
-        ));
     }
 
     private int selectPath() {

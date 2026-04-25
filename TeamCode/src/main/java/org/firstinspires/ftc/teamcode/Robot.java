@@ -360,7 +360,7 @@ public class Robot {
                     intakeGate.open(),
                     table.reset(),
                     new Sequential(
-                            new Wait(300),
+                            new Wait(400),
                             new Instant(() -> {
                                 intakeMotor.intake();
                                 feederWheel.intakeState();
@@ -423,6 +423,19 @@ public class Robot {
     public ICommand intake() {
         return new Sequential(
                 new Instant(intakeTilt::intake),
+                intakeGate.open(),
+                new Instant(() -> {
+                    intakeMotor.intake();
+                    feederWheel.intakeState();
+                }),
+                new Wait(300),
+                splitter.activate()
+        );
+    }
+
+    public ICommand gateIntake() {
+        return new Sequential(
+                new Instant(intakeTilt::gateIntake),
                 intakeGate.open(),
                 new Instant(() -> {
                     intakeMotor.intake();

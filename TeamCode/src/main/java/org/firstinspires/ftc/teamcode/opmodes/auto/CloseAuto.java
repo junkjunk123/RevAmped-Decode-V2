@@ -48,7 +48,14 @@ public class CloseAuto extends OpModeCommand {
                         shootFirstThree(),
                         new Parallel(
                                 intake(1),
-                                robot.drivetrain.follow()
+                                new Sequential(
+                                        robot.drivetrain.follow(),
+                                        new Wait(200)
+                                ),
+                                new Sequential(
+                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
+                                        new Instant(() -> robot.intakeTilt.gateIntake())
+                                )
                         ),
                         new Parallel(
                                 robot.drivetrain.follow(),
@@ -57,6 +64,8 @@ public class CloseAuto extends OpModeCommand {
                         ),
                         robot.autoFastShoot(),
                         gateCycle(2),
+                        robot.drivetrain.follow(),
+                        new Wait(750),
                         gateCycle(3),
                         gateCycle(4),
                         gateCycle(5),
@@ -172,7 +181,7 @@ public class CloseAuto extends OpModeCommand {
                         ),
                         new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
-                                robot.intake()
+                                robot.gateIntake()
                         )
                 ),
                 new Wait(1400)

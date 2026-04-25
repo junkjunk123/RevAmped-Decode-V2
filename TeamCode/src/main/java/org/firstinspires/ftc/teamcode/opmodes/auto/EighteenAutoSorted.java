@@ -280,7 +280,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                         ),
                         new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
-                                robot.intake()
+                                robot.gateIntake()
                         )
                 ),
                 new Race(
