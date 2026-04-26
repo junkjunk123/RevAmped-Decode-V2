@@ -52,6 +52,7 @@ public class Drivetrain {
     public static double MAX_LAMBDA = 0.95;
     public static double MAX_VELOCITY = 76;
     public static boolean tipCorrection = false;
+    private boolean isDoneFollowing = true;
     public static Function<Drivetrain, Boolean> isDone = d -> d.velocityCondition(4);
 
     public Drivetrain(HardwareMap hardwareMap) {
@@ -153,14 +154,22 @@ public class Drivetrain {
 
     public Command followNext(Function<Drivetrain, Boolean> isDone) {
         return new Command()
-                .setStart(this::followNext)
-                .setDone(() -> isDone.apply(this));
+                .setStart(() -> {
+                    followNext();
+                    isDoneFollowing = false;
+                })
+                .setDone(() -> isDone.apply(this))
+                .setEnd(c -> isDoneFollowing = true);
     }
 
     public Command followLast(Function<Drivetrain, Boolean> isDone) {
         return new Command()
-                .setStart(this::followLast)
-                .setDone(() -> isDone.apply(this));
+                .setStart(() -> {
+                    followLast();
+                    isDoneFollowing = false;
+                })
+                .setDone(() -> isDone.apply(this))
+                .setEnd(c -> isDoneFollowing = true);
     }
 
     public Race followNext(Function<Drivetrain, Boolean> isDone, double timeout) {
@@ -184,8 +193,9 @@ public class Drivetrain {
     public ICommand follow(double brakingStrength) {
         return new Race(
                 new Command()
-                        .setStart(() -> followNext(brakingStrength))
-                        .setDone(() -> isDone.apply(this)),
+                        .setStart(() -> {followNext(brakingStrength); isDoneFollowing = false;})
+                        .setDone(() -> isDone.apply(this))
+                        .setEnd(c -> isDoneFollowing = true),
                 new Wait(3000)
         );
     }
@@ -401,5 +411,9 @@ public class Drivetrain {
         Globals.telemetry.addData("lambda", lambda);
         if (lambda > MAX_LAMBDA) return 1.0;
         return Math.max(lambda, 0);
+    }
+
+    public boolean isDoneFollowing() {
+        return isDoneFollowing;
     }
 }
