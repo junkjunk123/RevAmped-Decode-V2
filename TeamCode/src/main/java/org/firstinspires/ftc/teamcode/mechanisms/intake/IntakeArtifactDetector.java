@@ -34,6 +34,7 @@ public class IntakeArtifactDetector extends HwDigitalDevice {
     }
 
     public boolean hasArtifact() {
+        if (!on) return false;
         return period.getAsBoolean();
     }
 

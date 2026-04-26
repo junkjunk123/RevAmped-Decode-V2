@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 public class IntakeThread {
     public static boolean useSensors;
     public boolean hasThree;
+    private boolean isEmpty;
     public static double COLOR_DETECTION_DELAY = 200;
     public static int COLOR_DETECTION_PERIOD = 100;
     public final SpindexerColorSensors colorSensors;
@@ -26,6 +27,7 @@ public class IntakeThread {
     private final ArtifactColor[] relativeCompartments;
     private final IntakeArtifactDetector intakeDistance;
     private int hypotheticalNumBalls = 0;
+
     private enum DetectionState{
         IDLE,
         WAITINGTODETECT,
@@ -62,7 +64,7 @@ public class IntakeThread {
                 new Sequential(
                         new Instant(() -> detectionState = DetectionState.WAITINGTODETECT),
                         new Wait(COLOR_DETECTION_DELAY),
-                        new Instant(() -> detectionState = DetectionState.DETECTING),
+                        new Instant(() -> {detectionState = DetectionState.DETECTING; isEmpty = false;}),
                         new Race(
                                 new Command()
                                         .setExecute(this::updateInternalColors)
@@ -152,11 +154,7 @@ public class IntakeThread {
         for (ArtifactColor color : relativeCompartments)
             if (!color.equals(ArtifactColor.NONE))
                 balls++;
-        return balls+1;
-    }
-
-    public DetectionState getDetectionState(){
-        return detectionState;
+        return balls + (!isEmpty ? 1 : 0);
     }
 
     public int getHypotheticalNumBalls(){
@@ -173,6 +171,7 @@ public class IntakeThread {
         colorSensors.reset();
         intakeDistance.stop();
         hasThree = false;
+        isEmpty = true;
     }
 
     public void start() {
