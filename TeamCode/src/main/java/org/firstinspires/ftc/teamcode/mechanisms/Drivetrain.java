@@ -416,4 +416,15 @@ public class Drivetrain {
     public boolean isDoneFollowing() {
         return isDoneFollowing;
     }
+
+    public Path hold() {
+        BezierPoint point = new BezierPoint(follower.getPose());
+        Path path = new Path(point);
+        path.setConstantHeadingInterpolation(follower.getHeading());
+        return path;
+    }
+
+    public void holdCurrentPose() {
+        follower.followPath(hold());
+    }
 }

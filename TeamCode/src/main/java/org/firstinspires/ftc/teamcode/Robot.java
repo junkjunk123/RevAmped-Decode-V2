@@ -306,7 +306,7 @@ public class Robot {
                             );
                         })
                 ),
-                new Instant(tableCompartments.intakeThread::reset)
+                new Instant(tableCompartments::removeAll)
         );
     }
 
@@ -426,8 +426,12 @@ public class Robot {
     }
 
     public ICommand intake() {
+        return intake(0);
+    }
+
+    public ICommand intake(float tiltFinetune) {
         return new Sequential(
-                new Instant(intakeTilt::intake),
+                new Instant(() -> intakeTilt.intake(tiltFinetune)),
                 intakeGate.open(),
                 new Instant(() -> {
                     intakeMotor.intake();

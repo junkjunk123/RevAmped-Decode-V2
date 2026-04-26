@@ -79,8 +79,7 @@ public class IntakeThread {
                         new Instant(() -> detectionState = DetectionState.IDLE)
                 )
         );
-
-        }
+    }
 //        if (!useSensors) return;
 //        if (hypotheticalNumBalls < 2) {
 //            if (intakeDistance.hasArtifact()) {

@@ -83,10 +83,9 @@ public class DecodeLimelight implements HwDevice {
 
         switch (currentPipeline) {
             case OBELISK -> {
-                if (latestResult.getFiducialResults() == null || latestResult.getFiducialResults().isEmpty())
+                if (latestResult.getPythonOutput() == null)
                     return;
-                LLResultTypes.FiducialResult result = latestResult.getFiducialResults().get(0);
-                int id = result.getFiducialId();
+                int id = (int) latestResult.getPythonOutput()[0];
                 for (RandomizationState state : RandomizationState.values()) {
                     if (id == state.getID()) {
                         Globals.randomizationState = state;

@@ -25,6 +25,11 @@ public class IntakeTilt extends HwServo {
         state = TiltState.INTAKE;
     }
 
+    public void intake(float finetune) {
+        setPosition(INTAKE + finetune);
+        state = TiltState.INTAKE;
+    }
+
     public void transfer() {
         setPosition(TRANSFER);
         state = TiltState.TRANSFER;

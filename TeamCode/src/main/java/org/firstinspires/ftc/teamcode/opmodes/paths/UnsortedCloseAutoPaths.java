@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
@@ -23,14 +22,14 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
     public static ColoredDecodePose FIRST_SHOOT_POSE = new ColoredDecodePose(56, 80, Math.toRadians(-60));
     public static ColoredDecodePose CONTROL_POINT_1 = new ColoredDecodePose(31.5, 123, Math.toRadians(-66));
     public static ColoredDecodePose SHOOT_POSE = new ColoredDecodePose(56, 78, Math.toRadians(204));
-    public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(20, 59, Math.PI);
-    public static ColoredDecodePose GATE_TAP = new ColoredDecodePose(16, 64, Math.PI);
+    public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(24, 59, Math.PI);
     public static ColoredDecodePose INTAKE_1_CONTROL = new ColoredDecodePose(45,59, Math.PI);
+    public static ColoredDecodePose GATE_TAP = new ColoredDecodePose(17.5, 62, Math.toRadians(160));
     public static ColoredDecodePose GATE_CONTROL = new ColoredDecodePose(56, 58);
-    public static ColoredDecodePose GATE = new ColoredDecodePose(13.5, 58, Math.toRadians(150));
-    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(13.5, 58, Math.toRadians(150));
-    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(13.5, 58.5, Math.toRadians(150));
-    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(14, 59.5, Math.toRadians(150));
+    public static ColoredDecodePose GATE = new ColoredDecodePose(14.25, 59, Math.toRadians(150));
+    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(13.75, 58, Math.toRadians(150));
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(14.25, 58, Math.toRadians(150));
+    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(14.75, 58, Math.toRadians(150));
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD_CONTROL = new ColoredDecodePose(52, 84, Math.PI);
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(23.5, 84, Math.PI);
     public static ColoredDecodePose PARK_CONTROL = new ColoredDecodePose(30.5, 84);
@@ -67,7 +66,7 @@ public class UnsortedCloseAutoPaths implements PathSupplier {
                 .build();
 
         FollowParameters shootFirstSet = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(INTAKE_1, SHOOT_POSE))
+                .addPath(ColoredDecodePose.makeBezier(GATE_TAP, SHOOT_POSE))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()

@@ -49,6 +49,7 @@ public class RobotConstants {
         //HOOD POSITIONS FOR TELEOP
         Hood.FAR_PRESET = 160/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
         Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
+        Hood.CLOSE_AUTO_FINAL = 3/255f;
 
         //Turret Constants - = left + = right
         ServoTurret.REST = 127/255f;
@@ -58,12 +59,12 @@ public class RobotConstants {
         ServoTurret.FAR_PRESET = TurretCalibration.fromRed(215/255d);
 
         ServoTurret.UNSORTED_AUTO_PRELOADS = TurretCalibration.fromRed(136/255d);
-        ServoTurret.UNSORTED_SET_1 = TurretCalibration.fromRed(206/255d);
+        ServoTurret.UNSORTED_SET_1 = TurretCalibration.fromRed(209/255d);
         ServoTurret.UNSORTED_SET_2 = TurretCalibration.fromRed(206/255d);
         ServoTurret.UNSORTED_SET_3 = TurretCalibration.fromRed(206/255d);
         ServoTurret.UNSORTED_SET_4 = TurretCalibration.fromRed(206/255d);
         ServoTurret.UNSORTED_SET_5 = TurretCalibration.fromRed(206/255d);
-        ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(197/255d);
+        ServoTurret.UNSORTED_FINAL = TurretCalibration.fromRed(199/255d);
 
         ServoTurret.EIGHTEEN_PRELOADS = TurretCalibration.fromRed(210/255d).withBlue(41/255d);
         ServoTurret.EIGHTEEN_FIRST_SET = TurretCalibration.fromRed(249/255d).withBlue(4/255d);
@@ -91,6 +92,7 @@ public class RobotConstants {
 
         //splitter
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
+        Splitter.ACTIVATE_DELAY = 300; Splitter.NEUTRAL_DELAY = 300;
 
         //tilt
         IntakeTilt.TRANSFER = 189/255f; IntakeTilt.INTAKE = 133/255f; IntakeTilt.GATE_INTAKE = 133/255f;

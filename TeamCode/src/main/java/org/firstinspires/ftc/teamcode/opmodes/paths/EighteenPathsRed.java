@@ -55,7 +55,7 @@ public class EighteenPathsRed implements PathSupplier {
 
         FollowParameters path2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(FIRST_INTAKE, FIRST_SHOOT))
-                .setLinearHeadingInterpolation(Math.toRadians(180),FIRST_SHOOT.getHeading())
+                .setLinearHeadingInterpolation(FIRST_INTAKE.getHeading(), FIRST_SHOOT.getHeading())
                 .build()
         );
 

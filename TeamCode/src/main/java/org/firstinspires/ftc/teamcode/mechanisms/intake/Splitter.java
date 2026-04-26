@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 public class Splitter extends HwServo {
     public static float ACTIVATED;
     public static float NEUTRAL;
+    public static double NEUTRAL_DELAY;
+    public static double ACTIVATE_DELAY;
 
     private enum State {
         ACTIVATED,
@@ -29,7 +31,7 @@ public class Splitter extends HwServo {
             if (state == State.NEUTRAL) return Commands.NOOP;
             return new Sequential(
                     new Instant(this::setPositionNeutral),
-                    new Wait(300)
+                    new Wait(NEUTRAL_DELAY)
             );
         });
     }
@@ -49,7 +51,7 @@ public class Splitter extends HwServo {
             if (state == State.ACTIVATED) return Commands.NOOP;
             return new Sequential(
                     new Instant(this::setPositionActivated),
-                    new Wait(300)
+                    new Wait(ACTIVATE_DELAY)
             );
         });
     }

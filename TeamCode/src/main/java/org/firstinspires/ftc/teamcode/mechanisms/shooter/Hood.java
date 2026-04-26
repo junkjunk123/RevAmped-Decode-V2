@@ -21,6 +21,7 @@ public class Hood extends HwServo {
     public static float FAR_PRESET;
     public static float MEDIUM_PRESET;
     public static float UNSORTED_AUTO;
+    public static float CLOSE_AUTO_FINAL;
 
     public enum HoodState {
         REST,

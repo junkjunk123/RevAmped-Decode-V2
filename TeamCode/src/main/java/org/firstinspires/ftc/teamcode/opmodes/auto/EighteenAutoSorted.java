@@ -48,6 +48,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                     if (robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE)) robot.tableCompartments.intakeThread.update();
                     Pose pose = robot.drivetrain.follower.getPose();
                     if (pose.distanceFrom(new Pose()) > 0.01) Drivetrain.startPose = robot.drivetrain.follower.getPose();
+                    telemetry.addData("motif", Globals.randomizationState);
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),

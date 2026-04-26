@@ -238,7 +238,10 @@ public class Tele extends OpModeCommand {
                         new Parallel(
                             new Instant(() -> robot.feederWheel.start()),
                             robot.popper.pop(),
-                            robot.splitter.neutral(),
+                            new Sequential(
+                                    new Wait(150),
+                                    robot.splitter.neutral()
+                            ),
                             new Instant(robot.intakeTilt::transfer)
                         ),
                         new Conditional(
