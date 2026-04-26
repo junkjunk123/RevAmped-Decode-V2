@@ -93,7 +93,7 @@ public class RobotConstants {
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
 
         //tilt
-        IntakeTilt.TRANSFER = 107/255f; IntakeTilt.INTAKE = 162/255f; IntakeTilt.GATE_INTAKE = 167/255f;
+        IntakeTilt.TRANSFER = 189/255f; IntakeTilt.INTAKE = 133/255f; IntakeTilt.GATE_INTAKE = 133/255f;
 
         Lift.TIME = 1500f;
 
