@@ -127,6 +127,7 @@ public class Tele extends OpModeCommand {
     public void onStart() {
         robot.drivetrain.follower.setPose(Drivetrain.startPose);
         robot.drivetrain.follower.update();
+        robot.tableCompartments.intakeThread.reset();
     }
 
     @Override
@@ -135,6 +136,7 @@ public class Tele extends OpModeCommand {
         gamepad_1.update();
         gamepad_2.update();
 
+        // Schedule commands based on triggers
         // Schedule commands based on triggers
         if (gamepad_1.a.isRisingEdge()) {
             GyroThread.trackTurret = !GyroThread.trackTurret;
@@ -178,7 +180,7 @@ public class Tele extends OpModeCommand {
                     new Instant(() -> {
                         robot.flywheel.stop();
                         robot.intakeTilt.intake();
-                        robot.feederWheel.stop();
+                        robot.feederWheel.intakeState();
                     }),
                     new Sequential(
                             robot.resetTableTeleOp(),
@@ -236,7 +238,10 @@ public class Tele extends OpModeCommand {
                         ),
                         new Parallel(
                             new Instant(() -> robot.feederWheel.start()),
-                            robot.popper.pop(),
+                            new Sequential(
+                                new Wait(50),
+                                robot.popper.pop()
+                            ),
                             new Sequential(
                                     new Wait(150),
                                     robot.splitter.neutral()
@@ -294,6 +299,19 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.dpad_right.isRisingEdge()) {
             Pose reset = new ColoredDecodePose().getPose();
             robot.drivetrain.follower.setHeading(reset.getHeading());
+        }
+
+        if (gamepad_2.dpad_left.isRisingEdge()) {
+            schedule(tsh.task(robot.popper.block(), new int[] {1, 0, 0}));
+        } else if (gamepad_2.dpad_left.isFallingEdge()) {
+            schedule(tsh.task(new Parallel(
+                    new Sequential(
+                            new Instant(robot.intakeMotor::stop),
+                            new Wait(100),
+                            new Instant(robot.intakeMotor::intake)
+                    ),
+                    robot.popper.neutral()
+            ), new int[] {1, 0, 0}));
         }
 
         if (gamepad_2.left_stick_y_button.isRisingEdge()) {

@@ -7,6 +7,7 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
@@ -19,7 +20,8 @@ public class Popper extends HwServo {
 
     public enum PopperState {
         NEUTRAL,
-        POP
+        POP,
+        BLOCK
     }
     private final StateMachine<PopperState> stateMachine = new SimpleStateMachine<>(PopperState.NEUTRAL);
 
@@ -33,7 +35,10 @@ public class Popper extends HwServo {
                 return stateMachine.runTransition(
                         new Sequential(
                                 new Instant(() -> setPosition(POP)),
-                                new Wait(250)
+                                new Wait(
+                                        stateMachine.getPendingState().equals(PopperState.NEUTRAL) ?
+                                        250 : 150
+                                )
                         ),
                         PopperState.POP
                 );
@@ -44,19 +49,22 @@ public class Popper extends HwServo {
     }
 
     public ICommand block() {
-        return new Sequential(
-                new Instant(() -> setPosition(BLOCK)),
-                new Wait(250),
-                new Instant(() -> stateMachine.setCurrentState(PopperState.POP))
-        );
-    }
+        return new Lazy(() -> {
+            if (!movingToState(PopperState.BLOCK)) {
+                return stateMachine.runTransition(
+                        new Sequential(
+                                new Instant(() -> setPosition(BLOCK)),
+                                new Wait(
+                                        stateMachine.getPendingState().equals(PopperState.NEUTRAL) ?
+                                        250 : 150
+                                )
+                        ),
+                        PopperState.BLOCK
+                );
+            }
 
-    public ICommand blockFromPop() {
-        return new Sequential(
-                new Instant(() -> setPosition(BLOCK)),
-                new Wait(150),
-                new Instant(() -> stateMachine.setCurrentState(PopperState.POP))
-        );
+            return new Instant(() -> setPosition(BLOCK));
+        });
     }
 
     public ICommand neutral() {
@@ -73,7 +81,10 @@ public class Popper extends HwServo {
         return stateMachine.runTransition(
                 new Sequential(
                         new Instant(() -> setPosition(NEUTRAL)),
-                        new Wait(250)
+                        new Wait(
+                                stateMachine.getPendingState().equals(PopperState.POP) ?
+                                250 : 150
+                        )
                 ),
                 PopperState.NEUTRAL
         );

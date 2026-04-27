@@ -7,19 +7,23 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 
+import java.util.Arrays;
+
 @TeleOp
 public class ColorSensorTest extends OpMode {
     SpindexerColorSensors colorSensors;
     MultipleTelemetry telemetries;
     @Override
     public void init() {
-        //colorSensors = new SpindexerColorSensors(hardwareMap,"colorLeft","colorRight");
+        colorSensors = new SpindexerColorSensors(hardwareMap);
         telemetries = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     @Override
     public void loop() {
-        telemetries.addData("Colors",colorSensors.getCompartmentColors());
+        telemetries.addData("Colors", Arrays.toString(colorSensors.getCompartmentColors()));
         colorSensors.update();
+        colorSensors.updateColors();
+        telemetries.update();
     }
 }

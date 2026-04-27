@@ -32,6 +32,7 @@ public class BallCountTest extends OpMode {
         colors = new ArtifactColor[] {ArtifactColor.NONE, ArtifactColor.NONE,ArtifactColor.NONE};
         intakeThread = new IntakeThread(colors,colorSensors,intakeDistance);
         gamepad_1 = new GamepadEx(gamepad1);
+        intakeThread.reset();
     }
 
     @Override
@@ -45,14 +46,14 @@ public class BallCountTest extends OpMode {
         if (gamepad_1.y.isRisingEdge()){
             intake.setPower(0.0);
         }
-        telemetry.addData("hypothetical",intakeThread.getHypotheticalNumBalls());
         telemetry.addData("num balls",intakeThread.getNumBalls());
+        telemetry.addData("isEmpty", intakeThread.isEmpty());
         telemetry.addData("has artifact",intakeDistance.hasArtifact());
-        telemetry.addData("intake distance",intakeDistance.state());
+        telemetry.addData("intake distance", intakeDistance.state());
         telemetry.addData("colors", Arrays.toString(intakeThread.getColors()));
         telemetry.addData("left color",colorSensors.leftColorSensor.getColor());
         telemetry.addData("right color",colorSensors.rightColorSensor.getColor());
-        telemetry.addData("state",intakeThread.getDetectionState());
+        telemetry.addData("state",intakeThread);
         intakeDistance.update();
         colorSensors.update();
         intakeThread.update();
