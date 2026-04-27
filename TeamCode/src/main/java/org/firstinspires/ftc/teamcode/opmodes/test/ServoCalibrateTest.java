@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
 
@@ -36,6 +37,8 @@ public class ServoCalibrateTest extends OpMode {
     private GamepadEx gamepad_1;
     private boolean displayAll;
 
+    private DcMotorEx intakeMotor;
+
     private enum TestState {
         SELECT,
         CALIBRATE
@@ -57,6 +60,7 @@ public class ServoCalibrateTest extends OpMode {
                 ))
                 .onComplete(() -> {currentServo = prompter.get("servo"); testState = TestState.CALIBRATE;})
                 .thenDisplay(() -> "Selected servo: " + currentServo);
+        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
     }
 
     @Override
@@ -135,6 +139,15 @@ public class ServoCalibrateTest extends OpMode {
 
                 if (gamepad_1.dpad_up.isRisingEdge())
                     displayAll = !displayAll;
+
+                if (gamepad2.bWasPressed()) {
+                    if (intakeMotor.getPower() < 0.1) intakeMotor.setPower(1.0);
+                    else intakeMotor.setPower(-1.0f);
+                }
+
+                if (gamepad2.xWasPressed()) {
+                    intakeMotor.setPower(0f);
+                }
 
                 telemetryA.addData("Servo", currentServo);
                 if (displayAll) calibratedPositions.forEach((u, v) -> telemetryA.addData(u, Integer.toString(v)));

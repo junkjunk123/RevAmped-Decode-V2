@@ -38,6 +38,12 @@ public class IntakeArtifactDetector extends HwDigitalDevice {
         return period.getAsBoolean();
     }
 
+    @Override
+    public Boolean getReading() {
+        if (!on) return false;
+        return super.getReading();
+    }
+
     public boolean isOn() {
         return on;
     }

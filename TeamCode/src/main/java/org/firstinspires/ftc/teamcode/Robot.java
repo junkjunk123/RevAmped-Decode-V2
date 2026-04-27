@@ -373,7 +373,7 @@ public class Robot {
                     )
                 ),
                 new Parallel(
-                        popper.neutral(),
+                        popper.block(),
                         splitter.activate()
                 )
         );

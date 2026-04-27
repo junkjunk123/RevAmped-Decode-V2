@@ -19,23 +19,13 @@ import java.util.stream.IntStream;
 public class IntakeThread {
     public static boolean useSensors;
     public boolean hasThree;
-    private boolean isEmpty;
-    public static double COLOR_DETECTION_DELAY = 200;
-    public static int COLOR_DETECTION_PERIOD = 100;
+    private boolean isEmpty = true;
+    public static double COLOR_DETECTION_DELAY = 0;
+    public static int COLOR_DETECTION_PERIOD = 1000;
     public final SpindexerColorSensors colorSensors;
     private final ArtifactColor[] tableCompartments;
     private final ArtifactColor[] relativeCompartments;
     private final IntakeArtifactDetector intakeDistance;
-    private int hypotheticalNumBalls = 0;
-
-    private enum DetectionState{
-        IDLE,
-        WAITINGTODETECT,
-        DETECTING
-
-    }
-
-    private DetectionState detectionState = DetectionState.IDLE;
 
     public IntakeThread(ArtifactColor[] tableCompartments, SpindexerColorSensors colorManager, IntakeArtifactDetector intakeDistance) {
         useSensors = true;
@@ -48,74 +38,37 @@ public class IntakeThread {
 
     public void update() {
         if (!useSensors) return;
+
         if (getNumBalls() == 3 && !hasThree){
+            useSensors = false;
             Scheduler.getInstance().schedule(
                     new Sequential(
                         new Wait(100),
-                        new Instant(() -> hasThree = true)
+                        new Instant(() -> {hasThree = true; useSensors = true;})
                     )
             );
             return;
         }
-        if (intakeDistance.hasArtifact()){
-            hypotheticalNumBalls = 1;
+
+        if (intakeDistance.getReading()) {
             intakeDistance.stop();
+
             Scheduler.getInstance().schedule(
                 new Sequential(
-                        new Instant(() -> detectionState = DetectionState.WAITINGTODETECT),
                         new Wait(COLOR_DETECTION_DELAY),
-                        new Instant(() -> {detectionState = DetectionState.DETECTING; isEmpty = false;}),
+                        new Instant(() -> isEmpty = false),
                         new Race(
                                 new Command()
                                         .setExecute(this::updateInternalColors)
-                                        .setDone(() -> getNumBalls() > hypotheticalNumBalls)
-                                        .setEnd(c -> hypotheticalNumBalls = getNumBalls()),
+                                        .setDone(() -> hasThree),
                                 new Sequential(
-                                        new Wait(COLOR_DETECTION_PERIOD),
-                                        new Instant(this::start)
-                                ),
-                                new Sequential(
-                                    new WaitUntil(() -> hypotheticalNumBalls == 3)
+                                    new Wait(COLOR_DETECTION_PERIOD),
+                                    new Instant(intakeDistance::start)
                                 )
-                        ),
-                        new Instant(() -> detectionState = DetectionState.IDLE)
+                        )
                 )
-        );
-    }
-//        if (!useSensors) return;
-//        if (hypotheticalNumBalls < 2) {
-//            if (intakeDistance.hasArtifact()) {
-//                hypotheticalNumBalls = 2;
-//                intakeDistance.stop();
-//                Scheduler.getInstance().schedule(
-//                        new Sequential(
-//                                new Wait(COLOR_DETECTION_DELAY),
-//                                new Race(
-//                                        new Command()
-//                                                .setExecute(this::updateInternalColors)
-//                                                .setDone(() -> getNumBalls() == 2),
-//                                        new Sequential(
-//                                                new Wait(COLOR_DETECTION_PERIOD),
-//                                                new Instant(() -> {
-//                                                    hypotheticalNumBalls--;
-//                                                    start();
-//                                                })
-//                                        ),
-//                                        new WaitUntil(() -> hypotheticalNumBalls != 3)
-//                                )
-//                        )
-//                );
-//            }
-//        } else if (hypotheticalNumBalls == 2) {
-//            if (!frontDistance.isOn()) frontDistance.start();
-//
-//            if (frontDistance.hasArtifact()) {
-//                hypotheticalNumBalls = 3;
-//                expressThree();
-//                intakeDistance.stop();
-//                frontDistance.stop();
-//            }
-//        }
+            );
+        }
     }
 
     public void updateColors(int currentIndex) {
@@ -149,7 +102,6 @@ public class IntakeThread {
     }
 
     public int getNumBalls() {
-//        if (hypotheticalNumBalls == 3) return 3;
         int balls = 0;
         for (ArtifactColor color : relativeCompartments)
             if (!color.equals(ArtifactColor.NONE))
@@ -157,21 +109,17 @@ public class IntakeThread {
         return balls + (!isEmpty ? 1 : 0);
     }
 
-    public int getHypotheticalNumBalls(){
-        return hypotheticalNumBalls;
-    }
-
     public ArtifactColor[] getColors(){
         return relativeCompartments;
     }
 
     public void reset() {
-        hypotheticalNumBalls = 0;
         Arrays.fill(relativeCompartments, ArtifactColor.NONE);
         colorSensors.reset();
         intakeDistance.stop();
         hasThree = false;
         isEmpty = true;
+        start();
     }
 
     public void start() {
@@ -180,5 +128,9 @@ public class IntakeThread {
 
     public boolean getIntakeDistanceState(){
         return intakeDistance.state();
+    }
+
+    public boolean isEmpty() {
+        return isEmpty;
     }
 }
