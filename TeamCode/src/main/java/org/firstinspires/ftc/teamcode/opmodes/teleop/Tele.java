@@ -149,8 +149,7 @@ public class Tele extends OpModeCommand {
         if (gamepad_1.dpad_up.isRisingEdge()){
             if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_THREE);
             else gyroThread.setState(TrackState.FAR_THREE);
-            schedule(tsh.setting(robot::shootCorner),
-                    new Instant(gyroThread::close));
+            schedule(tsh.setting(robot::shootCorner), new Instant(gyroThread::close));
         }
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear), new Instant(gyroThread::close));
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium), new Instant(gyroThread::close));
@@ -224,12 +223,12 @@ public class Tele extends OpModeCommand {
             if (robot.tableCompartments.intakeThread.hasThree) {
                 robot.tableCompartments.populate();
                 transfer = true;
-                RobotStateHandler.CycleState.INTAKE.update = false;
             }
         }
 
         if (transfer || (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL))) {
             transfer = false;
+            RobotStateHandler.CycleState.INTAKE.update = false;
             schedule(new Sequential(
                         tsh.runTransition(
                                 Commands.NOOP,
