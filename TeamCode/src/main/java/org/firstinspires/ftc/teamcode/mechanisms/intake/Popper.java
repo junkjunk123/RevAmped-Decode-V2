@@ -17,6 +17,9 @@ public class Popper extends HwServo {
     public static float NEUTRAL;
     public static float POP;
     public static float BLOCK;
+    public static float BLOCK_OUT;
+    public static double POP_TIME = 250;
+    public static double POP_TO_BLOCK_TIME = -1;
 
     public enum PopperState {
         NEUTRAL,
@@ -35,10 +38,7 @@ public class Popper extends HwServo {
                 return stateMachine.runTransition(
                         new Sequential(
                                 new Instant(() -> setPosition(POP)),
-                                new Wait(
-                                        stateMachine.getPendingState().equals(PopperState.NEUTRAL) ?
-                                        250 : 150
-                                )
+                                new Wait(stateMachine.getPendingState().equals(PopperState.NEUTRAL) ? POP_TIME : popToBlockTime())
                         ),
                         PopperState.POP
                 );
@@ -46,6 +46,11 @@ public class Popper extends HwServo {
 
             return new Instant(() -> setPosition(POP));
         });
+    }
+
+    private double popToBlockTime() {
+        if (POP_TO_BLOCK_TIME < 0) POP_TO_BLOCK_TIME = POP_TIME * Math.abs(POP - BLOCK) / Math.abs(POP - NEUTRAL);
+        return POP_TO_BLOCK_TIME;
     }
 
     public ICommand block() {
@@ -56,7 +61,7 @@ public class Popper extends HwServo {
                                 new Instant(() -> setPosition(BLOCK)),
                                 new Wait(
                                         stateMachine.getPendingState().equals(PopperState.NEUTRAL) ?
-                                        250 : 150
+                                        (POP_TIME - popToBlockTime()) : popToBlockTime()
                                 )
                         ),
                         PopperState.BLOCK
@@ -81,12 +86,16 @@ public class Popper extends HwServo {
         return stateMachine.runTransition(
                 new Sequential(
                         new Instant(() -> setPosition(NEUTRAL)),
-                        new Wait(
-                                stateMachine.getPendingState().equals(PopperState.POP) ?
-                                250 : 150
-                        )
+                        new Wait(250)
                 ),
                 PopperState.NEUTRAL
+        );
+    }
+
+    public ICommand blockOut() {
+        return new Sequential(
+                new Instant(() -> setPosition(BLOCK_OUT)),
+                new Wait(175)
         );
     }
 

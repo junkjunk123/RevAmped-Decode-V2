@@ -222,7 +222,7 @@ public class Robot {
         return new Sequential(
                 new WaitUntil(() -> drivetrain.canShoot),
                 new Instant(() -> {
-                    intakeTilt.intake();
+                    //intakeTilt.intake();
                     intakeMotor.stop();
                     CycleState.INTAKE.update = true;
                 }),
@@ -361,7 +361,10 @@ public class Robot {
     public ICommand resetTableTeleOp() {
         return new Sequential(
                 new Parallel(
-                    new Instant(intakeMotor::stop),
+                    new Instant(() -> {
+                        intakeMotor.stop();
+                        intakeTilt.intake();
+                    }),
                     intakeGate.open(),
                     table.reset(),
                     new Sequential(

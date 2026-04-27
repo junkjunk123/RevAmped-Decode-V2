@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
@@ -10,6 +12,7 @@ import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
@@ -20,6 +23,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -45,10 +50,13 @@ public class Tele extends OpModeCommand {
     private boolean transfer;
     private boolean canShoot = true;
     private GyroThread gyroThread;
+    private boolean gyroTrack;
 
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        Globals.telemetry = telemetry;
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
@@ -62,6 +70,7 @@ public class Tele extends OpModeCommand {
                     Globals.allianceColor = prompter.getOrDefault("alliance", Globals.allianceColor);
                 })
                 .thenDisplay("Good luck! We're rooting for you. --- Havish & Eric");
+        robot.splitter.setUseSplitter(false);
         
         gamepad_1.left_trigger_button(FloatSupplier::isPress);
         gamepad_1.right_trigger_button(FloatSupplier::isPress);
@@ -74,7 +83,7 @@ public class Tele extends OpModeCommand {
         schedule(new Infinite(() -> {
             robot.update();
             if (!robot.drivetrain.isHoldingPose()) robot.drivetrain.arcadeDrive(gamepad1);
-            gyroThread.update();
+            if (gyroTrack) gyroThread.update();
             telemetry.update();
         }));
 
@@ -101,13 +110,13 @@ public class Tele extends OpModeCommand {
                                                     robot.intakeMotor.intake();
                                                     robot.feederWheel.intakeState();
                                                 }),
-                                                new Parallel(
+                                                robot.splitter.isUseSplitter() ? new Parallel(
                                                         robot.popper.neutral(),
                                                         new Sequential(
                                                                 new Wait(300),
                                                                 robot.splitter.activate()
                                                         )
-                                                )
+                                                ) : robot.popper.neutral()
                                         )
                                 )
                         ),
@@ -221,33 +230,38 @@ public class Tele extends OpModeCommand {
                 ), new int[]{1, 0, 0}
         ));
 
-        if (IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
+        /*
+        if (!transfer && IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
             if (robot.tableCompartments.intakeThread.hasThree) {
                 robot.tableCompartments.populate();
                 transfer = true;
             }
         }
+         */
 
         if (transfer || (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL))) {
             transfer = false;
+            gyroTrack = true;
             RobotStateHandler.CycleState.INTAKE.update = false;
             schedule(new Sequential(
+                        new Instant(() -> robot.intakeTilt.transfer()),
                         tsh.runTransition(
-                                Commands.NOOP,
+                                robot.splitter.isUseSplitter() ? new Parallel(
+                                        new Sequential(
+                                                new Wait(50),
+                                                robot.popper.pop()
+                                        ),
+                                        new Sequential(
+                                                new Wait(150),
+                                                robot.splitter.neutral()
+                                        )
+                                ) : new Sequential(
+                                        new Wait(50),
+                                        robot.popper.pop()
+                                ),
                                 RobotStateHandler.CycleState.DRIVE_TO_SHOOT
                         ),
-                        new Parallel(
-                            new Instant(() -> robot.feederWheel.start()),
-                            new Sequential(
-                                new Wait(50),
-                                robot.popper.pop()
-                            ),
-                            new Sequential(
-                                    new Wait(150),
-                                    robot.splitter.neutral()
-                            ),
-                            new Instant(robot.intakeTilt::transfer)
-                        ),
+                        new Instant(() -> robot.feederWheel.start()),
                         new Conditional(
                                 robot.flywheel::isStopped,
                                 new Instant(robot::shootNear),
@@ -274,7 +288,13 @@ public class Tele extends OpModeCommand {
                                             robot.shootAll(),
                                             new Instant(() -> canShoot = true)
                                     ),
-                                    robot.resetAfterShooting()
+                                    new Parallel(
+                                            robot.resetAfterShooting(),
+                                            new Instant(() -> {
+                                                gyroTrack = false;
+                                                robot.turret.move(new ServoTurretState.Custom(ServoTurret.REST));
+                                            })
+                                    )
                             ), RobotStateHandler.CycleState.INTAKE)
                     ),
                     Commands.NOOP
@@ -302,15 +322,17 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_left.isRisingEdge()) {
-            schedule(tsh.task(robot.popper.block(), new int[] {1, 0, 0}));
-        } else if (gamepad_2.dpad_left.isFallingEdge()) {
             schedule(tsh.task(new Parallel(
                     new Sequential(
-                            new Instant(robot.intakeMotor::stop),
-                            new Wait(100),
+                            new Instant(() -> robot.intakeMotor.stop()),
+                            new Wait(200),
                             new Instant(robot.intakeMotor::intake)
                     ),
-                    robot.popper.neutral()
+                    robot.popper.neutral(),
+                    new Sequential(
+                            new Wait(350),
+                            new Instant(() -> transfer = true)
+                    )
             ), new int[] {1, 0, 0}));
         }
 

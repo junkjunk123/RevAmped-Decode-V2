@@ -15,6 +15,7 @@ public class Splitter extends HwServo {
     public static float NEUTRAL;
     public static double NEUTRAL_DELAY;
     public static double ACTIVATE_DELAY;
+    private boolean useSplitter = true;
 
     private enum State {
         ACTIVATED,
@@ -48,7 +49,7 @@ public class Splitter extends HwServo {
 
     public ICommand activate() {
         return new Lazy(() -> {
-            if (state == State.ACTIVATED) return Commands.NOOP;
+            if (!useSplitter || state == State.ACTIVATED) return Commands.NOOP;
             return new Sequential(
                     new Instant(this::setPositionActivated),
                     new Wait(ACTIVATE_DELAY)
@@ -58,5 +59,13 @@ public class Splitter extends HwServo {
 
     public String getState() {
         return state.name();
+    }
+
+    public void setUseSplitter(boolean useSplitter) {
+        this.useSplitter = useSplitter;
+    }
+
+    public boolean isUseSplitter() {
+        return useSplitter;
     }
 }

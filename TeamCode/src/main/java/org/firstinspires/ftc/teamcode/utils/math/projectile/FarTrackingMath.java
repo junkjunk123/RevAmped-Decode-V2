@@ -67,7 +67,7 @@ public class FarTrackingMath {
         FAR_AUTO = trackCalibration(Hood.FAR_PRESET, Flywheel.FAR_VELOCITY - 25,
                 215.25/255d, AllianceColor.Red);
 
-        CLOSE_1 = trackCalibration(231/255d, 166/255d);
+        CLOSE_1 = trackCalibration(231/255d, 164/255d);
         CLOSE_2 = trackCalibration(250/255d, 149/255d);
         CLOSE_3 = trackCalibration(-26/255d, 140/255d);
         CLOSE_4 = trackCalibration(-14/255d, AllianceColor.Red);
