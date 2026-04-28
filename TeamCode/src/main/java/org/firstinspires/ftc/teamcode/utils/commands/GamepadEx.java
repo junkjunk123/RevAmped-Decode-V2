@@ -44,6 +44,8 @@ public class GamepadEx {
     public BooleanSwitch right_stick_x_button;
     public BooleanSwitch right_stick_y_button;
 
+    private Gamepad gamepad;
+
     public GamepadEx(Gamepad gamepad) {
         a = new BooleanSwitch(() -> gamepad.a);
         b = new BooleanSwitch(() -> gamepad.b);
@@ -70,6 +72,7 @@ public class GamepadEx {
                 a, b, x, y, left_bumper, right_bumper, start, back, dpad_left, dpad_right, dpad_down, dpad_up, left_stick_button,
                 right_stick_button, touchpad
         ));
+        this.gamepad = gamepad;
     }
 
     public void apply(Function<BooleanSwitch, BooleanSwitch> function) {
@@ -104,6 +107,10 @@ public class GamepadEx {
     public void right_stick_y_button(Function<FloatSupplier, BooleanSwitch> f) {
         right_stick_y_button = f.apply(right_stick_y);
         buttons.add(right_stick_y_button);
+    }
+
+    public void rumble(double ms) {
+        gamepad.rumble((int) ms);
     }
 
     public void addButton(BooleanSwitch button) {

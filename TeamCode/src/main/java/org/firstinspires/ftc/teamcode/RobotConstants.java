@@ -87,6 +87,20 @@ public class RobotConstants {
                     .add(Math.PI * 7 / 4.0, 146/255d)
         );
 
+        /*
+        FarTrackingMath.buildOffsetILUT(
+                new ListMap<Double, Double>()
+                        .add(0d, 0d)
+                        .add(Math.PI / 4, 0d)
+                        .add(Math.PI / 2, 0d)
+                        .add(Math.PI * 3 / 4.0, 0d)
+                        .add(Math.PI, 0d)
+                        .add(Math.PI * 5 / 4.0, 0d)
+                        .add(Math.PI * 3 / 2.0, 0d)
+                        .add(Math.PI * 7 / 4.0, 0d)
+        );
+         */
+
         //gate
         IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;
 

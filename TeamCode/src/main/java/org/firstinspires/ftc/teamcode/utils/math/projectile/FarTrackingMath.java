@@ -119,11 +119,11 @@ public class FarTrackingMath {
         ), 0, 1);
          */
 
-        double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
+        //double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
         double pos = ServoTurret.radToTicks(
                 MathUtil.normalizeAnglePi(
                 ServoTurret.ticksToRad(target.turretPos() + offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading()))) +
-                        pinpointPose.getHeading() + omegaComp
+                        pinpointPose.getHeading() //+ omegaComp
                 )
         );
         pos -= GyroThread.NEUTRAL_OFFSET * Math.signum(ServoTurret.REST - pos);

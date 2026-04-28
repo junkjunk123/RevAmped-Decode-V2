@@ -5,7 +5,6 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
-import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -27,7 +26,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.TableCompartmentManager;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
@@ -40,16 +38,14 @@ import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
-import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
-import org.firstinspires.ftc.teamcode.utils.commands.channel.Notifier;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 import org.firstinspires.ftc.teamcode.utils.math.Z3Element;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class Robot {
@@ -314,17 +310,15 @@ public class Robot {
         return autoFastShoot(IntakeTilt.TiltState.INTAKE);
     }
 
-    public ICommand autoShoot(Supplier<Double> delay) {
-        AtomicReference<float[]> shootSequence = new AtomicReference<>();
+    public ICommand autoShoot(BooleanSupplier rapidFire) {
         return new Conditional(
-                () -> delay.get() < 10,
+                rapidFire,
                 autoFastShoot(),
                 new Sequential(
                         new Instant(() -> {
                             intakeMotor.intake();
                             intakeTilt.intake();
                             intakeGate.open();
-                            shootSequence.set(table.getState().getShootStates());
                         }),
                         /*
                         new Instant(() -> table.setPosition(shootSequence.get()[0])),

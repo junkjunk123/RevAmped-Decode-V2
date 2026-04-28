@@ -11,6 +11,7 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Robot;
@@ -131,12 +132,12 @@ public class Tele extends OpModeCommand {
         telemetry.addData("randomizationState", Globals.randomizationState);
         prompter.run();
     }
-
     @Override
     public void onStart() {
         robot.drivetrain.follower.setPose(Drivetrain.startPose);
         robot.drivetrain.follower.update();
         robot.tableCompartments.intakeThread.reset();
+        sendLEDs();
     }
 
     @Override
@@ -146,10 +147,10 @@ public class Tele extends OpModeCommand {
         gamepad_2.update();
 
         // Schedule commands based on triggers
-        // Schedule commands based on triggers
         if (gamepad_1.a.isRisingEdge()) {
             GyroThread.trackTurret = !GyroThread.trackTurret;
             GyroThread.trackTraj = !GyroThread.trackTraj;
+            sendLEDs();
         }
 
         if (gamepad_1.y.isRisingEdge()) {
@@ -162,9 +163,21 @@ public class Tele extends OpModeCommand {
             else gyroThread.setState(TrackState.FAR_THREE);
             schedule(tsh.setting(robot::shootCorner), new Instant(gyroThread::close));
         }
-        if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(robot::shootNear), new Instant(gyroThread::close));
-        if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(robot::shootMedium), new Instant(gyroThread::close));
-        if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(robot::shootFar), new Instant(gyroThread::far));
+
+        if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(() -> {
+            robot.shootNear();
+            gyroThread.close();
+        }), new Instant(gyroThread::close));
+
+        if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(() -> {
+            robot.shootMedium();
+            gyroThread.close();
+        }));
+
+        if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(() -> {
+            robot.shootFar();
+            gyroThread.close();
+        }));
 
         if (gamepad_1.start.isRisingEdge()){
             schedule(robot.turret.resetTurret());
@@ -262,11 +275,6 @@ public class Tele extends OpModeCommand {
                                 RobotStateHandler.CycleState.DRIVE_TO_SHOOT
                         ),
                         new Instant(() -> robot.feederWheel.start()),
-                        new Conditional(
-                                robot.flywheel::isStopped,
-                                new Instant(robot::shootNear),
-                                Commands.NOOP
-                        ),
                         new Sequential(
                             new Instant(robot.intakeMotor::outtakeSlow),
                             new Wait(50),
@@ -331,6 +339,11 @@ public class Tele extends OpModeCommand {
                     new Sequential(
                             new Wait(350),
                             new Instant(() -> transfer = true)
+                    ),
+                    new Conditional(
+                            robot.flywheel::isStopped,
+                            new Instant(robot::shootNear),
+                            Commands.NOOP
                     )
             ), new int[] {1, 0, 0}));
         }
@@ -383,5 +396,10 @@ public class Tele extends OpModeCommand {
         telemetry.addData("hasThree", robot.tableCompartments.intakeThread.hasThree);
         telemetry.addData("encoderPos", robot.table.getEncoder().getPosition());
         telemetry.addData("encoderVel", robot.table.getEncoder().getVelocity());
+    }
+
+    private void sendLEDs() {
+        if (GyroThread.trackTurret) gamepad1.setLedColor(0,1,0, Gamepad.LED_DURATION_CONTINUOUS);
+        else gamepad1.setLedColor(1,0,0, Gamepad.LED_DURATION_CONTINUOUS);
     }
 }

@@ -348,7 +348,7 @@ public class Table extends HwServo {
 
     public ICommand slowShoot(double normalizedSpeed) {
         return new Sequential(
-                new ServoProfileCommand(this, getState().target(), getState().getShootStates()[2], normalizedSpeed),
+                new Lazy(() -> new ServoProfileCommand(this, getState().target(), getState().getShootStates()[2], normalizedSpeed)),
                 new Wait(100)
         );
     }
