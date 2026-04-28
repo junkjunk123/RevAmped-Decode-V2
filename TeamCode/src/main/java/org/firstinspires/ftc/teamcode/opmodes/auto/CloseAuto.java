@@ -19,7 +19,10 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
-import org.firstinspires.ftc.teamcode.opmodes.paths.UnsortedCloseAutoPaths;
+import org.firstinspires.ftc.teamcode.opmodes.paths.UnsortedCloseAutoPathsBlue;
+import org.firstinspires.ftc.teamcode.opmodes.paths.UnsortedCloseAutoPathsRed;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 
 public class CloseAuto extends OpModeCommand {
@@ -31,7 +34,7 @@ public class CloseAuto extends OpModeCommand {
 
     @Override
     public void initialize() {
-        robot = new Robot(hardwareMap, new UnsortedCloseAutoPaths());
+        robot = new Robot(hardwareMap, Globals.allianceColor.equals(AllianceColor.Red) ? new UnsortedCloseAutoPathsRed() : new UnsortedCloseAutoPathsBlue());
         gyroThread = new GyroThread(robot);
         robot.turret.setPosition(ServoTurret.UNSORTED_AUTO_PRELOADS.getPos());
         robot.hood.unsortedAuto();
