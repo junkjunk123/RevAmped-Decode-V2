@@ -26,8 +26,9 @@ public class EighteenPathsBlue implements PathSupplier {
     public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(34, 65);
     public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(51, 91);
 
-    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(10.5, 62, Math.toRadians(150));
-    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(15.5, 66, Math.toRadians(180));
+    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(10.5, 59, Math.toRadians(150));
+    public static ColoredDecodePose GATE_CONTROL = new ColoredDecodePose(30.75,59);
+    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(15.5, 67, Math.toRadians(180));
 
     public static ColoredDecodePose THIRD_INTAKE_CONTROL = new ColoredDecodePose(49, 87);
     public static ColoredDecodePose THIRD_INTAKE = new ColoredDecodePose(20, 87, Math.toRadians(180));
@@ -35,10 +36,10 @@ public class EighteenPathsBlue implements PathSupplier {
     public static ColoredDecodePose THIRD_SHOOT = new ColoredDecodePose(51, 91, Math.toRadians(225));
 
 //    public static ColoredDecodePose FOURTH_INTAKE_CONTROL = new ColoredDecodePose(18, 67);
-    public static ColoredDecodePose FOURTH_INTAKE = new ColoredDecodePose(12, 18);
-    public static ColoredDecodePose FOURTH_SHOOT = new ColoredDecodePose(50, 15);
+    public static ColoredDecodePose FOURTH_INTAKE = new ColoredDecodePose(12, 13);
+    public static ColoredDecodePose FOURTH_SHOOT = new ColoredDecodePose(50, 10);
 
-    public static ColoredDecodePose PARK = new ColoredDecodePose(37, 16);
+    public static ColoredDecodePose PARK = new ColoredDecodePose(37, 11);
 
     @Override
     public Pose startPose() {
@@ -73,7 +74,7 @@ public class EighteenPathsBlue implements PathSupplier {
         );
 
         FollowParameters path5 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SECOND_SHOOT, GATE_INTAKE))
+                .addPath(ColoredDecodePose.makeBezier(SECOND_SHOOT, GATE_CONTROL, GATE_INTAKE))
                 .setConstantHeadingInterpolation(GATE_INTAKE.getHeading())
                 .build()
         );
