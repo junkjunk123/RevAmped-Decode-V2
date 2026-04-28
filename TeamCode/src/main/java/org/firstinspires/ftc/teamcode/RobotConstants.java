@@ -73,7 +73,7 @@ public class RobotConstants {
         ServoTurret.EIGHTEEN_GATE_SHOOT = TurretCalibration.fromRed(188/255d).withBlue(65/255d);
         ServoTurret.EIGHTEEN_THIRD_SET = TurretCalibration.fromRed(196/255d).withBlue(67/255d);
         ServoTurret.EIGHTEEN_FOURTH_SET = TurretCalibration.fromRed(186/255d).withBlue(68/255d);
-        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d).withBlue(31/255d);
+        ServoTurret.EIGHTEEN_FIFTH_SET = TurretCalibration.fromRed(218/255d).withBlue(36/255d);
 
         FarTrackingMath.buildOffsetILUT(
                 new ListMap<Double, Double>()
