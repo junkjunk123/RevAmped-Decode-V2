@@ -317,8 +317,7 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_right.isRisingEdge()) {
-            Pose reset = new ColoredDecodePose().getPose();
-            robot.drivetrain.follower.setHeading(reset.getHeading());
+            robot.drivetrain.follower.setHeading(Math.toRadians(270));
         }
 
         if (gamepad_2.dpad_left.isRisingEdge()) {
