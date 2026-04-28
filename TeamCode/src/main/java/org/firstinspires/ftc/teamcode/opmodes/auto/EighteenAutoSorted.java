@@ -49,13 +49,15 @@ public class EighteenAutoSorted extends OpModeCommand {
                     Pose pose = robot.drivetrain.follower.getPose();
                     if (pose.distanceFrom(new Pose()) > 0.01) Drivetrain.startPose = robot.drivetrain.follower.getPose();
                     telemetry.addData("motif", Globals.randomizationState);
+                    telemetry.addData("llouput",robot.limelight.getCurrentPipeline());
+                    telemetry.update();
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(overallTimer::reset),
                         new Instant(() -> {
                             //Preloads=======
-                            robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY + 10);
+                            robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY + 50);
                             robot.hood.far();
                             robot.feederWheel.start();
                             robot.popper.popCommandless();
@@ -82,7 +84,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 intake(false),
                                 robot.turret.resetTurret(),
                                 robot.drivetrain.follow(),
-                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY + 5))
+                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY + 45))
                         ),
                         new Wait(250),
                         new Parallel(
@@ -175,7 +177,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                 transferSorted(),
                                 new Instant(() -> {
                                     robot.hood.far();
-                                    robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY-20);
+                                    robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY+20);
                                     robot.feederWheel.start();
                                 })
                         ),
