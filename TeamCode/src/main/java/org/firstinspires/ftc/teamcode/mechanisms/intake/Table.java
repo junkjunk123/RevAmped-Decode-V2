@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.commands.SimpleStateMachine;
 import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
+import org.firstinspires.ftc.teamcode.utils.commands.ServoProfileCommand;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Channels;
 import org.firstinspires.ftc.teamcode.utils.commands.channel.Speaker;
 import org.firstinspires.ftc.teamcode.utils.data.AtomicReadOnce;
@@ -96,6 +97,7 @@ public class Table extends HwServo {
     public static double SLOW_SHOOT_DELAY = 25;
     private final int VELOCITY_THRESHOLD = 20;
     private final int VELOCITY_THRESHOLD_2 = 15;
+    public static double AUTO_FAST_SHOOT_DELAY = 500;
     private final StateMachine<RelativeState> stateHandler = new SimpleStateMachine<>(RelativeState.BALL1);
     private final Encoder encoder;
     private final AtomicReference<Double> distance = new AtomicReference<>(0.0);
@@ -341,6 +343,13 @@ public class Table extends HwServo {
                                 return this + "MOTOR TEST FAIL: Encoder counts too low!";
                         })
                 )
+        );
+    }
+
+    public ICommand slowShoot(double normalizedSpeed) {
+        return new Sequential(
+                new ServoProfileCommand(this, getState().target(), getState().getShootStates()[2], normalizedSpeed),
+                new Wait(100)
         );
     }
 

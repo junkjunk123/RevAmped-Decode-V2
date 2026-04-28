@@ -289,7 +289,7 @@ public class Robot {
 
                                     return new Sequential(
                                             new Instant(() -> table.setPosition(pos)),
-                                            new Wait(500)
+                                            new Wait(Table.AUTO_FAST_SHOOT_DELAY)
                                     );
                                 })
                         ),
@@ -302,7 +302,7 @@ public class Robot {
 
                             return new Sequential(
                                     new Instant(() -> table.setPosition(pos)),
-                                    new Wait(500)
+                                    new Wait(Table.AUTO_FAST_SHOOT_DELAY)
                             );
                         })
                 ),
@@ -326,12 +326,14 @@ public class Robot {
                             intakeGate.open();
                             shootSequence.set(table.getState().getShootStates());
                         }),
+                        /*
                         new Instant(() -> table.setPosition(shootSequence.get()[0])),
                         new Wait(delay.get() + 300),
                         new Instant(() -> table.setPosition(shootSequence.get()[1])),
                         new Wait(delay.get() + 300),
                         new Instant(() -> table.setPosition(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3)),
-                        new Wait(200),
+                         */
+                        table.slowShoot(0.4),
                         new Instant(tableCompartments::removeAll),
                         new Instant(tableCompartments.intakeThread::reset)
                 )
