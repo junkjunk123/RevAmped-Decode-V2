@@ -11,7 +11,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
-@Disabled
+import java.util.Arrays;
+
 @TeleOp
 public class ObeliskDetectionTest extends OpMode {
     private DecodeLimelight limelight;

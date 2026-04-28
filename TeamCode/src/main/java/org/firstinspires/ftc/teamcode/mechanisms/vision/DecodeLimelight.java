@@ -70,7 +70,7 @@ public class DecodeLimelight implements HwDevice {
 
     private void computeLatestResult() {
         LLResult result = limelight.getLatestResult();
-        if (result != null && (result.isValid() || getCurrentPipeline() == Pipeline.SHOOTING_ALIGNMENT)) {
+        if (result != null && (result.isValid() || getCurrentPipeline() == Pipeline.SHOOTING_ALIGNMENT || getCurrentPipeline() == Pipeline.OBELISK)) {
             latestResult = result;
             lastDetectionTime = result.getControlHubTimeStampNanos();
         }
@@ -80,7 +80,6 @@ public class DecodeLimelight implements HwDevice {
         if (currentPipeline == Pipeline.NONE) return;
         computeLatestResult();
         if (latestResult == null) return;
-
         switch (currentPipeline) {
             case OBELISK -> {
                 if (latestResult.getPythonOutput() == null)
@@ -119,6 +118,10 @@ public class DecodeLimelight implements HwDevice {
     public void close() {
         setCurrentPipeline(Pipeline.NONE);
         limelight.close();
+    }
+
+    public Limelight3A getLimelight(){
+        return limelight;
     }
 
     public Command detectMotif() {

@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.StateMachine;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 public class Popper extends HwServo {
+    //port 0 on c-hub port 5 on injector
     public static float NEUTRAL;
     public static float POP;
     public static float BLOCK;
