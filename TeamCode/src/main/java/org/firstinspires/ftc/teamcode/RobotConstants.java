@@ -33,7 +33,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 217/255f; Popper.NEUTRAL = 135/255f; Popper.BLOCK = 217/255f; Popper.BLOCK_OUT = 166/255f;
+        Popper.POP = 184/255f; Popper.NEUTRAL = 101/255f; Popper.BLOCK = 184/255f; Popper.BLOCK_OUT = 101/255f;
 
         FeederWheel.TARGET_VEL = 2500;
 
@@ -95,7 +95,7 @@ public class RobotConstants {
         Splitter.ACTIVATE_DELAY = 300; Splitter.NEUTRAL_DELAY = 300;
 
         //tilt
-        IntakeTilt.TRANSFER = 50/255f; IntakeTilt.INTAKE = 107/255f; IntakeTilt.GATE_INTAKE = 107/255f;
+        IntakeTilt.TRANSFER = 126/255f; IntakeTilt.INTAKE = 90/255f; IntakeTilt.GATE_INTAKE = 90/255f;
 
         Lift.TIME = 1500f;
 

@@ -19,7 +19,7 @@
             <goBILDA5202SeriesMotor name="motor_rb" port="2"/>
             <goBILDA5202SeriesMotor name="motor_rf" port="3"/>
             <goBILDAPinpoint name="pinpoint" port="0" bus="2"/>
-            <Servo name="intakeTilt" port="5"/>
+            <Servo name="intakeTilt" port="0"/>
             <ContinuousRotationServo name="lift" port="4"/>
             <Servo name="popper" port="3"/>
             <Servo name="table" port="2"/>
