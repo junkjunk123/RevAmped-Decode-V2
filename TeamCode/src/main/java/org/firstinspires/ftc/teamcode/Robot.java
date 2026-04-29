@@ -116,6 +116,7 @@ public class Robot {
         turret.move(ServoTurretState.PresetState.REST);
         intakeTilt.intake();
         intakeGate.setClose();
+        hood.rest();
         splitter.setPositionNeutral();
     }
 

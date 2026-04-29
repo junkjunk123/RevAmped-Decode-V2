@@ -96,7 +96,7 @@ public class RobotConstants {
         Splitter.ACTIVATE_DELAY = 300; Splitter.NEUTRAL_DELAY = 300;
 
         //tilt
-        IntakeTilt.TRANSFER = 126/255f; IntakeTilt.INTAKE = 90/255f; IntakeTilt.GATE_INTAKE = 90/255f;
+        IntakeTilt.TRANSFER = 126/255f; IntakeTilt.INTAKE = 89/255f; IntakeTilt.GATE_INTAKE = 89/255f;
 
         Lift.TIME = 1500f;
 

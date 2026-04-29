@@ -24,12 +24,12 @@ public class UnsortedCloseAutoPathsBlue implements PathSupplier {
     public static ColoredDecodePose SHOOT_POSE = new ColoredDecodePose(56, 78, Math.toRadians(204));
     public static ColoredDecodePose INTAKE_1 = new ColoredDecodePose(23.5, 59.5, Math.PI);
     public static ColoredDecodePose INTAKE_1_CONTROL = new ColoredDecodePose(45,59, Math.PI);
-    public static ColoredDecodePose GATE_TAP = new ColoredDecodePose(17.5, 64, Math.toRadians(160));
+    public static ColoredDecodePose GATE_TAP = new ColoredDecodePose(15.5, 64, Math.toRadians(160));
     public static ColoredDecodePose GATE_CONTROL = new ColoredDecodePose(56, 60);
-    public static ColoredDecodePose GATE = new ColoredDecodePose(13.75, 61, Math.toRadians(150));
-    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(13.25, 60, Math.toRadians(150));
-    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(13.75, 59, Math.toRadians(150));
-    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(14.25, 60.5, Math.toRadians(150));
+    public static ColoredDecodePose GATE = new ColoredDecodePose(12.75, 61.5, Math.toRadians(150));
+    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(12.25, 62, Math.toRadians(150));
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(12.75, 61.5, Math.toRadians(150));
+    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(12.25, 62.5, Math.toRadians(150));
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD_CONTROL = new ColoredDecodePose(52, 84, Math.PI);
     public static ColoredDecodePose INTAKE_FINAL_PRELOAD = new ColoredDecodePose(23.5, 84, Math.PI);
     public static ColoredDecodePose PARK_CONTROL = new ColoredDecodePose(30.5, 84);
@@ -42,7 +42,7 @@ public class UnsortedCloseAutoPathsBlue implements PathSupplier {
 
     @Override
     public List<FollowParameters> paths(Follower follower) {
-        FollowParameters shootPreloads = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters shootPreloads = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(START_POSE, CONTROL_POINT_1, FIRST_SHOOT_POSE))
                 .setConstantHeadingInterpolation(FIRST_SHOOT_POSE.getHeading())
                 .build()

@@ -116,6 +116,7 @@ public class Tele extends OpModeCommand {
                                                     robot.intakeMotor.intake();
                                                     robot.feederWheel.intakeState();
                                                 }),
+                                                new Wait(500),
                                                 robot.popper.block()
                                         )
                                 )

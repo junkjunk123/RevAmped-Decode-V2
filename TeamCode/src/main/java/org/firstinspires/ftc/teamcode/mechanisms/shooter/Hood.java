@@ -39,7 +39,6 @@ public class Hood extends HwServo {
     public Hood(HardwareMap hwMap, HwVoltageSensor voltageSensor) {
         super(hwMap, "hood");
         this.voltageSensor = voltageSensor;
-        rest();
         farPos = FAR_PRESET;
     }
 
