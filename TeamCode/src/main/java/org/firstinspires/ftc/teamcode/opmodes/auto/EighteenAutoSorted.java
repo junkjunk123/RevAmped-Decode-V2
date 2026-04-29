@@ -84,12 +84,12 @@ public class EighteenAutoSorted extends OpModeCommand {
                         ),
                         robot.autoFastShoot(),
                         new Parallel(
-                                robot.intake(),
-                                robot.intakeGate.open()
                         ),
 
                         //Second set=====
                         new Parallel(
+                                robot.intake(),
+                                robot.intakeGate.open(),
                                 intake(false),
                                 robot.turret.resetTurret(),
                                 robot.drivetrain.follow(),
@@ -230,17 +230,18 @@ public class EighteenAutoSorted extends OpModeCommand {
     }
 
     public ICommand transfer() {
-        return new Parallel(
-                new Instant(robot.intakeTilt::transfer),
-                new Wait(200),
-                new Instant(robot.feederWheel::start),
-                new Sequential(
-                        new Wait(200),
-                        new Instant(robot.intakeMotor::outtake)
+        return new Sequential(
+                new Parallel(
+                    robot.intakeGate.close(),
+                    new Instant(robot.intakeTilt::transfer),
+                    new Instant(robot.intakeMotor::outtake)
                 ),
-                robot.popper.pop(),
-                robot.splitter.neutral(),
-                robot.intakeGate.close()
+
+                new Parallel(
+                    robot.popper.pop(),
+                    robot.splitter.neutral(),
+                    new Instant(robot.feederWheel::start)
+                )
         );
     }
 
