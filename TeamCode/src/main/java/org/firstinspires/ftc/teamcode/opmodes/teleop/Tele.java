@@ -423,14 +423,6 @@ public class Tele extends OpModeCommand {
                 schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
             }
         }
-
-        telemetry.addData("voltage", robot.voltageSensor.getVoltage());
-        telemetry.addData("popper_state", robot.popper.getState());
-        telemetry.addData("robot_state", robot.getRobotState());
-        telemetry.addData("hasThree", robot.tableCompartments.intakeThread.hasThree);
-        telemetry.addData("encoderPos", robot.table.getEncoder().getPosition());
-        telemetry.addData("encoderVel", robot.table.getEncoder().getVelocity());
-        telemetry.addData("offsets", Arrays.toString(FarTrackingMath.offsets));
     }
 
     private void sendLEDs() {
