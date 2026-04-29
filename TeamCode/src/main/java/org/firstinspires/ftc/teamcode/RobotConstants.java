@@ -89,7 +89,7 @@ public class RobotConstants {
         );
 
         //gate
-        IntakeGate.OPEN = 232/255f; IntakeGate.CLOSE = 99/255f;
+        IntakeGate.OPEN = 243/255f; IntakeGate.CLOSE = 99/255f;
 
         //splitter
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
