@@ -20,13 +20,16 @@ import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 import org.firstinspires.ftc.teamcode.utils.math.MathUtil;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState.Track;
 
+import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
+
+import smile.interpolation.LinearInterpolation;
 
 @Config
 public class FarTrackingMath {
     private final PinpointLocalizer pinpoint;
-
     private final EnumMap<TrackState, TrackState.Track> heatMap;
 
     //alliance color is the goal you calibrated on, the code automatically mirrors as needed
@@ -44,11 +47,14 @@ public class FarTrackingMath {
 
     public static Track REST;
 
+    //public static ILUT offsetInterpol;
     public static ILUT offsetInterpol;
 
     private Track target;
+    private boolean reversed = false;
 
     public static double ANGULAR_CONSTANT = 0.06;
+    public static double[] offsets;
 
     public FarTrackingMath(Localizer pinpoint) {
         this.pinpoint = (PinpointLocalizer) pinpoint;
@@ -119,12 +125,27 @@ public class FarTrackingMath {
         ), 0, 1);
          */
 
-        //double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
+        double omegaComp = pinpoint.getPinpoint().getHeadingVelocity(UnnormalizedAngleUnit.RADIANS) * ANGULAR_CONSTANT;
+        double offset;
+
+        if (Globals.isTeleOp) {
+            if (reversed) {
+                if (Globals.allianceColor.equals(AllianceColor.Red)) offset = offsets[5];
+                else offset = 0;
+            } else {
+                if (Globals.allianceColor.equals(AllianceColor.Red)) offset = 0;
+                else offset = offsets[5];
+            }
+        } else {
+            offset = offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading()));
+        }
+
         double pos = ServoTurret.radToTicks(
                 MathUtil.normalizeAnglePi(
-                ServoTurret.ticksToRad(target.turretPos() + offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading()))) +
-                        pinpointPose.getHeading() //+ omegaComp
+                ServoTurret.ticksToRad(target.turretPos() + offset //offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading()))
+                ) + pinpointPose.getHeading() + omegaComp
                 )
+                //indentation is so interpolation can be commented out easily
         );
         pos -= GyroThread.NEUTRAL_OFFSET * Math.signum(ServoTurret.REST - pos);
         pos = Range.clip(pos, 0.0, 1.0);
@@ -135,6 +156,8 @@ public class FarTrackingMath {
         return (f, h) -> {
             this.target = heatMap.get(state);
             if (target == null) throw new IllegalArgumentException();
+            if (state.equals(TrackState.FAR_THREE) || state.equals(TrackState.FAR_FOUR)) reversed = true;
+            else reversed = false;
 
             if (state.isFar() && trackTraj) {
                 f.setVelocity(target.flywheelVel());
@@ -144,6 +167,21 @@ public class FarTrackingMath {
     }
 
     public static void buildOffsetILUT(ListMap<Double, Double> turretOffsets) {
+        Double[] x = turretOffsets.getMap().keySet().toArray(new Double[0]);
+        Double[] y = turretOffsets.getMap().values().toArray(new Double[0]);
+
+        double[] xVals = new double[x.length];
+        double[] yVals = new double[y.length];
+
+        for (int i = 0; i < x.length; i++) {
+            double heading = x[i];
+            xVals[i] = heading;
+            yVals[i] = ServoTurret.radToTicks(ServoTurret.ticksToRad(y[i]) - heading) - y[0];
+            offsets = yVals;
+        }
+
+        //offsetInterpol = new LinearInterpolation(xVals, yVals);
+
         ILUT.Builder builder = new ILUT.Builder();
         double initial = turretOffsets.get(0).val();
         for (int i = 0; i < turretOffsets.size(); i++) {

@@ -236,29 +236,22 @@ public class Robot {
         );
     }
 
-    public ICommand shootAll(Supplier<Double> delay) {
-        AtomicReference<float[]> shootSequence = new AtomicReference<>();
-        return new Conditional(
-                () -> delay.get() < 10,
-                shootAll(),
-                new Sequential(
-                        new Instant(() -> {
-                            intakeTilt.intake();
-                            intakeMotor.intake();
-                            CycleState.INTAKE.update = true;
-                        }),
-                        new WaitUntil(() -> drivetrain.canShoot),
-                        new Instant(() -> {
-                            intakeMotor.intakeSlow();
-                            shootSequence.set(table.getState().getShootStates());
-                        }),
-                        table.setPos(() -> shootSequence.get()[0]),
-                        new Wait(delay.get()),
-                        table.setPos(() -> shootSequence.get()[1]),
-                        new Wait(delay.get()),
-                        table.setPos(() -> shootSequence.get()[2] + Table.FULL_REVOLUTION / 3),
-                        new Instant(tableCompartments::removeAll)
-                )
+    public ICommand shootAllSlow() {
+        return new Sequential(
+                new Instant(() -> {
+                    intakeMotor.intake();
+                    intakeTilt.intake();
+                }),
+                        /*
+                        new Instant(() -> table.setPosition(shootSequence.get()[0])),
+                        new Wait(delay.get() + 300),
+                        new Instant(() -> table.setPosition(shootSequence.get()[1])),
+                        new Wait(delay.get() + 300),
+                        new Instant(() -> table.setPosition(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3)),
+                         */
+                table.slowShoot(0.4),
+                new Instant(tableCompartments::removeAll),
+                new Instant(tableCompartments.intakeThread::reset)
         );
     }
 
@@ -318,7 +311,6 @@ public class Robot {
                         new Instant(() -> {
                             intakeMotor.intake();
                             intakeTilt.intake();
-                            intakeGate.open();
                         }),
                         /*
                         new Instant(() -> table.setPosition(shootSequence.get()[0])),
@@ -332,10 +324,6 @@ public class Robot {
                         new Instant(tableCompartments.intakeThread::reset)
                 )
         );
-    }
-
-    public ICommand shootAll(double delay) {
-        return shootAll(() -> delay);
     }
 
     public ICommand resetShooter() {

@@ -9,6 +9,7 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -36,9 +37,12 @@ import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.commands.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.data.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 import org.firstinspires.ftc.teamcode.utils.prompter.StatePrompt;
+
+import java.util.Arrays;
 
 @Config
 @TeleOp(name = "DCTeleOp")
@@ -48,10 +52,10 @@ public class Tele extends OpModeCommand {
     private Robot robot;
     private TeleOpStateHandler tsh;
     private Prompter prompter;
-    private boolean transfer;
     private boolean canShoot = true;
     private GyroThread gyroThread;
     private boolean gyroTrack;
+    private boolean firstTrack = true;
 
     @Override
     public void initialize() {
@@ -106,18 +110,13 @@ public class Tele extends OpModeCommand {
                                                 new Parallel(
                                                         new Instant(robot.intakeMotor::stop),
                                                         robot.intakeGate.open(),
-                                                        robot.table.reset()),
+                                                        robot.table.reset()
+                                                ),
                                                 new Instant(() -> {
                                                     robot.intakeMotor.intake();
                                                     robot.feederWheel.intakeState();
                                                 }),
-                                                robot.splitter.isUseSplitter() ? new Parallel(
-                                                        robot.popper.neutral(),
-                                                        new Sequential(
-                                                                new Wait(300),
-                                                                robot.splitter.activate()
-                                                        )
-                                                ) : robot.popper.neutral()
+                                                robot.popper.block()
                                         )
                                 )
                         ),
@@ -166,17 +165,35 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(() -> {
             robot.shootNear();
-            gyroThread.close();
-        }), new Instant(gyroThread::close));
+
+            if (firstTrack) {
+                gyroThread.setState(TrackState.CLOSE_ONE);
+                firstTrack = false;
+            } else {
+                gyroThread.close();
+            }
+        }));
 
         if (gamepad_1.dpad_left.isRisingEdge()) schedule(tsh.setting(() -> {
             robot.shootMedium();
-            gyroThread.close();
+
+            if (firstTrack) {
+                gyroThread.setState(TrackState.CLOSE_ONE);
+                firstTrack = false;
+            } else {
+                gyroThread.close();
+            }
         }));
 
         if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(() -> {
             robot.shootFar();
-            gyroThread.close();
+
+            if (firstTrack) {
+                gyroThread.setState(TrackState.FAR_ONE);
+                firstTrack = false;
+            } else {
+                gyroThread.far();
+            }
         }));
 
         if (gamepad_1.start.isRisingEdge()){
@@ -252,14 +269,18 @@ public class Tele extends OpModeCommand {
         }
          */
 
-        if (transfer || (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL))) {
-            transfer = false;
+        if (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL)) {
             gyroTrack = true;
             RobotStateHandler.CycleState.INTAKE.update = false;
+            robot.intakeTilt.transfer();
             schedule(new Sequential(
-                        new Instant(() -> robot.intakeTilt.transfer()),
                         tsh.runTransition(
-                                robot.splitter.isUseSplitter() ? new Parallel(
+                                new Sequential(
+                                        new Wait(50),
+                                        robot.popper.pop()
+                                ),
+                                /*
+                                new Parallel(
                                         new Sequential(
                                                 new Wait(50),
                                                 robot.popper.pop()
@@ -268,10 +289,8 @@ public class Tele extends OpModeCommand {
                                                 new Wait(150),
                                                 robot.splitter.neutral()
                                         )
-                                ) : new Sequential(
-                                        new Wait(50),
-                                        robot.popper.pop()
-                                ),
+                                )
+                                 */
                                 RobotStateHandler.CycleState.DRIVE_TO_SHOOT
                         ),
                         new Instant(() -> robot.feederWheel.start()),
@@ -315,7 +334,8 @@ public class Tele extends OpModeCommand {
                             new Sequential(
                                     tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                                     tsh.runTransition(new Sequential(
-                                            robot.shootAll(Table.SLOW_SHOOT_DELAY),
+                                            robot.shootAllSlow()
+                                            ,
                                             robot.resetAfterShooting()
                                     ), RobotStateHandler.CycleState.INTAKE)
                             ),
@@ -329,32 +349,45 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_left.isRisingEdge()) {
-            schedule(tsh.task(new Parallel(
-                    new Sequential(
-                            new Instant(() -> robot.intakeMotor.stop()),
-                            new Wait(200),
-                            new Instant(robot.intakeMotor::intake)
+            schedule(new Conditional(
+                    () -> tsh.evaluate(RobotStateHandler.CycleState.DRIVE_TO_SHOOT),
+                    new Parallel(
+                            tsh.runTransition(
+                                    new Sequential(
+                                            new Wait(200),
+                                            new Parallel(
+                                                  new Sequential(
+                                                          new Instant(() -> robot.intakeDistance.start()),
+                                                          new Race(
+                                                                  new Wait(375),
+                                                                  new WaitUntil(() -> !robot.intakeDistance.getReading())
+                                                          ),
+                                                          new Instant(() -> robot.feederWheel.start()),
+                                                          new Sequential(
+                                                                  robot.popper.pop(),
+                                                                  new Instant(() -> robot.intakeMotor.stop())
+                                                          )
+                                                  ),
+                                                  new Instant(() -> {gyroTrack = true; robot.intakeTilt.transfer();}),
+                                                  robot.intakeGate.close()
+                                            )
+                                    ),
+                                    RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                            ),
+                            robot.popper.neutral(),
+                            new Conditional(
+                                    robot.flywheel::isStopped,
+                                    new Instant(robot::shootNear),
+                                    Commands.NOOP
+                            )
                     ),
-                    robot.popper.neutral(),
-                    new Sequential(
-                            new Wait(350),
-                            new Instant(() -> transfer = true)
-                    ),
-                    new Conditional(
-                            robot.flywheel::isStopped,
-                            new Instant(robot::shootNear),
-                            Commands.NOOP
-                    )
-            ), new int[] {1, 0, 0}));
+                    Commands.NOOP
+            ));
         }
 
         if (gamepad_2.left_stick_y_button.isRisingEdge()) {
             if (gamepad2.left_stick_y < -0.3f) robot.intakeTilt.transfer();
             else if (gamepad2.left_stick_y > 0.3f) robot.intakeTilt.intake();
-        }
-
-        if (gamepad2.left_stick_x > 0.3f){
-            robot.intakeTilt.gateIntake();
         }
 
         if (gamepad_2.right_stick_y_button.isRisingEdge()) {
@@ -396,6 +429,7 @@ public class Tele extends OpModeCommand {
         telemetry.addData("hasThree", robot.tableCompartments.intakeThread.hasThree);
         telemetry.addData("encoderPos", robot.table.getEncoder().getPosition());
         telemetry.addData("encoderVel", robot.table.getEncoder().getVelocity());
+        telemetry.addData("offsets", Arrays.toString(FarTrackingMath.offsets));
     }
 
     private void sendLEDs() {

@@ -9,7 +9,7 @@ public class ListMap<K, V> {
     public record Entry<K, V>(K key, V val) {}
 
     private final List<Entry<K, V>> pairs = new ArrayList<>();
-    private final HashMap<K, V> map = new LinkedHashMap<>();
+    private final LinkedHashMap<K, V> map = new LinkedHashMap<>();
 
     public ListMap<K, V> add(K key, V val) {
         map.put(key, val);
@@ -31,5 +31,9 @@ public class ListMap<K, V> {
 
     public V get(K key) {
         return map.get(key);
+    }
+
+    public LinkedHashMap<K, V> getMap() {
+        return map;
     }
 }

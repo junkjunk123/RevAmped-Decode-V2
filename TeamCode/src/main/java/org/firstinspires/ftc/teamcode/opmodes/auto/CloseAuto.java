@@ -230,6 +230,7 @@ public class CloseAuto extends OpModeCommand {
                         )
                 ),
                 new Race(
+                        new Wait(2500),
                         new Sequential(
                                 new Wait(1400),
                                 new WaitUntil(() -> robot.tableCompartments.intakeThread.getNumBalls() >= 1)

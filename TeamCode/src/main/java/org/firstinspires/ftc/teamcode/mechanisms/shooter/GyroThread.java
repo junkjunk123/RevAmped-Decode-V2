@@ -57,7 +57,7 @@ public class GyroThread {
         if (trackTurret) turret.setPosition(tracker.update());
     }
 
-    public void close(){
+    public void close() {
         if (isFar) setState(TrackState.CLOSE_ONE);
     }
 
