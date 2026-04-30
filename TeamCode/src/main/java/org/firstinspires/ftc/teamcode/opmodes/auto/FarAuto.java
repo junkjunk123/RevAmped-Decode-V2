@@ -96,6 +96,10 @@ public class FarAuto extends OpModeCommand {
                                     GyroThread.NEUTRAL_OFFSET = 3;
                                 }),
                                 new Parallel(
+                                        new Sequential(
+                                                new Wait(50),
+                                                new Instant(robot.intakeMotor::stop)
+                                        ),
                                         robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
                                         new Sequential(
                                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
@@ -119,7 +123,6 @@ public class FarAuto extends OpModeCommand {
                                 new Instant(() -> {
                                     gyroThread.setState(TrackState.FAR_AUTO, true);
                                     robot.hood.far();
-                                    GyroThread.NEUTRAL_OFFSET = 3;
                                 }),
                                 transfer(),
                                 new Sequential(
@@ -312,7 +315,10 @@ public class FarAuto extends OpModeCommand {
                 new Conditional(
                         () -> robot.tableCompartments.intakeThread.hasThree,
                         Commands.NOOP,
-                        new Wait(350)
+                        new Parallel(
+                                robot.intakeGate.close(),
+                                new Wait(350)
+                        )
                 ),
                 new Instant(() -> {
                     robot.intakeTilt.transfer();
@@ -320,6 +326,10 @@ public class FarAuto extends OpModeCommand {
                     GyroThread.NEUTRAL_OFFSET = 2/255d;
                 }),
                 new Parallel(
+                        new Sequential(
+                                new Wait(50),
+                                new Instant(robot.intakeMotor::stop)
+                        ),
                         robot.popper.pop(),
                         robot.splitter.neutral(),
                         robot.intakeGate.close(),
