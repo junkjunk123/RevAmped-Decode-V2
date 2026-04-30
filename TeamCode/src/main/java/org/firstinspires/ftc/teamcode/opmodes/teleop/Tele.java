@@ -116,8 +116,7 @@ public class Tele extends OpModeCommand {
                                                     robot.intakeMotor.intake();
                                                     robot.feederWheel.intakeState();
                                                 }),
-                                                new Wait(500),
-                                                robot.popper.block()
+                                                robot.popper.neutral()
                                         )
                                 )
                         ),
@@ -350,40 +349,40 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_left.isRisingEdge()) {
-            schedule(new Conditional(
-                    () -> tsh.evaluate(RobotStateHandler.CycleState.DRIVE_TO_SHOOT),
-                    new Parallel(
-                            tsh.runTransition(
-                                    new Sequential(
-                                            new Wait(200),
-                                            new Parallel(
-                                                  new Sequential(
-                                                          new Instant(() -> robot.intakeDistance.start()),
-                                                          new Race(
-                                                                  new Wait(375),
-                                                                  new WaitUntil(() -> !robot.intakeDistance.getReading())
-                                                          ),
-                                                          new Instant(() -> robot.feederWheel.start()),
-                                                          new Sequential(
-                                                                  robot.popper.pop(),
-                                                                  new Instant(() -> robot.intakeMotor.stop())
-                                                          )
-                                                  ),
-                                                  new Instant(() -> {gyroTrack = true; robot.intakeTilt.transfer();}),
-                                                  robot.intakeGate.close()
-                                            )
-                                    ),
-                                    RobotStateHandler.CycleState.DRIVE_TO_SHOOT
-                            ),
-                            robot.popper.neutral(),
-                            new Conditional(
-                                    robot.flywheel::isStopped,
-                                    new Instant(robot::shootNear),
-                                    Commands.NOOP
-                            )
-                    ),
-                    Commands.NOOP
-            ));
+            if (robot.popper.atState(Popper.PopperState.BLOCK) && tsh.evaluate(RobotStateHandler.CycleState.DRIVE_TO_SHOOT)) {
+                schedule(new Parallel(
+                        tsh.runTransition(
+                                new Sequential(
+                                        new Wait(200),
+                                        new Parallel(
+                                                new Sequential(
+                                                        new Instant(() -> robot.intakeDistance.start()),
+                                                        new Race(
+                                                                new Wait(375),
+                                                                new WaitUntil(() -> !robot.intakeDistance.getReading())
+                                                        ),
+                                                        new Instant(() -> robot.feederWheel.start()),
+                                                        new Sequential(
+                                                                robot.popper.pop(),
+                                                                new Instant(() -> robot.intakeMotor.stop())
+                                                        )
+                                                ),
+                                                new Instant(() -> {gyroTrack = true; robot.intakeTilt.transfer();}),
+                                                robot.intakeGate.close()
+                                        )
+                                ),
+                                RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                        ),
+                        robot.popper.neutral(),
+                        new Conditional(
+                                robot.flywheel::isStopped,
+                                new Instant(robot::shootNear),
+                                Commands.NOOP
+                        )
+                ));
+            } else {
+                schedule(tsh.task(robot.popper::block, new int[] {1, 0, 0}));
+            }
         }
 
         if (gamepad_2.left_stick_y_button.isRisingEdge()) {
