@@ -29,7 +29,7 @@ public class Splitter extends HwServo {
 
     public ICommand neutral() {
         return new Lazy(() -> {
-            if (state == State.NEUTRAL) return Commands.NOOP;
+            if (state == State.NEUTRAL || !useSplitter) return Commands.NOOP;
             return new Sequential(
                     new Instant(this::setPositionNeutral),
                     new Wait(NEUTRAL_DELAY)

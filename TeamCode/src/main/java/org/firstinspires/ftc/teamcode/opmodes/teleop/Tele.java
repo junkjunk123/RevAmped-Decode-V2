@@ -56,6 +56,9 @@ public class Tele extends OpModeCommand {
     private GyroThread gyroThread;
     private boolean gyroTrack;
     private boolean firstTrack = true;
+    private boolean transfer = false;
+    private boolean autoBlock = false;
+    private final ColoredDecodePose resetPose = new ColoredDecodePose(0, 0, Math.PI);
 
     @Override
     public void initialize() {
@@ -150,11 +153,12 @@ public class Tele extends OpModeCommand {
             GyroThread.trackTurret = !GyroThread.trackTurret;
             GyroThread.trackTraj = !GyroThread.trackTraj;
             sendLEDs();
+            gamepad_1.rumble(500);
         }
 
         if (gamepad_1.y.isRisingEdge()) {
-            if (!robot.drivetrain.isHoldingPose()) schedule(robot.drivetrain.holdPose());
-            else robot.drivetrain.stopHoldPose();
+            autoBlock = !autoBlock;
+            gamepad_1.rumble(500);
         }
 
         if (gamepad_1.dpad_up.isRisingEdge()){
@@ -260,47 +264,36 @@ public class Tele extends OpModeCommand {
                 ), new int[]{1, 0, 0}
         ));
 
-        /*
-        if (!transfer && IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
+        if (!autoBlock && !transfer && IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
             if (robot.tableCompartments.intakeThread.hasThree) {
                 robot.tableCompartments.populate();
                 transfer = true;
             }
         }
-         */
+
 
         if (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL)) {
             gyroTrack = true;
             RobotStateHandler.CycleState.INTAKE.update = false;
             robot.intakeTilt.transfer();
-            schedule(new Sequential(
-                        tsh.runTransition(
-                                new Sequential(
-                                        new Wait(50),
-                                        robot.popper.pop()
-                                ),
-                                /*
-                                new Parallel(
-                                        new Sequential(
-                                                new Wait(50),
-                                                robot.popper.pop()
-                                        ),
-                                        new Sequential(
-                                                new Wait(150),
-                                                robot.splitter.neutral()
-                                        )
-                                )
-                                 */
-                                RobotStateHandler.CycleState.DRIVE_TO_SHOOT
-                        ),
-                        new Instant(() -> robot.feederWheel.start()),
-                        new Sequential(
-                            new Instant(robot.intakeMotor::outtakeSlow),
-                            new Wait(50),
+            schedule(tsh.runTransition(new Sequential(
+                    new Parallel(
                             robot.intakeGate.close(),
-                            new Instant(robot.intakeMotor::stop)
-                        )
-                    )
+                            new Instant(robot.intakeTilt::transfer),
+                            new Instant(robot.intakeMotor::outtake),
+                            new Conditional(
+                                    robot.flywheel::isStopped,
+                                    new Instant(robot::shootNear),
+                                    Commands.NOOP
+                            )
+                    ),
+                    new Parallel(
+                            robot.popper.pop(),
+                            robot.splitter.neutral(),
+                            new Instant(robot.feederWheel::start)
+                    ),
+                    new Instant(() -> transfer = false)
+                ), RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
             );
         }
 
@@ -316,7 +309,7 @@ public class Tele extends OpModeCommand {
                                             new Instant(() -> canShoot = true)
                                     ),
                                     new Parallel(
-                                            robot.resetAfterShooting(),
+                                            robot.resetAfterShooting(autoBlock),
                                             new Instant(() -> {
                                                 gyroTrack = false;
                                                 robot.turret.move(new ServoTurretState.Custom(ServoTurret.REST));
@@ -334,9 +327,8 @@ public class Tele extends OpModeCommand {
                             new Sequential(
                                     tsh.runTransition(() -> {}, RobotStateHandler.CycleState.SHOOT),
                                     tsh.runTransition(new Sequential(
-                                            robot.shootAllSlow()
-                                            ,
-                                            robot.resetAfterShooting()
+                                            robot.shootAllSlow(),
+                                            robot.resetAfterShooting(autoBlock)
                                     ), RobotStateHandler.CycleState.INTAKE)
                             ),
                             Commands.NOOP
@@ -345,7 +337,7 @@ public class Tele extends OpModeCommand {
         }
 
         if (gamepad_2.dpad_right.isRisingEdge()) {
-            robot.drivetrain.follower.setHeading(Math.toRadians(270));
+            robot.drivetrain.follower.setHeading(resetPose.getHeading());
         }
 
         if (gamepad_2.dpad_left.isRisingEdge()) {
@@ -381,7 +373,10 @@ public class Tele extends OpModeCommand {
                         )
                 ));
             } else {
-                schedule(tsh.task(robot.popper::block, new int[] {1, 0, 0}));
+                schedule(tsh.task(() -> {
+                    robot.popper.block();
+                    transfer = false;
+                }, new int[] {1, 0, 0}));
             }
         }
 

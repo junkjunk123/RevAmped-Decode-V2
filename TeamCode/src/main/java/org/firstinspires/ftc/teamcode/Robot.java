@@ -336,14 +336,22 @@ public class Robot {
     }
 
     public ICommand resetAfterShooting() {
+        return resetAfterShooting(false);
+    }
+
+    public ICommand resetAfterShooting(boolean block) {
         return new Parallel(
                 new Instant(drivetrain::stopHoldPose),
                 resetShooter(),
-                resetTableTeleOp()
+                resetTableTeleOp(block)
         );
     }
 
     public ICommand resetTableTeleOp() {
+        return resetTableTeleOp(false);
+    }
+
+    public ICommand resetTableTeleOp(boolean block) {
         return new Sequential(
                 new Parallel(
                     new Instant(() -> {
@@ -361,7 +369,7 @@ public class Robot {
                     )
                 ),
                 new Parallel(
-                        popper.neutral(),
+                        block ? popper.block() : popper.neutral(),
                         splitter.activate()
                 )
         );
@@ -424,9 +432,7 @@ public class Robot {
                 new Instant(() -> {
                     intakeMotor.intake();
                     feederWheel.intakeState();
-                }),
-                new Wait(300),
-                splitter.activate()
+                })
         );
     }
 

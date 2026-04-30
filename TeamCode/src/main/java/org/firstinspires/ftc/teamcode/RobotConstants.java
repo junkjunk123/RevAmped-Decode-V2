@@ -33,12 +33,12 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 187/255f; Popper.NEUTRAL = 101/255f; Popper.BLOCK = 184/255f; Popper.BLOCK_OUT = 101/255f;
+        Popper.POP = 181/255f; Popper.NEUTRAL = 101/255f; Popper.BLOCK = 181/255f; Popper.BLOCK_OUT = 101/255f;
 
         FeederWheel.TARGET_VEL = 2500;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 770; Flywheel.FAR_VELOCITY = 1000; Flywheel.CLOSE_AUTO_VELOCITY = 630;
+        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 740; Flywheel.FAR_VELOCITY = 1000; Flywheel.CLOSE_AUTO_VELOCITY = 630;
         Flywheel.CORNER_VELOCITY = 880;
         Flywheel.UNSORTED_AUTO_VELOCITY = 730;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
@@ -89,7 +89,7 @@ public class RobotConstants {
         );
 
         //gate
-        IntakeGate.OPEN = 243/255f; IntakeGate.CLOSE = 99/255f;
+        IntakeGate.OPEN = 243/255f; IntakeGate.CLOSE = 83/255f;
 
         //splitter
         Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;

@@ -50,6 +50,7 @@ public class FarAuto extends OpModeCommand {
         robot = new Robot(hardwareMap, new FarAutoPaths());
         gyroThread = new GyroThread(robot);
         gyroThread.setState(TrackState.FAR_TWO);
+        GyroThread.NEUTRAL_OFFSET = 4/255d;
         robot.hood.far();
         Constants.K_LINEAR_BRAKE = 0.090; Constants.K_QUADRATIC_BRAKE = 0.00125;
 
@@ -67,7 +68,7 @@ public class FarAuto extends OpModeCommand {
                 new Instant(overallTimer::reset),
                 new Sequential(
                         new Instant(() -> {
-                            robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 15);
+                            robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 35);
                             robot.feederWheel.start();
                             robot.popper.popCommandless();
                         }),
@@ -89,7 +90,11 @@ public class FarAuto extends OpModeCommand {
                         ),
                         new Parallel(
                                 transfer(),
-                                new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
+                                new Instant(() -> {
+                                    gyroThread.setState(TrackState.FAR_AUTO, true);
+                                    robot.hood.far();
+                                    GyroThread.NEUTRAL_OFFSET = 3;
+                                }),
                                 new Parallel(
                                         robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
                                         new Sequential(
@@ -105,41 +110,39 @@ public class FarAuto extends OpModeCommand {
                                         new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                         new Sequential(
                                                 robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                                                new Wait(250)
+                                                new Wait(450)
                                         )
                                 )
                         ),
                         new Parallel(
                                 robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                                new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
+                                new Instant(() -> {
+                                    gyroThread.setState(TrackState.FAR_AUTO, true);
+                                    robot.hood.far();
+                                    GyroThread.NEUTRAL_OFFSET = 3;
+                                }),
                                 transfer(),
                                 new Sequential(
                                         new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
                                         shoot()
                                 )
                         ),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle(),
-                        cycle()
+                        cycle(0),
+                        cycle(1),
+                        cycle(2),
+                        cycle(3),
+                        cycle(4),
+                        cycle(5),
+                        cycle(6),
+                        cycle(7),
+                        cycle(8),
+                        cycle(9),
+                        cycle(10)
                 )
         );
     }
 
-    public ICommand cycleWithoutVision() {
+    public ICommand cycleWithoutVision(int i) {
         return new Sequential(
                 new Parallel(
                         intake(),
@@ -148,13 +151,16 @@ public class FarAuto extends OpModeCommand {
                                 new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                 new Sequential(
                                         robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                                        new Wait(250)
+                                        new Wait(450)
                                 )
                         )
                 ),
                 new Parallel(
                         robot.drivetrain.followNext(d -> d.velocityCondition(6) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                        new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
+                        new Instant(() -> {
+                            gyroThread.setState(TrackState.FAR_AUTO, true);
+                            robot.hood.far();
+                        }),
                         transfer(),
                         new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
@@ -164,11 +170,11 @@ public class FarAuto extends OpModeCommand {
         );
     }
 
-    public ICommand cycle() {
+    public ICommand cycle(int i) {
         return new Conditional(
                 () -> useVision && cameraFailures.get() <= MAX_CAM_FAILURES,
                 visionCycle(),
-                cycleWithoutVision()
+                cycleWithoutVision(i)
         );
     }
 
@@ -221,13 +227,16 @@ public class FarAuto extends OpModeCommand {
                                                 )
                                         ),
                                         new Lazy(() -> selectedPaths.get(0).followCommand(robot.drivetrain)),
-                                        new Wait(250)
+                                        new Wait(450)
                                 )
                         )
                 ),
                 new Parallel(
                         new Lazy(() -> selectedPaths.get(1).followCommand(robot.drivetrain)),
-                        new Instant(() -> gyroThread.setState(TrackState.FAR_AUTO, true)),
+                        new Instant(() -> {
+                            gyroThread.setState(TrackState.FAR_AUTO, true);
+                            robot.hood.far();
+                        }),
                         transfer(),
                         new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),

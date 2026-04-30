@@ -1,0 +1,20 @@
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Expansion Hub 2" port="2">
+            <Servo name="e-5" port="5"/>
+            <Servo name="e-4" port="4"/>
+            <Servo name="e-3" port="3"/>
+            <Servo name="e-2" port="2"/>
+            <Servo name="e-1" port="1"/>
+            <Servo name="e-0" port="0"/>>
+        </LynxModule>
+        <LynxModule name="Control Hub" port="173">
+            <Servo name="c-0" port="0"/>
+            <Servp name="c-4" port="4"/>
+            <Servo name="c-3" port="3"/>
+            <Servo name="c-2" port="2"/>
+            <Servo name="c-1" port="1"/>
+            <Servo name="c-5" port="5"/>
+        </LynxModule>
+    </LynxUsbDevice>
+</Robot>

@@ -287,7 +287,7 @@ public class CloseAuto extends OpModeCommand {
             }
             default -> {
                 gyroThread.setState(TrackState.CLOSE_ONE);
-                GyroThread.NEUTRAL_OFFSET = -1/255f;
+                GyroThread.NEUTRAL_OFFSET = -2/255f;
                 useGyro = true;
             }
         }
