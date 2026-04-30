@@ -42,7 +42,7 @@ public class FarAuto extends OpModeCommand {
     private Z3Element cyclePath = new Z3Element(-1);
     public static boolean useVision = false;
     private final AtomicInteger cameraFailures = new AtomicInteger(0);
-
+    private boolean park = false;
     public static int MAX_CAM_FAILURES = 3;
 
     @Override
@@ -89,11 +89,10 @@ public class FarAuto extends OpModeCommand {
                                 )
                         ),
                         new Parallel(
-                                transfer(),
+                                transfer(6.5/255d),
                                 new Instant(() -> {
                                     gyroThread.setState(TrackState.FAR_AUTO, true);
                                     robot.hood.far();
-                                    GyroThread.NEUTRAL_OFFSET = 3;
                                 }),
                                 new Parallel(
                                         new Sequential(
@@ -154,7 +153,7 @@ public class FarAuto extends OpModeCommand {
                                 new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                 new Sequential(
                                         robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                                        new Wait(450)
+                                        new Wait(350)
                                 )
                         )
                 ),
@@ -173,12 +172,30 @@ public class FarAuto extends OpModeCommand {
         );
     }
 
+    @Override
+    public void onStart() {
+        overallTimer.reset();
+    }
+
+    /*
     public ICommand cycle(int i) {
         return new Conditional(
                 () -> useVision && cameraFailures.get() <= MAX_CAM_FAILURES,
                 visionCycle(),
                 cycleWithoutVision(i)
         );
+    }
+     */
+
+    public ICommand cycle(int i) {
+        return new Lazy(() -> {
+            if (park) return Commands.NOOP;
+            if (overallTimer.milliseconds() > 27000) return new Sequential(
+                    new Instant(() -> park = true),
+                    new Instant(() -> robot.drivetrain.followLast())
+            );
+            return cycleWithoutVision(i);
+        });
     }
 
     public ICommand visionCycle() {
@@ -311,6 +328,10 @@ public class FarAuto extends OpModeCommand {
     }
 
     public ICommand transfer() {
+        return transfer(2/255d);
+    }
+
+    public ICommand transfer(double ticks) {
         return new Sequential(
                 new Conditional(
                         () -> robot.tableCompartments.intakeThread.hasThree,
@@ -323,7 +344,7 @@ public class FarAuto extends OpModeCommand {
                 new Instant(() -> {
                     robot.intakeTilt.transfer();
                     robot.intakeMotor.outtake();
-                    GyroThread.NEUTRAL_OFFSET = 2/255d;
+                    GyroThread.NEUTRAL_OFFSET = ticks;
                 }),
                 new Parallel(
                         new Sequential(

@@ -111,7 +111,8 @@ public class FarAutoPaths implements PathSupplier {
         );
 
         Supplier<List<FollowParameters>> cycle = () -> List.of(
-                intakeMiddle.get(), shootMiddle.get(), intakeFar.get(), shootFar.get(),
+                intakeMiddle.get(), shootMiddle.get(),
+                intakeNear, shootNear.get(),
                 intakeNear, shootNear.get()
         );
 
