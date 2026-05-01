@@ -54,6 +54,7 @@ public class FarAuto extends OpModeCommand {
         gyroThread.setState(TrackState.FAR_TWO);
         GyroThread.NEUTRAL_OFFSET = 4/255d;
         robot.hood.far();
+        robot.popper.neutralCommandless();
         Constants.K_LINEAR_BRAKE = 0.090; Constants.K_QUADRATIC_BRAKE = 0.00125;
 
         schedule(
@@ -85,14 +86,11 @@ public class FarAuto extends OpModeCommand {
                                         new Wait(400),
                                         new Race(
                                                 new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
-                                                new Sequential(
-                                                        robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                                                        new Wait(250)
-                                                )
+                                                robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000)
                                         )
                                 )
                         ),
-                        new Wait(200),
+                        new Wait(100),
                         new Parallel(
                                 transfer(6.5/255d),
                                 new Instant(() -> {
@@ -118,7 +116,7 @@ public class FarAuto extends OpModeCommand {
                                         new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                         new Sequential(
                                                 robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                                                new Wait(450)
+                                                new Wait(400)
                                         )
                                 )
                         ),
@@ -156,10 +154,7 @@ public class FarAuto extends OpModeCommand {
                         robot.turret.resetTurret(),
                         new Race(
                                 new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
-                                new Sequential(
-                                        robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                                        new Wait(350)
-                                )
+                                robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000)
                         )
                 ),
                 new Parallel(
@@ -341,24 +336,23 @@ public class FarAuto extends OpModeCommand {
                 new Conditional(
                         () -> robot.tableCompartments.intakeThread.hasThree,
                         Commands.NOOP,
-                        new Parallel(
-                                robot.intakeGate.close(),
-                                new Wait(350)
-                        )
+                        new Wait(350)
                 ),
-                new Instant(() -> {
-                    robot.intakeTilt.transfer();
-                    robot.intakeMotor.outtake();
-                    GyroThread.NEUTRAL_OFFSET = ticks;
-                }),
                 new Parallel(
+                        robot.intakeGate.close(),
                         new Sequential(
+                                new Instant(() -> {
+                                    robot.intakeTilt.transfer();
+                                    robot.intakeMotor.outtake();
+                                    GyroThread.NEUTRAL_OFFSET = ticks;
+                                }),
                                 new Wait(50),
                                 new Instant(robot.intakeMotor::stop)
-                        ),
+                        )
+                ),
+
+                new Parallel(
                         robot.popper.pop(),
-                        robot.splitter.neutral(),
-                        robot.intakeGate.close(),
                         new Instant(() -> robot.feederWheel.start())
                 )
         );

@@ -66,7 +66,7 @@ public class TableCompartmentManager {
         int[] greenIndices = getGreenIndices();
         if (greenIndices.length == 0) return curIndex;
         int curGreenIndex = getGreenIndices()[0];
-        return (curGreenIndex - targetGreenIndex + 3) % 3;
+        return (curGreenIndex - targetGreenIndex + 3) % 3; //minus current index
     }
 
     public void populate(ArtifactColor... colors) {

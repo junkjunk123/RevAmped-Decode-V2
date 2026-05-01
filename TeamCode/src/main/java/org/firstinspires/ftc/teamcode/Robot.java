@@ -210,7 +210,6 @@ public class Robot {
     }
 
     public ICommand sortAuto() {
-        AtomicInteger index = new AtomicInteger();
         return new Conditional(
                 () -> Globals.randomizationState == null,
                 Commands.NOOP,
@@ -218,24 +217,26 @@ public class Robot {
                         new Instant(() -> {
                             ArtifactColor[] colors = tableCompartments.compartmentColors;
                             int i = 1;
+                            int sort = 0;
                             if (colors[0].equals(ArtifactColor.GREEN)) i = 0;
                             else if (colors[2].equals(ArtifactColor.GREEN)) i = 2;
 
                             if (Globals.randomizationState.equals(RandomizationState.PPG)) {
-                                if (i == 1) index.set(2);
-                                else if (i == 0) index.set(1);
-                                else index.set(0);
+                                if (i == 1) sort = 2;
+                                else if (i == 0) sort = 1;
+                                else sort = 0;
                             } else if (Globals.randomizationState.equals(RandomizationState.GPP)) {
-                                if (i == 0) index.set(0);
-                                else if (i == 1) index.set(1);
-                                else index.set(2);
+                                if (i == 0) sort = 0;
+                                else if (i == 1) sort = 1;
+                                else sort = 2;
                             } else if (Globals.randomizationState.equals(RandomizationState.PGP)) {
-                                if (i == 1) index.set(0);
-                                if (i == 0) index.set(2);
-                                else index.set(1);
+                                if (i == 1) sort = 0;
+                                if (i == 0) sort = 2;
+                                else sort = 1;
                             }
+
+                            table.setStateCommandless(Table.RelativeState.values()[sort]);
                         }),
-                        new Instant(() -> table.setStateCommandless(Table.RelativeState.values()[index.get()])),
                         new Wait(400)
                 )
         );
@@ -339,13 +340,6 @@ public class Robot {
                             intakeMotor.intake();
                             intakeTilt.intake();
                         }),
-                        /*
-                        new Instant(() -> table.setPosition(shootSequence.get()[0])),
-                        new Wait(delay.get() + 300),
-                        new Instant(() -> table.setPosition(shootSequence.get()[1])),
-                        new Wait(delay.get() + 300),
-                        new Instant(() -> table.setPosition(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3)),
-                         */
                         table.slowShoot(0.3),
                         new Instant(tableCompartments::removeAll),
                         new Instant(tableCompartments.intakeThread::reset)
