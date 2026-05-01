@@ -33,7 +33,7 @@ public class RobotConstants {
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
 
         //Popper Constants
-        Popper.POP = 181/255f; Popper.NEUTRAL = 101/255f; Popper.BLOCK = 178/255f; Popper.BLOCK_OUT = 101/255f;
+        Popper.POP = 181/255f; Popper.NEUTRAL = 94/255f; Popper.BLOCK = 178/255f; Popper.BLOCK_OUT = 101/255f;
 
         FeederWheel.TARGET_VEL = 2500;
 
@@ -102,7 +102,7 @@ public class RobotConstants {
 
         //updated
         // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 245/255f, TABLE_BALL_1 = 213/255f, TABLE_BALL_2 = 181/255f, TABLE_BALL_0_END = 72/255f, TABLE_BALL_1_END = 40/255f, TABLE_BALL_2_END = 8/255f, FULL_REVOLUTION_TICKS = -96/255f;
+        float TABLE_BALL_0 = 236/255f, TABLE_BALL_1 = 206/255f, TABLE_BALL_2 = 174/255f, TABLE_BALL_0_END = 65/255f, TABLE_BALL_1_END = 33/255f, TABLE_BALL_2_END = 3/255f, FULL_REVOLUTION_TICKS = -96/255f;
         Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
         Table.SHOOT_INCREMENT = -29/255f;
 

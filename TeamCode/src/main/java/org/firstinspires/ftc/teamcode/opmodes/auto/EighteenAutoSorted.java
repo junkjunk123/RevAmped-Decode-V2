@@ -286,7 +286,7 @@ public class EighteenAutoSorted extends OpModeCommand {
                                         return new Sequential(
                                                 new Race(
                                                         robot.tableCompartments.populateAuto(),
-                                                        new Wait(500)
+                                                        new Wait(300)
                                                 ),
                                                 robot.sortAuto()
                                         );

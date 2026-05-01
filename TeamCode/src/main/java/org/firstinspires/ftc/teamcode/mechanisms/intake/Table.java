@@ -36,7 +36,7 @@ public class Table extends HwServo {
             float first = target() + SHOOT_INCREMENT+10/255f;
             float secondIncrement = FULL_REVOLUTION / 3;
             float second = secondIncrement + first;
-            float third = secondIncrement + second-10/255f;
+            float third = getFullRotation();
             return new float[] {first, second, third};
         }
 
