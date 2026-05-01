@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 
 import java.util.Arrays;
 
+@Disabled
 @TeleOp
 public class ObeliskDetectionTest extends OpMode {
     private DecodeLimelight limelight;

@@ -38,6 +38,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+import org.firstinspires.ftc.teamcode.utils.commands.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 import org.firstinspires.ftc.teamcode.utils.math.Z3Element;
@@ -209,9 +210,34 @@ public class Robot {
     }
 
     public ICommand sortAuto() {
-        return new Sequential(
-                new Instant(() -> table.setStateCommandless(Table.RelativeState.values()[tableCompartments.sort()])),
-                new Wait(400)
+        AtomicInteger index = new AtomicInteger();
+        return new Conditional(
+                () -> Globals.randomizationState == null,
+                Commands.NOOP,
+                new Sequential(
+                        new Instant(() -> {
+                            ArtifactColor[] colors = tableCompartments.compartmentColors;
+                            int i = 1;
+                            if (colors[0].equals(ArtifactColor.GREEN)) i = 0;
+                            else if (colors[2].equals(ArtifactColor.GREEN)) i = 2;
+
+                            if (Globals.randomizationState.equals(RandomizationState.PPG)) {
+                                if (i == 1) index.set(2);
+                                else if (i == 0) index.set(1);
+                                else index.set(0);
+                            } else if (Globals.randomizationState.equals(RandomizationState.GPP)) {
+                                if (i == 0) index.set(0);
+                                else if (i == 1) index.set(1);
+                                else index.set(2);
+                            } else if (Globals.randomizationState.equals(RandomizationState.PGP)) {
+                                if (i == 1) index.set(0);
+                                if (i == 0) index.set(2);
+                                else index.set(1);
+                            }
+                        }),
+                        new Instant(() -> table.setStateCommandless(Table.RelativeState.values()[index.get()])),
+                        new Wait(400)
+                )
         );
     }
 
@@ -250,7 +276,7 @@ public class Robot {
                         new Wait(delay.get() + 300),
                         new Instant(() -> table.setPosition(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3)),
                          */
-                table.slowShoot(0.4),
+                table.slowShoot(0.3),
                 new Instant(tableCompartments::removeAll),
                 new Instant(tableCompartments.intakeThread::reset)
         );
@@ -320,7 +346,7 @@ public class Robot {
                         new Wait(delay.get() + 300),
                         new Instant(() -> table.setPosition(shootSequence.get()[2] + Table.FULL_REVOLUTION / 3)),
                          */
-                        table.slowShoot(0.4),
+                        table.slowShoot(0.3),
                         new Instant(tableCompartments::removeAll),
                         new Instant(tableCompartments.intakeThread::reset)
                 )
@@ -330,7 +356,7 @@ public class Robot {
     public ICommand resetShooter() {
         return new Instant(() -> {
             flywheel.stop();
-            hood.rest();
+            //hood.rest();
             feederWheel.stop();
         });
     }

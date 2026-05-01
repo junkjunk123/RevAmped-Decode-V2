@@ -8,7 +8,9 @@ import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.configuration.annotations.DigitalIoDeviceType;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
@@ -20,6 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.RandomizationState;
 import org.firstinspires.ftc.teamcode.utils.prompter.OptionPrompt;
 import org.firstinspires.ftc.teamcode.utils.prompter.Prompter;
 
+@Disabled
 @TeleOp
 public class SortingTest extends OpModeCommand {
     SpindexerColorSensors colorSensors;

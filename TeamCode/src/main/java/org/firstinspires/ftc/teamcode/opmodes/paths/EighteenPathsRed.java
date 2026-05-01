@@ -26,8 +26,8 @@ public class EighteenPathsRed implements PathSupplier {
     public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(33, 62);
     public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(50, 88);
 
-    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(9, 58, Math.toRadians(150));
-    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(13, 62, Math.toRadians(180));
+    public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(9.5, 59, Math.toRadians(150));
+    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(14, 64, Math.toRadians(180));
 
     public static ColoredDecodePose THIRD_INTAKE_CONTROL = new ColoredDecodePose(48, 84);
     public static ColoredDecodePose THIRD_INTAKE = new ColoredDecodePose(19, 84, Math.toRadians(180));

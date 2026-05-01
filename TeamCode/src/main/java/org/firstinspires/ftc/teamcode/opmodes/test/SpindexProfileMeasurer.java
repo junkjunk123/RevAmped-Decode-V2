@@ -7,6 +7,7 @@ import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Deadline;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Disabled
 @TeleOp
 public class SpindexProfileMeasurer extends OpModeCommand {
     private Robot robot;

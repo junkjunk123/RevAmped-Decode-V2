@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Vector;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 
+@Disabled
 @TeleOp
 public class LimelightTest extends OpMode {
     private DecodeLimelight limelight;

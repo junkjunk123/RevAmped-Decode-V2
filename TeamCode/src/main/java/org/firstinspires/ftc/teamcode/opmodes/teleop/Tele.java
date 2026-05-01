@@ -212,12 +212,6 @@ public class Tele extends OpModeCommand {
                 ), RobotStateHandler.IntakeMessage.SORTING)
         );
 
-        if (gamepad_1.back.isRisingEdge()){
-            schedule(
-                robot.lift.lift()
-            );
-        }
-
         if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(new Parallel(
                     new Instant(() -> {
@@ -242,27 +236,13 @@ public class Tele extends OpModeCommand {
             robot.intakeTilt.transfer();
         }
 
-        if (gamepad_2.right_bumper.isRisingEdge()) schedule(tsh.task(
-                new Sequential(
-                        new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
-                        new Parallel(
-                                robot.splitter.activate(),
-                                robot.intakeGate.close()
-                        ),
-                        robot.table.previous()
-                ), new int[]{1, 0, 0}
-        ));
+        if (gamepad_2.right_bumper.isRisingEdge()) {
+            schedule(new Instant(() -> GyroThread.NEUTRAL_OFFSET -= 1/255d));
+        }
 
-        if (gamepad_2.left_bumper.isRisingEdge()) schedule(tsh.task(
-                new Sequential(
-                        new Instant(() -> robot.setRobotState(RobotStateHandler.IntakeMessage.SORTING)),
-                        new Parallel(
-                                robot.intakeGate.close(),
-                                robot.splitter.activate()
-                        ),
-                        robot.table.next()
-                ), new int[]{1, 0, 0}
-        ));
+        else if (gamepad_2.left_bumper.isRisingEdge()) {
+            schedule(new Instant(() -> GyroThread.NEUTRAL_OFFSET += 1/255d));
+        }
 
         if (!autoBlock && !transfer && IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
             if (robot.tableCompartments.intakeThread.hasThree) {
@@ -338,6 +318,7 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_2.dpad_right.isRisingEdge()) {
             robot.drivetrain.follower.setHeading(resetPose.getHeading());
+            GyroThread.NEUTRAL_OFFSET = 0;
         }
 
         if (gamepad_2.dpad_left.isRisingEdge()) {
@@ -417,6 +398,8 @@ public class Tele extends OpModeCommand {
                 schedule(tsh.task(() -> robot.turret.next(), new int[]{1, 1, 0}));
             }
         }
+
+        telemetry.addData("popperPos", robot.popper.getPosition());
     }
 
     private void sendLEDs() {

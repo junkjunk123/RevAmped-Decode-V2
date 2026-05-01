@@ -15,7 +15,7 @@ import java.util.List;
 public class EighteenPathsBlue implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(45, 8.75, Math.toRadians(180));
 
-    public static ColoredDecodePose FIRST_INTAKE = new ColoredDecodePose(10, 9, Math.toRadians(180));
+    public static ColoredDecodePose FIRST_INTAKE = new ColoredDecodePose(9, 9, Math.toRadians(180));
     public static ColoredDecodePose FIRST_SHOOT = new ColoredDecodePose(55, 18, Math.toRadians(140));
     public static ColoredDecodePose SECOND_INTAKE_CONTROL = new ColoredDecodePose(52, 58);
     public static ColoredDecodePose SECOND_INTAKE = new ColoredDecodePose(10, 58);
@@ -28,7 +28,7 @@ public class EighteenPathsBlue implements PathSupplier {
 
     public static ColoredDecodePose GATE_INTAKE = new ColoredDecodePose(10.5, 59, Math.toRadians(150));
     public static ColoredDecodePose GATE_CONTROL = new ColoredDecodePose(30.75,59);
-    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(15.5, 67, Math.toRadians(180));
+    public static ColoredDecodePose GATE_HOLD = new ColoredDecodePose(15.5, 65, Math.toRadians(180));
 
     public static ColoredDecodePose THIRD_INTAKE_CONTROL = new ColoredDecodePose(49, 87);
     public static ColoredDecodePose THIRD_INTAKE = new ColoredDecodePose(20, 87, Math.toRadians(180));

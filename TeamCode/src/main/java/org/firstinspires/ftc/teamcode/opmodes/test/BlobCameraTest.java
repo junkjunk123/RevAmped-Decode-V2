@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
+@Disabled
 @TeleOp
 public class BlobCameraTest extends OpMode {
     private DecodeBlobCamera camera;

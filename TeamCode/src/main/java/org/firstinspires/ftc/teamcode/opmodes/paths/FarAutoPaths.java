@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 public class FarAutoPaths implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(61, 8.75, Math.PI);
     public static ColoredDecodePose PRELOAD_SHOOT = new ColoredDecodePose(58, 20, Math.toRadians(150));
-    public static ColoredDecodePose INTAKE_FIRST_SET = new ColoredDecodePose(15, 36);
+    public static ColoredDecodePose INTAKE_FIRST_SET = new ColoredDecodePose(13.5, 36);
     public static ColoredDecodePose FIRST_INTAKE_CONTROL = new ColoredDecodePose(45, 36);
     public static ColoredDecodePose SHOOT_FIRST_SET = new ColoredDecodePose(58, 20);
     public static ColoredDecodePose INTAKE_SECOND_SET = new ColoredDecodePose(11, 9);
@@ -31,8 +31,8 @@ public class FarAutoPaths implements PathSupplier {
     public static ColoredDecodePose INTAKE_NEAR_CONTROL_2 = new ColoredDecodePose(36, 36);
     public static ColoredDecodePose SHOOT = new ColoredDecodePose(52, 16);
     public static ColoredDecodePose SHOOT_NEAR_CONTROL = new ColoredDecodePose(36, 16);
-    public static ColoredDecodePose INTAKE_MIDDLE = new ColoredDecodePose(10, 16);
-    public static ColoredDecodePose INTAKE_FAR = new ColoredDecodePose(10, 11);
+    public static ColoredDecodePose INTAKE_MIDDLE = new ColoredDecodePose(9, 16);
+    public static ColoredDecodePose INTAKE_FAR = new ColoredDecodePose(9, 11);
     public static ColoredDecodePose INTAKE_FAR_CONTROL = new ColoredDecodePose(32, 11);
     public static ColoredDecodePose SHOOT_FAR_CONTROL = new ColoredDecodePose(43, 16);
     public static ColoredDecodePose PARK = new ColoredDecodePose(38, 11);
@@ -111,9 +111,8 @@ public class FarAutoPaths implements PathSupplier {
         );
 
         Supplier<List<FollowParameters>> cycle = () -> List.of(
-                intakeMiddle.get(), shootMiddle.get(),
                 intakeNear, shootNear.get(),
-                intakeNear, shootNear.get()
+                intakeMiddle.get(), shootMiddle.get()
         );
 
         ArrayList<FollowParameters> paths = new ArrayList<>(312);

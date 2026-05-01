@@ -38,7 +38,8 @@ public class ServoCalibrateTest extends OpMode {
     private boolean displayAll;
 
     private DcMotorEx intakeMotor;
-
+    private DcMotorEx[] flywheelMotor;
+    private DcMotorEx feederWheel;
     private enum TestState {
         SELECT,
         CALIBRATE
@@ -61,6 +62,9 @@ public class ServoCalibrateTest extends OpMode {
                 .onComplete(() -> {currentServo = prompter.get("servo"); testState = TestState.CALIBRATE;})
                 .thenDisplay(() -> "Selected servo: " + currentServo);
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
+        feederWheel = hardwareMap.get(DcMotorEx.class, "feeder");
+        flywheelMotor = new DcMotorEx[] {hardwareMap.get(DcMotorEx.class, "flywheel_right"),
+        hardwareMap.get(DcMotorEx.class, "flywheel_left")};
     }
 
     @Override
@@ -143,6 +147,20 @@ public class ServoCalibrateTest extends OpMode {
                 if (gamepad2.bWasPressed()) {
                     if (intakeMotor.getPower() < 0.1) intakeMotor.setPower(1.0);
                     else intakeMotor.setPower(-1.0f);
+                }
+
+                if (gamepad2.yWasPressed()) {
+                    if (flywheelMotor[1].getPower() >= -0.1) {
+                        flywheelMotor[0].setPower(-0.4);
+                        flywheelMotor[1].setPower(0.4);
+                    } else {
+                        for (DcMotorEx m : flywheelMotor) m.setPower(0.0);
+                    }
+                }
+
+                if (gamepad2.dpadUpWasPressed()) {
+                    if (feederWheel.getPower() >= 0.1) feederWheel.setPower(0.0);
+                    else feederWheel.setPower(1.0);
                 }
 
                 if (gamepad2.xWasPressed()) {

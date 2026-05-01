@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.pedropathing.ivy.Scheduler;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 
 import java.util.Arrays;
 
+@Disabled
 @TeleOp
 public class BallCountTest extends OpMode {
     IntakeThread intakeThread;

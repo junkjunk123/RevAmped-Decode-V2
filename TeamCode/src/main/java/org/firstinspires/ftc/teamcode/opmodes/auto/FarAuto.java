@@ -21,6 +21,8 @@ import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPaths;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.FollowParameters;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
@@ -71,12 +73,14 @@ public class FarAuto extends OpModeCommand {
                             robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 35);
                             robot.feederWheel.start();
                             robot.popper.popCommandless();
+                            if ( Globals.allianceColor.equals(AllianceColor.Red)) GyroThread.NEUTRAL_OFFSET += -2/255d;
                         }),
                         new Wait(800),
                         shoot(),
                         new Parallel(
                                 intake(),
                                 robot.turret.resetTurret(),
+                                new Instant(() -> GyroThread.NEUTRAL_OFFSET = 0),
                                 new Sequential(
                                         new Wait(400),
                                         new Race(
@@ -88,6 +92,7 @@ public class FarAuto extends OpModeCommand {
                                         )
                                 )
                         ),
+                        new Wait(200),
                         new Parallel(
                                 transfer(6.5/255d),
                                 new Instant(() -> {
@@ -165,7 +170,7 @@ public class FarAuto extends OpModeCommand {
                         }),
                         transfer(),
                         new Sequential(
-                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.95)),
                                 shoot()
                         )
                 )

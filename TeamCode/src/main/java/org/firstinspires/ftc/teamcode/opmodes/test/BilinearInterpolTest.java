@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.pedropathing.math.Matrix;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import smile.interpolation.BilinearInterpolation;
 
+@Disabled
 @TeleOp
 public class BilinearInterpolTest extends OpMode {
     double[] X = new double[] {0, 0.25, 0.5, 0.75};
