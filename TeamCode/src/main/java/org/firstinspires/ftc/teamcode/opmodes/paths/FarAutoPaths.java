@@ -31,9 +31,9 @@ public class FarAutoPaths implements PathSupplier {
     public static ColoredDecodePose INTAKE_NEAR_CONTROL_2 = new ColoredDecodePose(36, 36);
     public static ColoredDecodePose SHOOT = new ColoredDecodePose(52, 16);
     public static ColoredDecodePose SHOOT_NEAR_CONTROL = new ColoredDecodePose(36, 16);
-    public static ColoredDecodePose INTAKE_MIDDLE = new ColoredDecodePose(9, 16);
-    public static ColoredDecodePose INTAKE_FAR = new ColoredDecodePose(9, 11);
-    public static ColoredDecodePose INTAKE_FAR_CONTROL = new ColoredDecodePose(32, 11);
+    public static ColoredDecodePose INTAKE_MIDDLE = new ColoredDecodePose(9, 20);
+    public static ColoredDecodePose INTAKE_FAR = new ColoredDecodePose(9, 9);
+    public static ColoredDecodePose INTAKE_FAR_CONTROL = new ColoredDecodePose(32, 9);
     public static ColoredDecodePose SHOOT_FAR_CONTROL = new ColoredDecodePose(43, 16);
     public static ColoredDecodePose PARK = new ColoredDecodePose(38, 11);
 
@@ -82,7 +82,7 @@ public class FarAutoPaths implements PathSupplier {
                 .build()
         );
 
-        Supplier<FollowParameters> intakeMiddle = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        Supplier<FollowParameters> intakeMiddle = () -> new FollowParameters(Constants.MEDIUM_PROPORTIONIAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT, INTAKE_MIDDLE))
                 .build()
         );
@@ -111,8 +111,9 @@ public class FarAutoPaths implements PathSupplier {
         );
 
         Supplier<List<FollowParameters>> cycle = () -> List.of(
-                intakeNear, shootNear.get(),
-                intakeMiddle.get(), shootMiddle.get()
+                intakeMiddle.get(), shootMiddle.get(),
+                intakeFar.get(), shootFar.get(),
+                intakeNear, shootNear.get()
         );
 
         ArrayList<FollowParameters> paths = new ArrayList<>(312);
@@ -120,7 +121,8 @@ public class FarAutoPaths implements PathSupplier {
         paths.addAll(List.of(
                 intakeFirstSet, shootFirstSet,
                 intakeSecondSet, shootSecondSet,
-                intakeNearOne, shootNear.get()
+                intakeMiddle.get(), shootMiddle.get(),
+                intakeNear, shootNear.get()
         ));
 
         for (int i = 0; i < 50; i++) {

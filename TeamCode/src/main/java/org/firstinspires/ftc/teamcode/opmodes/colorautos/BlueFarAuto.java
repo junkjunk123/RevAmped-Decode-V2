@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.colorautos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.opmodes.auto.FarAuto;
 import org.firstinspires.ftc.teamcode.utils.Globals;

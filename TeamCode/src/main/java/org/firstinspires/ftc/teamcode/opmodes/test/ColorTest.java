@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.SpindexerColorSensors;
 import org.firstinspires.ftc.teamcode.utils.commands.ArtifactColor;
 
-@Disabled
 @TeleOp
 public class ColorTest extends OpMode {
     private SpindexerColorSensors sensors;

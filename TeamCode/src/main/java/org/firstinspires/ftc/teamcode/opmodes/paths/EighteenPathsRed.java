@@ -20,6 +20,7 @@ public class EighteenPathsRed implements PathSupplier {
     public static ColoredDecodePose SECOND_INTAKE_CONTROL = new ColoredDecodePose(52, 58);
     public static ColoredDecodePose SECOND_INTAKE = new ColoredDecodePose(10, 58);
 
+    public static ColoredDecodePose SECOND_SHOOT_START = new ColoredDecodePose(11, 63);
     public static ColoredDecodePose SECOND_SHOOT_CONTROL = new ColoredDecodePose(40, 60);
     public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(57, 77);
 
@@ -66,7 +67,7 @@ public class EighteenPathsRed implements PathSupplier {
         );
 
         FollowParameters path4 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SECOND_INTAKE, SECOND_SHOOT_CONTROL, SECOND_SHOOT))
+                .addPath(ColoredDecodePose.makeBezier(SECOND_SHOOT_START, SECOND_SHOOT_CONTROL, SECOND_SHOOT))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()

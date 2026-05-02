@@ -245,15 +245,15 @@ public class Tele extends OpModeCommand {
         }
 
         if (!autoBlock && !transfer && IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
-            if (robot.tableCompartments.intakeThread.hasThree) {
+            if (RobotStateHandler.CycleState.INTAKE.update && robot.tableCompartments.intakeThread.hasThree) {
                 robot.tableCompartments.populate();
                 transfer = true;
             }
         }
 
-
-        if (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL)) {
+        if (transfer || (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.popper.atState(Popper.PopperState.NEUTRAL))) {
             gyroTrack = true;
+            transfer = false;
             RobotStateHandler.CycleState.INTAKE.update = false;
             robot.intakeTilt.transfer();
             schedule(tsh.runTransition(new Sequential(
@@ -269,10 +269,9 @@ public class Tele extends OpModeCommand {
                     ),
                     new Parallel(
                             robot.popper.pop(),
-                            robot.splitter.neutral(),
                             new Instant(robot.feederWheel::start)
                     ),
-                    new Instant(() -> transfer = false)
+                    new Instant(() -> RobotStateHandler.CycleState.INTAKE.update = true)
                 ), RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
             );
         }

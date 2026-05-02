@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 
 import java.util.Arrays;
 
-@Disabled
 @TeleOp
 public class BallCountTest extends OpMode {
     IntakeThread intakeThread;

@@ -52,7 +52,7 @@ public class FarAuto extends OpModeCommand {
         robot = new Robot(hardwareMap, new FarAutoPaths());
         gyroThread = new GyroThread(robot);
         gyroThread.setState(TrackState.FAR_TWO);
-        GyroThread.NEUTRAL_OFFSET = 4/255d;
+        GyroThread.NEUTRAL_OFFSET = Globals.allianceColor.equals(AllianceColor.Red) ? 2/255d : 3/255d;
         robot.hood.far();
         robot.popper.neutralCommandless();
         Constants.K_LINEAR_BRAKE = 0.090; Constants.K_QUADRATIC_BRAKE = 0.00125;
@@ -74,7 +74,7 @@ public class FarAuto extends OpModeCommand {
                             robot.flywheel.setVelocity(Flywheel.FAR_VELOCITY - 35);
                             robot.feederWheel.start();
                             robot.popper.popCommandless();
-                            if ( Globals.allianceColor.equals(AllianceColor.Red)) GyroThread.NEUTRAL_OFFSET += -2/255d;
+                            if (Globals.allianceColor.equals(AllianceColor.Red)) GyroThread.NEUTRAL_OFFSET += -2/255d;
                         }),
                         new Wait(800),
                         shoot(),
@@ -92,7 +92,7 @@ public class FarAuto extends OpModeCommand {
                         ),
                         new Wait(100),
                         new Parallel(
-                                transfer(6.5/255d),
+                                transferCorner(),
                                 new Instant(() -> {
                                     gyroThread.setState(TrackState.FAR_AUTO, true);
                                     robot.hood.far();
@@ -116,7 +116,7 @@ public class FarAuto extends OpModeCommand {
                                         new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
                                         new Sequential(
                                                 robot.drivetrain.followNext(d -> d.velocityCondition(4) || d.follower.getCurrentTValue() >= 0.95, 3000),
-                                                new Wait(400)
+                                                new Wait(450)
                                         )
                                 )
                         ),
@@ -190,7 +190,7 @@ public class FarAuto extends OpModeCommand {
     public ICommand cycle(int i) {
         return new Lazy(() -> {
             if (park) return Commands.NOOP;
-            if (overallTimer.milliseconds() > 27000) return new Sequential(
+            if (overallTimer.milliseconds() > 28500) return new Sequential(
                     new Instant(() -> park = true),
                     new Instant(() -> robot.drivetrain.followLast())
             );
@@ -333,19 +333,26 @@ public class FarAuto extends OpModeCommand {
 
     public ICommand transfer(double ticks) {
         return new Sequential(
+                /*
                 new Conditional(
                         () -> robot.tableCompartments.intakeThread.hasThree,
                         Commands.NOOP,
-                        new Wait(350)
+                        new Wait(600)
+                ),
+                 */
+                new Race(
+                        new WaitUntil(() -> robot.tableCompartments.intakeThread.hasThree),
+                        new Wait(600)
                 ),
                 new Parallel(
                         robot.intakeGate.close(),
                         new Sequential(
                                 new Instant(() -> {
                                     robot.intakeTilt.transfer();
-                                    robot.intakeMotor.outtake();
                                     GyroThread.NEUTRAL_OFFSET = ticks;
                                 }),
+                                new Wait(50),
+                                new Instant(robot.intakeMotor::outtake),
                                 new Wait(50),
                                 new Instant(robot.intakeMotor::stop)
                         )
@@ -353,6 +360,28 @@ public class FarAuto extends OpModeCommand {
 
                 new Parallel(
                         robot.popper.pop(),
+                        new Instant(() -> robot.feederWheel.start())
+                )
+        );
+    }
+
+    public ICommand transferCorner() {
+        return new Sequential(
+                new Conditional(
+                        () -> robot.tableCompartments.intakeThread.hasThree,
+                        Commands.NOOP,
+                        new Wait(350)
+                ),
+                new Parallel(
+                        robot.intakeGate.close(),
+                        new Instant(() -> {
+                            robot.intakeTilt.transfer();
+                            GyroThread.NEUTRAL_OFFSET = 6.5/255d;
+                        })
+                ),
+                new Parallel(
+                        robot.popper.pop(),
+                        new Instant(() -> robot.intakeMotor.stop()),
                         new Instant(() -> robot.feederWheel.start())
                 )
         );
