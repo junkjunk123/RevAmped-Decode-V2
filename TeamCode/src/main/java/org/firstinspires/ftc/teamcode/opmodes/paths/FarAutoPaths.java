@@ -71,7 +71,7 @@ public class FarAutoPaths implements PathSupplier {
                 .build()
         );
 
-        FollowParameters intakeNear = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        Supplier<FollowParameters> intakeNear = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SHOOT, INTAKE_NEAR_CONTROL_2, INTAKE_NEAR))
                 .build()
         );
@@ -113,7 +113,7 @@ public class FarAutoPaths implements PathSupplier {
         Supplier<List<FollowParameters>> cycle = () -> List.of(
                 intakeMiddle.get(), shootMiddle.get(),
                 intakeFar.get(), shootFar.get(),
-                intakeNear, shootNear.get()
+                intakeNear.get(), shootNear.get()
         );
 
         ArrayList<FollowParameters> paths = new ArrayList<>(312);
@@ -121,8 +121,12 @@ public class FarAutoPaths implements PathSupplier {
         paths.addAll(List.of(
                 intakeFirstSet, shootFirstSet,
                 intakeSecondSet, shootSecondSet,
+                intakeFar.get(), shootFar.get(),
+                intakeFar.get(), shootFar.get(),
+                intakeNear.get(), shootNear.get(),
+                intakeNear.get(), shootNear.get(),
                 intakeMiddle.get(), shootMiddle.get(),
-                intakeNear, shootNear.get()
+                intakeFar.get(), shootFar.get()
         ));
 
         for (int i = 0; i < 50; i++) {

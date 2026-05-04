@@ -92,7 +92,7 @@ public class FarAuto extends OpModeCommand {
                         ),
                         new Wait(100),
                         new Parallel(
-                                transferCorner(),
+                                transfer(),
                                 new Instant(() -> {
                                     gyroThread.setState(TrackState.FAR_AUTO, true);
                                     robot.hood.far();
@@ -129,9 +129,10 @@ public class FarAuto extends OpModeCommand {
                                 transfer(),
                                 new Sequential(
                                         new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                                        shoot()
+                                        shoot() // corner
                                 )
                         ),
+                        new Wait(800),
                         cycle(0),
                         cycle(1),
                         cycle(2),
