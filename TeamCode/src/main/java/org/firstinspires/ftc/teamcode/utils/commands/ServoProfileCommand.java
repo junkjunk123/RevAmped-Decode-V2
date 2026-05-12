@@ -3,7 +3,6 @@ import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 public class ServoProfileCommand extends Command {

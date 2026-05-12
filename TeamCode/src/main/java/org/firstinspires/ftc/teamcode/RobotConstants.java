@@ -4,15 +4,10 @@ import android.graphics.Color;
 
 import com.pedropathing.math.Matrix;
 
-import org.firstinspires.ftc.teamcode.mechanisms.intake.ColorManager;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeGate;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.Popper;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.Splitter;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.Table;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.DecodeColorSensor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
@@ -21,7 +16,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
-import org.firstinspires.ftc.teamcode.utils.math.ILUT;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
@@ -31,9 +25,6 @@ public class RobotConstants {
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.INTAKE_SLOW = 0.65f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.INTAKE_GATE = 1.0f;
         IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
-
-        //Popper Constants
-        Popper.POP = 181/255f; Popper.NEUTRAL = 94/255f; Popper.BLOCK = 178/255f; Popper.BLOCK_OUT = 101/255f;
 
         FeederWheel.TARGET_VEL = 2500;
 
@@ -88,37 +79,13 @@ public class RobotConstants {
                     .add(Math.PI * 2, 183/255d)
         );
 
-        //gate
-        IntakeGate.OPEN = 243/255f; IntakeGate.CLOSE = 83/255f;
-
-        //splitter
-        Splitter.ACTIVATED = 169/255f; Splitter.NEUTRAL = 57/255f;
-        Splitter.ACTIVATE_DELAY = 300; Splitter.NEUTRAL_DELAY = 300;
 
         //tilt
         IntakeTilt.TRANSFER = 126/255f; IntakeTilt.INTAKE = 89/255f; IntakeTilt.GATE_INTAKE = 89/255f;
 
         Lift.TIME = 1500f;
 
-        //updated
-        // each compartment is ~32 ticks
-        float TABLE_BALL_0 = 244/255f, TABLE_BALL_1 = 212/255f, TABLE_BALL_2 = 180/255f, TABLE_BALL_0_END = 65/255f, TABLE_BALL_1_END = 33/255f, TABLE_BALL_2_END = 5/255f, FULL_REVOLUTION_TICKS = -96/255f;
-        Table.setValues(TABLE_BALL_0, TABLE_BALL_1, TABLE_BALL_2, TABLE_BALL_0_END, TABLE_BALL_1_END, TABLE_BALL_2_END,FULL_REVOLUTION_TICKS);
-        Table.SHOOT_INCREMENT = -29/255f;
-
-        //ColorSensor Constants
-        ColorManager.maxGreenDistanceOne = 60.0f; ColorManager.maxPurpleDistanceOne = 50.0f;
-        ColorManager.maxGreenDistanceTwo = 60.0f; ColorManager.maxPurpleDistanceTwo = 60.0f;
-
-        ColorManager.maxPurpleHueOne = 240.0f; ColorManager.minPurpleHueOne = 200.0f;
-        ColorManager.maxPurpleHueTwo = 235.0f; ColorManager.minPurpleHueTwo = 195.0f;
-        ColorManager.maxGreenHueOne = 165.0f; ColorManager.minGreenHueOne = 155.0f;
-        ColorManager.maxGreenHueTwo = 165.0f; ColorManager.minGreenHueTwo = 155.0f;
-
-        //ColorSensor Constants
-        DecodeColorSensor.DISTANCE_MAX = 60.0f;
-        DecodeColorSensor.GREEN_MAX = 170.0f; DecodeColorSensor.GREEN_MIN = 150.0f;
-        DecodeColorSensor.PURPLE_MAX = 250.0f; DecodeColorSensor.PURPLE_MIN = 200.0f;
+        IntakeArtifactDetector.detectionPeriod = 50.0;
 
         BlobProcessor.debug = true;
         BlobProcessor.blur = 15; BlobProcessor.erode = 30; BlobProcessor.dilate = 30;
