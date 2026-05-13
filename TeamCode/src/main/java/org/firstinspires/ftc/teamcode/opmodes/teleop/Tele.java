@@ -48,7 +48,6 @@ public class Tele extends OpModeCommand {
     private boolean gyroTrack;
     private boolean firstTrack = true;
     private boolean transfer = false;
-    private boolean autoBlock = false;
     private final ColoredDecodePose resetPose = new ColoredDecodePose(0, 0, Math.PI);
 
     @Override
@@ -99,7 +98,6 @@ public class Tele extends OpModeCommand {
     @Override
     public void initializeLoop() {
         telemetry.addData("alliance", Globals.allianceColor);
-        telemetry.addData("randomizationState", Globals.randomizationState);
         prompter.run();
     }
     @Override
@@ -123,11 +121,6 @@ public class Tele extends OpModeCommand {
             gamepad_1.rumble(500);
         }
 
-        if (gamepad_1.y.isRisingEdge()) {
-            autoBlock = !autoBlock;
-            gamepad_1.rumble(500);
-        }
-
         if (gamepad_1.dpad_up.isRisingEdge()){
             if (!gyroThread.isFar()) gyroThread.setState(TrackState.CLOSE_THREE);
             else gyroThread.setState(TrackState.FAR_THREE);
@@ -136,7 +129,6 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_1.dpad_down.isRisingEdge()) schedule(tsh.setting(() -> {
             robot.shootNear();
-
             if (firstTrack) {
                 gyroThread.setState(TrackState.CLOSE_ONE);
                 firstTrack = false;
@@ -158,7 +150,6 @@ public class Tele extends OpModeCommand {
 
         if (gamepad_1.dpad_right.isRisingEdge()) schedule(tsh.setting(() -> {
             robot.shootFar();
-
             if (firstTrack) {
                 gyroThread.setState(TrackState.FAR_ONE);
                 firstTrack = false;
@@ -186,15 +177,7 @@ public class Tele extends OpModeCommand {
             robot.intakeTilt.transfer();
         }
 
-        if (gamepad_2.right_bumper.isRisingEdge()) {
-            schedule(new Instant(() -> GyroThread.NEUTRAL_OFFSET -= 1/255d));
-        }
-
-        else if (gamepad_2.left_bumper.isRisingEdge()) {
-            schedule(new Instant(() -> GyroThread.NEUTRAL_OFFSET += 1/255d));
-        }
-
-        if (!autoBlock && !transfer && IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
+        if (!transfer && IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
             if (RobotStateHandler.CycleState.INTAKE.update) { //&& has three
                 transfer = true;
             }
@@ -245,6 +228,14 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.dpad_right.isRisingEdge()) {
             robot.drivetrain.follower.setHeading(resetPose.getHeading());
             GyroThread.NEUTRAL_OFFSET = 0;
+        }
+
+        if (gamepad_2.right_bumper.isRisingEdge()) {
+            schedule(new Instant(() -> GyroThread.NEUTRAL_OFFSET -= 1/255d));
+        }
+
+        else if (gamepad_2.left_bumper.isRisingEdge()) {
+            schedule(new Instant(() -> GyroThread.NEUTRAL_OFFSET += 1/255d));
         }
 
         if (gamepad_2.left_stick_y_button.isRisingEdge()) {

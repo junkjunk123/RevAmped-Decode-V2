@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
@@ -39,6 +40,7 @@ public class Robot {
     public final ServoTurret turret;
     public final Flywheel flywheel;
     public final Hood hood;
+    public final ShooterGate gate;
     public final IntakeMotor intakeMotor;
     public final IntakeArtifactDetector ball1Distance;
     public final IntakeArtifactDetector ball2Distance;
@@ -53,6 +55,7 @@ public class Robot {
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
     private CycleState robotState = CycleState.INTAKE;
+    public static int SHOOT_TIME;
 
     public Robot(HardwareMap hardwareMap) {
         this(hardwareMap, null);
@@ -69,6 +72,7 @@ public class Robot {
         flywheel = new Flywheel(hardwareMap, voltageSensor);
         intakeMotor = new IntakeMotor(hardwareMap);
         hood = new Hood(hardwareMap, voltageSensor);
+        gate = new ShooterGate(hardwareMap);
         feederWheel = new FeederWheel(hardwareMap);
         intakeTilt = new IntakeTilt(hardwareMap);
         limelight = new DecodeLimelight(hardwareMap);
@@ -86,6 +90,7 @@ public class Robot {
         turret.move(ServoTurretState.PresetState.REST);
         intakeTilt.intake();
         hood.rest();
+        gate.init();
     }
 
     public void update() {
@@ -104,6 +109,7 @@ public class Robot {
         ball1Distance.update();
         ball2Distance.update();
         ball3Distance.update();
+        gate.update();
     }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {
@@ -136,24 +142,25 @@ public class Robot {
         robotState = message.cycleState();
     }
 
-    public ICommand shootAll() {
+//  Thilan wants hold for shooting??
+//    public ICommand shoot() {
+//        return new Sequential(
+//                gate.open(),
+//                intake()
+//        );
+//    }
+//
+//    public ICommand stopShoot(){
+//        return new Sequential(
+//                gate.close()
+//        )
+//    }
+
+    public ICommand autoShoot(){
         return new Sequential(
-                new WaitUntil(() -> drivetrain.canShoot),
-                new Instant(() -> {
-                    CycleState.INTAKE.update = true;
-                }),
-                new Conditional(
-                    () -> hood.atState(Hood.HoodState.FAR),
-                    new Parallel(
-                        new Sequential(
-                            //half-assed hood comp
-                            new Wait(50),
-                            new Instant(hood::farHoodComp)
-                            ),
-                        intake()
-                    ),
-                    intake()
-                )
+                gate.open(),
+                intake(),
+                new Wait(SHOOT_TIME)
         );
     }
 
@@ -163,20 +170,18 @@ public class Robot {
                     if (tiltState.equals(IntakeTilt.TiltState.INTAKE)) intakeTilt.intake();
                     else if (tiltState.equals(IntakeTilt.TiltState.GATE_INTAKE)) intakeTilt.gateIntake();
                 }),
-                shootAll()
+                autoShoot()
         );
     }
 
-    public ICommand autoFastShoot() {
-        return autoFastShoot(IntakeTilt.TiltState.INTAKE);
-    }
-
     public ICommand resetShooter() {
-        return new Instant(() -> {
-            flywheel.stop();
-            //hood.rest();
-            feederWheel.stop();
-        });
+        return new Parallel(
+            new Instant(() -> {
+                flywheel.stop();
+                //hood.rest();
+                feederWheel.stop();
+            }),
+            gate.close());
     }
 
     public ICommand resetAfterShooting() {
@@ -221,6 +226,7 @@ public class Robot {
                     feederWheel.deenergize();
                     intakeTilt.deenergize();
                     flywheel.deenergize();
+                    gate.deenergize();
                 }),
                 lift.lift()
         );
