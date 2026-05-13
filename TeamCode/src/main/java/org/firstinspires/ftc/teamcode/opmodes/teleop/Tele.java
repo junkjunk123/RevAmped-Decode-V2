@@ -209,7 +209,7 @@ public class Tele extends OpModeCommand {
                             new Instant(() -> canShoot = false),
                             tsh.runTransition(new Sequential(
                                     new Sequential(
-                                            robot.shootAll(),
+                                            robot.autoShoot(),
                                             new Instant(() -> canShoot = true)
                                     ),
                                     new Parallel(
