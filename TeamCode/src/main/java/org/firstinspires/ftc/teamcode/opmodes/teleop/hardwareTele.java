@@ -52,5 +52,25 @@ public class hardwareTele extends OpModeCommand {
         if (gamepad_2.dpad_up.isRisingEdge()){
             schedule(robot.autoShoot());
         }
+
+        if (gamepad_1.dpad_up.isRisingEdge()){
+            robot.flywheel.far();
+            robot.hood.far();
+        }
+
+        if (gamepad_1.dpad_down.isRisingEdge()){
+            robot.flywheel.near();
+            robot.hood.near();
+        }
+
+        if (gamepad_1.dpad_left.isRisingEdge()){
+            robot.flywheel.medium();
+            robot.hood.medium();
+        }
+
+        if (gamepad_1.dpad_right.isRisingEdge()){
+            robot.flywheel.corner();
+            robot.hood.corner();
+        }
     }
 }
