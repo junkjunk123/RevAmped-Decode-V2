@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.test;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Config
+@Disabled
 @TeleOp(name = "ServoTest", group = "a")
 public class ServoTester extends OpMode {
     private ServoImplEx servo;
@@ -59,7 +61,6 @@ public class ServoTester extends OpMode {
                 ))
                 .onComplete(() -> {currentServo = prompter.get("servo"); testState = TestState.CALIBRATE;})
                 .thenDisplay(() -> "Selected servo: " + currentServo);
-        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
     }
 
     @Override
@@ -78,16 +79,6 @@ public class ServoTester extends OpMode {
             posJoy1 = initialPos;
         }
         calibratedPositions.put(currentServo, posJoy1);
-    }
-
-    private ServoImplEx secondServo() {
-        return switch (currentServo) {
-            case "table" -> hardwareMap.get(ServoImplEx.class, "table2");
-            case "table2" -> hardwareMap.get(ServoImplEx.class, "table");
-            case "turret" -> hardwareMap.get(ServoImplEx.class, "turret2");
-            case "turret2" -> hardwareMap.get(ServoImplEx.class, "turret");
-            default -> null;
-        };
     }
 
     @Override

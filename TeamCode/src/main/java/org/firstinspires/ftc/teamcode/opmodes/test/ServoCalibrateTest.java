@@ -28,6 +28,7 @@ public class ServoCalibrateTest extends OpMode {
     public static int TICK_CHANGE = 1;
     private Telemetry telemetryA;
     private boolean singleTickMode = false;
+    private boolean splitTurret = false;
     private int selectedPort = 0;
     private List<String> servos;
     private String currentServo;
@@ -36,7 +37,6 @@ public class ServoCalibrateTest extends OpMode {
     private Prompter prompter;
     private GamepadEx gamepad_1;
     private boolean displayAll;
-
     private DcMotorEx intakeMotor;
     private DcMotorEx[] flywheelMotor;
     private DcMotorEx feederWheel;
@@ -49,7 +49,7 @@ public class ServoCalibrateTest extends OpMode {
     @Override
     public void init() {
         gamepad_1 = new GamepadEx(gamepad1);
-        servos = List.of("hood","popper","table","table2","turret","turret2","intakeTilt","gate","splitter");
+        servos = List.of("hood","gate","turret","turret2");
         telemetryA = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         //voltage = hardwareMap.get(AnalogInput.class,"popper_voltage");
         telemetry.addData(">>", "Press start to continue");
@@ -76,7 +76,7 @@ public class ServoCalibrateTest extends OpMode {
     public void start() {
         selectedPort = servos.indexOf(currentServo);
         servo = hardwareMap.get(ServoImplEx.class, currentServo);
-        servo2 = secondServo();
+        servo2 = splitTurret ? null : secondServo();
         int initialPos = (int) servo.getPosition() * 255;
         if (initialPos == 0) {
             posJoy1 = denominator / 2;
@@ -88,8 +88,6 @@ public class ServoCalibrateTest extends OpMode {
 
     private ServoImplEx secondServo() {
         return switch (currentServo) {
-            case "table" -> hardwareMap.get(ServoImplEx.class, "table2");
-            case "table2" -> hardwareMap.get(ServoImplEx.class, "table");
             case "turret" -> hardwareMap.get(ServoImplEx.class, "turret2");
             case "turret2" -> hardwareMap.get(ServoImplEx.class, "turret");
             default -> null;
@@ -138,34 +136,12 @@ public class ServoCalibrateTest extends OpMode {
                     TICK_CHANGE = 1;
                 }
 
-                if (gamepad_1.back.isRisingEdge() || gamepad_1.a.isRisingEdge())
+                if (gamepad_1.back.isRisingEdge())
                     setTestState(TestState.SELECT);
 
                 if (gamepad_1.dpad_up.isRisingEdge())
                     displayAll = !displayAll;
 
-                if (gamepad2.bWasPressed()) {
-                    if (intakeMotor.getPower() < 0.1) intakeMotor.setPower(1.0);
-                    else intakeMotor.setPower(-1.0f);
-                }
-
-                if (gamepad2.yWasPressed()) {
-                    if (flywheelMotor[1].getPower() >= -0.1) {
-                        flywheelMotor[0].setPower(-0.4);
-                        flywheelMotor[1].setPower(0.4);
-                    } else {
-                        for (DcMotorEx m : flywheelMotor) m.setPower(0.0);
-                    }
-                }
-
-                if (gamepad2.dpadUpWasPressed()) {
-                    if (feederWheel.getPower() >= 0.1) feederWheel.setPower(0.0);
-                    else feederWheel.setPower(1.0);
-                }
-
-                if (gamepad2.xWasPressed()) {
-                    intakeMotor.setPower(0f);
-                }
 
                 telemetryA.addData("Servo", currentServo);
                 if (displayAll) calibratedPositions.forEach((u, v) -> telemetryA.addData(u, Integer.toString(v)));

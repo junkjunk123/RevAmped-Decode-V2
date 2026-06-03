@@ -28,7 +28,6 @@ public abstract class OpModeCommand extends LinearOpMode {
 
             if (isStopRequested()) {
                 reset();
-                if (Robot.INSTANCE != null) Robot.INSTANCE.close();
                 end();
             }
         }

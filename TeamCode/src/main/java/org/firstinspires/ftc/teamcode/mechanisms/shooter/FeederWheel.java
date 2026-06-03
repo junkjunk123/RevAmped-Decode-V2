@@ -16,8 +16,7 @@ public class FeederWheel extends HwMotor {
 
     private enum FeederState {
         STOPPED,
-        RUNNING,
-        INTAKING
+        RUNNING
     }
 
     private FeederState state = FeederState.STOPPED;
@@ -36,10 +35,11 @@ public class FeederWheel extends HwMotor {
         setTargetVelocity(TARGET_VEL);
     }
 
-    public void intakeState() {
-        state = FeederState.INTAKING;
-        setPower(-1.0);
+    public void intake() {
+        setPower(1.0);
     }
+
+    public void intakeSlow()  {setPower(0.2f);}
 
     public void stop() {
         targetVelocity = 0;
@@ -48,7 +48,7 @@ public class FeederWheel extends HwMotor {
     }
 
     public void update() {
-        if (state == FeederState.RUNNING) setPower(calculatePID());
+        if (state == FeederState.RUNNING) setPower(1.0); //setPower(calculatePID());
     }
 
     public double calculatePID() {

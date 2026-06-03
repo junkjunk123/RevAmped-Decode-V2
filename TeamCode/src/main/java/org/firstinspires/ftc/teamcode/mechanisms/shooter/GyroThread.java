@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.utils.math.projectile.TrackState;
 public class GyroThread {
     public final Localizer pinpoint;
     public final FarTrackingMath tracker;
-    private final ServoTurret turret;
+    private final ServoTurretMTI turret;
     private final Hood hood;
     private final Flywheel flywheel;
     private static GyroThread INSTANCE;
@@ -21,7 +21,7 @@ public class GyroThread {
 
     private boolean isFar;
 
-    public GyroThread(Follower pinpoint, ServoTurret turret, Flywheel flywheel, Hood hood) {
+    public GyroThread(Follower pinpoint, ServoTurretMTI turret, Flywheel flywheel, Hood hood) {
         this.pinpoint = pinpoint.getPoseTracker().getLocalizer();
         this.turret = turret;
         this.hood = hood;

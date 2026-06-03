@@ -19,13 +19,10 @@ public class AutomatedTest extends OpModeCommand {
         Channel<String> channel = Channels.stream();
 
         schedule(
-                robot.popper.pop(),
-                robot.popper.neutral(),
                 new Instant(robot.hood::near),
                 new Parallel(
-                        robot.intakeMotor.test().subscribe(channel),
+                        robot.intake.intakeMotor.test().subscribe(channel),
                         //robot.turret.test().subscribe(channel),
-                        robot.table.test().subscribe(channel),
                         robot.flywheel.test().subscribe(channel)
                 ),
                 new Infinite(() -> {

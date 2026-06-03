@@ -16,7 +16,6 @@ public class DecodeTester extends SelectableOpMode {
             });
             s.folder("HardwareTest", l -> {
                 l.add("DriveMotorFrictionTest", DriveMotorFrictionTest::new);
-                l.add("TableEncoderTest", TableEncoderTest::new);
                 l.add("TurretEncoderTest", TurretEncoderTest::new);
             });
             s.folder("PedroTest", l -> {
@@ -27,7 +26,6 @@ public class DecodeTester extends SelectableOpMode {
                 l.add("AutomatedTest", AutomatedTest::new);
             });
             s.folder("Software Test", l -> {
-                l.add("SortTest", SortTest::new);
                 l.add("UltrasonicEKFTest", UltrasonicEKFTest::new);
                 l.add("TurretDataTransferTest", TurretSim::new);
             });

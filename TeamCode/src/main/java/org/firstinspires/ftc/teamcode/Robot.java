@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
-import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -13,23 +12,22 @@ import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.CycleState;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.DriveMessage;
-import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.IntakeMessage;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.Intake;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeTilt;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
-import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 
 import java.util.List;
@@ -37,19 +35,12 @@ import java.util.List;
 public class Robot {
     public static Robot INSTANCE;
     public final Drivetrain drivetrain;
-    public final ServoTurret turret;
+    public final ServoTurretMTI turret;
     public final Flywheel flywheel;
     public final Hood hood;
     public final ShooterGate gate;
-    public final IntakeMotor intakeMotor;
-    public final IntakeArtifactDetector ball1Distance;
-    public final IntakeArtifactDetector ball2Distance;
-    public final IntakeArtifactDetector ball3Distance;
+    public final Intake intake;
     public final FeederWheel feederWheel;
-    public final IntakeTilt intakeTilt;
-    public final DecodeLimelight limelight;
-    public final Lift lift;
-    public final DecodeBlobCamera intakeCamera;
     public final HwVoltageSensor voltageSensor;
 
     private final List<LynxModule> hubs;
@@ -68,19 +59,12 @@ public class Robot {
         voltageSensor = new HwVoltageSensor(hardwareMap);
         drivetrain = pathSupplier != null ? new Drivetrain(hardwareMap, pathSupplier) : new Drivetrain(hardwareMap);
         Globals.isTeleOp = pathSupplier == null;
-        turret = new ServoTurret(hardwareMap);
+        turret = new ServoTurretMTI(hardwareMap);
         flywheel = new Flywheel(hardwareMap, voltageSensor);
-        intakeMotor = new IntakeMotor(hardwareMap);
+        intake = new Intake(hardwareMap);
         hood = new Hood(hardwareMap, voltageSensor);
         gate = new ShooterGate(hardwareMap);
         feederWheel = new FeederWheel(hardwareMap);
-        intakeTilt = new IntakeTilt(hardwareMap);
-        limelight = new DecodeLimelight(hardwareMap);
-        lift = new Lift(hardwareMap);
-        intakeCamera = new DecodeBlobCamera(hardwareMap);
-        ball1Distance = new IntakeArtifactDetector(hardwareMap,"ball1");
-        ball2Distance = new IntakeArtifactDetector(hardwareMap,"ball2");
-        ball3Distance = new IntakeArtifactDetector(hardwareMap,"ball3");
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
         if (!Globals.isTeleOp) initialize();
@@ -88,7 +72,6 @@ public class Robot {
 
     public void initialize() {
         turret.move(ServoTurretState.PresetState.REST);
-        intakeTilt.intake();
         hood.rest();
         gate.init();
     }
@@ -99,16 +82,10 @@ public class Robot {
         drivetrain.update();
         flywheel.update();
         feederWheel.update();
-        limelight.update();
-        intakeCamera.update();
         turret.update();
-        intakeMotor.update();
-        intakeTilt.update();
+        intake.update();
         hood.update();
         robotState.update();
-        ball1Distance.update();
-        ball2Distance.update();
-        ball3Distance.update();
         gate.update();
     }
 
@@ -135,10 +112,6 @@ public class Robot {
     public void setRobotState(Message message) {
         if (message instanceof DriveMessage driveState)
             CycleState.DRIVE_TO_SHOOT.INSTANCE = driveState.driveState();
-        else if (message instanceof IntakeMessage intakeMessage)
-            CycleState.INTAKE.INSTANCE = intakeMessage.intakeState();
-        else if (message instanceof CycleState.Intake)
-            CycleState.INTAKE.INSTANCE = RobotStateHandler.IntakeState.INTAKING;
         robotState = message.cycleState();
     }
 
@@ -158,37 +131,69 @@ public class Robot {
 
     public ICommand autoShoot(){
         return new Sequential(
+                new Instant(intake::stopSensors),
                 gate.open(),
-                intake(),
+                new Instant(this::intake),
                 new Wait(SHOOT_TIME)
         );
     }
 
-    public ICommand autoFastShoot(IntakeTilt.TiltState tiltState) {
-        return new Sequential(
-                new Instant(() -> {
-                    if (tiltState.equals(IntakeTilt.TiltState.INTAKE)) intakeTilt.intake();
-                    else if (tiltState.equals(IntakeTilt.TiltState.GATE_INTAKE)) intakeTilt.gateIntake();
-                }),
-                autoShoot()
-        );
-    }
-
     public ICommand resetShooter() {
+        //hood.rest();
         return new Parallel(
-            new Instant(() -> {
-                flywheel.stop();
-                //hood.rest();
-                feederWheel.stop();
-            }),
-            gate.close());
+            new Instant(flywheel::stop),
+            gate.close()
+        );
     }
 
     public ICommand resetAfterShooting() {
         return new Parallel(
                 new Instant(drivetrain::stopHoldPose),
-                resetShooter()
+                resetShooter(),
+                new Instant(intake::startSensors)
         );
+    }
+
+    public void intake() {
+        intake.intake();
+        intake.startSensors();
+        feederWheel.intake();
+    }
+
+    public void intake(boolean feederSlow){
+        if (feederSlow){
+            intake.intake();
+            intake.startSensors();
+            feederWheel.intakeSlow();
+        }
+        else{
+            intake();
+        }
+    }
+
+    public void outtake(){
+        intake.outtake();
+        intake.stopSensors();
+    }
+    public ICommand transfer(){
+        return new Sequential(
+            new Instant(() -> {
+                stopIntake();
+                flywheel.near();
+            }),
+            gate.open()
+        );
+
+    }
+
+    public void stopFeeder(){
+        feederWheel.stop();
+    }
+
+    public void stopIntake(){
+        intake.stopIntake();
+        feederWheel.stop();
+        intake.stopSensors();
     }
 
     public void shootNear() {
@@ -209,50 +214,5 @@ public class Robot {
     public void shootMedium() {
         hood.medium();
         flywheel.medium();
-    }
-
-    public void close() {
-        limelight.close();
-        intakeCamera.close();
-    }
-
-    public ICommand lift() {
-        return new Sequential(
-                new Instant(() -> {
-                    limelight.close();
-                    turret.deenergize();
-                    intakeMotor.deenergize();
-                    hood.deenergize();
-                    feederWheel.deenergize();
-                    intakeTilt.deenergize();
-                    flywheel.deenergize();
-                    gate.deenergize();
-                }),
-                lift.lift()
-        );
-    }
-
-    public ICommand intake() {
-        return intake(0);
-    }
-
-    public ICommand intake(float tiltFinetune) {
-        return new Sequential(
-                new Instant(() -> intakeTilt.intake(tiltFinetune)),
-                new Instant(() -> {
-                    intakeMotor.intake();
-                    feederWheel.intakeState();
-                })
-        );
-    }
-
-    public ICommand gateIntake() {
-        return new Sequential(
-                new Instant(intakeTilt::gateIntake),
-                new Instant(() -> {
-                    intakeMotor.intake();
-                    feederWheel.intakeState();
-                })
-        );
     }
 }

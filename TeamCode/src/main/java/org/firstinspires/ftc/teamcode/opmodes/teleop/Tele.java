@@ -8,7 +8,6 @@ import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
-import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -18,7 +17,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
@@ -162,23 +160,21 @@ public class Tele extends OpModeCommand {
             schedule(robot.turret.resetTurret());
         }
 
-        if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
+        if (gamepad_2.b.isRisingEdge() && (tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !robot.intake.intakeMotor.atState(IntakeMotor.IntakeState.INTAKE))) {
             schedule(tsh.runTransition(
                     new Instant(() -> {
                         robot.flywheel.stop();
-                        robot.intakeTilt.intake();
-                        robot.feederWheel.intakeState();
+                        robot.feederWheel.intake();
                     }
             ), RobotStateHandler.CycleState.INTAKE));
         }
         if (gamepad_2.right_trigger_button.isRisingEdge()) {
-            if (robot.intakeMotor.atState(IntakeMotor.IntakeState.OUTTAKE)) robot.intakeMotor.stop();
-            else robot.intakeMotor.outtake();
-            robot.intakeTilt.transfer();
+            if (robot.intake.intakeMotor.atState(IntakeMotor.IntakeState.OUTTAKE)) robot.intake.stopIntake();
+            else robot.intake.outtake();
         }
 
-        if (!transfer && IntakeThread.useSensors && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intakeMotor.getPower() > 0.2) {
-            if (RobotStateHandler.CycleState.INTAKE.update) { //&& has three
+        if (!transfer && tsh.atState(RobotStateHandler.CycleState.INTAKE) && robot.intake.intakeMotor.getPower() > 0.2) {
+            if (robot.intake.hasThree()) { //&& has three
                 transfer = true;
             }
         }
@@ -186,18 +182,15 @@ public class Tele extends OpModeCommand {
         if (transfer || (gamepad_2.x.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.INTAKE))) {
             gyroTrack = true;
             transfer = false;
-            RobotStateHandler.CycleState.INTAKE.update = false;
             schedule(tsh.runTransition(new Sequential(
                     new Parallel(
-                            new Instant(robot.intakeTilt::transfer),
-                            new Instant(robot.intakeMotor::outtake),
+                            new Instant(robot.intake::outtake),
                             new Conditional(
                                     robot.flywheel::isStopped,
                                     new Instant(robot::shootNear),
                                     Commands.NOOP
                             )
-                    ),
-                    new Instant(() -> RobotStateHandler.CycleState.INTAKE.update = true)
+                    )
                 ), RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
             );
         }
@@ -236,11 +229,6 @@ public class Tele extends OpModeCommand {
 
         else if (gamepad_2.left_bumper.isRisingEdge()) {
             schedule(new Instant(() -> GyroThread.NEUTRAL_OFFSET += 1/255d));
-        }
-
-        if (gamepad_2.left_stick_y_button.isRisingEdge()) {
-            if (gamepad2.left_stick_y < -0.3f) robot.intakeTilt.transfer();
-            else if (gamepad2.left_stick_y > 0.3f) robot.intakeTilt.intake();
         }
 
         if (gamepad_2.right_stick_y_button.isRisingEdge()) {

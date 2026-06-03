@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -11,12 +10,10 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
-import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 
 import java.util.function.Function;
 
-@Config
-public class ServoTurret extends HwServo {
+public class ServoTurretMTI extends TwoServoMechanism{
     //When calibrating blue
     public static Function<Double, Double> turretPos = f -> Globals.allianceColor == AllianceColor.Red ? 2 * ServoTurret.REST - f : f;
 
@@ -27,25 +24,6 @@ public class ServoTurret extends HwServo {
     public static double RIGHT_TICKS_LIMIT;
     public static double FULL_ROTATION;
     public static double REST;
-
-    public static TurretCalibration EIGHTEEN_DETECTION;
-    public static TurretCalibration EIGHTEEN_PRELOADS;
-    public static TurretCalibration EIGHTEEN_FIRST_SET;
-    public static TurretCalibration EIGHTEEN_SECOND_SET;
-    public static TurretCalibration EIGHTEEN_GATE_SHOOT;
-    public static TurretCalibration EIGHTEEN_THIRD_SET;
-    public static TurretCalibration EIGHTEEN_FOURTH_SET;
-    public static TurretCalibration EIGHTEEN_FIFTH_SET;
-
-    public static TurretCalibration UNSORTED_AUTO_PRELOADS; //doesn't matter for 15
-    public static TurretCalibration UNSORTED_SET_1;
-    public static TurretCalibration UNSORTED_SET_2;
-    public static TurretCalibration UNSORTED_SET_3;
-    public static TurretCalibration UNSORTED_SET_4;
-    public static TurretCalibration UNSORTED_SET_5;
-    public static TurretCalibration UNSORTED_FINAL;
-    public static TurretCalibration FAR_PRESET;
-
     public static double MS_PER_REVOLUTION = 1500;
 
     public static double ticksPerRotation() {
@@ -63,7 +41,7 @@ public class ServoTurret extends HwServo {
     /**
      * @param hwMap hardwareMap
      */
-    public ServoTurret(HardwareMap hwMap) {
+    public ServoTurretMTI(HardwareMap hwMap) {
         super(hwMap, "turret", "turret2");
     }
 

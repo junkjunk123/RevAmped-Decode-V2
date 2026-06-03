@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 @Config
 public class TrackingThread {
     public final SimpleShooterMath shooterMath;
-    private final ServoTurret turret;
+    private final ServoTurretMTI turret;
     private final Hood hood;
     private final Flywheel flywheel;
     private final Localizer pinpoint;
@@ -25,7 +25,7 @@ public class TrackingThread {
     public final FarTrackingMath turretMath;
     public static boolean far = true;
 
-    public TrackingThread(Follower pinpoint, ServoTurret turret, Flywheel flywheel, Hood hood) {
+    public TrackingThread(Follower pinpoint, ServoTurretMTI turret, Flywheel flywheel, Hood hood) {
         this.hood = hood;
         this.turret = turret;
         this.flywheel = flywheel;

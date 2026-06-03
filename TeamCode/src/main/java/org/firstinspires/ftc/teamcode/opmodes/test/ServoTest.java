@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 @Config
+@Disabled
 public class ServoTest extends OpMode {
     private Servo servo0;
     public static double initialPos = 1/4d;

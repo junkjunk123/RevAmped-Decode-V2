@@ -42,8 +42,8 @@ public class Flywheel extends HwMotor {
         this.voltageSensor = voltageSensor;
         setEncoder(Encoder.fromMotor(get()).reverse());
         resetPosition();
-        hardware[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        hardware[1].setDirection(DcMotorSimple.Direction.FORWARD);
+        hardware[0].setDirection(DcMotorSimple.Direction.FORWARD);
+        hardware[1].setDirection(DcMotorSimple.Direction.REVERSE);
         controller = new FlywheelController();
     }
 
