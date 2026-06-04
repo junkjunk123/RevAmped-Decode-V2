@@ -12,6 +12,10 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadConstants;
+import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
+import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
+
 public class Constants {
     public static double DEFAULT_PROPORTIONAL = 0.25;
     public static double MEDIUM_PROPORTIONIAL = 0.2;
@@ -60,6 +64,17 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
+    public static OctoQuadConstants octoQuadConstants = new OctoQuadConstants()
+            .name("octoquad")
+            .deadwheelXTicksPerMM(19.89436789f)
+            .deadwheelYTicksPerMM(19.89436789f)
+            .imuScalar(1.0168f)
+            .deadwheelXDir(OctoQuadFWv3.EncoderDirection.REVERSE)
+            .deadwheelYDir(OctoQuadFWv3.EncoderDirection.FORWARD)
+            .i2cRecoveryMode(OctoQuadFWv3.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR)
+            .tcpOffsetXMM(132.987f)
+            .tcpOffsetYMM(91.483f);
+
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
             0.1,
@@ -74,9 +89,9 @@ public class Constants {
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .mecanumDrivetrain(driveConstants)
-                .pinpointLocalizer(localizerConstants)
+                //.pinpointLocalizer(localizerConstants)
                 //.setDrivetrain(new PedroMecanumDrive(hardwareMap, driveConstants))
-                //.setLocalizer(new OctoQuadLocalizer(hardwareMap, octoQuadConstants, OctoQuadLocalizer.InitMode.INITIALIZE_OCTOQUAD))
+                .setLocalizer(new OctoQuadLocalizer(hardwareMap, octoQuadConstants, OctoQuadLocalizer.InitMode.INITIALIZE_OCTOQUAD))
                 .pathConstraints(pathConstraints)
                 .build();
     }
@@ -84,9 +99,9 @@ public class Constants {
     public static Follower createFollowerTeleOp(HardwareMap hardwareMap) {
         return new FollowerBuilder(teleopFollowerConstants, hardwareMap)
                 .mecanumDrivetrain(driveConstants)
-                .pinpointLocalizer(localizerConstants)
+                //.pinpointLocalizer(localizerConstants)
                 //.setDrivetrain(new PedroMecanumDrive(hardwareMap, driveConstants))
-                //.setLocalizer(new OctoQuadLocalizer(hardwareMap, octoQuadConstants, OctoQuadLocalizer.InitMode.INITIALIZE_OCTOQUAD))
+                .setLocalizer(new OctoQuadLocalizer(hardwareMap, octoQuadConstants, OctoQuadLocalizer.InitMode.INITIALIZE_OCTOQUAD))
                 .pathConstraints(pathConstraints)
                 .build();
     }

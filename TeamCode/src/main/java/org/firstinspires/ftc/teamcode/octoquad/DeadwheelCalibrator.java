@@ -24,6 +24,8 @@ package org.firstinspires.ftc.teamcode.octoquad;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
+
 /*
  * This OpMode helps calibrate the ticks/mm and directions for your deadwheels
  */

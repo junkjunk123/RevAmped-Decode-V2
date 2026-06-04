@@ -25,6 +25,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.MovingStatistics;
 
+import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
+
 /**
  * This OpMode demonstrates how to use the absolute localizer feature of the OctoQuad
  * FTC Edition MK2. It is STRONGLY recommended to read the Quick Start guide for the
@@ -36,15 +38,15 @@ public class LocalizerTest extends LinearOpMode
     // #####################################################################################
     // YOU MUST ADJUST THESE CONSTANTS FOR YOUR ROBOT! SEE THE QUICKSTART GUIDE.
     // #####################################################################################
-    static final int DEADWHEEL_PORT_X = 1;
-    static final int DEADWHEEL_PORT_Y = 2;
-    static final OctoQuadFWv3.EncoderDirection DEADWHEEL_X_DIR = OctoQuadFWv3.EncoderDirection.FORWARD;
-    static final OctoQuadFWv3.EncoderDirection DEADWHEEL_Y_DIR = OctoQuadFWv3.EncoderDirection.REVERSE;
-    static final float X_TICKS_PER_MM = 12.66f;
-    static final float Y_TICKS_PER_MM = 12.66f;
+    static final int DEADWHEEL_PORT_X = 0;
+    static final int DEADWHEEL_PORT_Y = 1;
+    static final OctoQuadFWv3.EncoderDirection DEADWHEEL_X_DIR = OctoQuadFWv3.EncoderDirection.REVERSE;
+    static final OctoQuadFWv3.EncoderDirection DEADWHEEL_Y_DIR = OctoQuadFWv3.EncoderDirection.FORWARD;
+    static final float X_TICKS_PER_MM = 19.89436789f;
+    static final float Y_TICKS_PER_MM = 19.89436789f;
     static final float TCP_OFFSET_X_MM = -97.05f;
     static final float TCP_OFFSET_Y_MM = -156.70f;
-    static final float IMU_SCALAR = 1.0323f;
+    static final float IMU_SCALAR = 1.0168f;
 
     // Conversion factor for radians --> degrees
     static final double RAD2DEG = 180/Math.PI;
