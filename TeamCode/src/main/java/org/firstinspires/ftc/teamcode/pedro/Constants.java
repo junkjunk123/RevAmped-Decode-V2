@@ -17,23 +17,23 @@ import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
 
 public class Constants {
-    public static double DEFAULT_PROPORTIONAL = 0.25;
-    public static double MEDIUM_PROPORTIONIAL = 0.2;
-    public static double CONSERVATIVE_PROPORTIONAL = 0.15;
-    public static double SAFE_PROPORTIONAL = 0.1;
-    public static double K_LINEAR_BRAKE = 0.0838;
-    public static double K_QUADRATIC_BRAKE = 0.00108;
+    public static double DEFAULT_PROPORTIONAL = 0.22;
+    public static double MEDIUM_PROPORTIONIAL = 0.15;
+    public static double CONSERVATIVE_PROPORTIONAL = 0.1;
+    public static double K_LINEAR_BRAKE = 0.0969;
+    public static double K_QUADRATIC_BRAKE = 0.00042;
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12.4)
-            .headingPIDFCoefficients(new PIDFCoefficients(1.04, 0, 0, 0.01))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2.33, 0, 0.13, 0.0005))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.9589, 0, 0, 0.01))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2.1576, 0, 0.2240, 0.0005))
             .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(
                     DEFAULT_PROPORTIONAL,
                     K_LINEAR_BRAKE,
                     K_QUADRATIC_BRAKE
             ))
             .centripetalScaling(0.00055);
+
 
     public static FollowerConstants teleopFollowerConstants = new FollowerConstants()
             .mass(12.4)

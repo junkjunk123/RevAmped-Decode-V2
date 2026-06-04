@@ -1459,7 +1459,7 @@ class Circle extends OpMode {
 
 class PredictiveBrakingTuner extends OpMode {
     private static final double[] TEST_POWERS =
-            {1, 1, 1, 0.9, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2};
+            {0.65, 0.65, 0.6, 0.6, 0.6, 0.5, 0.5, 0.4, 0.3, 0.2};
     private static final double BRAKING_POWER = -0.2;
 
     private static final int DRIVE_TIME_MS = 1000;
