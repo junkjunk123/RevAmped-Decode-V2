@@ -42,6 +42,7 @@ public class ServoTurretMTI extends TwoServoMechanism{
      * @param hwMap hardwareMap
      */
     public ServoTurretMTI(HardwareMap hwMap) {
+        //do we even need offsets
         super(hwMap, "turret", "turret2");
     }
 

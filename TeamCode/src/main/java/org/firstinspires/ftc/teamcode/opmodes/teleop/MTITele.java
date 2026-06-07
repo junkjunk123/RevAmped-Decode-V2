@@ -28,6 +28,10 @@ public class MTITele extends OpModeCommand {
     private GamepadEx gamepad_2;
     private Robot robot;
     private TeleOpStateHandler tsh;
+    public static boolean calibrateTurret;
+
+    public static double turretPos;
+
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
@@ -87,6 +91,10 @@ public class MTITele extends OpModeCommand {
 
         if (gamepad_2.a.isRisingEdge()){
             schedule(robot.reverseTransfer());
+        }
+
+        if (gamepad_2.dpad_up.isRisingEdge() && calibrateTurret){
+            schedule(new Instant(() -> robot.turret.setPosition(turretPos)));
         }
 
         if (robot.intake.distanceSensors.shouldPause()) {
