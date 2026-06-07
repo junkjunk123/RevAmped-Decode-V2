@@ -23,6 +23,7 @@ public class TrackingThread {
     public static boolean trackTurret = false;
     public static TrackingThread INSTANCE;
     public static boolean far = true;
+    public static float TURRET_OFFSET;
 
     public TrackingThread(Follower pinpoint, ServoTurretMTI turret, Flywheel flywheel, Hood hood) {
         this.hood = hood;

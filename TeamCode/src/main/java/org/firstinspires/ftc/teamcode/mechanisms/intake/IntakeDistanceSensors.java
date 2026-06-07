@@ -21,6 +21,7 @@ public class IntakeDistanceSensors {
     private boolean on;
     private boolean pause = false;
     private boolean readIntakeDistance = false;
+
     public IntakeDistanceSensors(HardwareMap hardwareMap){
         distanceSensors = new IntakeArtifactDetector[] {
                 new IntakeArtifactDetector(hardwareMap,"ball1"),
@@ -91,13 +92,13 @@ public class IntakeDistanceSensors {
                     () -> distanceStates[1] && !readIntakeDistance,
                     new Sequential(
                         new Wait(INTAKE_SENSOR_DELAY),
-                        new Instant(() -> {readIntakeDistance = true;})
+                        new Instant(() -> readIntakeDistance = true)
                     ),
                     Commands.NOOP)
             );
         }
         return Commands.NOOP;
-        }
+    }
 
     public boolean shouldPause() {
         return isOn() && pause;

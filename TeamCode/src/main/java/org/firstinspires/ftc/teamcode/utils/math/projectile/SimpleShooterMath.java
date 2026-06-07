@@ -13,6 +13,7 @@ import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
@@ -39,7 +40,7 @@ public class SimpleShooterMath {
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
     public static final int SOTM_ITERATIONS = 10;
-    public static double CALIBRATION_ANGLE = Math.PI;
+    public static double CALIBRATION_ANGLE = 0;
 
     public static double blueX = 9.5;
     public static double blueY = 135;
@@ -171,10 +172,12 @@ public class SimpleShooterMath {
     }
 
     public double getTurretPos(Vector offset, double heading) {
-        double pos = turretInterpolation.interpolate(Globals.allianceColor.equals(AllianceColor.Red) ? offset.getXComponent() :
-                -offset.getXComponent(), offset.getYComponent());
-        double delta = normalizeAnglePi(pos + heading + CALIBRATION_ANGLE);
+        //double pos = turretInterpolation.interpolate(Globals.allianceColor.equals(AllianceColor.Red) ? offset.getXComponent() :
+                //-offset.getXComponent(), offset.getYComponent());
+        double pos = offset.getTheta();
+        double delta = normalizeAnglePi(pos - heading + CALIBRATION_ANGLE);
         double ticks = ServoTurret.radToTicks(delta);
+        ticks -= GyroThread.NEUTRAL_OFFSET * Math.signum(ServoTurret.REST - pos);
         return Range.clip(ticks, Math.min(ServoTurret.LEFT_TICKS_LIMIT, ServoTurret.RIGHT_TICKS_LIMIT),
                 Math.max(ServoTurret.RIGHT_TICKS_LIMIT, ServoTurret.LEFT_TICKS_LIMIT));
     }
