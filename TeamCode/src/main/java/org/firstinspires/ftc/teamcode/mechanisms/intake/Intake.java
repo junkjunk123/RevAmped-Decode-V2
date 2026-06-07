@@ -20,16 +20,10 @@ public class Intake {
         intakeMotor.intake();
     }
 
-    public void intakeSlow(){
-        intakeMotor.intakeSlow();
-    }
+    public void transferFar(){intakeMotor.transferFar();}
 
     public void outtake(){
         intakeMotor.outtake();
-    }
-
-    public void outtakeSlow(){
-        intakeMotor.outtakeSlow();
     }
 
     public void stopIntake(){

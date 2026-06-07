@@ -9,7 +9,7 @@ import java.util.Arrays;
 public class IntakeDistanceSensors {
     private final IntakeArtifactDetector[] distanceSensors;
     private final boolean[] distanceStates;
-    public static boolean useSensors = true;
+    public static boolean useSensors = false;
     private boolean on;
     private boolean pause = false;
     public IntakeDistanceSensors(HardwareMap hardwareMap){
@@ -65,8 +65,10 @@ public class IntakeDistanceSensors {
             int num = 0;
 
             for (int i = 0; i < 3; i++) {
-                distanceSensors[i].update();
-                distanceStates[i] = distanceSensors[i].getReading();
+                if ((i==0 && !distanceStates[i]) || i >0) {
+                    distanceSensors[i].update();
+                    distanceStates[i] = distanceSensors[i].getReading();
+                }
                 if (distanceStates[i]) num++;
                 if (checkFalse && num == 3) pause = true;
             }

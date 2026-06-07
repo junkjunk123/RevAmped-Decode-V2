@@ -11,6 +11,8 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -20,11 +22,12 @@ import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import java.util.Arrays;
 
 @Config
-@TeleOp
-public class HardwareTele extends OpModeCommand {
+@TeleOp(name = "MTI-TeleOp")
+public class MTITele extends OpModeCommand {
     private GamepadEx gamepad_1;
     private GamepadEx gamepad_2;
     private Robot robot;
+    private TeleOpStateHandler tsh;
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
@@ -32,7 +35,8 @@ public class HardwareTele extends OpModeCommand {
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(),telemetry);
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
-
+        tsh = RobotStateHandler.createTeleOpStateHandler(robot);
+        RobotStateHandler.CycleState.DriveToShoot.toggleDefault();
         schedule(new Infinite(() -> {
             robot.update();
             robot.drivetrain.arcadeDrive(gamepad1);
@@ -54,12 +58,13 @@ public class HardwareTele extends OpModeCommand {
         gamepad_2.update();
 
         if (gamepad_2.b.isRisingEdge()){
-            schedule(
+            schedule(tsh.runTransition(
                     new Conditional(
                             () -> IntakeDistanceSensors.useSensors,
                             new Instant(robot::intake),
                             new Instant(() -> robot.intake(true))
                     )
+                    ,RobotStateHandler.CycleState.INTAKE)
 
             );
         }
@@ -68,13 +73,20 @@ public class HardwareTele extends OpModeCommand {
             schedule(new Instant(robot::outtake));
         }
 
-        if (gamepad_2.x.isRisingEdge() || (robot.intake.distanceSensors.isOn() && !robot.intake.distanceSensors.shouldPause() && robot.intake.hasThree())){
-            schedule(robot.transfer());
-            robot.intake.distanceSensors.stop();
+        if (gamepad_2.x.isRisingEdge() || (robot.intake.distanceSensors.isOn()  && robot.intake.hasThree() && tsh.atState(RobotStateHandler.CycleState.INTAKE))){
+            schedule(
+                tsh.runTransition(
+                    robot.transfer()
+                    , RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
+            );
         }
 
-        if (gamepad_2.y.isRisingEdge() || (robot.intake.distanceSensors.isOn() && robot.intake.ballInTransfer())){
+        if (gamepad_2.y.isRisingEdge() || (robot.intake.distanceSensors.isOn() && robot.intake.ballInTransfer() && tsh.atState(RobotStateHandler.CycleState.INTAKE))){
             schedule(new Instant(robot::stopFeeder));
+        }
+
+        if (gamepad_2.a.isRisingEdge()){
+            schedule(robot.reverseTransfer());
         }
 
         if (robot.intake.distanceSensors.shouldPause()) {
@@ -90,39 +102,41 @@ public class HardwareTele extends OpModeCommand {
             );
         }
 
-        if (gamepad_2.dpad_up.isRisingEdge()){
+        if (gamepad_2.dpad_up.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT)){
             schedule(
-                    new Sequential(
-                            robot.autoShoot(),
-                            robot.resetAfterShooting(),
-                            //change this after we use sensors
-                            new Conditional(
-                                () -> IntakeDistanceSensors.useSensors,
-                                new Instant(() -> robot.intake()),
-                                new Instant(() -> robot.intake(true))
-                            )
-                    )
+                    tsh.runTransition(
+                        new Sequential(
+                                new Conditional(
+                                    () -> robot.shootingFar,
+                                    robot.autoShootFar(),
+                                    robot.autoShoot()
+                                ),
+                                robot.resetAfterShooting(),
+                                //change this after we use sensors
+                                new Conditional(
+                                    () -> IntakeDistanceSensors.useSensors,
+                                    new Instant(() -> robot.intake()),
+                                    new Instant(() -> robot.intake(true))
+                                )
+                        )
+                    , RobotStateHandler.CycleState.INTAKE)
             );
         }
 
         if (gamepad_1.dpad_up.isRisingEdge()){
-            robot.flywheel.far();
-            robot.hood.far();
+            robot.shootFar();
         }
 
         if (gamepad_1.dpad_down.isRisingEdge()){
-            robot.flywheel.near();
-            robot.hood.near();
+            robot.shootNear();
         }
 
         if (gamepad_1.dpad_left.isRisingEdge()){
-            robot.flywheel.medium();
-            robot.hood.medium();
+            robot.shootMedium();
         }
 
         if (gamepad_1.dpad_right.isRisingEdge()){
-            robot.flywheel.corner();
-            robot.hood.corner();
+            robot.shootCorner();
         }
 
         if (gamepad_1.right_bumper.isRisingEdge()){
@@ -135,5 +149,9 @@ public class HardwareTele extends OpModeCommand {
 
         telemetry.addData("sensors", Arrays.toString(robot.intake.getStates()));
         telemetry.addData("on",robot.intake.distanceSensors.isOn());
+        telemetry.addData("error",robot.flywheel.getError());
+        telemetry.addData("velocity",robot.flywheel.getVelocity());
+        telemetry.addData("isShootingFar",robot.shootingFar);
+        telemetry.addData("tsh",tsh.currentState().toString());
     }
 }

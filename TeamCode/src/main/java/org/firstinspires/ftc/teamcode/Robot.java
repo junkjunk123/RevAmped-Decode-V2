@@ -42,11 +42,12 @@ public class Robot {
     public final Intake intake;
     public final FeederWheel feederWheel;
     public final HwVoltageSensor voltageSensor;
-
     private final List<LynxModule> hubs;
     private final HardwareMap hardwareMap;
     private CycleState robotState = CycleState.INTAKE;
     public static int SHOOT_TIME;
+    public static int SHOOT_TIME_FAR;
+    public boolean shootingFar;
 
     public Robot(HardwareMap hardwareMap) {
         this(hardwareMap, null);
@@ -65,6 +66,7 @@ public class Robot {
         hood = new Hood(hardwareMap, voltageSensor);
         gate = new ShooterGate(hardwareMap);
         feederWheel = new FeederWheel(hardwareMap);
+        shootingFar = false;
         INSTANCE = this;
         RobotStateHandler.CycleState.DRIVE_TO_SHOOT.init(drivetrain.follower, turret, hood, flywheel, Globals.isTeleOp);
         if (!Globals.isTeleOp) initialize();
@@ -133,15 +135,24 @@ public class Robot {
         return new Sequential(
                 new Instant(intake::stopSensors),
                 gate.open(),
-                new Instant(this::intake),
+                new Instant(this::transferShoot),
                 new Wait(SHOOT_TIME)
+        );
+    }
+
+    public ICommand autoShootFar(){
+        return new Sequential(
+                new Instant(intake::stopSensors),
+                gate.open(),
+                new Instant(this::transferShootFar),
+                new Wait(SHOOT_TIME_FAR)
         );
     }
 
     public ICommand resetShooter() {
         //hood.rest();
         return new Parallel(
-            new Instant(flywheel::stop),
+//            new Instant(flywheel::stop),
             gate.close()
         );
     }
@@ -157,6 +168,16 @@ public class Robot {
     public void intake() {
         intake.intake();
         intake.startSensors();
+        feederWheel.intake();
+    }
+
+    public void transferShootFar(){
+        intake.transferFar();
+        feederWheel.transferFar();
+    }
+
+    public void transferShoot(){
+        intake.intake();
         feederWheel.intake();
     }
 
@@ -178,12 +199,25 @@ public class Robot {
     public ICommand transfer(){
         return new Sequential(
             new Instant(() -> {
+                shootingFar = false;
+                intake.stopSensors();
                 stopIntake();
-                flywheel.near();
             }),
+            new Wait(100),
             gate.open()
         );
 
+    }
+
+    public ICommand reverseTransfer(){
+        return new Sequential(
+                new Instant(() ->{
+                    outtake();
+                    flywheel.outtake();
+                }),
+                new Wait(500),
+                gate.close()
+        );
     }
 
     public void stopFeeder(){
@@ -197,21 +231,25 @@ public class Robot {
     }
 
     public void shootNear() {
+        shootingFar = false;
         hood.near();
         flywheel.near();
     }
 
     public void shootCorner() {
+        shootingFar = false;
         hood.corner();
         flywheel.corner();
     }
 
     public void shootFar() {
+        shootingFar = true;
         flywheel.far();
         hood.far();
     }
 
     public void shootMedium() {
+        shootingFar = false;
         hood.medium();
         flywheel.medium();
     }
