@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.groups.Parallel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Intake {
@@ -20,16 +23,10 @@ public class Intake {
         intakeMotor.intake();
     }
 
-    public void intakeSlow(){
-        intakeMotor.intakeSlow();
-    }
+    public void transferFar(){intakeMotor.transferFar();}
 
     public void outtake(){
         intakeMotor.outtake();
-    }
-
-    public void outtakeSlow(){
-        intakeMotor.outtakeSlow();
     }
 
     public void stopIntake(){
@@ -43,9 +40,11 @@ public class Intake {
 
     public void startSensors(){distanceSensors.start();}
 
-    public void update(){
-        intakeMotor.update();
-        distanceSensors.update();
+    public ICommand update(){
+        return new Parallel(
+            new Instant(intakeMotor::update),
+            distanceSensors.update()
+            );
     }
 
     public boolean[] getStates(){

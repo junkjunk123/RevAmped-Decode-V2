@@ -19,6 +19,7 @@ public class Flywheel extends HwMotor {
     public static double NEAR_VELOCITY;
     public static double CLOSE_AUTO_VELOCITY;
     public static double CORNER_VELOCITY;
+    public static double OUTTAKE_POWER;
     public static double UNSORTED_AUTO_VELOCITY;
     public static double MAX_VELOCITY = 1400;
 
@@ -33,6 +34,7 @@ public class Flywheel extends HwMotor {
         TRACKING,
         CORNER,
         STOPPED,
+        OUTTAKE,
         NO_PID
     }
     private FlywheelState state = FlywheelState.STOPPED;
@@ -40,7 +42,7 @@ public class Flywheel extends HwMotor {
     public Flywheel(HardwareMap hardwareMap, HwVoltageSensor voltageSensor) {
         super(hardwareMap, "flywheel_right", "flywheel_left");
         this.voltageSensor = voltageSensor;
-        setEncoder(Encoder.fromMotor(get()).reverse());
+        setEncoder(Encoder.fromMotor(get()));
         resetPosition();
         hardware[0].setDirection(DcMotorSimple.Direction.FORWARD);
         hardware[1].setDirection(DcMotorSimple.Direction.REVERSE);
@@ -91,13 +93,13 @@ public class Flywheel extends HwMotor {
         state = FlywheelState.CORNER;
     }
 
-    public void closeAuto() {
-        runToVel(CLOSE_AUTO_VELOCITY);
-        state = FlywheelState.TRACKING;
+    public void outtake(){
+        runAtPower(OUTTAKE_POWER);
+        state = FlywheelState.OUTTAKE;
     }
 
-    public void unsortedAuto() {
-        runToVel(UNSORTED_AUTO_VELOCITY-10);
+    public void closeAuto() {
+        runToVel(CLOSE_AUTO_VELOCITY);
         state = FlywheelState.TRACKING;
     }
 

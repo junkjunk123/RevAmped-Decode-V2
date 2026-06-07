@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 @Config
 public class TrackingThread {
-    public final SimpleShooterMath shooterMath;
+//    public final SimpleShooterMath shooterMath;
     private final ServoTurretMTI turret;
     private final Hood hood;
     private final Flywheel flywheel;
@@ -22,7 +22,7 @@ public class TrackingThread {
     public static boolean trackHood = false;
     public static boolean trackTurret = false;
     public static TrackingThread INSTANCE;
-    public final FarTrackingMath turretMath;
+//    public final FarTrackingMath turretMath;
     public static boolean far = true;
 
     public TrackingThread(Follower pinpoint, ServoTurretMTI turret, Flywheel flywheel, Hood hood) {
@@ -30,23 +30,23 @@ public class TrackingThread {
         this.turret = turret;
         this.flywheel = flywheel;
         this.pinpoint = pinpoint.getPoseTracker().getLocalizer();
-        shooterMath = new SimpleShooterMath(this.pinpoint);
-        turretMath = new FarTrackingMath(this.pinpoint);
+//        shooterMath = new SimpleShooterMath(this.pinpoint);
+//        turretMath = new FarTrackingMath(this.pinpoint);
         INSTANCE = this;
     }
 
     public void update() {
         if (!trackHood && !trackTurret) return;
-        if (!far) {
-            shooterMath.update(trackTurret, trackHood);
-            if (trackHood) hood.updateTracking(shooterMath.getHoodPos());
-            if (trackTurret)
-                turret.move(new ServoTurretState.AutoTrack(shooterMath.getTurretPos()));
-            if (trackHood && Robot.INSTANCE.getRobotState().equals(RobotStateHandler.CycleState.DRIVE_TO_SHOOT))
-                flywheel.setVelocity(shooterMath.getFlywheelVelocity());
-        } else {
-            turret.setPosition(turretMath.update());
-        }
+//        if (!far) {
+//            shooterMath.update(trackTurret, trackHood);
+//            if (trackHood) hood.updateTracking(shooterMath.getHoodPos());
+//            if (trackTurret)
+//                turret.move(new ServoTurretState.AutoTrack(shooterMath.getTurretPos()));
+//            if (trackHood && Robot.INSTANCE.getRobotState().equals(RobotStateHandler.CycleState.DRIVE_TO_SHOOT))
+//                flywheel.setVelocity(shooterMath.getFlywheelVelocity());
+//        } else {
+//            turret.setPosition(turretMath.update());
+//        }
     }
 
     public void addLimelightMeasurement(Vector offset) {

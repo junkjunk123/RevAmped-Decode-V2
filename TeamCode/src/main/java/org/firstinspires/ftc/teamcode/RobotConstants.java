@@ -24,29 +24,32 @@ import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 public class RobotConstants {
     public void build() {
+        //FAR SHOOTING HOOD & VELOCITY NOT CALIBRATED YET
+        IntakeDistanceSensors.useSensors = false;
+        IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 200;
+
         ShooterGate.GATE_OPEN = 121/255f;
         ShooterGate.GATE_CLOSE = 202/255f;
         ShooterGate.GATE_MOVEMENT_TIME = 250;
-        Robot.SHOOT_TIME = 1000;
-        //IntakeMotor Constants
-        IntakeMotor.INTAKE = 1.0f; IntakeMotor.INTAKE_SLOW = 0.65f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.INTAKE_GATE = 1.0f;
-        IntakeMotor.INTAKE_PRELOADS = 0.8f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOTING = 0.4f; IntakeMotor.OUTTAKE_SLOW = -0.4f;
+        Robot.SHOOT_TIME = 600;
+        Robot.SHOOT_TIME_FAR = 700;
 
-        FeederWheel.TARGET_VEL = 2500;
+        //IntakeMotor Constants
+        IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;
+
+        FeederWheel.TARGET_VEL = 2500; FeederWheel.INTAKE_POWER = 1.0f; FeederWheel.INTAKE_NO_SENSORS = 0.2f; FeederWheel.TRANSFER_FAR = 0.5f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 680; Flywheel.MEDIUM_VELOCITY = 740; Flywheel.FAR_VELOCITY = 1000; Flywheel.CLOSE_AUTO_VELOCITY = 630;
-        Flywheel.CORNER_VELOCITY = 880;
-        Flywheel.UNSORTED_AUTO_VELOCITY = 730;
+        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 940; Flywheel.FAR_VELOCITY = 1200;
+        Flywheel.CORNER_VELOCITY = 1050;
+        Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
 
         //Hood Constants
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 160/255f; Hood.NEAR_PRESET = 30/255f; Hood.MEDIUM_PRESET = 65/255f; Hood.CORNER_PRESET = 115/255f; Hood.HOOD_FAR_COMP = 57/255f;
-        Hood.UNSORTED_AUTO = Hood.MEDIUM_PRESET + Math.signum(Hood.NEAR_PRESET - Hood.MEDIUM_PRESET) * 9.5f/255f;
-        Hood.CLOSE_AUTO_FINAL = 3/255f;
+        Hood.FAR_PRESET = 128/255f; Hood.NEAR_PRESET = 60/255f; Hood.MEDIUM_PRESET = 75/255f; Hood.CORNER_PRESET = 95/255f; Hood.HOOD_FAR_COMP = 57/255f; //hood far comp not changed
 
         //Turret Constants - = left + = right
         ServoTurret.REST = 127/255f;
@@ -57,8 +60,8 @@ public class RobotConstants {
 
         ServoTurretMTI.REST = 127/255f;
 
-        ServoTurretMTI.FULL_ROTATION = 292/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;
-        ServoTurretMTI.LEFT_TICKS_LIMIT = 0/255f; ServoTurretMTI.RIGHT_TICKS_LIMIT = 255/255f;
+        ServoTurretMTI.FULL_ROTATION = 282/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;
+        ServoTurretMTI.LEFT_TICKS_LIMIT = 250/255f; ServoTurretMTI.RIGHT_TICKS_LIMIT = 5/255f;
 
         FarTrackingMath.buildOffsetILUT(
                 new ListMap<Double, Double>()

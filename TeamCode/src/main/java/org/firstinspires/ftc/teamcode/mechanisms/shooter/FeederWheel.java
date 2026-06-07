@@ -12,6 +12,11 @@ public class FeederWheel extends HwMotor {
     public static double P = 0.0007;
     public static double TARGET_VEL;
 
+    public static double INTAKE_POWER;
+    public static double INTAKE_NO_SENSORS;
+    public static double TRANSFER_FAR;
+
+
     private double targetVelocity;
 
     private enum FeederState {
@@ -36,10 +41,12 @@ public class FeederWheel extends HwMotor {
     }
 
     public void intake() {
-        setPower(1.0);
+        setPower(INTAKE_POWER);
     }
 
-    public void intakeSlow()  {setPower(0.2f);}
+    public void intakeSlow()  {setPower(INTAKE_NO_SENSORS);}
+
+    public void transferFar(){setPower(TRANSFER_FAR);}
 
     public void stop() {
         targetVelocity = 0;
