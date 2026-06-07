@@ -41,6 +41,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.control.SquIDBrakingController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -1693,6 +1694,7 @@ class AutomatedOffsetsTuner extends OpMode {
     }
 
     private Vector fitCircle(Vector[] points) {
+        points = Arrays.copyOfRange(points, 20, points.length);
         Circle circle = taubin(points);
         circle = gaussNewton(points, circle);
         return circle.center.times(-1);
@@ -1832,7 +1834,7 @@ class AutomatedOffsetsTuner extends OpMode {
 
         eigval[0] = q + 2*p*Math.cos(phi);
         eigval[2] = q + 2*p*Math.cos(phi + 2*Math.PI/3.0);
-        eigval[1] = tr - eigval[0] - eigval[2];  // trace identity — more stable than third cos
+        eigval[1] = tr - eigval[0] - eigval[2];  // trace identity
 
         // Eigenvectors via cross products of rows of (S - lambda*I)
         for (int k = 0; k < 3; k++) {
@@ -1867,6 +1869,7 @@ class AutomatedOffsetsTuner extends OpMode {
                 double dx   = pts[i].getXComponent() - a;
                 double dy   = pts[i].getYComponent() - b;
                 double dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 1e-4) continue;
                 res[i] = dist - r;
                 da[i]  = -dx/dist;
                 db[i]  = -dy/dist;
