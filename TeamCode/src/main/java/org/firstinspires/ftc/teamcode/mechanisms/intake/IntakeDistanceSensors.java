@@ -1,17 +1,26 @@
 package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.commands.Conditional;
+import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Wait;
+import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 
 import java.util.Arrays;
 
 @Config
 public class IntakeDistanceSensors {
+    public static int INTAKE_SENSOR_DELAY;
     private final IntakeArtifactDetector[] distanceSensors;
     private final boolean[] distanceStates;
     public static boolean useSensors = false;
     private boolean on;
     private boolean pause = false;
+    private boolean readIntakeDistance = false;
     public IntakeDistanceSensors(HardwareMap hardwareMap){
         distanceSensors = new IntakeArtifactDetector[] {
                 new IntakeArtifactDetector(hardwareMap,"ball1"),
@@ -39,6 +48,20 @@ public class IntakeDistanceSensors {
         }
     }
 
+    public void updateSensors(boolean checkFalse){
+        int num = 0;
+        for (int i = 0; i < 3; i++) {
+            if ((i < 2) || (readIntakeDistance)) {
+                if (!distanceStates[i]) {
+                    distanceSensors[i].update();
+                    distanceStates[i] = distanceSensors[i].getReading();
+                }
+            }
+            if (distanceStates[i]) num++;
+            if (checkFalse && num == 3) pause = true;
+        }
+    }
+
     public boolean[] getStates(){
         return distanceStates;
     }
@@ -56,24 +79,25 @@ public class IntakeDistanceSensors {
         pause = false;
     }
 
-    public void update() {
-        update(true);
+    public ICommand update() {
+        return update(true);
     }
 
-    public void update(boolean checkFalse) {
+    public ICommand update(boolean checkFalse) {
         if (on && useSensors) {
-            int num = 0;
-
-            for (int i = 0; i < 3; i++) {
-                if ((i==0 && !distanceStates[i]) || i >0) {
-                    distanceSensors[i].update();
-                    distanceStates[i] = distanceSensors[i].getReading();
-                }
-                if (distanceStates[i]) num++;
-                if (checkFalse && num == 3) pause = true;
-            }
+            return new Sequential(
+                new Instant(() -> updateSensors(checkFalse)),
+                new Conditional(
+                    () -> distanceStates[1] && !readIntakeDistance,
+                    new Sequential(
+                        new Wait(INTAKE_SENSOR_DELAY),
+                        new Instant(() -> {readIntakeDistance = true;})
+                    ),
+                    Commands.NOOP)
+            );
         }
-    }
+        return Commands.NOOP;
+        }
 
     public boolean shouldPause() {
         return isOn() && pause;

@@ -26,6 +26,8 @@ public class RobotConstants {
     public void build() {
         //FAR SHOOTING HOOD & VELOCITY NOT CALIBRATED YET
         IntakeDistanceSensors.useSensors = false;
+        IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 200;
+
         ShooterGate.GATE_OPEN = 121/255f;
         ShooterGate.GATE_CLOSE = 202/255f;
         ShooterGate.GATE_MOVEMENT_TIME = 250;
