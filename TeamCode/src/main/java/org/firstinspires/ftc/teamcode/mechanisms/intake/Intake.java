@@ -54,6 +54,15 @@ public class Intake {
         return distanceStates[0] && distanceStates[1] && distanceStates[2];
     }
 
+    public int numBalls() {
+        boolean[] distanceStates = getStates();
+        int num = 0;
+        for (int i = 0; i < 3; i++) {
+            if (distanceStates[i]) num++;
+        }
+        return num;
+    }
+
     public boolean ballInTransfer(){
         return getStates()[0];
     }

@@ -74,8 +74,8 @@ public class MTITele extends OpModeCommand {
                             () -> IntakeDistanceSensors.useSensors,
                             new Instant(robot::intake),
                             new Instant(() -> robot.intake(true))
-                    )
-                    ,RobotStateHandler.CycleState.INTAKE)
+                    ),
+                    RobotStateHandler.CycleState.INTAKE)
 
             );
         }

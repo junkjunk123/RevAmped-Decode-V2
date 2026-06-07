@@ -186,8 +186,7 @@ public class Robot {
             intake.intake();
             intake.startSensors();
             feederWheel.intakeSlow();
-        }
-        else{
+        } else {
             intake();
         }
     }
@@ -196,6 +195,7 @@ public class Robot {
         intake.outtake();
         intake.stopSensors();
     }
+
     public ICommand transfer(){
         return new Sequential(
             new Instant(() -> {
@@ -206,7 +206,6 @@ public class Robot {
             new Wait(100),
             gate.open()
         );
-
     }
 
     public ICommand reverseTransfer(){
