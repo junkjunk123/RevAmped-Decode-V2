@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
@@ -28,6 +29,8 @@ public class MTITele extends OpModeCommand {
     private GamepadEx gamepad_2;
     private Robot robot;
     private TeleOpStateHandler tsh;
+    private TrackingThread autoTrack;
+
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap);
@@ -37,6 +40,8 @@ public class MTITele extends OpModeCommand {
         gamepad_2 = new GamepadEx(gamepad2);
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
         RobotStateHandler.CycleState.DriveToShoot.toggleDefault();
+        autoTrack = new TrackingThread(robot);
+
         schedule(new Infinite(() -> {
             robot.update();
             robot.drivetrain.arcadeDrive(gamepad1);
@@ -56,6 +61,7 @@ public class MTITele extends OpModeCommand {
     public void execute(){
         gamepad_1.update();
         gamepad_2.update();
+        autoTrack.update();
 
         if (gamepad_2.b.isRisingEdge()){
             schedule(tsh.runTransition(
@@ -76,8 +82,9 @@ public class MTITele extends OpModeCommand {
         if (gamepad_2.x.isRisingEdge() || (robot.intake.distanceSensors.isOn()  && robot.intake.hasThree() && tsh.atState(RobotStateHandler.CycleState.INTAKE))){
             schedule(
                 tsh.runTransition(
-                    robot.transfer()
-                    , RobotStateHandler.CycleState.DRIVE_TO_SHOOT)
+                    robot.transfer(),
+                    RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                )
             );
         }
 

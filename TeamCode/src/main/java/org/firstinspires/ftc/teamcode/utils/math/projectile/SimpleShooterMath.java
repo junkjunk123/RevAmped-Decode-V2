@@ -24,7 +24,7 @@ import smile.interpolation.Interpolation2D;
 
 @Config
 public class SimpleShooterMath {
-    private final Localizer pinpoint;
+    private final Localizer localizer;
     public static Pose APRIL_TAG_POSE_RED;
     public static Pose APRIL_TAG_POSE_BLUE;
     private double turretPos;
@@ -46,10 +46,13 @@ public class SimpleShooterMath {
     public static double redX = 120.5;
     public static double redY = 120;
 
-    public SimpleShooterMath(Localizer pinpoint) {
-        this.pinpoint = pinpoint;
+    public SimpleShooterMath(Localizer localizer) {
+        this.localizer = localizer;
         APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
         APRIL_TAG_POSE_RED = new Pose(redX, redY);
+
+        //(0,0) -> (3, 0) : x increase
+        //(0, 0) -> (0, 3) down : y decrease
 
         double[][] hoodPos = {
                 {0.02, 0.08, 0.20},
@@ -72,9 +75,6 @@ public class SimpleShooterMath {
         };
         airTimes = new Matrix(airTimes).transposed().getMatrix();
 
-        //(0,0) -> (3, 0) : x increase
-        //(0, 0) -> (0, 3) down : y decrease
-
         double[][] turretPos = {
                 {0.42, 0.455, 0.475},
                 {0.35, 0.41, 0.44},
@@ -82,7 +82,7 @@ public class SimpleShooterMath {
         };
 
         turretPos = new Matrix(Arrays.stream(turretPos)
-                .map(d -> Arrays.stream(d).map(d1 -> ServoTurret.ticksToRad(d1)).toArray())
+                .map(d -> Arrays.stream(d).map(ServoTurret::ticksToRad).toArray())
                 .toArray(double[][]::new))
                 .transposed().getMatrix();
 
@@ -105,7 +105,7 @@ public class SimpleShooterMath {
 
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
-            Pose currentPos = pinpoint.getPose();
+            Pose currentPos = localizer.getPose();
             Vector displacement = getDispVector(targetPos, currentPos);
             telemetry.addData("currentPos", currentPos);
             telemetry.addData("disp vector", displacement);
@@ -114,7 +114,7 @@ public class SimpleShooterMath {
                 if (!velocityCompensation) {
                     turretPos = getTurretPos(displacement);
                 } else {
-                    Pose currentVelocity = pinpoint.getVelocity();
+                    Pose currentVelocity = localizer.getVelocity();
                     turretPos = getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity)));
                 }
             }
@@ -180,6 +180,6 @@ public class SimpleShooterMath {
     }
 
     public double getTurretPos(Vector offset) {
-        return getTurretPos(offset, pinpoint.getPose().getHeading());
+        return getTurretPos(offset, localizer.getPose().getHeading());
     }
 }
