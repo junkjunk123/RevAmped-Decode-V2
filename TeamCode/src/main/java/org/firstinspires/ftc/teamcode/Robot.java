@@ -78,21 +78,17 @@ public class Robot {
         gate.init();
     }
 
-    public ICommand update() {
-        return new Parallel(
-            new Instant(() -> {
-                clearBulkCache();
-                voltageSensor.update();
-                drivetrain.update();
-                flywheel.update();
-                feederWheel.update();
-                turret.update();
-                hood.update();
-                robotState.update();
-                gate.update();
-            }),
-            intake.update()
-        );
+    public void update() {
+        clearBulkCache();
+        voltageSensor.update();
+        drivetrain.update();
+        flywheel.update();
+        feederWheel.update();
+        turret.update();
+        hood.update();
+        robotState.update();
+        gate.update();
+        intake.update();
     }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {

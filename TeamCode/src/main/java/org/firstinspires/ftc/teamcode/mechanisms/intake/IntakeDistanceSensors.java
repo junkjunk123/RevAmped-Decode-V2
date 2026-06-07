@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.mechanisms.intake;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Conditional;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -17,10 +18,10 @@ public class IntakeDistanceSensors {
     public static int INTAKE_SENSOR_DELAY;
     private final IntakeArtifactDetector[] distanceSensors;
     private final boolean[] distanceStates;
-    public static boolean useSensors = false;
+    public static boolean useSensors;
     private boolean on;
-    private boolean pause = false;
-    private boolean readIntakeDistance = false;
+    public boolean readIntakeDistance = false;
+    public boolean waiting = false;
     public IntakeDistanceSensors(HardwareMap hardwareMap){
         distanceSensors = new IntakeArtifactDetector[] {
                 new IntakeArtifactDetector(hardwareMap,"ball1"),
@@ -41,7 +42,6 @@ public class IntakeDistanceSensors {
     public void start(){
         if (useSensors) {
             on = true;
-            pause = false;
             distanceSensors[0].start();
             distanceSensors[1].start();
             distanceSensors[2].start();
@@ -49,7 +49,6 @@ public class IntakeDistanceSensors {
     }
 
     public void updateSensors(boolean checkFalse){
-        int num = 0;
         for (int i = 0; i < 3; i++) {
             if ((i < 2) || (readIntakeDistance)) {
                 if (!distanceStates[i]) {
@@ -57,8 +56,6 @@ public class IntakeDistanceSensors {
                     distanceStates[i] = distanceSensors[i].getReading();
                 }
             }
-            if (distanceStates[i]) num++;
-            if (checkFalse && num == 3) pause = true;
         }
     }
 
@@ -76,34 +73,26 @@ public class IntakeDistanceSensors {
 
     public void clear(){
         Arrays.fill(distanceStates,false);
-        pause = false;
+        waiting = false;
+        readIntakeDistance = false;
     }
 
-    public ICommand update() {
-        return update(true);
+    public void update() {
+        update(true);
     }
 
-    public ICommand update(boolean checkFalse) {
+    public void update(boolean checkFalse) {
         if (on && useSensors) {
-            return new Sequential(
-                new Instant(() -> updateSensors(checkFalse)),
-                new Conditional(
-                    () -> distanceStates[1] && !readIntakeDistance,
+            updateSensors(checkFalse);
+            if (distanceStates[1] && !readIntakeDistance && !waiting){
+                waiting = true;
+                Scheduler.getInstance().schedule(
                     new Sequential(
                         new Wait(INTAKE_SENSOR_DELAY),
                         new Instant(() -> {readIntakeDistance = true;})
-                    ),
-                    Commands.NOOP)
-            );
+                    )
+                );
+            }
         }
-        return Commands.NOOP;
-        }
-
-    public boolean shouldPause() {
-        return isOn() && pause;
-    }
-
-    public void setPause(boolean pause) {
-        this.pause = pause;
     }
 }

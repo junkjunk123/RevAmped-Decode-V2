@@ -43,7 +43,8 @@ public class MTITele extends OpModeCommand {
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
-        RobotStateHandler.CycleState.DriveToShoot.toggleDefault();
+        //to default to manaul turret
+//        RobotStateHandler.CycleState.DriveToShoot.toggleDefault();
         autoTrack = new TrackingThread(robot);
 
         schedule(new Infinite(() -> {
@@ -104,19 +105,6 @@ public class MTITele extends OpModeCommand {
             schedule(new Instant(() -> robot.turret.setPosition(turretPos)));
         }
 
-        if (robot.intake.distanceSensors.shouldPause()) {
-            schedule(
-                    new Sequential(
-                            new Instant(() -> robot.intake.distanceSensors.stop()),
-                            new Wait(300),
-                            new Instant(() -> {
-                                robot.intake.distanceSensors.start();
-                                robot.intake.distanceSensors.update();
-                            })
-                    )
-            );
-        }
-
         if (gamepad_2.dpad_up.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT)){
             schedule(
                     tsh.runTransition(
@@ -163,10 +151,9 @@ public class MTITele extends OpModeCommand {
         }
 
         telemetry.addData("sensors", Arrays.toString(robot.intake.getStates()));
-        telemetry.addData("on",robot.intake.distanceSensors.isOn());
         telemetry.addData("error",robot.flywheel.getError());
         telemetry.addData("velocity",robot.flywheel.getVelocity());
-        telemetry.addData("isShootingFar",robot.shootingFar);
         telemetry.addData("tsh",tsh.currentState().toString());
+        telemetry.addData("pose",robot.drivetrain.follower.getPose());
     }
 }

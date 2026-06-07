@@ -40,11 +40,9 @@ public class Intake {
 
     public void startSensors(){distanceSensors.start();}
 
-    public ICommand update(){
-        return new Parallel(
-            new Instant(intakeMotor::update),
-            distanceSensors.update()
-            );
+    public void update(){
+            intakeMotor.update();
+            distanceSensors.update();
     }
 
     public boolean[] getStates(){
