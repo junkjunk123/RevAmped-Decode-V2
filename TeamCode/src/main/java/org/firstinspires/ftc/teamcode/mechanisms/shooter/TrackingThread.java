@@ -7,9 +7,6 @@ import com.pedropathing.math.Vector;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
-import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
-import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 @Config
@@ -24,6 +21,7 @@ public class TrackingThread {
     public static TrackingThread INSTANCE;
     public static boolean far = false;
     public static float TURRET_OFFSET;
+    public static boolean velocityCompensation = false;
 
     public TrackingThread(Follower octoquad, ServoTurretMTI turret, Flywheel flywheel, Hood hood) {
         this.hood = hood;
