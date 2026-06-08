@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
@@ -78,13 +78,13 @@ public class SimpleShooterMath {
         airTimes = new Matrix(airTimes).transposed().getMatrix();
 
         double[][] turretPos = {
-                {0.42, 0.455, 0.475},
-                {0.35, 0.41, 0.44},
-                {0.32, 0.365, 0.405}
+                {0.598, 0.550, 0.524},
+                {0.670, 0.598, 0.565},
+                {0.704, 0.639, 0.598}
         };
 
         turretPos = new Matrix(Arrays.stream(turretPos)
-                .map(d -> Arrays.stream(d).map(ServoTurret::ticksToRad).toArray())
+                .map(d -> Arrays.stream(d).map(ServoTurretMTI::ticksToRad).toArray())
                 .toArray(double[][]::new))
                 .transposed().getMatrix();
 
@@ -108,9 +108,10 @@ public class SimpleShooterMath {
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
             Pose currentPos = localizer.getPose();
+//            telemetry.addData("math pose",currentPos);
             Vector displacement = getDispVector(targetPos, currentPos);
-            telemetry.addData("currentPos", currentPos);
-            telemetry.addData("disp vector", displacement);
+//            telemetry.addData("currentPos", currentPos);
+//            telemetry.addData("disp vector", displacement);
 
             if (trackTurret) {
                 if (!velocityCompensation) {
@@ -177,10 +178,10 @@ public class SimpleShooterMath {
                 //-offset.getXComponent(), offset.getYComponent());
         double pos = offset.getTheta();
         double delta = normalizeAnglePi(pos - heading + CALIBRATION_ANGLE);
-        double ticks = ServoTurret.radToTicks(delta);
-        ticks -= GyroThread.NEUTRAL_OFFSET * Math.signum(ServoTurret.REST - pos);
-        return Range.clip(ticks, Math.min(ServoTurret.LEFT_TICKS_LIMIT, ServoTurret.RIGHT_TICKS_LIMIT),
-                Math.max(ServoTurret.RIGHT_TICKS_LIMIT, ServoTurret.LEFT_TICKS_LIMIT));
+        double ticks = ServoTurretMTI.radToTicks(delta);
+        ticks -= GyroThread.NEUTRAL_OFFSET * Math.signum(ServoTurretMTI.REST - pos);
+        return Range.clip(ticks, Math.min(ServoTurretMTI.LEFT_TICKS_LIMIT, ServoTurretMTI.RIGHT_TICKS_LIMIT),
+                Math.max(ServoTurretMTI.RIGHT_TICKS_LIMIT, ServoTurretMTI.LEFT_TICKS_LIMIT));
     }
 
     public double getTurretPos(Vector offset) {

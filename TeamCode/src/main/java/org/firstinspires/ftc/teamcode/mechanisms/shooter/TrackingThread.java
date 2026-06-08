@@ -18,19 +18,19 @@ public class TrackingThread {
     private final ServoTurretMTI turret;
     private final Hood hood;
     private final Flywheel flywheel;
-    private final Localizer pinpoint;
-    public static boolean trackHood = false;
-    public static boolean trackTurret = false;
+    private final Localizer octoquad;
+    public static boolean trackHood = true;
+    public static boolean trackTurret = true;
     public static TrackingThread INSTANCE;
-    public static boolean far = true;
+    public static boolean far = false;
     public static float TURRET_OFFSET;
 
-    public TrackingThread(Follower pinpoint, ServoTurretMTI turret, Flywheel flywheel, Hood hood) {
+    public TrackingThread(Follower octoquad, ServoTurretMTI turret, Flywheel flywheel, Hood hood) {
         this.hood = hood;
         this.turret = turret;
         this.flywheel = flywheel;
-        this.pinpoint = pinpoint.getPoseTracker().getLocalizer();
-        shooterMath = new SimpleShooterMath(this.pinpoint);
+        this.octoquad = octoquad.getPoseTracker().getLocalizer();
+        shooterMath = new SimpleShooterMath(this.octoquad);
         INSTANCE = this;
     }
 
@@ -50,21 +50,21 @@ public class TrackingThread {
         }
     }
 
-    public void addLimelightMeasurement(Vector offset) {
-        Vector targ = DecodeLimelight.APRILTAG_POSE.getPose().getAsVector();
-        double bearing = offset.getTheta();
-        double robotHeading = pinpoint.getPose().getHeading();
-        double viewRad = ServoTurret.ticksToRad(turret.getPosition()) + robotHeading + Math.PI;
-        double alpha = viewRad - bearing;
-        Vector tagOffset = new Vector(offset.getXComponent(), alpha);
-        Vector camPos = targ.minus(tagOffset);
-        Vector camOffset = new Vector(DecodeLimelight.CENTER_OFFSET, viewRad);
-        Vector turretPos = camPos.minus(camOffset);
-        Vector turretOffset;
-        if (Turret.TURRET_OFFSET >= 0) turretOffset = new Vector2D(Turret.TURRET_OFFSET, robotHeading);
-        else turretOffset = new Vector2D(Turret.TURRET_OFFSET, Math.PI + robotHeading);
-        Vector robotPos = turretPos.minus(turretOffset).minus(DecodeLimelight.TAG_OFFSETS);
-        pinpoint.setX(robotPos.getXComponent());
-        pinpoint.setY(robotPos.getYComponent());
-    }
+//    public void addLimelightMeasurement(Vector offset) {
+//        Vector targ = DecodeLimelight.APRILTAG_POSE.getPose().getAsVector();
+//        double bearing = offset.getTheta();
+//        double robotHeading = octoquad.getPose().getHeading();
+//        double viewRad = ServoTurret.ticksToRad(turret.getPosition()) + robotHeading + Math.PI;
+//        double alpha = viewRad - bearing;
+//        Vector tagOffset = new Vector(offset.getXComponent(), alpha);
+//        Vector camPos = targ.minus(tagOffset);
+//        Vector camOffset = new Vector(DecodeLimelight.CENTER_OFFSET, viewRad);
+//        Vector turretPos = camPos.minus(camOffset);
+//        Vector turretOffset;
+//        if (Turret.TURRET_OFFSET >= 0) turretOffset = new Vector2D(Turret.TURRET_OFFSET, robotHeading);
+//        else turretOffset = new Vector2D(Turret.TURRET_OFFSET, Math.PI + robotHeading);
+//        Vector robotPos = turretPos.minus(turretOffset).minus(DecodeLimelight.TAG_OFFSETS);
+//        octoquad.setX(robotPos.getXComponent());
+//        octoquad.setY(robotPos.getYComponent());
+//    }
 }

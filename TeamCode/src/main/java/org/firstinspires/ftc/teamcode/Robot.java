@@ -47,6 +47,7 @@ public class Robot {
     private CycleState robotState = CycleState.INTAKE;
     public static int SHOOT_TIME;
     public static int SHOOT_TIME_FAR;
+    public static int CLEANUP_CLOSE_WAIT;
     public boolean shootingFar;
 
     public Robot(HardwareMap hardwareMap) {
@@ -159,9 +160,9 @@ public class Robot {
 
     public ICommand resetAfterShooting() {
         return new Parallel(
-                new Instant(drivetrain::stopHoldPose),
-                resetShooter(),
-                new Instant(intake::startSensors)
+            new Instant(drivetrain::stopHoldPose),
+            resetShooter(),
+            new Instant(intake::startSensors)
         );
     }
 
@@ -205,6 +206,14 @@ public class Robot {
             }),
             new Wait(100),
             gate.open()
+        );
+    }
+
+    public ICommand stopCleanup(){
+        return new Sequential(
+            new Instant(this::stopIntake),
+            new Wait(CLEANUP_CLOSE_WAIT),
+            resetAfterShooting()
         );
     }
 

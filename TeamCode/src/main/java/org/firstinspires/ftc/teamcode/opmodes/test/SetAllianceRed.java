@@ -8,7 +8,6 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
 @TeleOp
-@Disabled
 public class SetAllianceRed extends OpMode {
     @Override
     public void init() {

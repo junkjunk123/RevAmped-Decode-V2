@@ -35,7 +35,8 @@ import java.util.function.Function;
 public class Drivetrain {
     public final Follower follower;
     private ArrayDeque<FollowParameters> paths;
-    public static Pose startPose = new ColoredDecodePose(34.5, 136, Math.toRadians(-90)).getPose(AllianceColor.Red);
+    public static Pose startPose = new ColoredDecodePose(52.5, 114, Math.toRadians(-90)).getPose(AllianceColor.Red);
+    public static Pose resetPose = new ColoredDecodePose(39.5,64.5,Math.toRadians(180)).getPose(AllianceColor.Red);
     private final List<DcMotorEx> motors;
     public final DcMotorEx leftFront;
     public final DcMotorEx rightFront;
@@ -303,10 +304,10 @@ public class Drivetrain {
             }
 
             if (tipCorrection) {
-                Localizer pinpoint = follower.poseTracker.getLocalizer();
-                double heading = pinpoint.getPose().getHeading();
+                Localizer octoquad = follower.poseTracker.getLocalizer();
+                double heading = octoquad.getPose().getHeading();
                 Vector voltage = new Vector2D(x, y);
-                Vector vel = pinpoint.getVelocityVector();
+                Vector vel = octoquad.getVelocityVector();
                 Vector robotVel = vel.transform(MathUtil.rotMatrix(heading));
                 robotVel = new Vector2D(robotVel.getYComponent(), -robotVel.getXComponent());
                 Globals.telemetry.addData("robotVel", Vector2D.print(robotVel));
