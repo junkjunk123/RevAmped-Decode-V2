@@ -45,7 +45,7 @@ public class SimpleShooterMath {
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
     public static final int SOTM_ITERATIONS = 10;
     public static double CALIBRATION_ANGLE = 0;
-    public static double ANGULAR_CONSTANT = 0.06;
+    public static double ANGULAR_CONSTANT = 0.05;
 
     public static double blueX = 9.5;
     public static double blueY = 135;
@@ -126,13 +126,7 @@ public class SimpleShooterMath {
                     turretPos = getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity)));
                 }
                 double omegaComp = localizer.getVelocity().getHeading() * ANGULAR_CONSTANT;
-                telemetry.addData("before omega",turretPos);
-                telemetry.addData("before angle",ServoTurretMTI.ticksToRad(turretPos));
-                telemetry.addData("omega",omegaComp);
-                telemetry.addData("heading",localizer.getPose().getHeading());
-                telemetry.addData("Normalized angle after",MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - localizer.getPose().getHeading() + omegaComp));
-                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - localizer.getPose().getHeading() + omegaComp));
-                telemetry.addData("after omega",turretPos);
+                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - omegaComp));
             }
 
             if (trackHood) {
