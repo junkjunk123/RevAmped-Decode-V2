@@ -142,8 +142,9 @@ public class FarTrackingMath {
 
         double pos = ServoTurret.radToTicks(
                 MathUtil.normalizeAnglePi(
-                ServoTurret.ticksToRad(target.turretPos() + offset //offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading()))
-                ) + pinpointPose.getHeading() + omegaComp
+                ServoTurret.ticksToRad(target.turretPos() + offset) + pinpointPose.getHeading() + omegaComp
+
+                        //offsetInterpol.interpolate(MathFunctions.normalizeAngle(pinpointPose.getHeading()))
                 )
                 //indentation is so interpolation can be commented out easily
         );

@@ -24,14 +24,14 @@ public class CloseAuto extends OpModeCommand {
     private Robot robot;
     private final ElapsedTime matchTimer = new ElapsedTime();
     private TrackingThread autoTrack;
-    private boolean useTrack;
+    private boolean useTrack = true;
 
     @Override
     public void initialize() {
         robot = new Robot(hardwareMap, new CloseAutoPathsMTI());
         autoTrack = new TrackingThread(robot);
-        robot.turret.setPosition(ServoTurret.UNSORTED_AUTO_PRELOADS.getPos());
-        robot.hood.unsortedAuto();
+//        robot.turret.setPosition(ServoTurret.UNSORTED_AUTO_PRELOADS.getPos());
+//        robot.hood.unsortedAuto();
         IntakeDistanceSensors.useSensors = true;
 
         schedule(
@@ -43,7 +43,7 @@ public class CloseAuto extends OpModeCommand {
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(() -> {
-                            robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY - 35);
+//                            robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY - 35);
                             matchTimer.reset();
                         }),
                         shootFirstThree(),
@@ -61,8 +61,8 @@ public class CloseAuto extends OpModeCommand {
                                 robot.drivetrain.follow(),
                                 transfer(),
                                 new Instant(() -> {
-                                    robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 65);
-                                    robot.hood.near();
+//                                    robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 65);
+//                                    robot.hood.near();
                                 })
                         ),
                         robot.autoShoot(),
@@ -81,8 +81,8 @@ public class CloseAuto extends OpModeCommand {
                                 robot.drivetrain.follow(),
                                 transfer(),
                                 new Instant(() -> {
-                                    robot.hood.setPosition(Hood.CLOSE_AUTO_FINAL);
-                                    robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 30);
+//                                    robot.hood.setPosition(Hood.CLOSE_AUTO_FINAL);
+//                                    robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 30);
                                 }),
                                 new Sequential(
                                         new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
@@ -114,11 +114,11 @@ public class CloseAuto extends OpModeCommand {
                         new Parallel(
                                 robot.autoShoot(),
                                 new Sequential(
-                                        new Wait(150),
-                                        new Instant(() -> {robot.turret.setPosition(
-                                                robot.turret.getPosition() +
-                                                        1/255f * (int) Math.signum(ServoTurret.REST - robot.turret.getPosition())
-                                        ); robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 90);})
+                                        new Wait(150)
+//                                        new Instant(() -> {robot.turret.setPosition(
+//                                                robot.turret.getPosition() +
+//                                                        1/255f * (int) Math.signum(ServoTurret.REST - robot.turret.getPosition())
+//                                        ); robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 90);})
                                 )
                         )
                 ),
@@ -129,9 +129,9 @@ public class CloseAuto extends OpModeCommand {
     public ICommand intake(int i) {
         return new Sequential(
                 resetShooter(),
-                new Instant(() -> robot.intake()),
-                new Wait(300),
-                new Instant(() -> aimTurret(i))
+                new Instant(() -> robot.intake())
+//                new Wait(300),
+//                new Instant(() -> aimTurret(i))
         );
     }
 
@@ -157,7 +157,7 @@ public class CloseAuto extends OpModeCommand {
                 new Wait(300),
                 new Parallel(
                         resetShooter(),
-                        new Instant(() -> aimTurret(i)),
+//                        new Instant(() -> aimTurret(i)),
                         new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
                                 new Instant(() -> robot.intake())
@@ -176,7 +176,7 @@ public class CloseAuto extends OpModeCommand {
 
     public ICommand shootFromGate(int i) {
         return new Sequential(
-                new Instant(() -> robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 65)),
+//                new Instant(() -> robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 65)),
                 robot.transfer(),
                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
                 robot.autoShoot()

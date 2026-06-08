@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
@@ -48,7 +49,8 @@ public class Robot {
     public static int SHOOT_TIME;
     public static int SHOOT_TIME_FAR;
     public static int CLEANUP_CLOSE_WAIT;
-    public boolean shootingFar;
+    public static int FAR_SHOOT_THRESHOLD_Y;
+    public static boolean shootingFar;
 
     public Robot(HardwareMap hardwareMap) {
         this(hardwareMap, null);

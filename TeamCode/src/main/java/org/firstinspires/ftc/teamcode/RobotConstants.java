@@ -25,7 +25,6 @@ import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 public class RobotConstants {
     public void build() {
-        //FAR SHOOTING HOOD & VELOCITY NOT CALIBRATED YET
         IntakeDistanceSensors.useSensors = true;
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 200;
 
@@ -34,6 +33,8 @@ public class RobotConstants {
         ShooterGate.GATE_MOVEMENT_TIME = 250;
         Robot.SHOOT_TIME = 600;
         Robot.SHOOT_TIME_FAR = 700;
+        Robot.CLEANUP_CLOSE_WAIT = 100;
+        Robot.FAR_SHOOT_THRESHOLD_Y = 48;
 
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;

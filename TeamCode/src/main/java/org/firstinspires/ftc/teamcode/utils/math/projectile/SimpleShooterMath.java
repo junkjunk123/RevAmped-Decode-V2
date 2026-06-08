@@ -10,13 +10,17 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.math.MathUtil;
 
 import java.util.Arrays;
 
@@ -41,6 +45,7 @@ public class SimpleShooterMath {
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
     public static final int SOTM_ITERATIONS = 10;
     public static double CALIBRATION_ANGLE = 0;
+    public static double ANGULAR_CONSTANT = 0.06;
 
     public static double blueX = 9.5;
     public static double blueY = 135;
@@ -120,6 +125,14 @@ public class SimpleShooterMath {
                     Pose currentVelocity = localizer.getVelocity();
                     turretPos = getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity)));
                 }
+                double omegaComp = localizer.getVelocity().getHeading() * ANGULAR_CONSTANT;
+                telemetry.addData("before omega",turretPos);
+                telemetry.addData("before angle",ServoTurretMTI.ticksToRad(turretPos));
+                telemetry.addData("omega",omegaComp);
+                telemetry.addData("heading",localizer.getPose().getHeading());
+                telemetry.addData("Normalized angle after",MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - localizer.getPose().getHeading() + omegaComp));
+                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - localizer.getPose().getHeading() + omegaComp));
+                telemetry.addData("after omega",turretPos);
             }
 
             if (trackHood) {
@@ -132,6 +145,12 @@ public class SimpleShooterMath {
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
                 hoodPos = Range.clip(hoodPos, 0, 1);
+                if (currentPos.getY() < Robot.FAR_SHOOT_THRESHOLD_Y && !Robot.shootingFar){
+                    Robot.shootingFar = true;
+                }
+                if (currentPos.getY() >= Robot.FAR_SHOOT_THRESHOLD_Y && Robot.shootingFar){
+                    Robot.shootingFar = false;
+                }
             }
         }
     }

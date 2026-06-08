@@ -113,7 +113,9 @@ public class MTITele extends OpModeCommand {
         if (gamepad_1.right_bumper.isRisingEdge()){
             schedule(
                 tsh.runTransition(
-                    new Instant(robot::transferShoot),
+                    new Conditional(() -> robot.shootingFar,
+                        new Instant(robot::transferShootFar),
+                        new Instant(robot::transferShoot)),
                     RobotStateHandler.CycleState.SHOOT
                 )
             );
@@ -213,6 +215,9 @@ public class MTITele extends OpModeCommand {
         telemetry.addData("error",robot.flywheel.getError());
         telemetry.addData("velocity",robot.flywheel.getVelocity());
         telemetry.addData("tsh",tsh.currentState().toString());
-        telemetry.addData("side",Globals.allianceColor);
+        telemetry.addData("shootingFar",robot.shootingFar);
+        telemetry.addData("trackHood",TrackingThread.trackHood);
+        telemetry.addData("trackTurret",TrackingThread.trackTurret);
+        telemetry.addData("Y",robot.drivetrain.follower.getPose().getY());
     }
 }

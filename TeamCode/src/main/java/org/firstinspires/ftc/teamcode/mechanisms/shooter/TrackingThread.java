@@ -42,7 +42,10 @@ public class TrackingThread {
         if (!trackHood && !trackTurret) return;
         if (!far) {
             shooterMath.update(trackTurret, trackHood);
-            if (trackHood) hood.updateTracking(shooterMath.getHoodPos());
+            if (trackHood) {
+                hood.updateTracking(shooterMath.getHoodPos());
+
+            }
             if (trackTurret)
                 turret.move(new ServoTurretState.AutoTrack(shooterMath.getTurretPos()));
             if (trackHood && Robot.INSTANCE.getRobotState().equals(RobotStateHandler.CycleState.DRIVE_TO_SHOOT))
