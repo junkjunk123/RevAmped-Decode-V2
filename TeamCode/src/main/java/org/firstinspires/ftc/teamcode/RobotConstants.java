@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.pedropathing.math.Matrix;
 
+import org.firstinspires.ftc.teamcode.mechanisms.intake.Intake;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
@@ -39,6 +40,7 @@ public class RobotConstants {
 
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;
+        IntakeMotor.IDLE_POWER = 0.1f;
 
         FeederWheel.TARGET_VEL = 2500; FeederWheel.INTAKE_POWER = 1.0f; FeederWheel.INTAKE_NO_SENSORS = 0.2f; FeederWheel.TRANSFER_FAR = 0.5f;
 

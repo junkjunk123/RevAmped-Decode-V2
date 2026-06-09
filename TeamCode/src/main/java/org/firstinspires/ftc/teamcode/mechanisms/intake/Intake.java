@@ -33,6 +33,8 @@ public class Intake {
         intakeMotor.stop();
     }
 
+    public void idle(){intakeMotor.idle();}
+
     public void stopSensors(){
         distanceSensors.stop();
         distanceSensors.clear();

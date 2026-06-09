@@ -9,11 +9,13 @@ public class IntakeMotor extends HwMotor {
     public static float OUTTAKE;
     public static float STOPPED;
     public static float TRANSFER_FAR;
+    public static float IDLE_POWER; //to keep the balls in while moving
 
     public enum IntakeState {
         INTAKE,
         OUTTAKE,
         TRANSFER_FAR,
+        IDLE,
         STOPPED
     }
     private IntakeState state = IntakeState.STOPPED;
@@ -26,6 +28,11 @@ public class IntakeMotor extends HwMotor {
     public void intake() {
         setPower(INTAKE);
         state = IntakeState.INTAKE;
+    }
+
+    public void idle(){
+        setPower(IDLE_POWER);
+        state = IntakeState.IDLE;
     }
 
     public void transferFar(){

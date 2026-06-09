@@ -203,7 +203,6 @@ public class Robot {
         return new Sequential(
             new Instant(() -> {
                 shootingFar = false;
-                intake.stopSensors();
                 stopIntake();
             }),
             new Wait(100),
@@ -235,7 +234,8 @@ public class Robot {
     }
 
     public void stopIntake(){
-        intake.stopIntake();
+//        intake.stopIntake();
+        intake.idle();
         feederWheel.stop();
         intake.stopSensors();
     }
