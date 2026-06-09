@@ -34,7 +34,8 @@ public class RobotConstants {
         Robot.SHOOT_TIME = 600;
         Robot.SHOOT_TIME_FAR = 700;
         Robot.CLEANUP_CLOSE_WAIT = 100;
-        Robot.FAR_SHOOT_THRESHOLD_Y = 48;
+        Robot.FAR_SHOOT_THRESHOLD_Y = 18;
+
 
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;
@@ -42,7 +43,7 @@ public class RobotConstants {
         FeederWheel.TARGET_VEL = 2500; FeederWheel.INTAKE_POWER = 1.0f; FeederWheel.INTAKE_NO_SENSORS = 0.2f; FeederWheel.TRANSFER_FAR = 0.5f;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 940; Flywheel.FAR_VELOCITY = 1200;
+        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1200;
         Flywheel.CORNER_VELOCITY = 1050;
         Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
@@ -51,7 +52,7 @@ public class RobotConstants {
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 128/255f; Hood.NEAR_PRESET = 60/255f; Hood.MEDIUM_PRESET = 75/255f; Hood.CORNER_PRESET = 95/255f; Hood.HOOD_FAR_COMP = 57/255f; //hood far comp not changed
+        Hood.FAR_PRESET = 128/255f; Hood.NEAR_PRESET = 60/255f; Hood.MEDIUM_PRESET = 80/255f; Hood.CORNER_PRESET = 95/255f; Hood.HOOD_FAR_COMP = 57/255f; //hood far comp not changed
 
         //Turret Constants - = left + = right
         ServoTurret.REST = 127/255f;

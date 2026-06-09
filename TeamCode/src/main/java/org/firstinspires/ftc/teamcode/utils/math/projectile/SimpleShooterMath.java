@@ -117,7 +117,12 @@ public class SimpleShooterMath {
             Vector displacement = getDispVector(targetPos, currentPos);
 //            telemetry.addData("currentPos", currentPos);
 //            telemetry.addData("disp vector", displacement);
-
+            if (currentPos.getY() < Robot.FAR_SHOOT_THRESHOLD_Y && !Robot.shootingFar){
+                Robot.shootingFar = true;
+            }
+            if (currentPos.getY() >= Robot.FAR_SHOOT_THRESHOLD_Y && Robot.shootingFar){
+                Robot.shootingFar = false;
+            }
             if (trackTurret) {
                 if (!velocityCompensation) {
                     turretPos = getTurretPos(displacement);
@@ -139,12 +144,6 @@ public class SimpleShooterMath {
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
                 hoodPos = Range.clip(hoodPos, 0, 1);
-                if (currentPos.getY() < Robot.FAR_SHOOT_THRESHOLD_Y && !Robot.shootingFar){
-                    Robot.shootingFar = true;
-                }
-                if (currentPos.getY() >= Robot.FAR_SHOOT_THRESHOLD_Y && Robot.shootingFar){
-                    Robot.shootingFar = false;
-                }
             }
         }
     }

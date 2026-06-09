@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
-import android.graphics.Color;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -20,8 +17,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
-import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
-import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
@@ -38,6 +33,7 @@ public class MTITele extends OpModeCommand {
     public static boolean calibrateTurret;
 
     public static double turretPos;
+    public static boolean disableThresholdTrackChange;
     private TrackingThread autoTrack;
 
     @Override
@@ -128,6 +124,7 @@ public class MTITele extends OpModeCommand {
                         robot.stopCleanup(),
                         new Instant(() -> {
                             robot.intake();
+                            disableThresholdTrackChange = false;
                             TrackingThread.trackTurret = true;
                             TrackingThread.trackHood = true;
                         })
@@ -163,6 +160,7 @@ public class MTITele extends OpModeCommand {
                                 ),
                                 robot.resetAfterShooting(),
                                 new Instant(() -> {
+                                    disableThresholdTrackChange = false;
                                     TrackingThread.trackHood = true;
                                     TrackingThread.trackTurret = true;
                                 }),
@@ -182,21 +180,25 @@ public class MTITele extends OpModeCommand {
         }
 
         if (gamepad_1.dpad_up.isRisingEdge()){
+            disableThresholdTrackChange = true;
             TrackingThread.trackHood = false;
             robot.shootFar();
         }
 
         if (gamepad_1.dpad_down.isRisingEdge()){
+            disableThresholdTrackChange = true;
             TrackingThread.trackHood = false;
             robot.shootNear();
         }
 
         if (gamepad_1.dpad_left.isRisingEdge()){
+            disableThresholdTrackChange = true;
             TrackingThread.trackHood = false;
             robot.shootMedium();
         }
 
         if (gamepad_1.dpad_right.isRisingEdge()){
+            disableThresholdTrackChange = true;
             TrackingThread.trackHood = false;
             robot.shootCorner();
         }
@@ -211,13 +213,24 @@ public class MTITele extends OpModeCommand {
             robot.turret.previous();
         }
 
+        if (!disableThresholdTrackChange) {
+            if (Robot.shootingFar && tsh.atState(RobotStateHandler.CycleState.INTAKE) && TrackingThread.trackHood) {
+                TrackingThread.trackHood = false;
+                robot.flywheel.medium();
+            }
+
+            if ((!Robot.shootingFar || (!tsh.atState(RobotStateHandler.CycleState.INTAKE)) && !TrackingThread.trackHood)) {
+                TrackingThread.trackHood = true;
+            }
+        }
+
         telemetry.addData("sensors", Arrays.toString(robot.intake.getStates()));
         telemetry.addData("error",robot.flywheel.getError());
         telemetry.addData("velocity",robot.flywheel.getVelocity());
         telemetry.addData("tsh",tsh.currentState().toString());
-        telemetry.addData("shootingFar",robot.shootingFar);
+        telemetry.addData("shootingFar",Robot.shootingFar);
         telemetry.addData("trackHood",TrackingThread.trackHood);
         telemetry.addData("trackTurret",TrackingThread.trackTurret);
-        telemetry.addData("Y",robot.drivetrain.follower.getPose().getY());
+        telemetry.addData("disableThresholdTrack",disableThresholdTrackChange);
     }
 }
