@@ -26,7 +26,7 @@ import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 public class RobotConstants {
     public void build() {
         IntakeDistanceSensors.useSensors = true;
-        IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 200;
+        IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 300;
 
         ShooterGate.GATE_OPEN = 121/255f;
         ShooterGate.GATE_CLOSE = 202/255f;
