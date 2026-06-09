@@ -40,6 +40,7 @@ public class OctoQuadLocalizer implements Localizer
 
     protected Pose currentVelocity = new Pose();
     protected Pose currentPose = new Pose();
+    protected double angularVelocity;
 
     protected DataSupplier externalDataSupplier = null;
 
@@ -240,6 +241,8 @@ public class OctoQuadLocalizer implements Localizer
                     localizerData.velHeading_radS
             );
 
+            angularVelocity = localizerData.velHeading_radS;
+
             if (localizerData.heading_rad - lastNormalizedHeading > Math.PI / 2)
             {
                 headingWraps--;
@@ -365,5 +368,9 @@ public class OctoQuadLocalizer implements Localizer
     public OctoQuadFWv3 getOctoQuad()
     {
         return octoQuad;
+    }
+
+    public double getAngularVelocity() {
+        return angularVelocity;
     }
 }

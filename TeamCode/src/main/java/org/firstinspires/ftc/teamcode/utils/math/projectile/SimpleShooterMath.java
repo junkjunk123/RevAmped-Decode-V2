@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.utils.math.projectile;
 
+import static org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread.velocityCompensation;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
 import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
 import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.normalizeAnglePi;
-import static org.firstinspires.ftc.teamcode.utils.math.projectile.ShooterMath.velocityCompensation;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
+import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.math.MathUtil;
@@ -29,7 +30,7 @@ import smile.interpolation.Interpolation2D;
 
 @Config
 public class SimpleShooterMath {
-    private final Localizer localizer;
+    private final OctoQuadLocalizer localizer;
     public static Pose APRIL_TAG_POSE_RED;
     public static Pose APRIL_TAG_POSE_BLUE;
     private double turretPos;
@@ -53,7 +54,7 @@ public class SimpleShooterMath {
     public static double redY = 120;
 
     public SimpleShooterMath(Localizer localizer) {
-        this.localizer = localizer;
+        this.localizer = (OctoQuadLocalizer) localizer;
         APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
         APRIL_TAG_POSE_RED = new Pose(redX, redY);
 
@@ -130,8 +131,14 @@ public class SimpleShooterMath {
                     Pose currentVelocity = localizer.getVelocity();
                     turretPos = getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity)));
                 }
-                double omegaComp = localizer.getVelocity().getHeading() * ANGULAR_CONSTANT;
-                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - omegaComp));
+                double omegaComp = localizer.getAngularVelocity() * ANGULAR_CONSTANT;
+                telemetry.addData("before omega",turretPos);
+                telemetry.addData("before angle",ServoTurretMTI.ticksToRad(turretPos));
+                telemetry.addData("omega",omegaComp);
+                telemetry.addData("heading",currentPos.getHeading());
+                telemetry.addData("Normalized angle after",MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - currentPos.getHeading() + omegaComp));
+                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - currentPos.getHeading() + omegaComp));
+                telemetry.addData("after omega",turretPos);
             }
 
             if (trackHood) {

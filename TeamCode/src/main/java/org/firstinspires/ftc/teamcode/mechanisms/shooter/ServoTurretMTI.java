@@ -26,6 +26,9 @@ public class ServoTurretMTI extends TwoServoMechanism{
     public static double REST;
     public static double MS_PER_REVOLUTION = 1500;
 
+    public static double CLOSE_AUTO_PRELOADS;
+    public static double CLOSE_AUTO_SET_1;
+
     public static double ticksPerRotation() {
         return FULL_ROTATION;
     }
