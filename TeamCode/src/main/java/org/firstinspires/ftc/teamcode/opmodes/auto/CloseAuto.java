@@ -54,14 +54,12 @@ public class CloseAuto extends OpModeCommand {
                 new Infinite(() -> {
                     robot.update();
                     if (useTrack) autoTrack.update();
-                    telemetry.addData("flywheel vel",robot.flywheel.getVelocity());
-                    telemetry.update();
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(() -> {
                             matchTimer.reset();
-                            robot.flywheel.setPower(1.0f);
+                            robot.flywheel.setPower(1.0f); // ramp up
                         }),
 
                         //Shooting preloads
@@ -103,6 +101,7 @@ public class CloseAuto extends OpModeCommand {
         return new Sequential(
             new WaitUntil(() -> robot.drivetrain.tValueCondition(0.3)),
             new Instant(robot.flywheel::closePreloadsPreset),
+
             new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
             shoot()
         );
@@ -112,6 +111,7 @@ public class CloseAuto extends OpModeCommand {
         return new Sequential(
             robot.resetAfterShooting(),
             new Instant(robot::intake),
+            //clear the states at 50% of path to remove any false positives from the previous shoot
             new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
             new Instant(() -> robot.intake.distanceSensors.clear()),
             new Parallel(
@@ -180,110 +180,4 @@ public class CloseAuto extends OpModeCommand {
             shoot()
         );
     }
-
-//    public ICommand gateCycle(int i) {
-//        return new Sequential(
-//                new Parallel(
-//                        intakeFromGate(i),
-//                        robot.drivetrain.followNext(d -> d.velocityCondition(10), 2000)
-//                ),
-//                new Parallel(
-//                        robot.drivetrain.follow(),
-//                        shootFromGate(i)
-//                )
-//        );
-//    }
-//
-//    public ICommand shootFirstThree() {
-//        return new Deadline(
-//                new Sequential(
-//                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.4)),
-//                        new Parallel(
-//                                robot.autoShoot(),
-//                                new Sequential(
-//                                        new Wait(150),
-//                                        new Instant(() -> {robot.turret.setPosition(
-//                                                robot.turret.getPosition() +
-//                                                        1/255f * (int) Math.signum(ServoTurretMTI.REST - robot.turret.getPosition())
-//                                        ); robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY + 90);})
-//                                )
-//                        )
-//                ),
-//                robot.drivetrain.followNext(d -> d.tValueCondition(0.9), 3000)
-//        );
-//    }
-//
-//    public ICommand intake(int i) {
-//        return new Sequential(
-//                resetShooter(),
-//                new Instant(() -> robot.intake()),
-//                new Wait(300),
-//                new Instant(() -> aimTurret(i))
-//        );
-//    }
-//
-//    public ICommand transfer() {
-//        return new Sequential(
-//                new Race(
-//                        new Wait(600),
-//                        new WaitUntil(() -> robot.intake.hasThree())
-//                ),
-//                robot.transfer()
-//        );
-//    }
-//
-//    public ICommand resetShooter() {
-//        return new Instant(() -> {
-//            robot.flywheel.stop();
-//            robot.feederWheel.stop();
-//        });
-//    }
-//
-//    public ICommand intakeFromGate(int i) {
-//        return new Sequential(
-//                new Wait(300),
-//                new Parallel(
-//                        resetShooter(),
-//                        new Instant(() -> aimTurret(i)),
-//                        new Sequential(
-//                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.75)),
-//                                new Instant(() -> robot.intake())
-//                        )
-//                ),
-//                new Race(
-//                        new Wait(2500),
-//                        new Sequential(
-//                                new Wait(1400),
-//                                new WaitUntil(() -> robot.intake.numBalls() >= 1)
-//                        ),
-//                        new WaitUntil(() -> robot.intake.hasThree())
-//                )
-//        );
-//    }
-//
-//    public ICommand shootFromGate(int i) {
-//        return new Sequential(
-//                new Instant(() -> robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 65)),
-//                robot.transfer(),
-//                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-//                robot.autoShoot()
-//        );
-//    }
-//
-//    public void aimTurret(int i) {
-//        switch (i) {
-//            case 1 -> {
-//                robot.turret.setPosition(ServoTurretMTI.CLOSE_AUTO_SET_1);
-//                useTrack = false;
-//            }
-//            case 6 -> {
-//                TrackingThread.TURRET_OFFSET = -1/255f;
-//                useTrack = true;
-//            }
-//            default -> {
-//                TrackingThread.TURRET_OFFSET = -2/255f;
-//                useTrack = true;
-//            }
-//        }
-//    }
 }
