@@ -54,6 +54,11 @@ public class ShooterGate extends HwServo {
                 Commands.NOOP);
     }
 
+    public void setGateOpen(){
+        setPosition(GATE_OPEN);
+        gateState = GateState.OPEN;
+    }
+
 
     public String getState(){
         return gateState.name();

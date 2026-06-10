@@ -21,28 +21,33 @@ import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.ShooterMath;
 import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 public class RobotConstants {
     public void build() {
+        MTITele.rumbleMS = 200;
+        MTITele.outreach = false;
+        ShooterMath.velocityCompensation = false;
         IntakeDistanceSensors.useSensors = true;
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 300;
 
         ShooterGate.GATE_OPEN = 121/255f;
         ShooterGate.GATE_CLOSE = 202/255f;
         ShooterGate.GATE_MOVEMENT_TIME = 250;
+
         Robot.SHOOT_TIME = 600;
         Robot.SHOOT_TIME_FAR = 700;
         Robot.CLEANUP_CLOSE_WAIT = 100;
         Robot.FAR_SHOOT_THRESHOLD_Y = 18;
 
-
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;
         IntakeMotor.IDLE_POWER = 0.1f;
 
-        FeederWheel.TARGET_VEL = 2500; FeederWheel.INTAKE_POWER = 1.0f; FeederWheel.INTAKE_NO_SENSORS = 0.2f; FeederWheel.TRANSFER_FAR = 0.5f;
+        //max vel is 2800
+        FeederWheel.TARGET_VEL = 2400; FeederWheel.INTAKE_VELOCITY = 2400; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.TRANSFER_FAR = 1200;
 
         //Flywheel Constants
         Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1200;
@@ -54,15 +59,15 @@ public class RobotConstants {
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
 
         //HOOD POSITIONS FOR TELEOP
-        Hood.FAR_PRESET = 128/255f; Hood.NEAR_PRESET = 60/255f; Hood.MEDIUM_PRESET = 80/255f; Hood.CORNER_PRESET = 95/255f; Hood.HOOD_FAR_COMP = 57/255f; //hood far comp not changed
+        Hood.FAR_PRESET = 128/255f;
+        Hood.NEAR_PRESET = 60/255f;
+        Hood.MEDIUM_PRESET = 80/255f;
+        Hood.CORNER_PRESET = 95/255f;
+        Hood.HOOD_FAR_COMP = -0/255f;
+        Hood.HOOD_COMP = -5/255f;
+        Hood.HOOD_COMP_DELAY = 150;
 
-        //Turret Constants - = left + = right
-        ServoTurret.REST = 127/255f;
-
-        ServoTurret.FULL_ROTATION = 292/255f; ServoTurret.MS_PER_REVOLUTION = 1080;
-        ServoTurret.LEFT_TICKS_LIMIT = 0/255f; ServoTurret.RIGHT_TICKS_LIMIT = 255/255f;
-        ServoTurret.FAR_PRESET = TurretCalibration.fromRed(215/255d);
-
+        //Turret Constants
         ServoTurretMTI.REST = 127/255f;
 
         ServoTurretMTI.FULL_ROTATION = 282/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;
