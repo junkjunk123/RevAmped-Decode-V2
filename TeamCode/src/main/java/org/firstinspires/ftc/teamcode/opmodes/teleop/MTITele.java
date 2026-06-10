@@ -7,14 +7,17 @@ import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
+import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
@@ -30,7 +33,9 @@ public class MTITele extends OpModeCommand {
     private GamepadEx gamepad_2;
     private Robot robot;
     private TeleOpStateHandler tsh;
+    public static int rumbleMS;
     public static boolean calibrateTurret;
+    public static boolean outreach;
 
     public static double turretPos;
     public static boolean disableThresholdTrackChange;
@@ -43,6 +48,12 @@ public class MTITele extends OpModeCommand {
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
+        //set gamepad2 color
+        if (IntakeDistanceSensors.useSensors){
+            gamepad2.setLedColor(1,0,0, Gamepad.LED_DURATION_CONTINUOUS);
+        } else {
+            gamepad2.setLedColor(0.988,0.039,0.706, Gamepad.LED_DURATION_CONTINUOUS);
+        }
         //to default to manaul turret
 //        RobotStateHandler.CycleState.DriveToShoot.toggleDefault();
         autoTrack = new TrackingThread(robot);
@@ -73,107 +84,74 @@ public class MTITele extends OpModeCommand {
         gamepad_2.update();
         autoTrack.update();
 
-        //Intake
-        if (gamepad_2.b.isRisingEdge()){
-            schedule(tsh.runTransition(
-                    new Conditional(
-                            () -> IntakeDistanceSensors.useSensors,
-                            new Instant(robot::intake),
-                            new Instant(() -> robot.intake(true))
-                    ),
-                    RobotStateHandler.CycleState.INTAKE)
-
-            );
-        }
-        //Outtake
-        if (gamepad_2.right_bumper.isRisingEdge()){
-            schedule(new Instant(robot::outtake));
-        }
-        //Transfer (Ian presses OR (Robot is at intake AND the sensors are on AND robot has three))
-        if (gamepad_2.x.isRisingEdge() || (robot.intake.distanceSensors.isOn()  && robot.intake.hasThree() && tsh.atState(RobotStateHandler.CycleState.INTAKE))){
+        //Auto Transfer (Robot is at intake AND the sensors are on AND robot has three)
+        if ((robot.intake.distanceSensors.isOn()  && robot.intake.hasThree() && tsh.atState(RobotStateHandler.CycleState.INTAKE))){
             schedule(
-                tsh.runTransition(
-                    robot.transfer(),
-                    RobotStateHandler.CycleState.DRIVE_TO_SHOOT
-                )
+                    tsh.runTransition(
+                            () -> {
+                                schedule(
+                                    new Parallel(
+                                        robot.transfer(),
+                                        new Instant(() -> gamepad_1.rumble(rumbleMS))
+                                    )
+                                );
+                            },
+                            RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                    )
             );
         }
+
+        //Stop transfer motor (Robot is at intake AND the sensors are on AND robot has a ball in the transfer)
+        if (robot.intake.distanceSensors.isOn() && robot.intake.ballInTransfer() && tsh.atState(RobotStateHandler.CycleState.INTAKE)){
+            schedule(new Instant(robot::stopFeeder));
+        }
+
+        //====================GAMEPAD_1===================
         //Gate open
         if (gamepad_1.left_bumper.isRisingEdge()){
             schedule(
-                tsh.runTransition(
-                    robot.gate.open(),
-                    RobotStateHandler.CycleState.DRIVE_TO_SHOOT
-                )
+                    tsh.runTransition(
+                        robot.gate.open(),
+                        RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                    )
             );
         }
         //Hold Shoot
         if (gamepad_1.right_bumper.isRisingEdge()){
             schedule(
-                tsh.runTransition(
-                    new Conditional(() -> robot.shootingFar,
-                        new Instant(robot::transferShootFar),
-                        new Instant(robot::transferShoot)),
-                    RobotStateHandler.CycleState.SHOOT
-                )
+                    tsh.runTransition(
+                            new Conditional(() -> Robot.shootingFar,
+                                    new Parallel(
+                                        robot.farHoodComp(),
+                                        new Instant(robot::transferShootFar)
+                                    ),
+                                    new Parallel(
+                                        robot.hoodComp(),
+                                        new Instant(robot::transferShoot)
+                                    )
+                            ),
+                            RobotStateHandler.CycleState.SHOOT
+                    )
             );
         }
         //Resolve after hold is done
         if (gamepad_1.right_bumper.isFallingEdge()){
             schedule(
-                tsh.runTransition(
-                    new Sequential(
-                        robot.stopCleanup(),
-                        new Instant(() -> {
-                            robot.intake();
-                            disableThresholdTrackChange = false;
-                            TrackingThread.trackTurret = true;
-                            TrackingThread.trackHood = true;
-                        })
-                    ),
-                    RobotStateHandler.CycleState.INTAKE
-                )
-            );
-        }
-        //Stop transfer motor (Ian presses OR (Robot is at intake AND the sensors are on AND robot has a ball in the transfer))
-        if (gamepad_2.y.isRisingEdge() || (robot.intake.distanceSensors.isOn() && robot.intake.ballInTransfer() && tsh.atState(RobotStateHandler.CycleState.INTAKE))){
-            schedule(new Instant(robot::stopFeeder));
-        }
-        //Reverse transfer (not used)
-        if (gamepad_2.a.isRisingEdge()){
-            schedule(robot.reverseTransfer());
-        }
-        //Confirm turret calibration
-        if (gamepad_2.dpad_down.isRisingEdge() && calibrateTurret){
-            schedule(new Instant(() -> {
-                    robot.turret.setPosition(turretPos);
-                    TrackingThread.trackTurret = false;
-            }));
-        }
-        //Shoot
-        if (gamepad_2.dpad_up.isRisingEdge() && tsh.atState(RobotStateHandler.CycleState.DRIVE_TO_SHOOT)){
-            schedule(
                     tsh.runTransition(
-                        new Sequential(
-                                new Conditional(
-                                    () -> robot.shootingFar,
-                                    robot.autoShootFar(),
-                                    robot.autoShoot()
-                                ),
-                                robot.resetAfterShooting(),
-                                new Instant(() -> {
-                                    disableThresholdTrackChange = false;
-                                    TrackingThread.trackHood = true;
-                                    TrackingThread.trackTurret = true;
-                                }),
-                                //change this after we use sensors
-                                new Conditional(
-                                    () -> IntakeDistanceSensors.useSensors,
-                                    new Instant(() -> robot.intake()),
-                                    new Instant(() -> robot.intake(true))
-                                )
-                        )
-                    , RobotStateHandler.CycleState.INTAKE)
+                            new Sequential(
+                                    robot.stopCleanup(),
+                                    new Conditional(() -> IntakeDistanceSensors.useSensors,
+                                            new Instant(robot::intake),
+                                            new Instant(() -> robot.intake(true))
+                                    ),
+                                    new Instant(() -> {
+                                        disableThresholdTrackChange = false;
+                                        TrackingThread.trackTurret = true;
+                                        TrackingThread.trackHood = true;
+                                    })
+                            ),
+                            RobotStateHandler.CycleState.INTAKE
+                    )
             );
         }
         //Reset Point
@@ -214,17 +192,62 @@ public class MTITele extends OpModeCommand {
             TrackingThread.trackTurret = false;
             robot.turret.previous();
         }
-        //Changing Tracking states and flywheel resting velocity when going across the far threshold
-        if (!disableThresholdTrackChange) {
-            if (Robot.shootingFar && tsh.atState(RobotStateHandler.CycleState.INTAKE) && TrackingThread.trackHood) {
-                TrackingThread.trackHood = false;
-                robot.flywheel.medium();
+
+
+        //====================GAMEPAD_2===================
+        //Intake
+        if (gamepad_2.b.isRisingEdge()){
+            schedule(tsh.runTransition(
+                    new Conditional(
+                            () -> IntakeDistanceSensors.useSensors,
+                            new Instant(robot::intake),
+                            new Instant(() -> robot.intake(true))
+                    ),
+                    RobotStateHandler.CycleState.INTAKE)
+
+            );
+        }
+        //Outtake
+        if (gamepad_2.right_bumper.isRisingEdge()){
+            schedule(new Instant(robot::outtake));
+        }
+        //Reverse transfer (not used)
+        if (gamepad_2.a.isRisingEdge()){
+            schedule(robot.reverseTransfer());
+        }
+        //toggles auto transfer
+        if (gamepad_2.x.isRisingEdge()){
+            IntakeDistanceSensors.useSensors = !IntakeDistanceSensors.useSensors;
+
+            if (IntakeDistanceSensors.useSensors){
+                gamepad2.setLedColor(1,0,0, Gamepad.LED_DURATION_CONTINUOUS);
+            } else {
+                gamepad2.setLedColor(0.988,0.039,0.706, Gamepad.LED_DURATION_CONTINUOUS);
             }
 
-            if ((!Robot.shootingFar || (!tsh.atState(RobotStateHandler.CycleState.INTAKE)) && !TrackingThread.trackHood)) {
-                TrackingThread.trackHood = true;
+            //setting the new power of the feeder if it is on so we don't kill the transfer wheels
+            if (!IntakeDistanceSensors.useSensors && robot.feederWheel.getPower() != 0){
+                robot.feederWheel.intakeSlow();
+            } else if (IntakeDistanceSensors.useSensors && robot.feederWheel.getPower() != 0){
+                robot.feederWheel.intake();
             }
+
+            gamepad_2.rumble(rumbleMS);
         }
+
+        //====================MISC===================
+        //Confirm turret calibration
+        if (gamepad_2.dpad_down.isRisingEdge() && calibrateTurret){
+            schedule(new Instant(() -> {
+                    robot.turret.setPosition(turretPos);
+                    TrackingThread.trackTurret = false;
+            }));
+        }
+        //Stop tele for outreach
+        if (gamepad_2.back.isRisingEdge() && outreach){
+            requestOpModeStop();
+        }
+
         //Telemetry
         telemetry.addData("sensors", Arrays.toString(robot.intake.getStates()));
         telemetry.addData("error",robot.flywheel.getError());
