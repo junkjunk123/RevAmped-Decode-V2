@@ -26,8 +26,7 @@ public class ServoTurretMTI extends TwoServoMechanism{
     public static double REST;
     public static double MS_PER_REVOLUTION = 1500;
 
-    public static double CLOSE_AUTO_PRELOADS;
-    public static double CLOSE_AUTO_SET_1;
+    public static double PRELOADS_PRESET;
 
     public static double ticksPerRotation() {
         return FULL_ROTATION;
@@ -85,6 +84,10 @@ public class ServoTurretMTI extends TwoServoMechanism{
             move(p.previous());
         else
             move(ServoTurretState.PresetState.REST);
+    }
+
+    public void closeAutoPreloads(){
+        setPosition(PRELOADS_PRESET);
     }
     public void manualSOTM(double offset){
         setPosition(this.state.targetPos()-offset);

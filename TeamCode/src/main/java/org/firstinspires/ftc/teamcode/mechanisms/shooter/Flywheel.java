@@ -20,7 +20,7 @@ public class Flywheel extends HwMotor {
     public static double CLOSE_AUTO_VELOCITY;
     public static double CORNER_VELOCITY;
     public static double OUTTAKE_POWER;
-    public static double UNSORTED_AUTO_VELOCITY;
+    public static double CLOSE_PRELOADS_VEL;
     public static double MAX_VELOCITY = 1400;
 
     private double targetVelocity;
@@ -98,8 +98,8 @@ public class Flywheel extends HwMotor {
         state = FlywheelState.OUTTAKE;
     }
 
-    public void closeAuto() {
-        runToVel(CLOSE_AUTO_VELOCITY);
+    public void closePreloadsPreset() {
+        runToVel(CLOSE_PRELOADS_VEL);
         state = FlywheelState.TRACKING;
     }
 

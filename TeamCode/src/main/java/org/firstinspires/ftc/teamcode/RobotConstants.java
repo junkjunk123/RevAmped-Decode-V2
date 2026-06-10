@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
+import org.firstinspires.ftc.teamcode.opmodes.auto.CloseAuto;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
@@ -27,17 +28,20 @@ import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 public class RobotConstants {
     public void build() {
+        CloseAuto.flywheel_ramp_vel = 2000;
+        CloseAuto.GATE_WAIT = 3000;
+
         MTITele.rumbleMS = 200;
         MTITele.outreach = false;
         ShooterMath.velocityCompensation = false;
         IntakeDistanceSensors.useSensors = true;
-        IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 300;
+        IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 100;
 
         ShooterGate.GATE_OPEN = 121/255f;
         ShooterGate.GATE_CLOSE = 202/255f;
-        ShooterGate.GATE_MOVEMENT_TIME = 250;
+        ShooterGate.GATE_MOVEMENT_TIME = 100;
 
-        Robot.SHOOT_TIME = 600;
+        Robot.SHOOT_TIME = 250;
         Robot.SHOOT_TIME_FAR = 700;
         Robot.CLEANUP_CLOSE_WAIT = 100;
         Robot.FAR_SHOOT_THRESHOLD_Y = 18;
@@ -54,6 +58,7 @@ public class RobotConstants {
         Flywheel.CORNER_VELOCITY = 1050;
         Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
+        Flywheel.CLOSE_PRELOADS_VEL = 930;
 
         //Hood Constants
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
@@ -69,6 +74,7 @@ public class RobotConstants {
 
         //Turret Constants
         ServoTurretMTI.REST = 127/255f;
+        ServoTurretMTI.PRELOADS_PRESET = 122/255f;
 
         ServoTurretMTI.FULL_ROTATION = 282/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;
         ServoTurretMTI.LEFT_TICKS_LIMIT = 250/255f; ServoTurretMTI.RIGHT_TICKS_LIMIT = 5/255f;

@@ -140,6 +140,8 @@ public class SimpleShooterMath {
                 double xDist = Math.abs(displacement.getXComponent());
                 double yDist = Math.abs(displacement.getYComponent());
                 flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
+                //goon
+                if (!Globals.isTeleOp) flywheelVelocity+=100;
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Flywheel.MAX_VELOCITY);
                 double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
                 hoodSine = Range.clip(hoodSine, 0, 1);

@@ -7,6 +7,7 @@ import com.pedropathing.math.Vector;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
+import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 @Config
@@ -46,7 +47,7 @@ public class TrackingThread {
             }
             if (trackTurret)
                 turret.move(new ServoTurretState.AutoTrack(shooterMath.getTurretPos()));
-            if (trackHood && Robot.INSTANCE.getRobotState().equals(RobotStateHandler.CycleState.DRIVE_TO_SHOOT))
+            if (trackHood && (Robot.INSTANCE.getRobotState().equals(RobotStateHandler.CycleState.DRIVE_TO_SHOOT) || !Globals.isTeleOp))
                 flywheel.setVelocity(shooterMath.getFlywheelVelocity());
         }
     }
