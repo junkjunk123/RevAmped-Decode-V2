@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 import java.util.List;
 
@@ -155,6 +156,7 @@ public class Robot {
     public ICommand resetShooter() {
         //hood.rest();
         return new Parallel(
+            new Instant(() -> SimpleShooterMath.hoodOffset = 0),
 //            new Instant(flywheel::stop),
             gate.close()
         );
@@ -201,10 +203,7 @@ public class Robot {
 
     public ICommand transfer(){
         return new Sequential(
-            new Instant(() -> {
-                shootingFar = false;
-                stopIntake();
-            }),
+            new Instant(this::stopIntake),
             new Wait(100),
             gate.open()
         );
@@ -262,5 +261,19 @@ public class Robot {
         shootingFar = false;
         hood.medium();
         flywheel.medium();
+    }
+
+    public ICommand farHoodComp() {
+        return new Sequential(
+            new Wait(Hood.HOOD_COMP_DELAY),
+            new Instant(hood::farHoodComp)
+        );
+    }
+
+    public ICommand hoodComp(){
+        return new Sequential(
+            new Wait(Hood.HOOD_COMP_DELAY),
+            new Instant(hood::hoodComp)
+        );
     }
 }

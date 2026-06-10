@@ -35,6 +35,7 @@ public class SimpleShooterMath {
     public static Pose APRIL_TAG_POSE_BLUE;
     private double turretPos;
     private double hoodPos;
+    public static double hoodOffset = 0;
     private double flywheelVelocity;
     private final Interpolation2D velocityInterpolation;
     private final Interpolation2D hoodInterpolation;
@@ -77,9 +78,9 @@ public class SimpleShooterMath {
         flywheelVel = new Matrix(flywheelVel).transposed().getMatrix();
 
         double[][] airTimes = {
-                {0, 0, 0},
-                {0, 0, 0},
-                {0, 0, 0}
+                {0.25, 0.44, 0.76},
+                {0.44, 0.45, 0.87},
+                {0.44, 0.66, 0.90}
         };
         airTimes = new Matrix(airTimes).transposed().getMatrix();
 
@@ -132,13 +133,7 @@ public class SimpleShooterMath {
                     turretPos = getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity)));
                 }
                 double omegaComp = localizer.getAngularVelocity() * ANGULAR_CONSTANT;
-                telemetry.addData("before omega",turretPos);
-                telemetry.addData("before angle",ServoTurretMTI.ticksToRad(turretPos));
-                telemetry.addData("omega",omegaComp);
-                telemetry.addData("heading",currentPos.getHeading());
-                telemetry.addData("Normalized angle after",MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - currentPos.getHeading() + omegaComp));
-                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - currentPos.getHeading() + omegaComp));
-                telemetry.addData("after omega",turretPos);
+                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - omegaComp));
             }
 
             if (trackHood) {
@@ -150,6 +145,7 @@ public class SimpleShooterMath {
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
+                hoodPos += hoodOffset;
                 hoodPos = Range.clip(hoodPos, 0, 1);
             }
         }

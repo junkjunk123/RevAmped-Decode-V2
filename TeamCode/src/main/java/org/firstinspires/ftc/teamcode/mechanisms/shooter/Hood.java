@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwServo;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 import org.firstinspires.ftc.teamcode.utils.math.ILUT;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 @Config
 public class Hood extends HwServo {
@@ -13,7 +14,9 @@ public class Hood extends HwServo {
     public static float HOOD_MAX_RAD;
     public static float HOOD_MIN_POS;
     public static float HOOD_MAX_POS;
+    public static int HOOD_COMP_DELAY;
     public static float HOOD_FAR_COMP;
+    public static float HOOD_COMP;
 
     public static float REST;
     public static float CORNER_PRESET;
@@ -81,9 +84,9 @@ public class Hood extends HwServo {
         state = HoodState.TRACKING;
     }
 
-    public void farHoodComp(){
-        setPosition(HOOD_FAR_COMP);
-    }
+    public void farHoodComp(){SimpleShooterMath.hoodOffset = HOOD_FAR_COMP;}
+
+    public void hoodComp(){SimpleShooterMath.hoodOffset = HOOD_COMP;}
 
     public boolean atState(HoodState state) {
         return state == this.state;
