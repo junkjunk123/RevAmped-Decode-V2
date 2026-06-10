@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
 @TeleOp
@@ -20,6 +21,7 @@ public class FeederPIDTuner extends OpMode {
     private FeederWheel feederWheel;
     private IntakeMotor intake;
     private Flywheel flywheel;
+    private ShooterGate gate;
 
     @Override
     public void init() {
@@ -28,8 +30,11 @@ public class FeederPIDTuner extends OpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         intake = new IntakeMotor(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
+        gate = new ShooterGate(hardwareMap);
         flywheel.near();
         intake.intake();
+        gate.setGateOpen();
+
     }
 
     @Override
