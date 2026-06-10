@@ -13,31 +13,41 @@ import java.util.List;
 
 @Configurable
 public class CloseAutoPathsMTI implements PathSupplier {
+    /*
+    NAMING CONVENTION:
+    <NAME>_<SUB-PATH NUMBER IF ANY>_<CONTROL/(NONE IF NOT CONTROL)>
+     */
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(32, 134, Math.toRadians(90));
 
-    public static ColoredDecodePose START_CONTROL = new ColoredDecodePose(32, 117);
-    public static ColoredDecodePose START_END = new ColoredDecodePose(50, 85, Math.toRadians(120));
+    //SHOOTING PRELOADS
+    public static ColoredDecodePose PRELOADS_SHOOT_CONTROL = new ColoredDecodePose(32, 117);
+    public static ColoredDecodePose PRELOADS_SHOOT = new ColoredDecodePose(50, 85, Math.toRadians(120));
 
-    public static ColoredDecodePose PRE_SPIKE_1_CONTROL = new ColoredDecodePose(56, 66);
-    public static ColoredDecodePose PRE_SPIKE_1 = new ColoredDecodePose(45, 60, Math.toRadians(180));
+    //GRABBING FIRST SPIKE MARK
+    public static ColoredDecodePose FIRST_SPIKE_1_CONTROL = new ColoredDecodePose(56, 66);
+    public static ColoredDecodePose FIRST_SPIKE_1 = new ColoredDecodePose(45, 60, Math.toRadians(180));
+    public static ColoredDecodePose FIRST_SPIKE_2 = new ColoredDecodePose(18.5, 66);
 
-    public static ColoredDecodePose SPIKE_1 = new ColoredDecodePose(20, 60);
+    //SHOOTING FIRST SPIKE MARK
+    public static ColoredDecodePose FIRST_SPIKE_SHOOT_CONTROL = new ColoredDecodePose(37, 62);
+    public static ColoredDecodePose FIRST_SPIKE_SHOOT = new ColoredDecodePose(56, 76);
 
-    public static ColoredDecodePose SPIKE_1_SHOOT_CONTROL = new ColoredDecodePose(37, 60);
-    public static ColoredDecodePose SHOOT_POSE = new ColoredDecodePose(56, 76);
+    //===GATE PATHS (SHOULD BE THE SAME FOR CYCLE SPAM)===
+    //OPENING GATE
+    public static ColoredDecodePose GATE_1_CONTROL = new ColoredDecodePose(40, 60);
+    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(26, 59);
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(12.5, 58.5, Math.toRadians(155));
 
-    public static ColoredDecodePose PRE_GATE_CONTROL = new ColoredDecodePose(40, 60);
-    public static ColoredDecodePose PRE_GATE = new ColoredDecodePose(26, 59);
+    //SHOOTING FROM GATE CYCLE
+    public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(56, 76, Math.toRadians(225));
+    public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(37, 60);
 
-    public static ColoredDecodePose GATE = new ColoredDecodePose(12.5, 58.5, Math.toRadians(155));
+    //SECOND SPIKE MARK
+    public static ColoredDecodePose SECOND_SPIKE_CONTROL = new ColoredDecodePose(45, 84);
+    public static ColoredDecodePose SECOND_SPIKE = new ColoredDecodePose(19, 84, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_SPIKE_TO_GATE_SHOOT = new ColoredDecodePose(40, 80, Math.toRadians(170));
 
-    public static ColoredDecodePose SPIKE_2_CONTROL = new ColoredDecodePose(45, 84);
-    public static ColoredDecodePose SPIKE_2 = new ColoredDecodePose(19, 84, Math.toRadians(180));
-
-    public static ColoredDecodePose SPIKE_2_PRE_SHOOT = new ColoredDecodePose(40, 80, Math.toRadians(170));
-
-    public static ColoredDecodePose SPIKE_2_SHOOT = new ColoredDecodePose(56, 76, Math.toRadians(225));
-
+    //PARK
     public static ColoredDecodePose PARK = new ColoredDecodePose(54, 74);
 
     @Override
@@ -48,88 +58,184 @@ public class CloseAutoPathsMTI implements PathSupplier {
     @Override
     public List<FollowParameters> paths(Follower follower) {
 
-        FollowParameters start = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(START_POSE, START_CONTROL, START_END))
+        FollowParameters shootPreloads = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(START_POSE, PRELOADS_SHOOT_CONTROL, PRELOADS_SHOOT))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()
         );
 
-        FollowParameters preSpike1 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(START_END, PRE_SPIKE_1_CONTROL, PRE_SPIKE_1))
-                .setLinearHeadingInterpolation(START_END.getHeading(), PRE_SPIKE_1.getHeading())
+        FollowParameters intakeSpike1 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(PRELOADS_SHOOT, FIRST_SPIKE_1_CONTROL, FIRST_SPIKE_1))
+                .setLinearHeadingInterpolation(PRELOADS_SHOOT.getHeading(),FIRST_SPIKE_1.getHeading())
+                .addPath(ColoredDecodePose.makeBezier(FIRST_SPIKE_1,FIRST_SPIKE_2))
+                .setConstantHeadingInterpolation(FIRST_SPIKE_1.getHeading())
                 .build()
         );
 
-        FollowParameters spike1 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(PRE_SPIKE_1, SPIKE_1))
+        FollowParameters shootSpike1 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(FIRST_SPIKE_2, FIRST_SPIKE_SHOOT_CONTROL, FIRST_SPIKE_SHOOT))
                 .setTangentHeadingInterpolation()
+                .setReversed()
+                .build()
+        );
+        //FIRST SPIKE SHOOT & GATE_SHOOT are the same point
+
+        //GATE SPAM PATHS
+        FollowParameters gateIntake1 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT, GATE_1_CONTROL, GATE_1))
+                .setTangentHeadingInterpolation()
+                .addPath(ColoredDecodePose.makeBezier(GATE_1,GATE_2))
+                .setConstantHeadingInterpolation(GATE_2.getHeading())
                 .build()
         );
 
-        FollowParameters spike1Shoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SPIKE_1, SPIKE_1_SHOOT_CONTROL, SHOOT_POSE))
+        FollowParameters gateShoot1 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_2, GATE_SHOOT_CONTROL, GATE_SHOOT))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()
         );
 
-        FollowParameters preGate = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, PRE_GATE_CONTROL, PRE_GATE))
+        FollowParameters gateIntake2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT, GATE_1_CONTROL, GATE_1))
                 .setTangentHeadingInterpolation()
+                .addPath(ColoredDecodePose.makeBezier(GATE_1,GATE_2))
+                .setConstantHeadingInterpolation(GATE_2.getHeading())
                 .build()
         );
 
-        FollowParameters gate = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(PRE_GATE, GATE))
-                .setConstantHeadingInterpolation(GATE.getHeading())
-                .build()
-        );
-
-        FollowParameters gateShoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(GATE, SPIKE_1_SHOOT_CONTROL, SHOOT_POSE))
+        FollowParameters gateShoot2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_2, GATE_SHOOT_CONTROL, GATE_SHOOT))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()
         );
 
-        FollowParameters spike2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, SPIKE_2_CONTROL, SPIKE_2))
-                .setConstantHeadingInterpolation(SPIKE_2.getHeading())
+        FollowParameters gateIntake3 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT, GATE_1_CONTROL, GATE_1))
+                .setTangentHeadingInterpolation()
+                .addPath(ColoredDecodePose.makeBezier(GATE_1,GATE_2))
+                .setConstantHeadingInterpolation(GATE_2.getHeading())
                 .build()
         );
 
-        FollowParameters spike2PreShoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SPIKE_2, SPIKE_2_PRE_SHOOT))
+        FollowParameters gateShoot3 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_2, GATE_SHOOT_CONTROL, GATE_SHOOT))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()
         );
 
-        FollowParameters spike2Shoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SPIKE_2_PRE_SHOOT, SPIKE_2_SHOOT))
-                .setLinearHeadingInterpolation(SPIKE_2_PRE_SHOOT.getHeading(), SPIKE_2_SHOOT.getHeading())
+        FollowParameters gateIntake4 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT, GATE_1_CONTROL, GATE_1))
+                .setTangentHeadingInterpolation()
+                .addPath(ColoredDecodePose.makeBezier(GATE_1,GATE_2))
+                .setConstantHeadingInterpolation(GATE_2.getHeading())
+                .build()
+        );
+
+        FollowParameters gateShoot4 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_2, GATE_SHOOT_CONTROL, GATE_SHOOT))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build()
+        );
+
+        FollowParameters intakeSpike2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT, SECOND_SPIKE_CONTROL, SECOND_SPIKE))
+                .setConstantHeadingInterpolation(SECOND_SPIKE.getHeading())
+                .build()
+        );
+
+        FollowParameters shootSpike2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(SECOND_SPIKE, SECOND_SPIKE_TO_GATE_SHOOT))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .addPath(ColoredDecodePose.makeBezier(SECOND_SPIKE_TO_GATE_SHOOT,GATE_SHOOT))
+                .setLinearHeadingInterpolation(SECOND_SPIKE_TO_GATE_SHOOT.getHeading(),GATE_SHOOT.getHeading())
                 .build()
         );
 
         FollowParameters park = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(SPIKE_2_SHOOT, PARK))
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT, PARK))
                 .setTangentHeadingInterpolation()
                 .build()
         );
 
+//        FollowParameters spike1 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(PRE_SPIKE_1, SPIKE_1))
+//                .setTangentHeadingInterpolation()
+//                .build()
+//        );
+//
+//        FollowParameters spike1Shoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(SPIKE_1, SPIKE_1_SHOOT_CONTROL, SHOOT_POSE))
+//                .setTangentHeadingInterpolation()
+//                .setReversed()
+//                .build()
+//        );
+//
+//        FollowParameters preGate = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, PRE_GATE_CONTROL, PRE_GATE))
+//                .setTangentHeadingInterpolation()
+//                .build()
+//        );
+//
+//        FollowParameters gate = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(PRE_GATE, GATE))
+//                .setConstantHeadingInterpolation(GATE.getHeading())
+//                .build()
+//        );
+//
+//        FollowParameters gateShoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(GATE, SPIKE_1_SHOOT_CONTROL, SHOOT_POSE))
+//                .setTangentHeadingInterpolation()
+//                .setReversed()
+//                .build()
+//        );
+//
+//        FollowParameters spike2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(SHOOT_POSE, SPIKE_2_CONTROL, SPIKE_2))
+//                .setConstantHeadingInterpolation(SPIKE_2.getHeading())
+//                .build()
+//        );
+//
+//        FollowParameters spike2PreShoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(SPIKE_2, SPIKE_2_PRE_SHOOT))
+//                .setTangentHeadingInterpolation()
+//                .setReversed()
+//                .build()
+//        );
+//
+//        FollowParameters spike2Shoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(SPIKE_2_PRE_SHOOT, SPIKE_2_SHOOT))
+//                .setLinearHeadingInterpolation(SPIKE_2_PRE_SHOOT.getHeading(), SPIKE_2_SHOOT.getHeading())
+//                .build()
+//        );
+//
+//        FollowParameters park = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+//                .addPath(ColoredDecodePose.makeBezier(SPIKE_2_SHOOT, PARK))
+//                .setTangentHeadingInterpolation()
+//                .build()
+//        );
+
         return List.of(
-                start,
-                preSpike1,
-                spike1,
-                spike1Shoot,
-                preGate,
-                gate,
-                gateShoot,
-                spike2,
-                spike2PreShoot,
-                spike2Shoot,
-                park
+            shootPreloads,
+            intakeSpike1,
+            shootSpike1,
+            gateIntake1,
+            gateShoot1,
+            gateIntake2,
+            gateShoot2,
+            intakeSpike2,
+            shootSpike2,
+            gateIntake3,
+            gateShoot3,
+            gateIntake4,
+            gateShoot4,
+            park
+
         );
     }
 }

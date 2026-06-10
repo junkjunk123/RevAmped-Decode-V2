@@ -44,55 +44,26 @@ public class CloseAuto extends OpModeCommand {
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(() -> {
-                            robot.flywheel.setVelocity(Flywheel.UNSORTED_AUTO_VELOCITY - 35);
+                            robot.intake(true);
                             matchTimer.reset();
                         }),
-                        shootFirstThree(),
-                        new Parallel(
-                                intake(1),
-                                new Race(
-                                        new Sequential(
-                                                robot.drivetrain.follow(),
-                                                robot.drivetrain.follow()
-                                        ),
-                                        new WaitUntil(() -> robot.intake.hasThree())
-                                )
-                        ),
-                        new Parallel(
-                                robot.drivetrain.follow(),
-                                transfer(),
-                                new Instant(() -> {
-                                    robot.flywheel.setVelocity(Flywheel.MEDIUM_VELOCITY - 65);
-                                    robot.hood.near();
-                                })
-                        ),
-                        robot.autoShoot(),
-                        gateCycle(2),
-                        gateCycle(3),
-                        gateCycle(4),
-                        gateCycle(5),
-                        new Parallel(
-                                intake(6),
-                                new Race(
-                                        robot.drivetrain.follow(),
-                                        new WaitUntil(() -> robot.intake.hasThree())
-                                )
-                        ),
-                        new Parallel(
-                                robot.drivetrain.follow(),
-                                transfer(),
-                                new Instant(() -> {
-                                    robot.hood.setPosition(Hood.CLOSE_AUTO_FINAL);
-                                    robot.flywheel.setVelocity(Flywheel.NEAR_VELOCITY - 30);
-                                }),
-                                new Sequential(
-                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                                        robot.autoShoot()
-                                )
-                        ),
-                        new Instant(() -> robot.intake.intakeMotor.stop())
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000),
+                        robot.drivetrain.followNext(d -> d.velocityCondition(10),2000)
                 )
         );
+
     }
 
     public ICommand gateCycle(int i) {
