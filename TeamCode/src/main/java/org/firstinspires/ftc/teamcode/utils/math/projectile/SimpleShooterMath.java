@@ -48,6 +48,7 @@ public class SimpleShooterMath {
     public static final int SOTM_ITERATIONS = 10;
     public static double CALIBRATION_ANGLE = 0;
     public static double ANGULAR_CONSTANT = 0.05;
+    public static double AIRTIME_MULT = 1.0/12.0;
 
     public static double blueX = 9.5;
     public static double blueY = 135;
@@ -130,10 +131,9 @@ public class SimpleShooterMath {
                     turretPos = getTurretPos(displacement);
                 } else {
                     Pose currentVelocity = localizer.getVelocity();
-                    turretPos = getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity)));
+                    turretPos = getTurretPos(iterateDisp(currentPos, currentVelocity.getAsVector(), targetPos));
                 }
-                double omegaComp = localizer.getAngularVelocity() * ANGULAR_CONSTANT;
-                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - omegaComp));
+                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos)));
             }
 
             if (trackHood) {
@@ -160,6 +160,7 @@ public class SimpleShooterMath {
         return target.minus(current).getAsVector();
     }
 
+    /*
     private Pose iteratePose(Pose currentPos, Pose fieldVelocity) {
         Pose virtualPose = currentPos;
 
@@ -169,6 +170,18 @@ public class SimpleShooterMath {
         }
 
         return virtualPose;
+    }
+     */
+
+    private Vector iterateDisp(Pose currentPos, Vector fieldVel, Pose targetPos) {
+        Vector disp = targetPos.minus(currentPos).getAsVector();
+
+        for (int i = 0; i < SOTM_ITERATIONS; i++) {
+            double shotTime = AIRTIME_MULT * airTime.interpolate(Math.abs(disp.getXComponent()), Math.abs(disp.getYComponent()));
+            disp = disp.minus(fieldVel.times(shotTime));
+        }
+
+        return disp;
     }
 
     public double getTurretPos() {
@@ -192,7 +205,8 @@ public class SimpleShooterMath {
         //double pos = turretInterpolation.interpolate(Globals.allianceColor.equals(AllianceColor.Red) ? offset.getXComponent() :
                 //-offset.getXComponent(), offset.getYComponent());
         double pos = offset.getTheta();
-        double delta = normalizeAnglePi(pos - heading + CALIBRATION_ANGLE);
+        double omegaComp = localizer.getAngularVelocity() * ANGULAR_CONSTANT;
+        double delta = normalizeAnglePi(pos - heading + CALIBRATION_ANGLE - omegaComp);
         double ticks = ServoTurretMTI.radToTicks(delta);
         ticks -= GyroThread.NEUTRAL_OFFSET * Math.signum(ServoTurretMTI.REST - pos);
         return Range.clip(ticks, Math.min(ServoTurretMTI.LEFT_TICKS_LIMIT, ServoTurretMTI.RIGHT_TICKS_LIMIT),
