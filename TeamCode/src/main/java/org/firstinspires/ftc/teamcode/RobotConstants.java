@@ -35,7 +35,8 @@ public class RobotConstants {
         MTITele.outreach = false;
         ShooterMath.velocityCompensation = false;
         IntakeDistanceSensors.useSensors = true;
-        IntakeDistanceSensors.INTAKE_SENSOR_DELAY = 100;
+        IntakeDistanceSensors.INTAKE_SENSOR_DELAY_AUTO = 100;
+        IntakeDistanceSensors.INTAKE_SENSOR_DELAY_TELE = 300;
 
         ShooterGate.GATE_OPEN = 121/255f;
         ShooterGate.GATE_CLOSE = 202/255f;
