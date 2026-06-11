@@ -48,11 +48,13 @@ public class SimpleShooterMath {
     public static final int SOTM_ITERATIONS = 10;
     public static double CALIBRATION_ANGLE = 0;
     public static double ANGULAR_CONSTANT = 0.05;
-
+    public static double K_time = 1.0;
+    public static double K_V = 0.1;
     public static double blueX = 9.5;
     public static double blueY = 135;
     public static double redX = 134.5;
     public static double redY = 135;
+    public static double DT = 0.001;
 
     public SimpleShooterMath(Localizer localizer) {
         this.localizer = (OctoQuadLocalizer) localizer;
@@ -115,25 +117,27 @@ public class SimpleShooterMath {
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
             Pose currentPos = localizer.getPose();
+            Pose currentVelocity = localizer.getVelocity();
 //            telemetry.addData("math pose",currentPos);
             Vector displacement = getDispVector(targetPos, currentPos);
+
 //            telemetry.addData("currentPos", currentPos);
 //            telemetry.addData("disp vector", displacement);
             if (currentPos.getY() < Robot.FAR_SHOOT_THRESHOLD_Y && !Robot.shootingFar){
                 Robot.shootingFar = true;
             }
+
             if (currentPos.getY() >= Robot.FAR_SHOOT_THRESHOLD_Y && Robot.shootingFar){
                 Robot.shootingFar = false;
             }
+
             if (trackTurret) {
-                if (!velocityCompensation) {
-                    turretPos = getTurretPos(displacement);
-                } else {
-                    Pose currentVelocity = localizer.getVelocity();
-                    turretPos = getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity)));
-                }
+                turretPos = computeTurretPos(displacement, currentPos, currentVelocity, targetPos);
+                double nextTurretPos = computeNextTurretPos(currentPos, currentVelocity, targetPos);
+                double turretPosDeriv = (nextTurretPos - turretPos) / DT;
                 double omegaComp = localizer.getAngularVelocity() * ANGULAR_CONSTANT;
-                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - omegaComp));
+                double velFeedforward = turretPosDeriv * K_V;
+                turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos) - omegaComp) + velFeedforward);
             }
 
             if (trackHood) {
@@ -155,6 +159,19 @@ public class SimpleShooterMath {
         }
     }
 
+    private double computeTurretPos(Vector displacement, Pose currentPos, Pose currentVelocity, Pose targetPos) {
+        if (!velocityCompensation)
+            return getTurretPos(displacement);
+
+        return getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity, targetPos)));
+    }
+
+    private double computeNextTurretPos(Pose currentPos, Pose currentVelocity, Pose targetPos) {
+        Pose nextPos = currentPos.plus(currentVelocity.scale(DT));
+        Vector displacement = targetPos.minus(nextPos).getAsVector();
+        return computeTurretPos(displacement, nextPos, currentVelocity, targetPos);
+    }
+
     public void reset(int turretPos, float hoodPos) {
         this.turretPos = turretPos;
         this.hoodPos = hoodPos;
@@ -164,15 +181,21 @@ public class SimpleShooterMath {
         return target.minus(current).getAsVector();
     }
 
-    private Pose iteratePose(Pose currentPos, Pose fieldVelocity) {
+    private Pose iteratePose(Pose currentPos, Pose fieldVelocity, Pose targetPos) {
+        if (fieldVelocity.getX() * fieldVelocity.getX() + fieldVelocity.getY() * fieldVelocity.getY() < 1) return currentPos;
         Pose virtualPose = currentPos;
 
         for (int i = 0; i < SOTM_ITERATIONS; i++) {
-            double airTime = this.airTime.interpolate(virtualPose.getX(), virtualPose.getY());
-            virtualPose = currentPos.minus(fieldVelocity.scale(airTime));
+            double airTime = airTime(currentPos, targetPos);
+            virtualPose = currentPos.plus(fieldVelocity.scale(airTime));
         }
 
         return virtualPose;
+    }
+
+    private double airTime(Pose current, Pose target) {
+        Vector disp = current.minus(target).getAsVector();
+        return K_time * airTime.interpolate(Math.abs(disp.getXComponent()), Math.abs(disp.getYComponent()));
     }
 
     public double getTurretPos() {
