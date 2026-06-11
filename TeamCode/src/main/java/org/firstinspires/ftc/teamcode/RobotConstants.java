@@ -28,24 +28,36 @@ import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
 public class RobotConstants {
     public void build() {
-        CloseAuto.flywheel_ramp_vel = 2000;
-        CloseAuto.GATE_WAIT = 3000;
-
-        MTITele.rumbleMS = 200;
-        MTITele.outreach = false;
-        ShooterMath.velocityCompensation = false;
-        IntakeDistanceSensors.useSensors = true;
+        //==========THILAN CAN CHANGE THESE==============
+        CloseAuto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
+        CloseAuto.GATE_WAIT = 3000; //max time in ms the bot waits at the gate
+        MTITele.outreach = false; //enable for stop program button (gamepad_2 back)
+        ShooterMath.velocityCompensation = false; //SOTM toggle
+        IntakeDistanceSensors.useSensors = true; //Distance sensors toggle
+        //Intake sensor delays
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_AUTO = 100;
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_TELE = 300;
 
+        //Hood comp
+        Hood.HOOD_FAR_COMP = -0/255f;
+        Hood.HOOD_COMP = -15/255f;
+        Hood.HOOD_COMP_DELAY = 150; //delay in ms of how long to wait after start shooting to hood comp
+
+        Robot.SHOOT_TIME = 250; //close shoot time (used in auto)
+        Robot.SHOOT_TIME_FAR = 700; //far shoot time (not used rn but prob in auto)
+        Robot.CLEANUP_CLOSE_WAIT = 100; //time the bot waits before gate close after release of gamepad_1 right_trigger
+
+        //========================================================
+
+
+
+
+        MTITele.rumbleMS = 200;
         ShooterGate.GATE_OPEN = 121/255f;
         ShooterGate.GATE_CLOSE = 202/255f;
         ShooterGate.GATE_MOVEMENT_TIME = 100;
 
-        Robot.SHOOT_TIME = 250;
-        Robot.SHOOT_TIME_FAR = 700;
-        Robot.CLEANUP_CLOSE_WAIT = 100;
-        Robot.FAR_SHOOT_THRESHOLD_Y = 18;
+        Robot.FAR_SHOOT_THRESHOLD_Y = 38;
 
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;
@@ -69,9 +81,6 @@ public class RobotConstants {
         Hood.NEAR_PRESET = 60/255f;
         Hood.MEDIUM_PRESET = 80/255f;
         Hood.CORNER_PRESET = 95/255f;
-        Hood.HOOD_FAR_COMP = -0/255f;
-        Hood.HOOD_COMP = -5/255f;
-        Hood.HOOD_COMP_DELAY = 150;
 
         //Turret Constants
         ServoTurretMTI.REST = 127/255f;
