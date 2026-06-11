@@ -42,7 +42,7 @@ public class SimpleShooterMath {
     private final Interpolation2D airTime;
     private final Interpolation2D turretInterpolation;
     private static final double[] DIST_Y = {15.0, 39.0, 63.0};
-    private static final double[] DIST_X = {24.0, 60.0, 96.0};
+    private static final double[] DIST_X = {26.5, 62.5, 98.5};
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
     public static final int SOTM_ITERATIONS = 10;
@@ -51,8 +51,8 @@ public class SimpleShooterMath {
 
     public static double blueX = 9.5;
     public static double blueY = 135;
-    public static double redX = 120.5;
-    public static double redY = 120;
+    public static double redX = 134.5;
+    public static double redY = 135;
 
     public SimpleShooterMath(Localizer localizer) {
         this.localizer = (OctoQuadLocalizer) localizer;
@@ -140,8 +140,6 @@ public class SimpleShooterMath {
                 double xDist = Math.abs(displacement.getXComponent());
                 double yDist = Math.abs(displacement.getYComponent());
                 flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
-                //goon
-                if (!Globals.isTeleOp) flywheelVelocity+=100;
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Flywheel.MAX_VELOCITY);
                 double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
                 hoodSine = Range.clip(hoodSine, 0, 1);
@@ -149,6 +147,10 @@ public class SimpleShooterMath {
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
                 hoodPos += hoodOffset;
                 hoodPos = Range.clip(hoodPos, 0, 1);
+                //goon
+                if (!Globals.isTeleOp) {
+                    flywheelVelocity += 100;
+                }
             }
         }
     }
