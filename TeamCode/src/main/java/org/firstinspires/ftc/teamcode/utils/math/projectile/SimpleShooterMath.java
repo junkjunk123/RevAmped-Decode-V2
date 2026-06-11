@@ -65,15 +65,15 @@ public class SimpleShooterMath {
         double[][] hoodPos = {
                 //Left-Top is closet to target goal
                 {0.020, 0.235, 0.373},
-                {0.118, 0.294, 0.333},
+                {0.078, 0.294, 0.333},
                 {0.314, 0.314, 0.373}
         };
         hoodPos = new Matrix(hoodPos).transposed().getMatrix();
 
         double[][] flywheelVel = {
                 {700, 900, 1050},
-                {800, 940, 1050},
-                {900, 1000, 1050}
+                {760, 940, 1050},
+                {900, 1050, 1050}
         };
         flywheelVel = new Matrix(flywheelVel).transposed().getMatrix();
 
