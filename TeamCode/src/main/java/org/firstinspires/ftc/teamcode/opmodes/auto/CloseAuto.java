@@ -11,6 +11,8 @@ import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.internal.opengl.TextResourceReader;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
@@ -45,8 +47,8 @@ public class CloseAuto extends OpModeCommand {
         robot.hood.near();
         IntakeDistanceSensors.useSensors = true;
         TrackingThread.velocityCompensation = false;
-        TrackingThread.trackTurret = false; //turning off for preloads preset
-        TrackingThread.trackHood = false; //turning off for preloads preset
+        TrackingThread.trackHood = false; //for preloads preset
+        TrackingThread.trackTurret = false; // for preloads preset
         Drivetrain.startPose = robot.drivetrain.follower.getPose();
         robot.gate.setGateOpen();
 
@@ -64,17 +66,22 @@ public class CloseAuto extends OpModeCommand {
 
                         //Shooting preloads
                         new Parallel(
+                            new Sequential(
+                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.3)),
+                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.CLOSE_PRELOADS_VEL)) // stop ramp-up
+                            ),
                             robot.drivetrain.follow(),
                             shootPreloads()
                         ),
 
                         //First Spike Mark
                         new Parallel(
-                            new Instant(() -> {
-                                //preloads are done
-                                TrackingThread.trackTurret = true;
-                                TrackingThread.trackHood = true;
-                            }),
+                            new Instant(
+                                () -> { //enable tracking
+                                    TrackingThread.trackTurret = true;
+                                    TrackingThread.trackHood = true;
+                                }
+                            ),
                             cycle()
                         ),
 
@@ -99,16 +106,15 @@ public class CloseAuto extends OpModeCommand {
 
     public ICommand shootPreloads(){
         return new Sequential(
-            new WaitUntil(() -> robot.drivetrain.tValueCondition(0.3)),
-            new Instant(robot.flywheel::closePreloadsPreset),
-
             new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
+            new Wait(150), //to remove/mitigate the slight backwards vel while shooting
             shoot()
         );
     }
 
     public ICommand intake(){
         return new Sequential(
+            new Instant(() -> SimpleShooterMath.hoodOffset = 0),
             robot.resetAfterShooting(),
             new Instant(robot::intake),
             //clear the states at 50% of path to remove any false positives from the previous shoot
@@ -129,9 +135,15 @@ public class CloseAuto extends OpModeCommand {
     }
 
     public ICommand shoot() {
-        return new Sequential(
-            new Instant(robot::transferShoot),
-            new Wait(Robot.SHOOT_TIME)
+        return new Parallel(
+            new Sequential(
+                new Instant(robot::transferShoot),
+                new Wait(Robot.SHOOT_TIME)
+            ),
+            new Sequential(
+                new Wait(Hood.HOOD_COMP_DELAY),
+                new Instant(() -> SimpleShooterMath.hoodOffset = Hood.HOOD_COMP)
+            )
         );
     }
 
