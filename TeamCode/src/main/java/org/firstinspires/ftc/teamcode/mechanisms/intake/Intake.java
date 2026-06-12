@@ -56,6 +56,11 @@ public class Intake {
         return distanceStates[0] && distanceStates[1] && distanceStates[2];
     }
 
+    public boolean hasTwo(){
+        boolean [] distanceStates = getStates();
+        return distanceStates[0] && distanceStates[1];
+    }
+
     public int numBalls() {
         boolean[] distanceStates = getStates();
         int num = 0;

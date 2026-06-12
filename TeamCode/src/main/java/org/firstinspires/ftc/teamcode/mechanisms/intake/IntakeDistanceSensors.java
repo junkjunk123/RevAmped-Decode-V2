@@ -9,13 +9,15 @@ import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 
 import java.util.Arrays;
 
 @Config
 public class IntakeDistanceSensors {
-    public static int INTAKE_SENSOR_DELAY;
+    public static int INTAKE_SENSOR_DELAY_AUTO;
+    public static int INTAKE_SENSOR_DELAY_TELE;
     private final IntakeArtifactDetector[] distanceSensors;
     private final boolean[] distanceStates;
     public static boolean useSensors;
@@ -88,7 +90,11 @@ public class IntakeDistanceSensors {
                 waiting = true;
                 Scheduler.getInstance().schedule(
                     new Sequential(
-                        new Wait(INTAKE_SENSOR_DELAY),
+                        new Conditional(
+                            () -> Globals.isTeleOp,
+                            new Wait(INTAKE_SENSOR_DELAY_TELE),
+                            new Wait(INTAKE_SENSOR_DELAY_AUTO)
+                        ),
                         new Instant(() -> {readIntakeDistance = true;})
                     )
                 );

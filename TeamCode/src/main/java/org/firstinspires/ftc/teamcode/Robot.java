@@ -8,6 +8,7 @@ import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.internal.system.CloseableOnFinalize;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.CycleState;
@@ -29,10 +30,13 @@ import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 import java.util.List;
+import java.util.concurrent.locks.Condition;
 
 public class Robot {
     public static Robot INSTANCE;
@@ -51,7 +55,10 @@ public class Robot {
     public static int SHOOT_TIME_FAR;
     public static int CLEANUP_CLOSE_WAIT;
     public static int FAR_SHOOT_THRESHOLD_Y;
+    public static int FAST_HOOD_COMP_THRESHOLD_VEL;
     public static boolean shootingFar;
+
+    public static boolean fastHoodComp;
 
     public Robot(HardwareMap hardwareMap) {
         this(hardwareMap, null);
@@ -93,6 +100,13 @@ public class Robot {
         robotState.update();
         gate.update();
         intake.update();
+       if (drivetrain.follower.getVelocity().getMagnitude() > Hood.HOOD_COMP_SOTM_THRESHOLD && SimpleShooterMath.SOTMOffset == 0){
+           hood.hoodOffsetSOTM();
+       }
+       if (drivetrain.follower.getVelocity().getMagnitude() <= Hood.HOOD_COMP_SOTM_THRESHOLD && SimpleShooterMath.SOTMOffset != 0){
+           SimpleShooterMath.SOTMOffset = 0;
+       }
+
     }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {
@@ -156,7 +170,7 @@ public class Robot {
     public ICommand resetShooter() {
         //hood.rest();
         return new Parallel(
-            new Instant(() -> SimpleShooterMath.hoodOffset = 0),
+            new Instant(() -> SimpleShooterMath.hoodCompOffset = 0),
 //            new Instant(flywheel::stop),
             gate.close()
         );

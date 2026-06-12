@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 import java.util.Arrays;
 
@@ -256,6 +257,8 @@ public class MTITele extends OpModeCommand {
         telemetry.addData("shootingFar",Robot.shootingFar);
         telemetry.addData("trackHood",TrackingThread.trackHood);
         telemetry.addData("trackTurret",TrackingThread.trackTurret);
+        telemetry.addData("hood",robot.hood.getPosition());
         telemetry.addData("disableThresholdTrack",disableThresholdTrackChange);
+        telemetry.addData("sotm offset", SimpleShooterMath.SOTMOffset);
     }
 }

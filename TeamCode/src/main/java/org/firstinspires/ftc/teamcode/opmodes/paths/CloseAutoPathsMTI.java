@@ -20,35 +20,35 @@ public class CloseAutoPathsMTI implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(32, 134, Math.toRadians(90));
 
     //SHOOTING PRELOADS
-    public static ColoredDecodePose PRELOADS_SHOOT_CONTROL = new ColoredDecodePose(32, 117);
-    public static ColoredDecodePose PRELOADS_SHOOT = new ColoredDecodePose(50, 85, Math.toRadians(120));
+    public static ColoredDecodePose PRELOADS_SHOOT_CONTROL = new ColoredDecodePose(32, 121);
+    public static ColoredDecodePose PRELOADS_SHOOT = new ColoredDecodePose(50, 89, Math.toRadians(120));
 
     //GRABBING FIRST SPIKE MARK
-    public static ColoredDecodePose FIRST_SPIKE_1_CONTROL = new ColoredDecodePose(56, 66);
-    public static ColoredDecodePose FIRST_SPIKE_1 = new ColoredDecodePose(45, 60, Math.toRadians(180));
+    public static ColoredDecodePose FIRST_SPIKE_1_CONTROL = new ColoredDecodePose(56, 70);
+    public static ColoredDecodePose FIRST_SPIKE_1 = new ColoredDecodePose(45, 64, Math.toRadians(180));
     public static ColoredDecodePose FIRST_SPIKE_2 = new ColoredDecodePose(18.5, 66);
 
     //SHOOTING FIRST SPIKE MARK
-    public static ColoredDecodePose FIRST_SPIKE_SHOOT_CONTROL = new ColoredDecodePose(37, 62);
-    public static ColoredDecodePose FIRST_SPIKE_SHOOT = new ColoredDecodePose(56, 76);
+    public static ColoredDecodePose FIRST_SPIKE_SHOOT_CONTROL = new ColoredDecodePose(37, 66);
+    public static ColoredDecodePose FIRST_SPIKE_SHOOT = new ColoredDecodePose(56, 80);
 
     //===GATE PATHS (SHOULD BE THE SAME FOR CYCLE SPAM)===
     //OPENING GATE
-    public static ColoredDecodePose GATE_1_CONTROL = new ColoredDecodePose(40, 60);
-    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(26, 59);
-    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(12.5, 58.5, Math.toRadians(155));
+    public static ColoredDecodePose GATE_1_CONTROL = new ColoredDecodePose(43, 64);
+    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(33, 64);
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(12.5, 61.5, Math.toRadians(152));
 
     //SHOOTING FROM GATE CYCLE
-    public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(56, 76, Math.toRadians(225));
-    public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(37, 60);
+    public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(56, 80, Math.toRadians(225));
+    public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(37, 64);
 
     //SECOND SPIKE MARK
-    public static ColoredDecodePose SECOND_SPIKE_CONTROL = new ColoredDecodePose(45, 84);
-    public static ColoredDecodePose SECOND_SPIKE = new ColoredDecodePose(19, 84, Math.toRadians(180));
-    public static ColoredDecodePose SECOND_SPIKE_TO_GATE_SHOOT = new ColoredDecodePose(40, 80, Math.toRadians(170));
+    public static ColoredDecodePose SECOND_SPIKE_CONTROL = new ColoredDecodePose(45, 88);
+    public static ColoredDecodePose SECOND_SPIKE = new ColoredDecodePose(19, 88, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_SPIKE_TO_GATE_SHOOT = new ColoredDecodePose(34, 85, Math.toRadians(170));
 
     //PARK
-    public static ColoredDecodePose PARK = new ColoredDecodePose(54, 74);
+    public static ColoredDecodePose PARK = new ColoredDecodePose(54, 76);
 
     @Override
     public Pose startPose() {
@@ -142,6 +142,21 @@ public class CloseAutoPathsMTI implements PathSupplier {
                 .build()
         );
 
+        FollowParameters gateIntake5 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT, GATE_1_CONTROL, GATE_1))
+                .setTangentHeadingInterpolation()
+                .addPath(ColoredDecodePose.makeBezier(GATE_1,GATE_2))
+                .setConstantHeadingInterpolation(GATE_2.getHeading())
+                .build()
+        );
+
+        FollowParameters gateShoot5 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_2, GATE_SHOOT_CONTROL, GATE_SHOOT))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build()
+        );
+
         FollowParameters intakeSpike2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT, SECOND_SPIKE_CONTROL, SECOND_SPIKE))
                 .setConstantHeadingInterpolation(SECOND_SPIKE.getHeading())
@@ -153,7 +168,8 @@ public class CloseAutoPathsMTI implements PathSupplier {
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .addPath(ColoredDecodePose.makeBezier(SECOND_SPIKE_TO_GATE_SHOOT,GATE_SHOOT))
-                .setLinearHeadingInterpolation(SECOND_SPIKE_TO_GATE_SHOOT.getHeading(),GATE_SHOOT.getHeading())
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build()
         );
 
@@ -234,6 +250,8 @@ public class CloseAutoPathsMTI implements PathSupplier {
             gateShoot3,
             gateIntake4,
             gateShoot4,
+            gateIntake5,
+            gateShoot5,
             park
 
         );
