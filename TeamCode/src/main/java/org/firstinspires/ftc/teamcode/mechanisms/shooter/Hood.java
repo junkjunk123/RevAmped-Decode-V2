@@ -16,6 +16,8 @@ public class Hood extends HwServo {
     public static float HOOD_MAX_POS;
     public static int HOOD_COMP_DELAY;
     public static float HOOD_FAR_COMP;
+    public static float HOOD_COMP_SOTM;
+    public static int HOOD_COMP_SOTM_THRESHOLD;
     public static float HOOD_COMP;
 
     public static float REST;
@@ -83,9 +85,11 @@ public class Hood extends HwServo {
         state = HoodState.TRACKING;
     }
 
-    public void farHoodComp(){SimpleShooterMath.hoodOffset = HOOD_FAR_COMP;}
+    public void farHoodComp(){SimpleShooterMath.hoodCompOffset = HOOD_FAR_COMP;}
 
-    public void hoodComp(){SimpleShooterMath.hoodOffset = HOOD_COMP;}
+    public void hoodComp(){SimpleShooterMath.hoodCompOffset = HOOD_COMP;}
+
+    public void hoodOffsetSOTM(){SimpleShooterMath.SOTMOffset = HOOD_COMP_SOTM;}
 
     public boolean atState(HoodState state) {
         return state == this.state;

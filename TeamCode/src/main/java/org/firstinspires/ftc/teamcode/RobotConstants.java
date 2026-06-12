@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
 import org.firstinspires.ftc.teamcode.utils.hardware.BlobProcessor;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.ShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 import org.firstinspires.ftc.teamcode.utils.vision.BlobTransformer;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
@@ -39,9 +40,13 @@ public class RobotConstants {
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_TELE = 300;
 
         //Hood comp
+        Hood.HOOD_COMP_SOTM_THRESHOLD = 4;
+        Hood.HOOD_COMP_SOTM = -15/255f;
+
         Hood.HOOD_FAR_COMP = -0/255f;
         Hood.HOOD_COMP = -15/255f;
         Hood.HOOD_COMP_DELAY = 150; //delay in ms of how long to wait after start shooting to hood comp
+
 
         Robot.SHOOT_TIME = 250; //close shoot time (used in auto)
         Robot.SHOOT_TIME_FAR = 700; //far shoot time (not used rn but prob in auto)
@@ -49,8 +54,8 @@ public class RobotConstants {
 
         //========================================================
 
-
-
+        SimpleShooterMath.ticksPerRad = 311f; //hood angle
+        SimpleShooterMath.launchToVel = (double) 900/213; //flywheel velocity
 
         MTITele.rumbleMS = 200;
         ShooterGate.GATE_OPEN = 121/255f;

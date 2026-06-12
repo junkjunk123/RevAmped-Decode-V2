@@ -22,7 +22,7 @@ public class TrackingThread {
     public static TrackingThread INSTANCE;
     public static boolean far = false;
     public static float TURRET_OFFSET;
-    public static boolean velocityCompensation = false;
+    public static boolean velocityCompensation = true;
 
     public TrackingThread(Follower octoquad, ServoTurretMTI turret, Flywheel flywheel, Hood hood) {
         this.hood = hood;
@@ -40,10 +40,9 @@ public class TrackingThread {
     public void update() {
         if (!trackHood && !trackTurret) return;
         if (!far) {
-            shooterMath.update(trackTurret, trackHood);
+            shooterMath.update(trackTurret, trackHood,flywheel);
             if (trackHood) {
                 hood.updateTracking(shooterMath.getHoodPos());
-
             }
             if (trackTurret)
                 turret.move(new ServoTurretState.AutoTrack(shooterMath.getTurretPos()));

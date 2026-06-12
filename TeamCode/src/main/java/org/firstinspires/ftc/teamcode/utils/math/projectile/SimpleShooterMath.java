@@ -35,7 +35,8 @@ public class SimpleShooterMath {
     public static Pose APRIL_TAG_POSE_BLUE;
     private double turretPos;
     private double hoodPos;
-    public static double hoodOffset = 0;
+    public static double hoodCompOffset = 0;
+    public static double SOTMOffset = 0;
     private double flywheelVelocity;
     private final Interpolation2D velocityInterpolation;
     private final Interpolation2D hoodInterpolation;
@@ -55,8 +56,16 @@ public class SimpleShooterMath {
     public static double redX = 134.5;
     public static double redY = 135;
     public static double DT = 0.001;
+    public static double launchToVel; //launch vel to flywheel vel
+    public static double velOffset;
+    public static double ticksPerRad; //hood angle
+    public static double shootingAngleRelativeToHood = Math.PI/2;
+
+    public static double K_flywheelVel;
+    private HoodInverseKinematics inverseKinematics;
 
     public SimpleShooterMath(Localizer localizer) {
+        inverseKinematics = new HoodInverseKinematics();
         this.localizer = (OctoQuadLocalizer) localizer;
         APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
         APRIL_TAG_POSE_RED = new Pose(redX, redY);
@@ -77,6 +86,12 @@ public class SimpleShooterMath {
                 {760, 940, 1050},
                 {900, 1050, 1050}
         };
+
+//        double[][] flywheelVel = { //in inch/s of ball launch velocity (NOT FLYWHEEL VELOCITY)
+//                {194, 225, 254},
+//                {210, 230, 257},
+//                {230, 253, 265}
+//        };
         flywheelVel = new Matrix(flywheelVel).transposed().getMatrix();
 
         double[][] airTimes = {
@@ -110,7 +125,7 @@ public class SimpleShooterMath {
         turretInterpolation = new BilinearInterpolation(DIST_X, DIST_Y, turretPos);
     }
 
-    public void update(boolean trackTurret, boolean trackHood) {
+    public void update(boolean trackTurret, boolean trackHood, Flywheel flywheel) {
         APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
         APRIL_TAG_POSE_RED = new Pose(redX, redY);
 
@@ -144,12 +159,21 @@ public class SimpleShooterMath {
                 double xDist = Math.abs(displacement.getXComponent());
                 double yDist = Math.abs(displacement.getYComponent());
                 flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
+//                flywheelVelocity = launch*launchToVel;
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Flywheel.MAX_VELOCITY);
+//
+//                inverseKinematics.setDistance(displacement.getMagnitude());
+//                inverseKinematics.setFlywheelVelocity(flywheel.getVelocity() * K_flywheelVel);
+//                inverseKinematics.calculateHoodAngle();
+//                hoodPos = (inverseKinematics.getAngle()* ticksPerRad)/255;
+//                hoodPos = Range.clip(hoodPos, (double) 5/255, (double) 168/255);
+                
+                
                 double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
-                hoodPos += hoodOffset;
+                hoodPos += hoodCompOffset+SOTMOffset;
                 hoodPos = Range.clip(hoodPos, 0, 1);
                 //goon
                 if (!Globals.isTeleOp) {

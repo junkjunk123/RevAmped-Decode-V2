@@ -114,7 +114,7 @@ public class CloseAuto extends OpModeCommand {
 
     public ICommand intake(){
         return new Sequential(
-            new Instant(() -> SimpleShooterMath.hoodOffset = 0),
+            new Instant(() -> SimpleShooterMath.hoodCompOffset = 0),
             robot.resetAfterShooting(),
             new Instant(robot::intake),
             //clear the states at 50% of path to remove any false positives from the previous shoot
@@ -142,7 +142,7 @@ public class CloseAuto extends OpModeCommand {
             ),
             new Sequential(
                 new Wait(Hood.HOOD_COMP_DELAY),
-                new Instant(() -> SimpleShooterMath.hoodOffset = Hood.HOOD_COMP)
+                new Instant(() -> SimpleShooterMath.hoodCompOffset = Hood.HOOD_COMP)
             )
         );
     }
