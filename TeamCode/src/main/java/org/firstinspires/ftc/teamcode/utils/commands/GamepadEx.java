@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.utils.data.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 
 import java.util.HashSet;
 import java.util.List;
@@ -107,6 +108,14 @@ public class GamepadEx {
     public void right_stick_y_button(Function<FloatSupplier, BooleanSwitch> f) {
         right_stick_y_button = f.apply(right_stick_y);
         buttons.add(right_stick_y_button);
+    }
+
+    public Vector2D leftStick() {
+        return new Vector2D(gamepad.left_stick_x, -gamepad.left_stick_y);
+    }
+
+    public Vector2D rightStick() {
+        return new Vector2D(gamepad.right_stick_x, -gamepad.right_stick_y);
     }
 
     public void rumble(double ms) {

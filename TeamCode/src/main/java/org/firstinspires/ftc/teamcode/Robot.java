@@ -100,13 +100,6 @@ public class Robot {
         robotState.update();
         gate.update();
         intake.update();
-       if (drivetrain.follower.getVelocity().getMagnitude() > Hood.HOOD_COMP_SOTM_THRESHOLD && SimpleShooterMath.SOTMOffset == 0){
-           hood.hoodOffsetSOTM();
-       }
-       if (drivetrain.follower.getVelocity().getMagnitude() <= Hood.HOOD_COMP_SOTM_THRESHOLD && SimpleShooterMath.SOTMOffset != 0){
-           SimpleShooterMath.SOTMOffset = 0;
-       }
-
     }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {

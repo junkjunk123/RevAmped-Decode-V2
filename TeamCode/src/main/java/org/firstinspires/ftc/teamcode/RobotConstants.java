@@ -42,6 +42,7 @@ public class RobotConstants {
         //Hood comp
         Hood.HOOD_COMP_SOTM_THRESHOLD = 4;
         Hood.HOOD_COMP_SOTM = -15/255f;
+        Hood.HOOD_COMP_SOTM_BACKWARDS = -7/255f;
 
         Hood.HOOD_FAR_COMP = -0/255f;
         Hood.HOOD_COMP = -15/255f;
