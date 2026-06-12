@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
+import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -23,6 +25,7 @@ import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
+import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 import java.util.Arrays;
@@ -40,6 +43,7 @@ public class MTITele extends OpModeCommand {
 
     public static double turretPos;
     public static boolean disableThresholdTrackChange;
+    public static float DRIVER_TURRET_OFFSET;
     private TrackingThread autoTrack;
 
     @Override
@@ -117,6 +121,7 @@ public class MTITele extends OpModeCommand {
                     )
             );
         }
+
         //Hold Shoot
         if (gamepad_1.right_bumper.isRisingEdge()){
             schedule(
@@ -184,16 +189,9 @@ public class MTITele extends OpModeCommand {
             robot.shootCorner();
         }
         //Next Turret Preset
-        if (gamepad_1.right_trigger_button.isRisingEdge()){
-            TrackingThread.trackTurret = false;
-            robot.turret.next();
+        if (gamepad_1.right_trigger_button.isRisingEdge()) {
+            TrackingThread.velocityCompensation = !TrackingThread.velocityCompensation;
         }
-        //Previous Turret Preset
-        if (gamepad_1.left_trigger_button.isRisingEdge()){
-            TrackingThread.trackTurret = false;
-            robot.turret.previous();
-        }
-
 
         //====================GAMEPAD_2===================
         //Intake
