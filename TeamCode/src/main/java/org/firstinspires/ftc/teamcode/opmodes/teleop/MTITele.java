@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
+import org.firstinspires.ftc.teamcode.utils.data.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
 import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
@@ -140,6 +141,7 @@ public class MTITele extends OpModeCommand {
                     )
             );
         }
+
         //Resolve after hold is done
         if (gamepad_1.right_bumper.isFallingEdge()){
             schedule(
@@ -188,9 +190,15 @@ public class MTITele extends OpModeCommand {
             TrackingThread.trackHood = false;
             robot.shootCorner();
         }
-        //Next Turret Preset
+        //Toggle sotm
         if (gamepad_1.right_trigger_button.isRisingEdge()) {
             TrackingThread.velocityCompensation = !TrackingThread.velocityCompensation;
+        }
+
+        if (gamepad1.left_stick_y > 0.3f && !TrackingThread.velocityCompensation){
+            Robot.sotmTurretComp = true;
+        } else{
+            Robot.sotmTurretComp = false;
         }
 
         //====================GAMEPAD_2===================
@@ -258,5 +266,7 @@ public class MTITele extends OpModeCommand {
         telemetry.addData("hood",robot.hood.getPosition());
         telemetry.addData("disableThresholdTrack",disableThresholdTrackChange);
         telemetry.addData("sotm offset", SimpleShooterMath.SOTMOffset);
+        telemetry.addData("turret comp",Robot.sotmTurretComp);
+        telemetry.addData("turret offset",SimpleShooterMath.turretCompOffset);
     }
 }
