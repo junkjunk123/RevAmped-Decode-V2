@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.opmodes.auto.CloseAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.FarAuto;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
@@ -32,7 +33,9 @@ public class RobotConstants {
         //==========THILAN CAN CHANGE THESE==============
         CloseAuto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
         CloseAuto.GATE_WAIT = 3000; //max time in ms the bot waits at the gate
-        MTITele.outreach = false; //enable for stop program button (gamepad_2 back)
+        FarAuto.FLYWHEEL_RAMP_UP_WAIT = 1500;
+        MTITele.outreach = true; //enable for stop program button (gamepad_2 back)
+        MTITele.DRIVER_TURRET_OFFSET = -7/255f;
         ShooterMath.velocityCompensation = false; //SOTM toggle
         IntakeDistanceSensors.useSensors = true; //Distance sensors toggle
         //Intake sensor delays
@@ -89,7 +92,7 @@ public class RobotConstants {
         Hood.CORNER_PRESET = 95/255f;
 
         //Turret Constants
-        ServoTurretMTI.REST = 127/255f;
+        ServoTurretMTI.REST = 128/255f;
         ServoTurretMTI.PRELOADS_PRESET = 122/255f;
 
         ServoTurretMTI.FULL_ROTATION = 282/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;
