@@ -34,6 +34,7 @@ public class RobotConstants {
         CloseAuto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
         CloseAuto.GATE_WAIT = 3000; //max time in ms the bot waits at the gate
         FarAuto.FLYWHEEL_RAMP_UP_WAIT = 1500;
+        FarAuto.SHOOT_DELAY = 150;
         MTITele.outreach = true; //enable for stop program button (gamepad_2 back)
         MTITele.DRIVER_TURRET_OFFSET = -7/255f;
         ShooterMath.velocityCompensation = false; //SOTM toggle
@@ -76,7 +77,7 @@ public class RobotConstants {
         FeederWheel.TARGET_VEL = 2400; FeederWheel.INTAKE_VELOCITY = 2400; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.TRANSFER_FAR = 1200;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1200;
+        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1175;
         Flywheel.CORNER_VELOCITY = 1050;
         Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;

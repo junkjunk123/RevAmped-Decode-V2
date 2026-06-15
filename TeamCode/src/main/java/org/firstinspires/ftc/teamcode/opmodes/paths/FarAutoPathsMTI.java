@@ -33,22 +33,22 @@ public class FarAutoPathsMTI implements PathSupplier {
     public static ColoredDecodePose FIRST_SHOOT_CONTROL = new ColoredDecodePose(23.5, 16);
 
 
-    public static ColoredDecodePose SECOND_SPIKE = new ColoredDecodePose(10, 8.5, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_SPIKE = new ColoredDecodePose(13.5, 13, Math.toRadians(180));
 
 
-    public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(42, 8.5);
+    public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(45.5, 13);
 
-    public static ColoredDecodePose SWEEP_1 = new ColoredDecodePose(10, 8.5, Math.toRadians(180));
+    public static ColoredDecodePose SWEEP_1 = new ColoredDecodePose(13.5, 13, Math.toRadians(180));
 
-    public static ColoredDecodePose SWEEP_2 = new ColoredDecodePose(12.5, 16, Math.toRadians(140));
+    public static ColoredDecodePose SWEEP_2 = new ColoredDecodePose(16, 20.5, Math.toRadians(140));
 
-    public static ColoredDecodePose SWEEP_2_CONTROL = new ColoredDecodePose(12.5, 10);
+    public static ColoredDecodePose SWEEP_2_CONTROL = new ColoredDecodePose(16, 14.5);
 
-    public static ColoredDecodePose SWEEP_3 = new ColoredDecodePose(12.5, 36, Math.toRadians(140));
+    public static ColoredDecodePose SWEEP_3 = new ColoredDecodePose(14, 40.5, Math.toRadians(140));
 
-    public static ColoredDecodePose SWEEP_SHOOT = new ColoredDecodePose(48,13);
+    public static ColoredDecodePose SWEEP_SHOOT = new ColoredDecodePose(51.5,17.5);
 
-    public static ColoredDecodePose PARK = new ColoredDecodePose(45, 16);
+    public static ColoredDecodePose PARK = new ColoredDecodePose(48.5, 20.5);
 
 
 
@@ -110,7 +110,7 @@ public class FarAutoPathsMTI implements PathSupplier {
                 .build()
         );
 
-        FollowParameters sweepAndShoot = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters sweepAndShoot = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_1, SWEEP_2_CONTROL, SWEEP_2))
                 .setLinearHeadingInterpolation(SWEEP_1.getHeading(), SWEEP_2.getHeading())
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_2, SWEEP_3))
@@ -133,7 +133,7 @@ public class FarAutoPathsMTI implements PathSupplier {
                 .build()
         );
 
-        FollowParameters sweepAndShoot2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters sweepAndShoot2 = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_1, SWEEP_2_CONTROL, SWEEP_2))
                 .setLinearHeadingInterpolation(SWEEP_1.getHeading(), SWEEP_2.getHeading())
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_2, SWEEP_3))
@@ -155,7 +155,7 @@ public class FarAutoPathsMTI implements PathSupplier {
                 .build()
         );
 
-        FollowParameters sweepAndShoot3 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters sweepAndShoot3 = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_1, SWEEP_2_CONTROL, SWEEP_2))
                 .setLinearHeadingInterpolation(SWEEP_1.getHeading(), SWEEP_2.getHeading())
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_2, SWEEP_3))
@@ -177,7 +177,7 @@ public class FarAutoPathsMTI implements PathSupplier {
                 .build()
         );
 
-        FollowParameters sweepAndShoot4 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters sweepAndShoot4 = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_1, SWEEP_2_CONTROL, SWEEP_2))
                 .setLinearHeadingInterpolation(SWEEP_1.getHeading(), SWEEP_2.getHeading())
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_2, SWEEP_3))
@@ -199,7 +199,7 @@ public class FarAutoPathsMTI implements PathSupplier {
                 .build()
         );
 
-        FollowParameters sweepAndShoot5 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters sweepAndShoot5 = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_1, SWEEP_2_CONTROL, SWEEP_2))
                 .setLinearHeadingInterpolation(SWEEP_1.getHeading(), SWEEP_2.getHeading())
                 .addPath(ColoredDecodePose.makeBezier(SWEEP_2, SWEEP_3))
