@@ -107,6 +107,18 @@ public class MTITele extends OpModeCommand {
             );
         }
 
+        //resting threshold
+        if (!disableThresholdTrackChange) {
+            if (Robot.shootingFar && tsh.atState(RobotStateHandler.CycleState.INTAKE) && TrackingThread.trackHood) {
+                TrackingThread.trackHood = false;
+                robot.flywheel.medium();
+            }
+
+            if ((!Robot.shootingFar || (!tsh.atState(RobotStateHandler.CycleState.INTAKE)) && !TrackingThread.trackHood)) {
+                TrackingThread.trackHood = true;
+            }
+        }
+
         //Stop transfer motor (Robot is at intake AND the sensors are on AND robot has a ball in the transfer)
         if (robot.intake.distanceSensors.isOn() && robot.intake.ballInTransfer() && tsh.atState(RobotStateHandler.CycleState.INTAKE)){
             schedule(new Instant(robot::stopFeeder));
