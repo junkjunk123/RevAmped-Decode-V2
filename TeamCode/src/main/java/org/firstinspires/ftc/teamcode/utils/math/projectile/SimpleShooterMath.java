@@ -89,7 +89,7 @@ public class SimpleShooterMath {
 
         double[][] flywheelVel = {
                 {670, 870, 1035},
-                {730, 910, 1035},
+                {760, 940, 1035},
                 {870, 1020, 1050}
         };
 
@@ -186,6 +186,7 @@ public class SimpleShooterMath {
                 flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
 //                flywheelVelocity = launch*launchToVel;
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Math.min(maxFlywheelVel, Flywheel.MAX_VELOCITY));
+                flywheelVelocity += Robot.flywheelFineTune;
 //
 //                inverseKinematics.setDistance(displacement.getMagnitude());
 //                inverseKinematics.setFlywheelVelocity(flywheel.getVelocity() * K_flywheelVel);
@@ -197,12 +198,8 @@ public class SimpleShooterMath {
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
-                hoodPos += hoodCompOffset+SOTMOffset;
+                hoodPos += hoodCompOffset+SOTMOffset+Robot.hoodFineTune;
                 hoodPos = Range.clip(hoodPos, 0, 1);
-                //goon
-                if (!Globals.isTeleOp) {
-                    flywheelVelocity += 100;
-                }
             }
         }
     }
