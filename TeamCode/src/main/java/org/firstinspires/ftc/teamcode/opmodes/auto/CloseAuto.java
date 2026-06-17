@@ -66,23 +66,23 @@ public class CloseAuto extends OpModeCommand {
 
                         //Shooting preloads
                         new Parallel(
-                            new Sequential(
-                                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.3)),
-                                new Instant(() -> robot.flywheel.setVelocity(Flywheel.CLOSE_PRELOADS_VEL)) // stop ramp-up
-                            ),
-                            robot.drivetrain.follow(),
-                            shootPreloads()
+                                new Sequential(
+                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.3)),
+                                        new Instant(() -> robot.flywheel.setVelocity(Flywheel.CLOSE_PRELOADS_VEL)) // stop ramp-up
+                                ),
+                                robot.drivetrain.follow(),
+                                shootPreloads()
                         ),
 
                         //First Spike Mark
                         new Parallel(
-                            new Instant(
-                                () -> { //enable tracking
-                                    TrackingThread.trackTurret = true;
-                                    TrackingThread.trackHood = true;
-                                }
-                            ),
-                            cycle()
+                                new Instant(
+                                        () -> { //enable tracking
+                                            TrackingThread.trackTurret = true;
+                                            TrackingThread.trackHood = true;
+                                        }
+                                ),
+                                cycle()
                         ),
 
                         //Gate Cycle 1 & 2
@@ -104,46 +104,46 @@ public class CloseAuto extends OpModeCommand {
 
     }
 
-    public ICommand shootPreloads(){
+    public ICommand shootPreloads() {
         return new Sequential(
-            new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-            new Wait(150), //to remove/mitigate the slight backwards vel while shooting
-            shoot()
+                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
+                new Wait(150), //to remove/mitigate the slight backwards vel while shooting
+                shoot()
         );
     }
 
-    public ICommand intake(){
+    public ICommand intake() {
         return new Sequential(
-            new Instant(() -> SimpleShooterMath.hoodCompOffset = 0),
-            robot.resetAfterShooting(),
-            new Instant(robot::intake),
-            //clear the states at 50% of path to remove any false positives from the previous shoot
-            new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
-            new Instant(() -> robot.intake.distanceSensors.clear()),
-            new Parallel(
-                new Sequential(
-                    new WaitUntil(() -> robot.intake.ballInTransfer()),
-                    new Instant(robot::stopFeeder)
-                ),
-                new Sequential(
-                    //new WaitUntil(() -> robot.intake.hasTwo()),
-                    new WaitUntil(() -> robot.intake.hasThree()),
-                    new Instant(robot::stopIntake)
+                new Instant(() -> SimpleShooterMath.hoodCompOffset = 0),
+                robot.resetAfterShooting(),
+                new Instant(robot::intake),
+                //clear the states at 50% of path to remove any false positives from the previous shoot
+                new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
+                new Instant(() -> robot.intake.distanceSensors.clear()),
+                new Parallel(
+                        new Sequential(
+                                new WaitUntil(() -> robot.intake.ballInTransfer()),
+                                new Instant(robot::stopFeeder)
+                        ),
+                        new Sequential(
+                                //new WaitUntil(() -> robot.intake.hasTwo()),
+                                new WaitUntil(() -> robot.intake.hasThree()),
+                                new Instant(robot::stopIntake)
+                        )
                 )
-            )
         );
     }
 
     public ICommand shoot() {
         return new Parallel(
-            new Sequential(
-                new Instant(robot::transferShoot),
-                new Wait(Robot.SHOOT_TIME)
-            ),
-            new Sequential(
-                new Wait(Hood.HOOD_COMP_DELAY),
-                new Instant(() -> SimpleShooterMath.hoodCompOffset = Hood.HOOD_COMP)
-            )
+                new Sequential(
+                        new Instant(robot::transferShoot),
+                        new Wait(Robot.SHOOT_TIME)
+                ),
+                new Sequential(
+                        new Wait(Hood.HOOD_COMP_DELAY),
+                        new Instant(() -> SimpleShooterMath.hoodCompOffset = Hood.HOOD_COMP)
+                )
         );
     }
 
@@ -157,7 +157,7 @@ public class CloseAuto extends OpModeCommand {
 
             //Shooting
             new Parallel(
-                robot.drivetrain.follow(),
+                robot.drivetrain.follow(), //shooting path
                 new Sequential(
                     new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
                     robot.gate.open()

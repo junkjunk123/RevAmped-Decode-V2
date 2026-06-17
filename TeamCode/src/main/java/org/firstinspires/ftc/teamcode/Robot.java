@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.ivy.ICommand;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Parallel;
@@ -28,6 +29,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
@@ -57,8 +59,10 @@ public class Robot {
     public static int FAR_SHOOT_THRESHOLD_Y;
     public static int FAST_HOOD_COMP_THRESHOLD_VEL;
     public static boolean shootingFar;
-
-    public static boolean fastHoodComp;
+    public static boolean sotmTurretComp;
+    public static boolean enableDriverSOTM;
+    public static double flywheelFineTune;
+    public static double hoodFineTune;
 
     public Robot(HardwareMap hardwareMap) {
         this(hardwareMap, null);
@@ -100,6 +104,22 @@ public class Robot {
         robotState.update();
         gate.update();
         intake.update();
+        if (enableDriverSOTM) {
+            if (sotmTurretComp && SimpleShooterMath.turretCompOffset == 0) {
+                SimpleShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET;
+            } else if (!sotmTurretComp && SimpleShooterMath.turretCompOffset == MTITele.DRIVER_TURRET_OFFSET) {
+                Scheduler.getInstance().schedule(
+                        new Sequential(
+                                new Wait(150),
+                                new Instant(() -> SimpleShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET / 2),
+                                new Wait(50),
+                                new Instant(() -> SimpleShooterMath.turretCompOffset = 0)
+                        )
+                );
+            }
+        } else if (SimpleShooterMath.turretCompOffset != 0){
+            SimpleShooterMath.turretCompOffset = 0;
+        }
     }
 
     public void setBulkReadMode(LynxModule.BulkCachingMode mode) {

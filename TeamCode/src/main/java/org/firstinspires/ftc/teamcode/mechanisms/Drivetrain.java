@@ -426,6 +426,10 @@ public class Drivetrain {
         return path;
     }
 
+    public ArrayDeque<FollowParameters> getPaths() {
+        return paths;
+    }
+
     public void holdCurrentPose() {
         follower.followPath(hold());
     }

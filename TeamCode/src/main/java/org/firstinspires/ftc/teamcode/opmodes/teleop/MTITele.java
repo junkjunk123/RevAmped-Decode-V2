@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
+import org.firstinspires.ftc.teamcode.utils.data.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
 import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
@@ -53,12 +54,7 @@ public class MTITele extends OpModeCommand {
         gamepad_1 = new GamepadEx(gamepad1);
         gamepad_2 = new GamepadEx(gamepad2);
         tsh = RobotStateHandler.createTeleOpStateHandler(robot);
-        //set gamepad2 color
-        if (IntakeDistanceSensors.useSensors){
-            gamepad2.setLedColor(1,0,0, Gamepad.LED_DURATION_CONTINUOUS);
-        } else {
-            gamepad2.setLedColor(0.988,0.039,0.706, Gamepad.LED_DURATION_CONTINUOUS);
-        }
+        updateGP2Color();
         //to default to manaul turret
 //        RobotStateHandler.CycleState.DriveToShoot.toggleDefault();
         autoTrack = new TrackingThread(robot);
@@ -90,7 +86,7 @@ public class MTITele extends OpModeCommand {
         autoTrack.update();
 
         //Auto Transfer (Robot is at intake AND the sensors are on AND robot has three)
-        if ((robot.intake.distanceSensors.isOn()  && robot.intake.hasThree() && tsh.atState(RobotStateHandler.CycleState.INTAKE))){
+        if (gamepad_1.left_bumper.isRisingEdge() || gamepad_2.x.isRisingEdge() || (robot.intake.distanceSensors.isOn()  && robot.intake.hasThree() && tsh.atState(RobotStateHandler.CycleState.INTAKE))){
             schedule(
                     tsh.runTransition(
                             () -> {
@@ -106,21 +102,33 @@ public class MTITele extends OpModeCommand {
             );
         }
 
+        //resting threshold
+        if (!disableThresholdTrackChange) {
+            if (Robot.shootingFar && tsh.atState(RobotStateHandler.CycleState.INTAKE) && TrackingThread.trackHood) {
+                TrackingThread.trackHood = false;
+                robot.flywheel.medium();
+            }
+
+            if ((!Robot.shootingFar || (!tsh.atState(RobotStateHandler.CycleState.INTAKE)) && !TrackingThread.trackHood)) {
+                TrackingThread.trackHood = true;
+            }
+        }
+
         //Stop transfer motor (Robot is at intake AND the sensors are on AND robot has a ball in the transfer)
         if (robot.intake.distanceSensors.isOn() && robot.intake.ballInTransfer() && tsh.atState(RobotStateHandler.CycleState.INTAKE)){
             schedule(new Instant(robot::stopFeeder));
         }
 
         //====================GAMEPAD_1===================
-        //Gate open
-        if (gamepad_1.left_bumper.isRisingEdge()){
-            schedule(
-                    tsh.runTransition(
-                        robot.gate.open(),
-                        RobotStateHandler.CycleState.DRIVE_TO_SHOOT
-                    )
-            );
-        }
+        //Gate open (now in auto transfer block)
+//        if (gamepad_1.left_bumper.isRisingEdge()){
+//            schedule(
+//                    tsh.runTransition(
+//                        robot.gate.open(),
+//                        RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+//                    )
+//            );
+//        }
 
         //Hold Shoot
         if (gamepad_1.right_bumper.isRisingEdge()){
@@ -140,6 +148,7 @@ public class MTITele extends OpModeCommand {
                     )
             );
         }
+
         //Resolve after hold is done
         if (gamepad_1.right_bumper.isFallingEdge()){
             schedule(
@@ -188,41 +197,40 @@ public class MTITele extends OpModeCommand {
             TrackingThread.trackHood = false;
             robot.shootCorner();
         }
-        //Next Turret Preset
+        //Toggle sotm
         if (gamepad_1.right_trigger_button.isRisingEdge()) {
             TrackingThread.velocityCompensation = !TrackingThread.velocityCompensation;
+        }
+
+        if (gamepad1.left_stick_y > 0.3f && !TrackingThread.velocityCompensation){
+            Robot.sotmTurretComp = true;
+        } else{
+            Robot.sotmTurretComp = false;
         }
 
         //====================GAMEPAD_2===================
         //Intake
         if (gamepad_2.b.isRisingEdge()){
             schedule(tsh.runTransition(
-                    new Conditional(
-                            () -> IntakeDistanceSensors.useSensors,
-                            new Instant(robot::intake),
-                            new Instant(() -> robot.intake(true))
+                    new Sequential(
+                        robot.gate.close(),
+                        new Conditional(
+                                () -> IntakeDistanceSensors.useSensors,
+                                new Instant(robot::intake),
+                                new Instant(() -> robot.intake(true))
+                        )
                     ),
                     RobotStateHandler.CycleState.INTAKE)
 
             );
         }
         //Outtake
-        if (gamepad_2.right_bumper.isRisingEdge()){
+        if (gamepad_2.right_trigger_button.isRisingEdge()){
             schedule(new Instant(robot::outtake));
         }
-        //Reverse transfer (not used)
-        if (gamepad_2.a.isRisingEdge()){
-            schedule(robot.reverseTransfer());
-        }
         //toggles auto transfer
-        if (gamepad_2.x.isRisingEdge()){
+        if (gamepad_2.left_bumper.isRisingEdge()){
             IntakeDistanceSensors.useSensors = !IntakeDistanceSensors.useSensors;
-
-            if (IntakeDistanceSensors.useSensors){
-                gamepad2.setLedColor(1,0,0, Gamepad.LED_DURATION_CONTINUOUS);
-            } else {
-                gamepad2.setLedColor(0.988,0.039,0.706, Gamepad.LED_DURATION_CONTINUOUS);
-            }
 
             //setting the new power of the feeder if it is on so we don't kill the transfer wheels
             if (!IntakeDistanceSensors.useSensors && robot.feederWheel.getPower() != 0){
@@ -231,9 +239,34 @@ public class MTITele extends OpModeCommand {
                 robot.feederWheel.intake();
             }
 
+            updateGP2Color();
             gamepad_2.rumble(rumbleMS);
         }
+        //toggle stick sotm
+        if (gamepad_2.right_bumper.isRisingEdge()){
+            Robot.enableDriverSOTM = !Robot.enableDriverSOTM;
 
+            updateGP2Color();
+            gamepad_2.rumble(rumbleMS);
+        }
+        //reset driver offsets
+        if (gamepad_2.left_trigger_button.isRisingEdge()){
+            Robot.hoodFineTune = 0;
+            Robot.flywheelFineTune = 0;
+            gamepad_2.rumble(rumbleMS);
+        }
+        //flywheel driver offsets
+        if (gamepad_2.dpad_up.isRisingEdge()){
+            Robot.flywheelFineTune+=25;
+        } else if (gamepad_2.dpad_down.isRisingEdge()){
+            Robot.flywheelFineTune-=25;
+        }
+        //hood driver offsets
+        if (gamepad_2.dpad_right.isRisingEdge()){
+            Robot.hoodFineTune-=3/255f;
+        } else if (gamepad_2.dpad_left.isRisingEdge()){
+            Robot.hoodFineTune+=3/255f;
+        }
         //====================MISC===================
         //Confirm turret calibration
         if (gamepad_2.dpad_down.isRisingEdge() && calibrateTurret){
@@ -258,5 +291,13 @@ public class MTITele extends OpModeCommand {
         telemetry.addData("hood",robot.hood.getPosition());
         telemetry.addData("disableThresholdTrack",disableThresholdTrackChange);
         telemetry.addData("sotm offset", SimpleShooterMath.SOTMOffset);
+        telemetry.addData("turret comp",Robot.sotmTurretComp);
+        telemetry.addData("turret offset",SimpleShooterMath.turretCompOffset);
+    }
+
+    public void updateGP2Color(){
+        int green = IntakeDistanceSensors.useSensors ? 1 : 0;
+        int red = Robot.enableDriverSOTM ? 1 : 0;
+        gamepad2.setLedColor(red,green,0,Gamepad.LED_DURATION_CONTINUOUS);
     }
 }

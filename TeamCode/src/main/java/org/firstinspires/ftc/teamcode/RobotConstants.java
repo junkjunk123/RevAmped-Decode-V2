@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.opmodes.auto.CloseAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.FarAuto;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
@@ -32,7 +33,10 @@ public class RobotConstants {
         //==========THILAN CAN CHANGE THESE==============
         CloseAuto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
         CloseAuto.GATE_WAIT = 3000; //max time in ms the bot waits at the gate
+        FarAuto.FLYWHEEL_RAMP_UP_WAIT = 1500;
+        FarAuto.SHOOT_DELAY = 150;
         MTITele.outreach = false; //enable for stop program button (gamepad_2 back)
+        MTITele.DRIVER_TURRET_OFFSET = -7/255f;
         ShooterMath.velocityCompensation = false; //SOTM toggle
         IntakeDistanceSensors.useSensors = true; //Distance sensors toggle
         //Intake sensor delays
@@ -63,7 +67,7 @@ public class RobotConstants {
         ShooterGate.GATE_CLOSE = 202/255f;
         ShooterGate.GATE_MOVEMENT_TIME = 100;
 
-        Robot.FAR_SHOOT_THRESHOLD_Y = 38;
+        Robot.FAR_SHOOT_THRESHOLD_Y = 48;
 
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;
@@ -73,7 +77,7 @@ public class RobotConstants {
         FeederWheel.TARGET_VEL = 2400; FeederWheel.INTAKE_VELOCITY = 2400; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.TRANSFER_FAR = 1200;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1200;
+        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1175;
         Flywheel.CORNER_VELOCITY = 1050;
         Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
@@ -89,7 +93,7 @@ public class RobotConstants {
         Hood.CORNER_PRESET = 95/255f;
 
         //Turret Constants
-        ServoTurretMTI.REST = 127/255f;
+        ServoTurretMTI.REST = 128/255f;
         ServoTurretMTI.PRELOADS_PRESET = 122/255f;
 
         ServoTurretMTI.FULL_ROTATION = 282/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;

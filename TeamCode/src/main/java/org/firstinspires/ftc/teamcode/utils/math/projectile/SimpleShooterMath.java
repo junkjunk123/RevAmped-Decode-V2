@@ -40,13 +40,14 @@ public class SimpleShooterMath {
     private double hoodPos;
     public static double hoodCompOffset = 0;
     public static double SOTMOffset = 0;
+    public static double turretCompOffset = 0;
     private double flywheelVelocity;
     private final Interpolation2D velocityInterpolation;
     private final Interpolation2D hoodInterpolation;
     private final Interpolation2D airTime;
     private final Interpolation2D turretInterpolation;
-    private static final double[] DIST_Y = {15.0, 39.0, 63.0};
-    private static final double[] DIST_X = {26.5, 62.5, 98.5};
+    private static final double[] DIST_Y = {24.0, 48.0, 72.0};
+    private static final double[] DIST_X = {36, 72, 108};
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
     public static final int SOTM_ITERATIONS = 10;
@@ -54,10 +55,10 @@ public class SimpleShooterMath {
     public static double ANGULAR_CONSTANT = 0.05;
     public static double K_time = 1.0;
     public static double K_V = 0.1;
-    public static double blueX = 9.5;
-    public static double blueY = 135;
-    public static double redX = 134.5;
-    public static double redY = 135;
+    public static double blueX = 0;
+    public static double blueY = 144;
+    public static double redX = 144;
+    public static double redY = 144;
     public static double DT = 0.001;
     public static double launchToVel; //launch vel to flywheel vel
     public static double velOffset;
@@ -79,16 +80,17 @@ public class SimpleShooterMath {
 
         double[][] hoodPos = {
                 //Left-Top is closet to target goal
-                {0.020, 0.235, 0.373},
-                {0.078, 0.294, 0.333},
-                {0.314, 0.314, 0.373}
+                //offset by +0.094
+                {0.114, 0.329, 0.467},
+                {0.172, 0.388, 0.427},
+                {0.408, 0.408, 0.467}
         };
         hoodPos = new Matrix(hoodPos).transposed().getMatrix();
 
         double[][] flywheelVel = {
-                {700, 900, 1050},
-                {760, 940, 1050},
-                {900, 1050, 1050}
+                {670, 870, 1035},
+                {760, 940, 1035},
+                {870, 1020, 1050}
         };
 
 //        double[][] flywheelVel = { //in inch/s of ball launch velocity (NOT FLYWHEEL VELOCITY)
@@ -139,8 +141,6 @@ public class SimpleShooterMath {
 
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
-            if (!velocityCompensation)
-                targetPos = targetPos.plus(offsetPose.getPose());
             Pose currentPos = localizer.getPose();
             Pose currentVelocity = localizer.getVelocity();
 //            telemetry.addData("math pose",currentPos);
@@ -177,6 +177,7 @@ public class SimpleShooterMath {
                 double omegaComp = localizer.getAngularVelocity() * ANGULAR_CONSTANT;
                 double velFeedforward = turretPosDeriv * K_V;
                 turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos + TURRET_OFFSET) - omegaComp) + velFeedforward);
+                turretPos += turretCompOffset;
             }
 
             if (trackHood) {
@@ -185,6 +186,7 @@ public class SimpleShooterMath {
                 flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
 //                flywheelVelocity = launch*launchToVel;
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Math.min(maxFlywheelVel, Flywheel.MAX_VELOCITY));
+                flywheelVelocity += Robot.flywheelFineTune;
 //
 //                inverseKinematics.setDistance(displacement.getMagnitude());
 //                inverseKinematics.setFlywheelVelocity(flywheel.getVelocity() * K_flywheelVel);
@@ -196,12 +198,8 @@ public class SimpleShooterMath {
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
-                hoodPos += hoodCompOffset+SOTMOffset;
+                hoodPos += hoodCompOffset+SOTMOffset+Robot.hoodFineTune;
                 hoodPos = Range.clip(hoodPos, 0, 1);
-                //goon
-                if (!Globals.isTeleOp) {
-                    flywheelVelocity += 100;
-                }
             }
         }
     }
