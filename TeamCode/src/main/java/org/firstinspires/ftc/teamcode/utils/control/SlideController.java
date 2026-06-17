@@ -13,7 +13,7 @@ public class SlideController {
     public double constantBrake; //gravity contribution to brake, unneeded for hslides
     private double maxPower = 1.0;
     private double minPower = -0.2;
-    public double epsilon = 1e-3;
+    private static final double epsilon = 1e-3;
 
     private SlideController(double kGravity, double kD, double kP, double brakeBias, double quadraticBrake, double linearBrake, double constantBrake) {
         this.kGravity = kGravity;
