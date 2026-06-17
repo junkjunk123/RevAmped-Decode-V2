@@ -171,7 +171,7 @@ public class MTITele extends OpModeCommand {
         }
         //Reset Point
         if (gamepad_1.back.isRisingEdge()){
-            robot.drivetrain.follower.setPose(Drivetrain.resetPose);
+            robot.drivetrain.follower.setPose(Drivetrain.resetPose.getPose());
         }
         //Far Preset
         if (gamepad_1.dpad_up.isRisingEdge()){
