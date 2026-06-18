@@ -23,7 +23,8 @@ public class Intake {
         intakeMotor.intake();
     }
 
-    public void transferFar(){intakeMotor.transferFar();}
+    public void shootFar(){intakeMotor.shootFar();}
+    public void shoot(){intakeMotor.shoot();}
 
     public void outtake(){
         intakeMotor.outtake();
