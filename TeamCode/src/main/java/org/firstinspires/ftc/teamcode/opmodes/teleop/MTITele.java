@@ -39,7 +39,7 @@ public class MTITele extends OpModeCommand {
     private Robot robot;
     private TeleOpStateHandler tsh;
     public static int rumbleMS;
-    public static boolean calibrateTurret;
+    public static boolean calibration;
     public static boolean outreach;
 
     public static double turretPos;
@@ -129,6 +129,15 @@ public class MTITele extends OpModeCommand {
 //                    )
 //            );
 //        }
+
+        if (gamepad_1.start.isRisingEdge() && MTITele.calibration){
+            schedule(
+                    tsh.runTransition(
+                        robot.gate.open(),
+                        RobotStateHandler.CycleState.DRIVE_TO_SHOOT
+                    )
+            );
+        }
 
         //Hold Shoot
         if (gamepad_1.right_bumper.isRisingEdge()){
@@ -269,7 +278,7 @@ public class MTITele extends OpModeCommand {
         }
         //====================MISC===================
         //Confirm turret calibration
-        if (gamepad_2.dpad_down.isRisingEdge() && calibrateTurret){
+        if (gamepad_2.dpad_down.isRisingEdge() && calibration){
             schedule(new Instant(() -> {
                     robot.turret.setPosition(turretPos);
                     TrackingThread.trackTurret = false;
@@ -293,6 +302,7 @@ public class MTITele extends OpModeCommand {
         telemetry.addData("sotm offset", SimpleShooterMath.SOTMOffset);
         telemetry.addData("turret comp",Robot.sotmTurretComp);
         telemetry.addData("turret offset",SimpleShooterMath.turretCompOffset);
+        telemetry.addData("use intake distance",robot.intake.distanceSensors.readIntakeDistance);
     }
 
     public void updateGP2Color(){
