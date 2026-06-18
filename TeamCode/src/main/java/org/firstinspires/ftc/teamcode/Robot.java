@@ -104,21 +104,23 @@ public class Robot {
         robotState.update();
         gate.update();
         intake.update();
-        if (enableDriverSOTM) {
-            if (sotmTurretComp && SimpleShooterMath.turretCompOffset == 0) {
-                SimpleShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET;
-            } else if (!sotmTurretComp && SimpleShooterMath.turretCompOffset == MTITele.DRIVER_TURRET_OFFSET) {
-                Scheduler.getInstance().schedule(
-                        new Sequential(
-                                new Wait(150),
-                                new Instant(() -> SimpleShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET / 2),
-                                new Wait(50),
-                                new Instant(() -> SimpleShooterMath.turretCompOffset = 0)
-                        )
-                );
+        if (Globals.isTeleOp) {
+            if (enableDriverSOTM) {
+                if (sotmTurretComp && SimpleShooterMath.turretCompOffset == 0) {
+                    SimpleShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET;
+                } else if (!sotmTurretComp && SimpleShooterMath.turretCompOffset == MTITele.DRIVER_TURRET_OFFSET) {
+                    Scheduler.getInstance().schedule(
+                            new Sequential(
+                                    new Wait(150),
+                                    new Instant(() -> SimpleShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET / 2),
+                                    new Wait(50),
+                                    new Instant(() -> SimpleShooterMath.turretCompOffset = 0)
+                            )
+                    );
+                }
+            } else if (SimpleShooterMath.turretCompOffset != 0) {
+                SimpleShooterMath.turretCompOffset = 0;
             }
-        } else if (SimpleShooterMath.turretCompOffset != 0){
-            SimpleShooterMath.turretCompOffset = 0;
         }
     }
 
@@ -204,13 +206,13 @@ public class Robot {
     }
 
     public void transferShootFar(){
-        intake.transferFar();
-        feederWheel.transferFar();
+        intake.shootFar();
+        feederWheel.shootFar();
     }
 
     public void transferShoot(){
-        intake.intake();
-        feederWheel.intake();
+        intake.shoot();
+        feederWheel.shoot();
     }
 
     public void intake(boolean feederSlow){

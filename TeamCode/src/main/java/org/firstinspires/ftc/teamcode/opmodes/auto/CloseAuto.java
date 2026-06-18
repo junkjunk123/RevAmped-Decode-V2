@@ -61,15 +61,11 @@ public class CloseAuto extends OpModeCommand {
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(() -> {
                             matchTimer.reset();
-                            robot.flywheel.setPower(1.0f); // ramp up
+                            robot.flywheel.setVelocity(Flywheel.CLOSE_PRELOADS_VEL);
                         }),
 
                         //Shooting preloads
                         new Parallel(
-                                new Sequential(
-                                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.3)),
-                                        new Instant(() -> robot.flywheel.setVelocity(Flywheel.CLOSE_PRELOADS_VEL)) // stop ramp-up
-                                ),
                                 robot.drivetrain.follow(),
                                 shootPreloads()
                         ),

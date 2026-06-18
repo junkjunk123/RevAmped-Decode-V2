@@ -37,6 +37,7 @@ public class RobotConstants {
         FarAuto.SHOOT_DELAY = 150;
         MTITele.outreach = false; //enable for stop program button (gamepad_2 back)
         MTITele.DRIVER_TURRET_OFFSET = -7/255f;
+        MTITele.calibration = true;
         ShooterMath.velocityCompensation = false; //SOTM toggle
         IntakeDistanceSensors.useSensors = true; //Distance sensors toggle
         //Intake sensor delays
@@ -70,18 +71,18 @@ public class RobotConstants {
         Robot.FAR_SHOOT_THRESHOLD_Y = 48;
 
         //IntakeMotor Constants
-        IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;
-        IntakeMotor.IDLE_POWER = 0.1f;
+        IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOT_FAR = 0.5f;
+        IntakeMotor.IDLE_POWER = 0.1f; IntakeMotor.SHOOT = 1.0f;
 
         //max vel is 2800
-        FeederWheel.TARGET_VEL = 2400; FeederWheel.INTAKE_VELOCITY = 2400; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.TRANSFER_FAR = 1200;
+        FeederWheel.TARGET_VEL = 2400; FeederWheel.INTAKE_VELOCITY = 2400; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.SHOOT_FAR = 1200; FeederWheel.SHOOT_VELOCITY = 2400;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1175;
+        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1125;
         Flywheel.CORNER_VELOCITY = 1050;
         Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
-        Flywheel.CLOSE_PRELOADS_VEL = 930;
+        Flywheel.CLOSE_PRELOADS_VEL = 910;
 
         //Hood Constants
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
@@ -94,7 +95,8 @@ public class RobotConstants {
 
         //Turret Constants
         ServoTurretMTI.REST = 128/255f;
-        ServoTurretMTI.PRELOADS_PRESET = 122/255f;
+        ServoTurretMTI.RED_CLOSE_PRELOADS = 122/255f;
+        ServoTurretMTI.BLUE_CLOSE_PRELOADS = 134/255f;
 
         ServoTurretMTI.FULL_ROTATION = 282/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;
         ServoTurretMTI.LEFT_TICKS_LIMIT = 250/255f; ServoTurretMTI.RIGHT_TICKS_LIMIT = 5/255f;

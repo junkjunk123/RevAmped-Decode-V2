@@ -33,18 +33,18 @@ public class FarAutoPathsMTI implements PathSupplier {
     public static ColoredDecodePose FIRST_SHOOT_CONTROL = new ColoredDecodePose(23.5, 16);
 
 
-    public static ColoredDecodePose SECOND_SPIKE = new ColoredDecodePose(13.5, 13, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_SPIKE = new ColoredDecodePose(13.5, 12, Math.toRadians(180));
 
 
     public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(45.5, 13);
 
     public static ColoredDecodePose SWEEP_1 = new ColoredDecodePose(13.5, 13, Math.toRadians(180));
 
-    public static ColoredDecodePose SWEEP_2 = new ColoredDecodePose(16, 20.5, Math.toRadians(140));
+    public static ColoredDecodePose SWEEP_2 = new ColoredDecodePose(16, 20.5, Math.toRadians(125));
 
     public static ColoredDecodePose SWEEP_2_CONTROL = new ColoredDecodePose(16, 14.5);
 
-    public static ColoredDecodePose SWEEP_3 = new ColoredDecodePose(14, 40.5, Math.toRadians(140));
+    public static ColoredDecodePose SWEEP_3 = new ColoredDecodePose(14, 40.5, Math.toRadians(125));
 
     public static ColoredDecodePose SWEEP_SHOOT = new ColoredDecodePose(51.5,17.5);
 

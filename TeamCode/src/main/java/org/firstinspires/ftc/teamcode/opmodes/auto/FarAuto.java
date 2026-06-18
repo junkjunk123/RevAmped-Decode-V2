@@ -25,6 +25,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPathsMTI;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPathsMTI;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
@@ -53,6 +55,11 @@ public class FarAuto extends OpModeCommand {
         TrackingThread.velocityCompensation = false;
         TrackingThread.trackHood = false; // for ramp-up
         Drivetrain.startPose = robot.drivetrain.follower.getPose();
+        if (Globals.allianceColor.equals(AllianceColor.Red)){
+            SimpleShooterMath.turretCompOffset = 3/255f;
+        } else {
+            SimpleShooterMath.turretCompOffset = -2/255f;
+        }
         robot.gate.setGateOpen();
 
         schedule(
@@ -63,17 +70,18 @@ public class FarAuto extends OpModeCommand {
                     telemetry.addData("states", Arrays.toString(robot.intake.getStates()));
                     telemetry.addData("state", state);
                     telemetry.addData("size", robot.drivetrain.getPaths().size());
+                    telemetry.addData("turret offset",SimpleShooterMath.turretCompOffset);
+                    telemetry.addData("isTeleop",Globals.isTeleOp);
+                    telemetry.addData("alliance",Globals.allianceColor);
                     telemetry.update();
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
                         new Instant(() -> {
                             matchTimer.reset();
-                            robot.flywheel.setPower(1.0f); // ramp up
+                            robot.flywheel.far();
                         }),
                         shootPreloads(),
-
-                        new Instant(() -> SimpleShooterMath.turretCompOffset = 3.5/255),
 
                         cycleSpike(),
                         cycleSpike(),
@@ -95,7 +103,6 @@ public class FarAuto extends OpModeCommand {
         return new Sequential(
             new Wait(FLYWHEEL_RAMP_UP_WAIT),
             new Instant(() -> {
-                robot.flywheel.far();
                 robot.hood.far();
             }),
             shoot()
