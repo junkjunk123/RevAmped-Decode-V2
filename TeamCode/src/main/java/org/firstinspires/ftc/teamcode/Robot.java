@@ -186,7 +186,7 @@ public class Robot {
         //hood.rest();
         return new Parallel(
             new Instant(() -> SimpleShooterMath.hoodCompOffset = 0),
-//            new Instant(flywheel::stop),
+            //new Instant(flywheel::unpower),
             gate.close()
         );
     }

@@ -43,6 +43,7 @@ public class RobotConstants {
         //Intake sensor delays
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_AUTO = 100;
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_TELE = 300;
+        SimpleShooterMath.tooCloseThreshold = 60;
 
         //Hood comp
         Hood.HOOD_COMP_SOTM_THRESHOLD = 4;
@@ -50,8 +51,8 @@ public class RobotConstants {
         Hood.HOOD_COMP_SOTM_BACKWARDS = -7/255f;
 
         Hood.HOOD_FAR_COMP = -0/255f;
-        Hood.HOOD_COMP = -15/255f;
-        Hood.HOOD_COMP_DELAY = 150; //delay in ms of how long to wait after start shooting to hood comp
+        Hood.HOOD_COMP = -25/255f;
+        Hood.HOOD_COMP_DELAY = 100; //delay in ms of how long to wait after start shooting to hood comp
 
 
         Robot.SHOOT_TIME = 250; //close shoot time (used in auto)
@@ -72,7 +73,7 @@ public class RobotConstants {
 
         //IntakeMotor Constants
         IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOT_FAR = 0.5f;
-        IntakeMotor.IDLE_POWER = 0.1f; IntakeMotor.SHOOT = 1.0f;
+        IntakeMotor.IDLE_POWER = 0.3f; IntakeMotor.SHOOT = 1.0f;
 
         //max vel is 2800
         FeederWheel.TARGET_VEL = 2400; FeederWheel.INTAKE_VELOCITY = 2400; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.SHOOT_FAR = 1200; FeederWheel.SHOOT_VELOCITY = 2400;

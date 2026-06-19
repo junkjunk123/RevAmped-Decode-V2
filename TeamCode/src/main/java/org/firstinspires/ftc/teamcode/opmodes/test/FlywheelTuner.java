@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 
-@Disabled
+//@Disabled
 @Config
 @TeleOp
 public class FlywheelTuner extends OpMode {

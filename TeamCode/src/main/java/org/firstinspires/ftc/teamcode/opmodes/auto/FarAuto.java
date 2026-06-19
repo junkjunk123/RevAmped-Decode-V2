@@ -56,9 +56,9 @@ public class FarAuto extends OpModeCommand {
         TrackingThread.trackHood = false; // for ramp-up
         Drivetrain.startPose = robot.drivetrain.follower.getPose();
         if (Globals.allianceColor.equals(AllianceColor.Red)){
-            SimpleShooterMath.turretCompOffset = 3/255f;
+            SimpleShooterMath.turretFarOffset = 3/255f;
         } else {
-            SimpleShooterMath.turretCompOffset = -2/255f;
+            SimpleShooterMath.turretFarOffset = -2/255f;
         }
         robot.gate.setGateOpen();
 

@@ -14,12 +14,13 @@ public class FlywheelController {
     public enum Mode {
         SPINUP,
         REGEN,
-        HOLD
+        HOLD,
+        SPINDOWN
     }
 
     // --- PSF gains ---
     public static double GAIN = 0.0006;
-    public static double VELOCITY_FEEDFORWARD = 0.00072;
+    public static double VELOCITY_FEEDFORWARD = 0.00057;
     public static double SECONDARY_VEL_FEEDFORWARD = 0.0008;
     public static double SECONDARY_SWITCH = 800;
     public static double STATIC_FEEDFORWARD = 0.055;
@@ -77,18 +78,29 @@ public class FlywheelController {
                     mode = Mode.SPINUP;
                 } else if (filteredVelocity < REGEN_RATIO * targetVelocity) {
                     mode = Mode.REGEN;
+                } else if (filteredVelocity > (2 - REGEN_HYSTERESIS) * targetVelocity) {
+                    mode = Mode.SPINDOWN;
+                }
+                break;
+            case SPINDOWN:
+                if (filteredVelocity < (2 - REGEN_RATIO) * targetVelocity) {
+                    mode = Mode.HOLD;
                 }
                 break;
         }
 
         // --- Control law based on mode ---
         return switch (mode) {
+            case SPINDOWN -> 0.0;
             case SPINUP -> KICK_POWER * Math.signum(error);
             case REGEN -> {
+                /*
                 double velFF = targetVelocity < SECONDARY_SWITCH ? targetVelocity * SECONDARY_VEL_FEEDFORWARD
                         : targetVelocity * VELOCITY_FEEDFORWARD;
                 double staticFF = (STATIC_FEEDFORWARD + REGEN_KICK) * Math.signum(error);
                 yield REGEN_GAIN * error + velFF + staticFF;
+                 */
+                yield KICK_POWER * Math.signum(error);
             }
             default -> {
                 double velFF = targetVelocity < SECONDARY_SWITCH ? targetVelocity * SECONDARY_VEL_FEEDFORWARD

@@ -20,8 +20,11 @@ import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.FlywheelController;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.data.BooleanSwitch;
@@ -45,6 +48,7 @@ public class MTITele extends OpModeCommand {
     public static double turretPos;
     public static boolean disableThresholdTrackChange;
     public static float DRIVER_TURRET_OFFSET;
+    public static boolean canShoot; //for if the robot is too close to the goal
     private TrackingThread autoTrack;
 
     @Override
@@ -73,6 +77,11 @@ public class MTITele extends OpModeCommand {
             new Sequential(
                 new WaitUntil(() -> !opModeInInit()),
                 new Instant(robot::initialize),
+                new Conditional(() -> IntakeDistanceSensors.useSensors,
+                        new Instant(robot::intake),
+                        new Instant(() -> robot.intake(true))
+                ),
+                new Instant(robot.flywheel::near),
                 new Wait(500)
             )
         );
@@ -141,41 +150,49 @@ public class MTITele extends OpModeCommand {
 
         //Hold Shoot
         if (gamepad_1.right_bumper.isRisingEdge()){
-            schedule(
-                    tsh.runTransition(
-                            new Conditional(() -> Robot.shootingFar,
-                                    new Parallel(
-                                        robot.farHoodComp(),
-                                        new Instant(robot::transferShootFar)
-                                    ),
-                                    new Parallel(
-                                        robot.hoodComp(),
-                                        new Instant(robot::transferShoot)
-                                    )
-                            ),
-                            RobotStateHandler.CycleState.SHOOT
-                    )
-            );
+            if (canShoot) {
+                schedule(
+                        new Sequential(
+                                new WaitUntil(() -> robot.flywheel.getController().getMode().equals(FlywheelController.Mode.HOLD)),
+                                tsh.runTransition(
+                                        new Conditional(() -> Robot.shootingFar,
+                                                new Parallel(
+                                                        robot.farHoodComp(),
+                                                        new Instant(robot::transferShootFar)
+                                                ),
+                                                new Parallel(
+                                                        robot.hoodComp(),
+                                                        new Instant(robot::transferShoot)
+                                                )
+                                        ),
+                                        RobotStateHandler.CycleState.SHOOT
+                                )
+                        )
+                );
+            } else{
+                gamepad_1.rumble(rumbleMS);
+            }
         }
 
-        //Resolve after hold is done
+        //Resolve after hold is done rumbles if too close to goal
         if (gamepad_1.right_bumper.isFallingEdge()){
             schedule(
-                    tsh.runTransition(
-                            new Sequential(
-                                    robot.stopCleanup(),
-                                    new Conditional(() -> IntakeDistanceSensors.useSensors,
-                                            new Instant(robot::intake),
-                                            new Instant(() -> robot.intake(true))
-                                    ),
-                                    new Instant(() -> {
-                                        disableThresholdTrackChange = false;
-                                        TrackingThread.trackTurret = true;
-                                        TrackingThread.trackHood = true;
-                                    })
-                            ),
-                            RobotStateHandler.CycleState.INTAKE
-                    )
+                tsh.runTransition(
+                    new Sequential(
+                        robot.stopCleanup(),
+                        new Conditional(() -> IntakeDistanceSensors.useSensors,
+                            new Instant(robot::intake),
+                            new Instant(() -> robot.intake(true))
+                        ),
+                        new Instant(() -> {
+                            disableThresholdTrackChange = false;
+                            TrackingThread.trackTurret = true;
+                            TrackingThread.trackHood = true;
+                            SimpleShooterMath.turretFarOffset = 0;
+                        })
+                    ),
+                    RobotStateHandler.CycleState.INTAKE
+                )
             );
         }
         //Reset Point
@@ -184,6 +201,11 @@ public class MTITele extends OpModeCommand {
         }
         //Far Preset
         if (gamepad_1.dpad_up.isRisingEdge()){
+            if (Globals.allianceColor.equals(AllianceColor.Red)){
+                SimpleShooterMath.turretFarOffset = 3/255f;
+            } else {
+                SimpleShooterMath.turretFarOffset = -2/255f;
+            }
             disableThresholdTrackChange = true;
             TrackingThread.trackHood = false;
             robot.shootFar();
@@ -290,19 +312,9 @@ public class MTITele extends OpModeCommand {
         }
 
         //Telemetry
-        telemetry.addData("sensors", Arrays.toString(robot.intake.getStates()));
         telemetry.addData("error",robot.flywheel.getError());
-        telemetry.addData("velocity",robot.flywheel.getVelocity());
-        telemetry.addData("tsh",tsh.currentState().toString());
-        telemetry.addData("shootingFar",Robot.shootingFar);
-        telemetry.addData("trackHood",TrackingThread.trackHood);
-        telemetry.addData("trackTurret",TrackingThread.trackTurret);
-        telemetry.addData("hood",robot.hood.getPosition());
-        telemetry.addData("disableThresholdTrack",disableThresholdTrackChange);
-        telemetry.addData("sotm offset", SimpleShooterMath.SOTMOffset);
-        telemetry.addData("turret comp",Robot.sotmTurretComp);
-        telemetry.addData("turret offset",SimpleShooterMath.turretCompOffset);
-        telemetry.addData("use intake distance",robot.intake.distanceSensors.readIntakeDistance);
+        telemetry.addData("velocity",robot.flywheel.getFilteredVelocity());
+        telemetry.addData("target",robot.flywheel.getTargetVelocity());
     }
 
     public void updateGP2Color(){
