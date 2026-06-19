@@ -88,9 +88,9 @@ public class SimpleShooterMath {
         hoodPos = new Matrix(hoodPos).transposed().getMatrix();
 
         double[][] flywheelVel = {
-                {740, 940, 1105},
-                {830, 1010, 1105},
-                {940, 1090, 1120}
+                {760, 960, 1125},
+                {850, 1030, 1125},
+                {960, 1110, 1140}
         };
 
 //        double[][] flywheelVel = { //in inch/s of ball launch velocity (NOT FLYWHEEL VELOCITY)
