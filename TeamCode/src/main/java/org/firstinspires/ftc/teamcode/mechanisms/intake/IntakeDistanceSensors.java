@@ -25,12 +25,14 @@ public class IntakeDistanceSensors {
     private boolean on;
     public boolean readIntakeDistance = false;
     public boolean waiting = false;
+    private int currentSensor;
     public IntakeDistanceSensors(HardwareMap hardwareMap){
         distanceSensors = new IntakeArtifactDetector[] {
                 new IntakeArtifactDetector(hardwareMap,"ball1"),
                 new IntakeArtifactDetector(hardwareMap,"ball2"),
                 new IntakeArtifactDetector(hardwareMap,"ball3")};
         distanceStates = new boolean[] {false,false,false};
+        start();
     }
 
     public void stop(){
@@ -44,6 +46,7 @@ public class IntakeDistanceSensors {
 
     public void start(){
         if (useSensors) {
+            currentSensor = 0;
             on = true;
             distanceSensors[0].start();
             distanceSensors[1].start();
@@ -60,6 +63,12 @@ public class IntakeDistanceSensors {
                 }
             }
         }
+//                if (currentSensor <= 2 && (currentSensor != 2 || readIntakeDistance)){
+//            if (distanceSensors[currentSensor].getReading()){
+//                distanceStates[currentSensor] = true;
+//                currentSensor++;
+//            }
+//        }
     }
 
     public boolean[] getStates(){
@@ -78,6 +87,7 @@ public class IntakeDistanceSensors {
         Arrays.fill(distanceStates,false);
         waiting = false;
         readIntakeDistance = false;
+        currentSensor = 0;
     }
 
     public void update() {

@@ -131,10 +131,7 @@ public class FarAuto extends OpModeCommand {
     }
 
     public ICommand shoot() {
-        return new Sequential(
-                new Instant(robot::transferShootFar),
-                new Wait(Robot.SHOOT_TIME_FAR)
-            );
+        return robot.autoShootFar();
     }
 
     public ICommand cycleSpike(){

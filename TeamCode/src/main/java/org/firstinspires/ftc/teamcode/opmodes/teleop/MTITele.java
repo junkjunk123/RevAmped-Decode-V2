@@ -139,35 +139,20 @@ public class MTITele extends OpModeCommand {
 //            );
 //        }
 
-        if (gamepad_1.start.isRisingEdge() && MTITele.calibration){
-            schedule(
-                    tsh.runTransition(
-                        robot.gate.open(),
-                        RobotStateHandler.CycleState.DRIVE_TO_SHOOT
-                    )
-            );
-        }
-
         //Hold Shoot
         if (gamepad_1.right_bumper.isRisingEdge()){
-            if (canShoot) {
+            if (canShoot || calibration) {
                 schedule(
-                        new Sequential(
-                                new WaitUntil(() -> robot.flywheel.getController().getMode().equals(FlywheelController.Mode.HOLD)),
-                                tsh.runTransition(
-                                        new Conditional(() -> Robot.shootingFar,
-                                                new Parallel(
-                                                        robot.farHoodComp(),
-                                                        new Instant(robot::transferShootFar)
-                                                ),
-                                                new Parallel(
-                                                        robot.hoodComp(),
-                                                        new Instant(robot::transferShoot)
-                                                )
-                                        ),
-                                        RobotStateHandler.CycleState.SHOOT
-                                )
+                    new Sequential(
+                        new WaitUntil(() -> robot.flywheel.getController().getMode().equals(FlywheelController.Mode.HOLD)),
+                        tsh.runTransition(
+                            new Conditional(() -> Robot.shootingFar,
+                                robot.autoShootFar(),
+                                robot.autoShoot()
+                            ),
+                            RobotStateHandler.CycleState.SHOOT
                         )
+                    )
                 );
             } else{
                 gamepad_1.rumble(rumbleMS);
@@ -312,9 +297,14 @@ public class MTITele extends OpModeCommand {
         }
 
         //Telemetry
-        telemetry.addData("error",robot.flywheel.getError());
-        telemetry.addData("velocity",robot.flywheel.getFilteredVelocity());
-        telemetry.addData("target",robot.flywheel.getTargetVelocity());
+        telemetry.addData("flywheel error",robot.flywheel.getError());
+        telemetry.addData("flywheel velocity",robot.flywheel.getFilteredVelocity());
+        telemetry.addData("flywheel target",robot.flywheel.getTargetVelocity());
+        telemetry.addData("hood pos",robot.hood.getPosition());
+        telemetry.addData("intake power",robot.intake.intakeMotor.getPower());
+        telemetry.addData("feeder velocity",robot.feederWheel.getVelocity());
+        telemetry.addData("feeder target",robot.feederWheel.getTargetVelocity());
+        telemetry.addData("feeder error",robot.feederWheel.getTargetVelocity()-robot.feederWheel.getVelocity());
     }
 
     public void updateGP2Color(){

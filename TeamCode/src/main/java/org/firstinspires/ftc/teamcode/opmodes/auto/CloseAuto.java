@@ -131,16 +131,7 @@ public class CloseAuto extends OpModeCommand {
     }
 
     public ICommand shoot() {
-        return new Parallel(
-                new Sequential(
-                        new Instant(robot::transferShoot),
-                        new Wait(Robot.SHOOT_TIME)
-                ),
-                new Sequential(
-                        new Wait(Hood.HOOD_COMP_DELAY),
-                        new Instant(() -> SimpleShooterMath.hoodCompOffset = Hood.HOOD_COMP)
-                )
-        );
+        return robot.autoShoot();
     }
 
     public ICommand cycle() {
