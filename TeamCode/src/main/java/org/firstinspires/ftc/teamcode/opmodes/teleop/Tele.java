@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
@@ -197,7 +198,7 @@ public class Tele extends OpModeCommand {
             );
         }
 
-        if (gamepad_2.dpad_up.isRisingEdge()) {
+        if (gamepad_2.dpad_left.isRisingEdge()) {
             schedule(new Conditional(
                     () -> tsh.evaluate(RobotStateHandler.CycleState.SHOOT) && canShoot,
                     new Sequential(
@@ -223,6 +224,14 @@ public class Tele extends OpModeCommand {
         if (gamepad_2.dpad_right.isRisingEdge()) {
             robot.drivetrain.follower.setHeading(resetPose.getHeading());
             GyroThread.NEUTRAL_OFFSET = 0;
+        }
+
+        if (gamepad_2.dpad_up.isRisingEdge()) {
+            schedule(new Instant(() -> Flywheel.VELOCITY_OFFSET += Flywheel.VELOCITY_INCREMENT));
+        }
+
+        if (gamepad_2.dpad_down.isRisingEdge()) {
+            schedule(new Instant(() -> Flywheel.VELOCITY_OFFSET -= Flywheel.VELOCITY_INCREMENT));
         }
 
         if (gamepad_2.right_bumper.isRisingEdge()) {
