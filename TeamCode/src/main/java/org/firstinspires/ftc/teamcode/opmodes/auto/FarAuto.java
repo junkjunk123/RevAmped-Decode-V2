@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
-import android.graphics.drawable.Icon;
 
-import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.ICommand;
-import com.pedropathing.ivy.commands.Conditional;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
@@ -12,22 +9,16 @@ import com.pedropathing.ivy.groups.Deadline;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.Intake;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
-import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPathsMTI;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPathsMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
-import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
