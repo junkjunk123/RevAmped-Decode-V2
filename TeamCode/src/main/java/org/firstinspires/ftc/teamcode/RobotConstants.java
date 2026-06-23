@@ -47,7 +47,7 @@ public class RobotConstants {
 
 
         Robot.SHOOT_TIME = 250; //close shoot time (used in auto)
-        Robot.SHOOT_TIME_FAR = 700; //far shoot time (not used rn but prob in auto)
+        Robot.SHOOT_TIME_FAR = 500; //far shoot time (not used rn but prob in auto)
         Robot.CLEANUP_CLOSE_WAIT = 100; //time the bot waits before gate close after release of gamepad_1 right_trigger
 
         //========================================================
@@ -63,14 +63,14 @@ public class RobotConstants {
         Robot.FAR_SHOOT_THRESHOLD_Y = 48;
 
         //IntakeMotor Constants
-        IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOT_FAR = 0.5f;
+        IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOT_FAR = 0.7f;
         IntakeMotor.IDLE_POWER = 0; IntakeMotor.SHOOT = 1.0f;
 
         //max vel is 2800
         FeederWheel.TARGET_VEL = 2300; FeederWheel.INTAKE_VELOCITY = 2200; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.SHOOT_FAR = 1200; FeederWheel.SHOOT_VELOCITY = 2300;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1125;
+        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1175;
         Flywheel.CORNER_VELOCITY = 1050;
         Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;

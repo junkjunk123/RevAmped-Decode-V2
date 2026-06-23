@@ -36,7 +36,7 @@ public class FarAutoPathsMTI implements PathSupplier {
     public static ColoredDecodePose SECOND_SPIKE = new ColoredDecodePose(13.5, 12, Math.toRadians(180));
 
 
-    public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(45.5, 13);
+    public static ColoredDecodePose SECOND_SHOOT = new ColoredDecodePose(46.5, 13);
 
     public static ColoredDecodePose SWEEP_1 = new ColoredDecodePose(13.5, 13, Math.toRadians(180));
 
@@ -46,9 +46,9 @@ public class FarAutoPathsMTI implements PathSupplier {
 
     public static ColoredDecodePose SWEEP_3 = new ColoredDecodePose(14, 40.5, Math.toRadians(125));
 
-    public static ColoredDecodePose SWEEP_SHOOT = new ColoredDecodePose(51.5,17.5);
+    public static ColoredDecodePose SWEEP_SHOOT = new ColoredDecodePose(52.5,17.5);
 
-    public static ColoredDecodePose PARK = new ColoredDecodePose(48.5, 20.5);
+    public static ColoredDecodePose PARK = new ColoredDecodePose(49.5, 20.5);
 
 
 

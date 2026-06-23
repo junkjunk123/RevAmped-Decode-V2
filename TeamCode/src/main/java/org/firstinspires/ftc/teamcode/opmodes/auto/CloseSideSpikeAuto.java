@@ -163,6 +163,10 @@ public class CloseSideSpikeAuto extends OpModeCommand {
                     new Sequential(
                         new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
                         new Wait(GATE_WAIT)
+                    ),
+                    new Sequential(
+                        new WaitUntil(() -> robot.intake.hasTwo()),
+                        new Wait(1400)
                     )
                 )
             ),

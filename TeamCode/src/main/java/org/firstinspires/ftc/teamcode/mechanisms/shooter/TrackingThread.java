@@ -31,6 +31,7 @@ public class TrackingThread {
         this.octoquad = octoquad.getPoseTracker().getLocalizer();
         shooterMath = new SimpleShooterMath(this.octoquad);
         INSTANCE = this;
+        TURRET_OFFSET = 0;
     }
 
     public TrackingThread(Robot robot) {

@@ -33,8 +33,7 @@ public class FarAuto extends OpModeCommand {
     public static int SHOOT_DELAY;
     public static int FLYWHEEL_RAMP_UP_WAIT;
     private boolean useTrack = true;
-    private AtomicBoolean skipSweep = new AtomicBoolean(false);
-    private int state = 0;
+    private final AtomicBoolean skipSweep = new AtomicBoolean(false);
 
     @Override
     public void initialize() {
@@ -46,11 +45,7 @@ public class FarAuto extends OpModeCommand {
         TrackingThread.velocityCompensation = false;
         TrackingThread.trackHood = false; // for ramp-up
         Drivetrain.startPose = robot.drivetrain.follower.getPose();
-        if (Globals.allianceColor.equals(AllianceColor.Red)){
-            SimpleShooterMath.turretFarOffset = 3/255f;
-        } else {
-            SimpleShooterMath.turretFarOffset = -2/255f;
-        }
+        resetOffset();
         robot.gate.setGateOpen();
 
         schedule(
@@ -59,7 +54,6 @@ public class FarAuto extends OpModeCommand {
                     if (useTrack) autoTrack.update();
                     telemetry.addData("skip",skipSweep.get());
                     telemetry.addData("states", Arrays.toString(robot.intake.getStates()));
-                    telemetry.addData("state", state);
                     telemetry.addData("size", robot.drivetrain.getPaths().size());
                     telemetry.addData("turret offset",SimpleShooterMath.turretCompOffset);
                     telemetry.addData("isTeleop",Globals.isTeleOp);
@@ -71,9 +65,11 @@ public class FarAuto extends OpModeCommand {
                         new Instant(() -> {
                             matchTimer.reset();
                             robot.flywheel.far();
+                            SimpleShooterMath.turretFarOffset -= 2/255f * Math.signum(SimpleShooterMath.turretFarOffset);
                         }),
                         shootPreloads(),
 
+                        new Instant(this::resetOffset),
                         cycleSpike(),
                         cycleSpike(),
 
@@ -206,7 +202,10 @@ public class FarAuto extends OpModeCommand {
 
     public ICommand cycleSweep(){
         return new Sequential(
-            new Instant(() -> skipSweep.set(false)),
+            new Instant(() -> {
+                skipSweep.set(false);
+                resetOffset();
+            }),
             new Race(
                 new Sequential(
                     robot.drivetrain.follow(), //hp intake path
@@ -214,7 +213,6 @@ public class FarAuto extends OpModeCommand {
                 ),
                 intakeSweepHP()
             ),
-            new Instant(() -> state = 100),
             new Lazy(() -> {
                 if (skipSweep.get()) {
                     return new Sequential(
@@ -230,7 +228,8 @@ public class FarAuto extends OpModeCommand {
                     new Instant(robot.drivetrain::skip),
                     new Parallel(
                         robot.drivetrain.follow(),
-                        fullSweep()
+                        fullSweep(),
+                        new Instant(() -> SimpleShooterMath.turretFarOffset -= 1/255f * Math.signum(SimpleShooterMath.turretFarOffset))
                     )
                 );
             })
@@ -239,5 +238,13 @@ public class FarAuto extends OpModeCommand {
 
     public ICommand park(){
         return robot.drivetrain.followLast(Drivetrain.isDone);
+    }
+
+    private void resetOffset() {
+        if (Globals.allianceColor.equals(AllianceColor.Red)){
+            SimpleShooterMath.turretFarOffset = 3/255f;
+        } else {
+            SimpleShooterMath.turretFarOffset = -2/255f;
+        }
     }
 }

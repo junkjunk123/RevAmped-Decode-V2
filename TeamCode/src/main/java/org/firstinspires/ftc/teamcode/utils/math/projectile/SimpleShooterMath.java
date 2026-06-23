@@ -75,6 +75,11 @@ public class SimpleShooterMath {
         APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
         APRIL_TAG_POSE_RED = new Pose(redX, redY);
 
+        hoodCompOffset = 0;
+        SOTMOffset = 0;
+        turretCompOffset = 0;
+        turretFarOffset = 0;
+
         //(0,0) -> (3, 0) : x increase
         //(0, 0) -> (0, 3) down : y decrease
 
