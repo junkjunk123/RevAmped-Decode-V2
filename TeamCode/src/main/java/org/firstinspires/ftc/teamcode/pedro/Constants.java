@@ -20,13 +20,13 @@ public class Constants {
     public static double DEFAULT_PROPORTIONAL = 0.22;
     public static double MEDIUM_PROPORTIONIAL = 0.15;
     public static double CONSERVATIVE_PROPORTIONAL = 0.1;
-    public static double K_LINEAR_BRAKE = 0.0969;
-    public static double K_QUADRATIC_BRAKE = 0.00042;
+    public static double K_LINEAR_BRAKE = 0.0633;
+    public static double K_QUADRATIC_BRAKE = 0.00146;
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12.4)
-            .headingPIDFCoefficients(new PIDFCoefficients(0.9589, 0, 0, 0.01))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2.1576, 0, 0.2240, 0.0005))
+            .headingPIDFCoefficients(new PIDFCoefficients(1.2889, 0, 0.1899, 0.01))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.5728, 0, 0.0995, 0.0005))
             .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(
                     DEFAULT_PROPORTIONAL,
                     K_LINEAR_BRAKE,

@@ -64,8 +64,8 @@ public class SimpleShooterMath {
     public static double shootingAngleRelativeToHood = Math.PI/2;
     private double maxFlywheelVel;
     public static ColoredDecodePose offsetPose = new ColoredDecodePose(-6, -6);
-    public static double K_flywheelPrediction = 0.5;
-    public static double K_hoodPrediction = 0.5;
+    public static double K_flywheelPrediction = 0;
+    public static double K_hoodPrediction = 0;
     private HoodInverseKinematics inverseKinematics;
     public static int tooCloseThreshold;
 
@@ -81,16 +81,16 @@ public class SimpleShooterMath {
         double[][] hoodPos = {
                 //Left-Top is closet to target goal
                 //offset by +0.094
-                {0.02, 0.3, 0.5},
-                {0.12, 0.33, 0.57},
-                {0.33, 0.4, 0.57}
+                {0.02, 0.35, 0.55},
+                {0.15, 0.43, 0.6},
+                {0.4, 0.45, 0.63}
         };
         hoodPos = new Matrix(hoodPos).transposed().getMatrix();
 
         double[][] flywheelVel = {
-                {733, 970, 1200},
-                {850, 1000, 1240},
-                {1000, 1060, 1270}
+                {720, 990, 1200},
+                {850, 1020, 1240},
+                {980, 1080, 1270}
         };
         flywheelVel = new Matrix(flywheelVel).transposed().getMatrix();
 

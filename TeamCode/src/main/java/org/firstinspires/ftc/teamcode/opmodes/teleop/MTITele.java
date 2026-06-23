@@ -273,9 +273,9 @@ public class MTITele extends OpModeCommand {
         }
         //flywheel driver offsets
         if (gamepad_2.dpad_up.isRisingEdge()){
-            Robot.flywheelFineTune+=25;
+            Robot.flywheelFineTune+=15;
         } else if (gamepad_2.dpad_down.isRisingEdge()){
-            Robot.flywheelFineTune-=25;
+            Robot.flywheelFineTune-=15;
         }
         //hood driver offsets
         if (gamepad_2.dpad_right.isRisingEdge()){
@@ -297,14 +297,21 @@ public class MTITele extends OpModeCommand {
         }
 
         //Telemetry
-        telemetry.addData("flywheel error",robot.flywheel.getError());
-        telemetry.addData("flywheel velocity",robot.flywheel.getFilteredVelocity());
-        telemetry.addData("flywheel target",robot.flywheel.getTargetVelocity());
-        telemetry.addData("hood pos",robot.hood.getPosition());
-        telemetry.addData("intake power",robot.intake.intakeMotor.getPower());
-        telemetry.addData("feeder velocity",robot.feederWheel.getVelocity());
-        telemetry.addData("feeder target",robot.feederWheel.getTargetVelocity());
-        telemetry.addData("feeder error",robot.feederWheel.getTargetVelocity()-robot.feederWheel.getVelocity());
+//        telemetry.addData("flywheel error",robot.flywheel.getError());
+//        telemetry.addData("flywheel velocity",robot.flywheel.getFilteredVelocity());
+//        telemetry.addData("flywheel target",robot.flywheel.getTargetVelocity());
+//        telemetry.addData("hood pos",robot.hood.getPosition());
+//        telemetry.addData("intake power",robot.intake.intakeMotor.getPower());
+//        telemetry.addData("feeder velocity",robot.feederWheel.getVelocity());
+//        telemetry.addData("feeder target",robot.feederWheel.getTargetVelocity());
+//        telemetry.addData("feeder error",robot.feederWheel.getTargetVelocity()-robot.feederWheel.getVelocity());
+
+        //distance sensor testing
+//        telemetry.addData("states",Arrays.toString(robot.intake.getStates()));
+//        telemetry.addData("sensor",robot.intake.distanceSensors.getCurrentSensor());
+//        telemetry.addData("three?",robot.intake.hasThree());
+//        telemetry.addData("two?",robot.intake.hasTwo());
+//        telemetry.addData("sensor states",Arrays.toString(robot.intake.distanceSensors.getSensorStates()));
     }
 
     public void updateGP2Color(){

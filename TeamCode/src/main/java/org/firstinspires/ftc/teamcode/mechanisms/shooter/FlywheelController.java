@@ -31,8 +31,8 @@ public class FlywheelController {
     public static double SPINUP_HYSTERESIS = 0.7;
 
     // --- Regeneration settings ---
-    public static double REGEN_RATIO = 0.90;
-    public static double REGEN_HYSTERESIS = 0.85;
+    public static double REGEN_RATIO = 0.92;
+    public static double REGEN_HYSTERESIS = 0.95;
     public static double REGEN_KICK = 0.4;
     public static double REGEN_GAIN = 0.0003;
 

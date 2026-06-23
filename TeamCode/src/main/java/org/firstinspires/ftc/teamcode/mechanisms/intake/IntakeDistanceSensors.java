@@ -16,8 +16,8 @@ import java.util.Arrays;
 
 @Config
 public class IntakeDistanceSensors {
-    public static int INTAKE_SENSOR_DELAY_AUTO;
-    public static int INTAKE_SENSOR_DELAY_TELE;
+    public static int[] INTAKE_SENSOR_DELAY_AUTO;
+    public static int[] INTAKE_SENSOR_DELAY_TELE;
     public static int INTAKE_SENSOR_DELAY;
     private final IntakeArtifactDetector[] distanceSensors;
     private final boolean[] distanceStates;
@@ -54,25 +54,49 @@ public class IntakeDistanceSensors {
         }
     }
 
-    public void updateSensors(boolean checkFalse){
-        for (int i = 0; i < 3; i++) {
-            if ((i < 2) || (readIntakeDistance)) {
-                if (!distanceStates[i]) {
-                    distanceSensors[i].update();
-                    distanceStates[i] = distanceSensors[i].getReading();
-                }
-            }
-        }
-//                if (currentSensor <= 2 && (currentSensor != 2 || readIntakeDistance)){
-//            if (distanceSensors[currentSensor].getReading()){
-//                distanceStates[currentSensor] = true;
-//                currentSensor++;
+    public void updateSensors(boolean checkFalse) {
+//        for (int i = 0; i < 3; i++) {
+//            if ((i < 2) || (readIntakeDistance)) {
+//                if (!distanceStates[i]) {
+//                    distanceSensors[i].update();
+//                    distanceStates[i] = distanceSensors[i].getReading();
+//                }
 //            }
 //        }
+        if (currentSensor <= 2 && !distanceStates[currentSensor]) {
+            distanceSensors[currentSensor].update();
+            if (distanceSensors[currentSensor].getReading()) {
+                distanceStates[currentSensor] = true;
+                Scheduler.getInstance().schedule(
+                    new Sequential(
+                        new Conditional(
+                            () -> Globals.isTeleOp,
+                            new Wait(INTAKE_SENSOR_DELAY_TELE[currentSensor]),
+                            new Wait(INTAKE_SENSOR_DELAY_AUTO[currentSensor])
+                        ),
+                        new Instant(() -> currentSensor++)
+                    )
+                );
+
+            }
+        }
     }
 
     public boolean[] getStates(){
         return distanceStates;
+    }
+
+    public boolean[] getSensorStates(){
+        //just directly gets the sensor state
+        distanceSensors[0].update();
+        distanceSensors[1].update();
+        distanceSensors[2].update();
+        return new boolean[] {distanceSensors[0].getReading(),distanceSensors[1].getReading(),distanceSensors[2].getReading()};
+
+    }
+
+    public int getCurrentSensor(){
+        return currentSensor;
     }
 
     public void setOn (boolean on){
@@ -95,21 +119,8 @@ public class IntakeDistanceSensors {
     }
 
     public void update(boolean checkFalse) {
-        if (on && useSensors) {
+        if (isOn()){
             updateSensors(checkFalse);
-            if (distanceStates[0] && distanceStates[1] && !readIntakeDistance && !waiting){
-                waiting = true;
-                Scheduler.getInstance().schedule(
-                    new Sequential(
-                        new Conditional(
-                            () -> Globals.isTeleOp,
-                            new Wait(INTAKE_SENSOR_DELAY_TELE),
-                            new Wait(INTAKE_SENSOR_DELAY_AUTO)
-                        ),
-                        new Instant(() -> {readIntakeDistance = true;})
-                    )
-                );
-            }
         }
     }
 }

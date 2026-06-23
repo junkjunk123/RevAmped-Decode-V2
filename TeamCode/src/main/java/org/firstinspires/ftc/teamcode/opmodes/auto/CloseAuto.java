@@ -103,7 +103,7 @@ public class CloseAuto extends OpModeCommand {
     public ICommand shootPreloads() {
         return new Sequential(
                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                new Wait(150), //to remove/mitigate the slight backwards vel while shooting
+                new Wait(150), //ramp up
                 shoot()
         );
     }

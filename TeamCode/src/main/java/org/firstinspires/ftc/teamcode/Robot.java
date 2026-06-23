@@ -9,6 +9,7 @@ import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.internal.system.CloseableOnFinalize;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
@@ -34,6 +35,7 @@ import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
@@ -307,14 +309,22 @@ public class Robot {
         );
     }
 
-    public ICommand hoodComp(){
-        return new Conditional(
-            () -> useHoodComp && Hood.HOOD_COMP != 0,
-            new Sequential(
-                new Wait(Hood.HOOD_COMP_DELAY),
-                new Instant(hood::hoodComp)
-            ),
-            Commands.NOOP
-        );
+    public ICommand hoodComp() {
+        return new Lazy(() -> {
+           if (useHoodComp && Hood.HOOD_COMP != 0) {
+               if (TrackingThread.trackHood) {
+                   return new Sequential(
+                           new Wait(Hood.HOOD_COMP_DELAY),
+                           new Instant(hood::hoodComp)
+                   );
+               } else return new Instant(() -> {
+                   double pos = hood.getPosition();
+                   pos = Range.clip(pos + Hood.HOOD_COMP, 0, 1);
+                   hood.setPosition(pos);
+               });
+           }
+
+           return Commands.NOOP;
+        });
     }
 }
