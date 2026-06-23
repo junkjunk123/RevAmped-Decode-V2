@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import java.util.List;
 
 @Configurable
-public class CloseAutoPathsMTI implements PathSupplier {
+public class CloseSideSpikeAutoPathsMTI implements PathSupplier {
     /*
     NAMING CONVENTION:
     <NAME>_<SUB-PATH NUMBER IF ANY>_<CONTROL/(NONE IF NOT CONTROL)>
@@ -20,22 +20,22 @@ public class CloseAutoPathsMTI implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(32, 134, Math.toRadians(270));
 
     //SHOOTING PRELOADS
-    public static ColoredDecodePose PRELOADS_SHOOT = new ColoredDecodePose(32, 104, Math.toRadians(270));
+    public static ColoredDecodePose PRELOADS_SHOOT = new ColoredDecodePose(32, 98, Math.toRadians(270));
 
     //GRABBING FIRST SPIKE MARK
-    public static ColoredDecodePose FIRST_SPIKE_1_CONTROL = new ColoredDecodePose(24, 104);
-    public static ColoredDecodePose FIRST_SPIKE_1 = new ColoredDecodePose(24, 104, Math.toRadians(270));
-    public static ColoredDecodePose FIRST_SPIKE_2_CONTROL = new ColoredDecodePose(24, 79);
-    public static ColoredDecodePose FIRST_SPIKE_2 = new ColoredDecodePose(14.5, 79, Math.toRadians(270));
+    public static ColoredDecodePose FIRST_SPIKE_1_CONTROL = new ColoredDecodePose(24, 98);
+    public static ColoredDecodePose FIRST_SPIKE_1 = new ColoredDecodePose(24, 94, Math.toRadians(270));
+    public static ColoredDecodePose FIRST_SPIKE_2_CONTROL = new ColoredDecodePose(22, 74);
+    public static ColoredDecodePose FIRST_SPIKE_2 = new ColoredDecodePose(13, 74, Math.toRadians(270));
 
     //SHOOTING FIRST SPIKE MARK
     public static ColoredDecodePose FIRST_SPIKE_SHOOT_1 = new ColoredDecodePose(28, 79, Math.toRadians(270));
     public static ColoredDecodePose FIRST_SPIKE_SHOOT_2 = new ColoredDecodePose(56, 80, Math.toRadians(225));
 
     //GRABBING SECOND SPIKE MARK
-    public static ColoredDecodePose SECOND_SPIKE_1_CONTROL = new ColoredDecodePose(56, 70);
-    public static ColoredDecodePose SECOND_SPIKE_1 = new ColoredDecodePose(45, 64, Math.toRadians(180));
-    public static ColoredDecodePose SECOND_SPIKE_2 = new ColoredDecodePose(18.5, 66, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_SPIKE_1_CONTROL = new ColoredDecodePose(56, 65);
+    public static ColoredDecodePose SECOND_SPIKE_1 = new ColoredDecodePose(45, 59, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_SPIKE_2 = new ColoredDecodePose(18.5, 61, Math.toRadians(180));
 
     //SHOOTING SECOND SPIKE MARK
     public static ColoredDecodePose SECOND_SPIKE_SHOOT_CONTROL = new ColoredDecodePose(37, 66);
@@ -43,9 +43,9 @@ public class CloseAutoPathsMTI implements PathSupplier {
 
     //===GATE PATHS (SHOULD BE THE SAME FOR CYCLE SPAM)===
     //OPENING GATE
-    public static ColoredDecodePose GATE_1_CONTROL = new ColoredDecodePose(43, 64);
-    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(33, 64);
-    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(12.5, 60.5, Math.toRadians(152));
+    public static ColoredDecodePose GATE_1_CONTROL = new ColoredDecodePose(43, 60);
+    public static ColoredDecodePose GATE_1 = new ColoredDecodePose(33, 60);
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(12.5, 56.5, Math.toRadians(152));
 
     //SHOOTING FROM GATE CYCLE
     public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(56, 80, Math.toRadians(225));
@@ -70,7 +70,7 @@ public class CloseAutoPathsMTI implements PathSupplier {
                 .build()
         );
 
-        FollowParameters intakeSpike1 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+        FollowParameters intakeSpike1 = new FollowParameters(Constants.CONSERVATIVE_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(PRELOADS_SHOOT, FIRST_SPIKE_1_CONTROL, FIRST_SPIKE_1))
                 .setConstantHeadingInterpolation(PRELOADS_SHOOT.getHeading())
                 .addPath(ColoredDecodePose.makeBezier(FIRST_SPIKE_1, FIRST_SPIKE_2_CONTROL, FIRST_SPIKE_2))

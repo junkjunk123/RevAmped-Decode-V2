@@ -26,8 +26,10 @@ public class ServoTurretMTI extends TwoServoMechanism{
     public static double REST;
     public static double MS_PER_REVOLUTION = 1500;
 
-    public static double RED_CLOSE_PRELOADS;
-    public static double BLUE_CLOSE_PRELOADS;
+    public static double RED_CLOSE_PRELOADS_24;
+    public static double BLUE_CLOSE_PRELOADS_24;
+    public static double RED_CLOSE_PRELOADS_SIDE_SPIKE;
+    public static double BLUE_CLOSE_PRELOADS_SIDE_SPIKE;
 
     public static double ticksPerRotation() {
         return FULL_ROTATION;
@@ -87,11 +89,19 @@ public class ServoTurretMTI extends TwoServoMechanism{
             move(ServoTurretState.PresetState.REST);
     }
 
-    public void closeAutoPreloads(){
+    public void close24Preloads(){
         if (Globals.allianceColor.equals(AllianceColor.Red)){
-            setPosition(RED_CLOSE_PRELOADS);
+            setPosition(RED_CLOSE_PRELOADS_24);
         } else{
-            setPosition(BLUE_CLOSE_PRELOADS);
+            setPosition(BLUE_CLOSE_PRELOADS_24);
+        }
+    }
+
+    public void closeSideSpikePreloads() {
+        if (Globals.allianceColor.equals(AllianceColor.Red)){
+            setPosition(RED_CLOSE_PRELOADS_SIDE_SPIKE);
+        } else{
+            setPosition(BLUE_CLOSE_PRELOADS_SIDE_SPIKE);
         }
     }
     public void manualSOTM(double offset){

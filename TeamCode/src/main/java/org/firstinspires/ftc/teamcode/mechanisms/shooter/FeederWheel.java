@@ -62,4 +62,8 @@ public class FeederWheel extends HwMotor {
         double error = targetVelocity - getVelocity();
         return kS + kV * targetVelocity + P * error;
     }
+
+    public double getTargetVelocity(){
+        return targetVelocity;
+    }
 }

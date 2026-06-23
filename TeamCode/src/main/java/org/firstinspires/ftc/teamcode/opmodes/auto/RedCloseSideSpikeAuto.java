@@ -6,9 +6,9 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
 @Autonomous
-public class BlueCloseAuto extends Close24Auto {
+public class RedCloseSideSpikeAuto extends CloseSideSpikeAuto {
     @Override
     public void preInit() {
-        Globals.setAllianceColor(AllianceColor.Blue);
+        Globals.setAllianceColor(AllianceColor.Red);
     }
 }

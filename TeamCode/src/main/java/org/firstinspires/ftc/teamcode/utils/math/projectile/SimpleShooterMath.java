@@ -64,8 +64,8 @@ public class SimpleShooterMath {
     public static double shootingAngleRelativeToHood = Math.PI/2;
     private double maxFlywheelVel;
     public static ColoredDecodePose offsetPose = new ColoredDecodePose(-6, -6);
-    public static double K_flywheelPrediction = 0.5;
-    public static double K_hoodPrediction = 0.5;
+    public static double K_flywheelPrediction = 0;
+    public static double K_hoodPrediction = 0;
     private HoodInverseKinematics inverseKinematics;
     public static int tooCloseThreshold;
 
@@ -81,23 +81,17 @@ public class SimpleShooterMath {
         double[][] hoodPos = {
                 //Left-Top is closet to target goal
                 //offset by +0.094
-                {0.114, 0.329, 0.467},
-                {0.172, 0.388, 0.427},
-                {0.408, 0.408, 0.467}
+                {0.02, 0.35, 0.55},
+                {0.15, 0.43, 0.6},
+                {0.4, 0.45, 0.63}
         };
         hoodPos = new Matrix(hoodPos).transposed().getMatrix();
 
         double[][] flywheelVel = {
-                {760, 960, 1125},
-                {850, 1030, 1125},
-                {960, 1110, 1140}
+                {695, 965, 1175},
+                {825, 1005, 1215},
+                {955, 1055, 1245}
         };
-
-//        double[][] flywheelVel = { //in inch/s of ball launch velocity (NOT FLYWHEEL VELOCITY)
-//                {194, 225, 254},
-//                {210, 230, 257},
-//                {230, 253, 265}
-//        };
         flywheelVel = new Matrix(flywheelVel).transposed().getMatrix();
 
         for (double[] doubles : flywheelVel)
@@ -207,7 +201,7 @@ public class SimpleShooterMath {
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
                 hoodPos += hoodCompOffset+SOTMOffset+Robot.hoodFineTune;
-                hoodPos = Range.clip(hoodPos, 0, 1);
+                hoodPos = Range.clip(hoodPos, 5/255f, 250/255f);
             }
         }
     }

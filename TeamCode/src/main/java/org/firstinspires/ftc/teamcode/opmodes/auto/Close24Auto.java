@@ -1,35 +1,24 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
-import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.ICommand;
-import com.pedropathing.ivy.commands.Conditional;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
-import com.pedropathing.ivy.groups.Deadline;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.internal.opengl.TextResourceReader;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.Turret;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
-import org.firstinspires.ftc.teamcode.opmodes.paths.CloseAutoPathsMTI;
-import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.opmodes.paths.Close24AutoPathsMTI;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
-public class CloseAuto extends OpModeCommand {
+public class Close24Auto extends OpModeCommand {
     private Robot robot;
     private final ElapsedTime matchTimer = new ElapsedTime();
     private TrackingThread autoTrack;
@@ -41,9 +30,9 @@ public class CloseAuto extends OpModeCommand {
 
     @Override
     public void initialize() {
-        robot = new Robot(hardwareMap, new CloseAutoPathsMTI());
+        robot = new Robot(hardwareMap, new Close24AutoPathsMTI());
         autoTrack = new TrackingThread(robot);
-        robot.turret.closeAutoPreloads();
+        robot.turret.close24Preloads();
         robot.hood.near();
         IntakeDistanceSensors.useSensors = true;
         TrackingThread.velocityCompensation = false;
@@ -81,6 +70,8 @@ public class CloseAuto extends OpModeCommand {
                                 cycle()
                         ),
 
+
+
                         //Gate Cycle 1 & 2
                         gateCycle(),
                         gateCycle(),
@@ -103,7 +94,7 @@ public class CloseAuto extends OpModeCommand {
     public ICommand shootPreloads() {
         return new Sequential(
                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                new Wait(150), //to remove/mitigate the slight backwards vel while shooting
+                new Wait(150), //ramp up
                 shoot()
         );
     }
@@ -131,16 +122,7 @@ public class CloseAuto extends OpModeCommand {
     }
 
     public ICommand shoot() {
-        return new Parallel(
-                new Sequential(
-                        new Instant(robot::transferShoot),
-                        new Wait(Robot.SHOOT_TIME)
-                ),
-                new Sequential(
-                        new Wait(Hood.HOOD_COMP_DELAY),
-                        new Instant(() -> SimpleShooterMath.hoodCompOffset = Hood.HOOD_COMP)
-                )
-        );
+        return robot.autoShoot();
     }
 
     public ICommand cycle() {
