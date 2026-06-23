@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
 import org.firstinspires.ftc.teamcode.opmodes.auto.CloseAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.FarAuto;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.data.TurretCalibration;
@@ -32,12 +33,17 @@ public class RobotConstants {
         //==========THILAN CAN CHANGE THESE==============
         CloseAuto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
         CloseAuto.GATE_WAIT = 3000; //max time in ms the bot waits at the gate
+        FarAuto.FLYWHEEL_RAMP_UP_WAIT = 1500;
+        FarAuto.SHOOT_DELAY = 150;
         MTITele.outreach = false; //enable for stop program button (gamepad_2 back)
+        MTITele.DRIVER_TURRET_OFFSET = -7/255f;
+        MTITele.calibration = true;
         ShooterMath.velocityCompensation = false; //SOTM toggle
         IntakeDistanceSensors.useSensors = true; //Distance sensors toggle
         //Intake sensor delays
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_AUTO = 100;
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_TELE = 300;
+        SimpleShooterMath.tooCloseThreshold = 60;
 
         //Hood comp
         Hood.HOOD_COMP_SOTM_THRESHOLD = 4;
@@ -45,8 +51,8 @@ public class RobotConstants {
         Hood.HOOD_COMP_SOTM_BACKWARDS = -7/255f;
 
         Hood.HOOD_FAR_COMP = -0/255f;
-        Hood.HOOD_COMP = -15/255f;
-        Hood.HOOD_COMP_DELAY = 150; //delay in ms of how long to wait after start shooting to hood comp
+        Hood.HOOD_COMP = -25/255f;
+        Hood.HOOD_COMP_DELAY = 100; //delay in ms of how long to wait after start shooting to hood comp
 
 
         Robot.SHOOT_TIME = 250; //close shoot time (used in auto)
@@ -63,21 +69,21 @@ public class RobotConstants {
         ShooterGate.GATE_CLOSE = 202/255f;
         ShooterGate.GATE_MOVEMENT_TIME = 100;
 
-        Robot.FAR_SHOOT_THRESHOLD_Y = 38;
+        Robot.FAR_SHOOT_THRESHOLD_Y = 48;
 
         //IntakeMotor Constants
-        IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.TRANSFER_FAR = 0.5f;
-        IntakeMotor.IDLE_POWER = 0.1f;
+        IntakeMotor.INTAKE = 1.0f; IntakeMotor.OUTTAKE = -1.0f; IntakeMotor.STOPPED = 0.0f; IntakeMotor.SHOOT_FAR = 0.5f;
+        IntakeMotor.IDLE_POWER = 0.3f; IntakeMotor.SHOOT = 1.0f;
 
         //max vel is 2800
-        FeederWheel.TARGET_VEL = 2400; FeederWheel.INTAKE_VELOCITY = 2400; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.TRANSFER_FAR = 1200;
+        FeederWheel.TARGET_VEL = 2400; FeederWheel.INTAKE_VELOCITY = 2400; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.SHOOT_FAR = 1200; FeederWheel.SHOOT_VELOCITY = 2400;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1200;
+        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1125;
         Flywheel.CORNER_VELOCITY = 1050;
         Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;
-        Flywheel.CLOSE_PRELOADS_VEL = 930;
+        Flywheel.CLOSE_PRELOADS_VEL = 910;
 
         //Hood Constants
         Hood.REST = 51/255f; Hood.HOOD_MAX_POS = 0f; Hood.HOOD_MIN_POS = 0f; Hood.HOOD_MAX_RAD = 0f; Hood.HOOD_MIN_RAD = 0f;
@@ -89,8 +95,9 @@ public class RobotConstants {
         Hood.CORNER_PRESET = 95/255f;
 
         //Turret Constants
-        ServoTurretMTI.REST = 127/255f;
-        ServoTurretMTI.PRELOADS_PRESET = 122/255f;
+        ServoTurretMTI.REST = 128/255f;
+        ServoTurretMTI.RED_CLOSE_PRELOADS = 122/255f;
+        ServoTurretMTI.BLUE_CLOSE_PRELOADS = 134/255f;
 
         ServoTurretMTI.FULL_ROTATION = 282/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;
         ServoTurretMTI.LEFT_TICKS_LIMIT = 250/255f; ServoTurretMTI.RIGHT_TICKS_LIMIT = 5/255f;

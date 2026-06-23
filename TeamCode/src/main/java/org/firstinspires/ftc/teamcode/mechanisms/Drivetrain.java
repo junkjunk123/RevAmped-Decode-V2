@@ -35,9 +35,9 @@ import java.util.function.Function;
 public class Drivetrain {
     public final Follower follower;
     private ArrayDeque<FollowParameters> paths;
-    //20.5+ X -20 Y OFFSETS NO OFFSETS APPLIED RN
-    public static Pose startPose = new ColoredDecodePose(32, 134, Math.toRadians(-90)).getPose(AllianceColor.Red);
-    public static Pose resetPose = new ColoredDecodePose(19,84.5,Math.toRadians(180)).getPose(AllianceColor.Red);
+    //20.5+ X -20 Y OFFSETS NO OFFSETS APPLIED RNZ
+    public static Pose startPose = new Pose(32, 134, Math.toRadians(-90));
+    public static ColoredDecodePose resetPose = new ColoredDecodePose(19,84.5,Math.toRadians(180));
     private final List<DcMotorEx> motors;
     public final DcMotorEx leftFront;
     public final DcMotorEx rightFront;
@@ -424,6 +424,10 @@ public class Drivetrain {
         Path path = new Path(point);
         path.setConstantHeadingInterpolation(follower.getHeading());
         return path;
+    }
+
+    public ArrayDeque<FollowParameters> getPaths() {
+        return paths;
     }
 
     public void holdCurrentPose() {

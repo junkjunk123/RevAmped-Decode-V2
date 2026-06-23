@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.utils.math.projectile;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread.TURRET_OFFSET;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread.velocityCompensation;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
-import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
 import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.normalizeAnglePi;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -11,24 +10,22 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.GyroThread;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
+import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.pedro.ColoredDecodePose;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.math.BilinearInterpolation;
 import org.firstinspires.ftc.teamcode.utils.math.MathUtil;
 
 import java.util.Arrays;
-
-import smile.interpolation.BilinearInterpolation;
 import smile.interpolation.Interpolation2D;
 
 @Config
@@ -40,24 +37,26 @@ public class SimpleShooterMath {
     private double hoodPos;
     public static double hoodCompOffset = 0;
     public static double SOTMOffset = 0;
+    public static double turretCompOffset = 0;
+    public static double turretFarOffset = 0;
     private double flywheelVelocity;
-    private final Interpolation2D velocityInterpolation;
-    private final Interpolation2D hoodInterpolation;
+    private final BilinearInterpolation velocityInterpolation;
+    private final BilinearInterpolation hoodInterpolation;
     private final Interpolation2D airTime;
     private final Interpolation2D turretInterpolation;
-    private static final double[] DIST_Y = {15.0, 39.0, 63.0};
-    private static final double[] DIST_X = {26.5, 62.5, 98.5};
+    private static final double[] DIST_Y = {24.0, 48.0, 72.0};
+    private static final double[] DIST_X = {36, 72, 108};
     public static double HOOD_0_DEG = 31.5;
     public static double HOOD_POS_TO_DEG_SLOPE = 20.26578947368421;
     public static final int SOTM_ITERATIONS = 10;
     public static double CALIBRATION_ANGLE = 0;
     public static double ANGULAR_CONSTANT = 0.05;
     public static double K_time = 1.0;
-    public static double K_V = 0.1;
-    public static double blueX = 9.5;
-    public static double blueY = 135;
-    public static double redX = 134.5;
-    public static double redY = 135;
+    public static double K_turretPrediction = 0.5;
+    public static double blueX = 0;
+    public static double blueY = 144;
+    public static double redX = 144;
+    public static double redY = 144;
     public static double DT = 0.001;
     public static double launchToVel; //launch vel to flywheel vel
     public static double velOffset;
@@ -65,8 +64,10 @@ public class SimpleShooterMath {
     public static double shootingAngleRelativeToHood = Math.PI/2;
     private double maxFlywheelVel;
     public static ColoredDecodePose offsetPose = new ColoredDecodePose(-6, -6);
-    public static double K_flywheelVel;
+    public static double K_flywheelPrediction = 0.5;
+    public static double K_hoodPrediction = 0.5;
     private HoodInverseKinematics inverseKinematics;
+    public static int tooCloseThreshold;
 
     public SimpleShooterMath(Localizer localizer) {
         inverseKinematics = new HoodInverseKinematics();
@@ -79,16 +80,17 @@ public class SimpleShooterMath {
 
         double[][] hoodPos = {
                 //Left-Top is closet to target goal
-                {0.020, 0.235, 0.373},
-                {0.078, 0.294, 0.333},
-                {0.314, 0.314, 0.373}
+                //offset by +0.094
+                {0.114, 0.329, 0.467},
+                {0.172, 0.388, 0.427},
+                {0.408, 0.408, 0.467}
         };
         hoodPos = new Matrix(hoodPos).transposed().getMatrix();
 
         double[][] flywheelVel = {
-                {700, 900, 1050},
-                {760, 940, 1050},
-                {900, 1050, 1050}
+                {760, 960, 1125},
+                {850, 1030, 1125},
+                {960, 1110, 1140}
         };
 
 //        double[][] flywheelVel = { //in inch/s of ball launch velocity (NOT FLYWHEEL VELOCITY)
@@ -139,14 +141,18 @@ public class SimpleShooterMath {
 
         if (trackHood || trackTurret) {
             Pose targetPos = allianceColor == AllianceColor.Red ? APRIL_TAG_POSE_RED : APRIL_TAG_POSE_BLUE;
-            if (!velocityCompensation)
-                targetPos = targetPos.plus(offsetPose.getPose());
             Pose currentPos = localizer.getPose();
             Pose currentVelocity = localizer.getVelocity();
 //            telemetry.addData("math pose",currentPos);
             Vector displacement = getDispVector(targetPos, currentPos);
             Vector linearVel = currentVelocity.getAsVector();
             double velMag = linearVel.getMagnitude();
+
+            if (Globals.isTeleOp && displacement.getMagnitude() < tooCloseThreshold && MTITele.canShoot){
+                MTITele.canShoot = false;
+            } else if (Globals.isTeleOp && displacement.getMagnitude() >= tooCloseThreshold && !MTITele.canShoot){
+                MTITele.canShoot = true;
+            }
 
             if (velocityCompensation) {
                 if (velMag > Hood.HOOD_COMP_SOTM_THRESHOLD && SimpleShooterMath.SOTMOffset == 0) {
@@ -175,14 +181,17 @@ public class SimpleShooterMath {
                 double nextTurretPos = computeNextTurretPos(currentPos, currentVelocity, targetPos);
                 double turretPosDeriv = (nextTurretPos - turretPos) / DT;
                 double omegaComp = localizer.getAngularVelocity() * ANGULAR_CONSTANT;
-                double velFeedforward = turretPosDeriv * K_V;
+                double velFeedforward = turretPosDeriv * K_turretPrediction;
                 turretPos = ServoTurretMTI.radToTicks(MathUtil.normalizeAnglePi(ServoTurretMTI.ticksToRad(turretPos + TURRET_OFFSET) - omegaComp) + velFeedforward);
+                turretPos += turretCompOffset + turretFarOffset;
             }
 
             if (trackHood) {
                 double xDist = Math.abs(displacement.getXComponent());
                 double yDist = Math.abs(displacement.getYComponent());
-                flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist);
+                Vector dispDeriv = dispDeriv(linearVel);
+                flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist) + Robot.flywheelFineTune
+                        + K_flywheelPrediction * velocityInterpolation.gradient(xDist, yDist).dot(dispDeriv);
 //                flywheelVelocity = launch*launchToVel;
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Math.min(maxFlywheelVel, Flywheel.MAX_VELOCITY));
 //
@@ -191,17 +200,14 @@ public class SimpleShooterMath {
 //                inverseKinematics.calculateHoodAngle();
 //                hoodPos = (inverseKinematics.getAngle()* ticksPerRad)/255;
 //                hoodPos = Range.clip(hoodPos, (double) 5/255, (double) 168/255);
-                
-                double hoodSine = hoodInterpolation.interpolate(xDist, yDist);
+
+                double hoodSine = hoodInterpolation.interpolate(xDist, yDist) +
+                        K_hoodPrediction * hoodInterpolation.gradient(xDist, yDist).dot(dispDeriv);
                 hoodSine = Range.clip(hoodSine, 0, 1);
                 double hoodDeg = Math.toDegrees(Math.asin(hoodSine));
                 hoodPos = (hoodDeg - HOOD_0_DEG) / HOOD_POS_TO_DEG_SLOPE;
-                hoodPos += hoodCompOffset+SOTMOffset;
+                hoodPos += hoodCompOffset+SOTMOffset+Robot.hoodFineTune;
                 hoodPos = Range.clip(hoodPos, 0, 1);
-                //goon
-                if (!Globals.isTeleOp) {
-                    flywheelVelocity += 100;
-                }
             }
         }
     }
@@ -271,6 +277,12 @@ public class SimpleShooterMath {
         ticks -= GyroThread.NEUTRAL_OFFSET * Math.signum(ServoTurretMTI.REST - pos);
         return Range.clip(ticks, Math.min(ServoTurretMTI.LEFT_TICKS_LIMIT, ServoTurretMTI.RIGHT_TICKS_LIMIT),
                 Math.max(ServoTurretMTI.RIGHT_TICKS_LIMIT, ServoTurretMTI.LEFT_TICKS_LIMIT));
+    }
+
+    private Vector dispDeriv(Vector velocity) {
+        if (allianceColor.equals(AllianceColor.Red))
+            return velocity.times(-1.0);
+        return new Vector(velocity.getXComponent(), -velocity.getYComponent());
     }
 
     public double getTurretPos(Vector offset) {

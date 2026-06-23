@@ -45,7 +45,7 @@ public class CloseAutoPathsMTI implements PathSupplier {
     //OPENING GATE
     public static ColoredDecodePose GATE_1_CONTROL = new ColoredDecodePose(43, 64);
     public static ColoredDecodePose GATE_1 = new ColoredDecodePose(33, 64);
-    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(12.5, 61.5, Math.toRadians(152));
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(12.5, 60.5, Math.toRadians(152));
 
     //SHOOTING FROM GATE CYCLE
     public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(56, 80, Math.toRadians(225));

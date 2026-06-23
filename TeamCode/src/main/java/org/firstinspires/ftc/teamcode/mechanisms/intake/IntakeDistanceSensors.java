@@ -18,6 +18,7 @@ import java.util.Arrays;
 public class IntakeDistanceSensors {
     public static int INTAKE_SENSOR_DELAY_AUTO;
     public static int INTAKE_SENSOR_DELAY_TELE;
+    public static int INTAKE_SENSOR_DELAY;
     private final IntakeArtifactDetector[] distanceSensors;
     private final boolean[] distanceStates;
     public static boolean useSensors;
@@ -86,7 +87,7 @@ public class IntakeDistanceSensors {
     public void update(boolean checkFalse) {
         if (on && useSensors) {
             updateSensors(checkFalse);
-            if (distanceStates[1] && !readIntakeDistance && !waiting){
+            if (distanceStates[0] && distanceStates[1] && !readIntakeDistance && !waiting){
                 waiting = true;
                 Scheduler.getInstance().schedule(
                     new Sequential(

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -22,6 +23,8 @@ public class Flywheel extends HwMotor {
     public static double OUTTAKE_POWER;
     public static double CLOSE_PRELOADS_VEL;
     public static double MAX_VELOCITY = 1400;
+    public static double VELOCITY_OFFSET = 0;
+    public static double VELOCITY_INCREMENT = 10;
 
     private double targetVelocity;
     private final FlywheelController controller;
@@ -47,6 +50,7 @@ public class Flywheel extends HwMotor {
         hardware[0].setDirection(DcMotorSimple.Direction.FORWARD);
         hardware[1].setDirection(DcMotorSimple.Direction.REVERSE);
         controller = new FlywheelController();
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public Flywheel(HardwareMap hardwareMap) {
@@ -63,6 +67,7 @@ public class Flywheel extends HwMotor {
     };
 
     private void runToVel(double target) {
+        target += VELOCITY_OFFSET;
         if (Math.abs(targetVelocity - target) > 1.0)
             resetController();
         targetVelocity = target;
@@ -106,6 +111,11 @@ public class Flywheel extends HwMotor {
     public void stop() {
         state = FlywheelState.STOPPED;
         setPower(0);
+    }
+
+    public void unpower() {
+        state = FlywheelState.STOPPED;
+        setPower(0.001);
     }
 
     public void runAtPower(double power) {
