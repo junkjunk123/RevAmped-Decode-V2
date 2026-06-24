@@ -23,7 +23,7 @@ public class RobotConstants {
         Close24Auto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
         Close24Auto.GATE_WAIT = 3000; //max time in ms the bot waits at the gate
         CloseSideSpikeAuto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
-        CloseSideSpikeAuto.GATE_WAIT = 3000; //max time in ms the bot waits at the gate
+        CloseSideSpikeAuto.GATE_WAIT = 1500; //max time in ms the bot waits at the gate
         FarAuto.FLYWHEEL_RAMP_UP_WAIT = 1500;
         FarAuto.SHOOT_DELAY = 150;
         MTITele.outreach = false; //enable for stop program button (gamepad_2 back)
@@ -38,7 +38,7 @@ public class RobotConstants {
 
         //Hood comp
         Hood.HOOD_COMP_SOTM_THRESHOLD = 4;
-        Hood.HOOD_COMP_SOTM = -15/255f;
+        //Hood.HOOD_COMP_SOTM = -15/255f;
         Hood.HOOD_COMP_SOTM_BACKWARDS = -7/255f;
 
         Hood.HOOD_FAR_COMP = -0/255f;
@@ -90,6 +90,7 @@ public class RobotConstants {
         ServoTurretMTI.RED_CLOSE_PRELOADS_24 = 122/255f;
         ServoTurretMTI.BLUE_CLOSE_PRELOADS_24 = 134/255f;
         ServoTurretMTI.RED_CLOSE_PRELOADS_SIDE_SPIKE = 243/255f;
+        ServoTurretMTI.BLUE_CLOSE_PRELOADS_SIDE_SPIKE = 13/255f;
 
         ServoTurretMTI.FULL_ROTATION = 282/255f; ServoTurretMTI.MS_PER_REVOLUTION = 1080;
         ServoTurretMTI.LEFT_TICKS_LIMIT = 250/255f; ServoTurretMTI.RIGHT_TICKS_LIMIT = 5/255f;

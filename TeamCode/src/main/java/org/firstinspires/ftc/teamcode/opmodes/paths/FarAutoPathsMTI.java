@@ -46,7 +46,7 @@ public class FarAutoPathsMTI implements PathSupplier {
 
     public static ColoredDecodePose SWEEP_3 = new ColoredDecodePose(14, 40.5, Math.toRadians(125));
 
-    public static ColoredDecodePose SWEEP_SHOOT = new ColoredDecodePose(52.5,17.5);
+    public static ColoredDecodePose SWEEP_SHOOT = new ColoredDecodePose(54.5,17.5);
 
     public static ColoredDecodePose PARK = new ColoredDecodePose(49.5, 20.5);
 

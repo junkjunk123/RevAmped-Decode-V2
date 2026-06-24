@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.pedropathing.ivy.ICommand;
-import com.pedropathing.ivy.commands.Conditional;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
+import com.pedropathing.ivy.commands.Lazy;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Deadline;
+import com.pedropathing.ivy.groups.Loop;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
@@ -18,8 +19,13 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.CloseSideSpikeAutoPathsMTI;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CloseSideSpikeAuto extends OpModeCommand {
     private Robot robot;
@@ -30,6 +36,7 @@ public class CloseSideSpikeAuto extends OpModeCommand {
 
     public static int flywheel_ramp_vel;
     private boolean useTrack = true;
+    private AtomicBoolean stop = new AtomicBoolean();
 
     @Override
     public void initialize() {
@@ -48,7 +55,6 @@ public class CloseSideSpikeAuto extends OpModeCommand {
                 new Infinite(() -> {
                     robot.update();
                     if (useTrack) autoTrack.update();
-                    telemetry.addData("has three",robot.intake.hasThree());
                     telemetry.update();
                 }),
                 new Sequential(
@@ -59,10 +65,15 @@ public class CloseSideSpikeAuto extends OpModeCommand {
                         }),
 
                         //Shooting preloads
+                        /*
                         new Parallel(
                                 robot.drivetrain.follow(),
                                 shootPreloads()
                         ),
+                         */
+
+                        robot.drivetrain.follow(),
+                        shoot(),
 
                         //First Spike Mark
                         new Parallel(
@@ -72,11 +83,11 @@ public class CloseSideSpikeAuto extends OpModeCommand {
                                             TrackingThread.trackHood = true;
                                         }
                                 ),
-                                cycle(true)
+                                sideSpikeCycle()
                         ),
 
                         //Second Spike Mark
-                        cycle(false),
+                        spikeCycle(),
 
                         //Gate Cycle 1 & 2
                         gateCycle(),
@@ -86,9 +97,8 @@ public class CloseSideSpikeAuto extends OpModeCommand {
                         gateCycle(),
                         gateCycle(),
                         gateCycle(),
-
-                        //Park
-                        robot.drivetrain.follow()
+                        gateCycle(),
+                        shootLast()
                 )
         );
 
@@ -116,8 +126,8 @@ public class CloseSideSpikeAuto extends OpModeCommand {
                                 new Instant(robot::stopFeeder)
                         ),
                         new Sequential(
-                                new WaitUntil(() -> robot.intake.hasThree()),
-                                new Instant(robot::stopIntake)
+                                new WaitUntil(() -> robot.drivetrain.isDoneFollowing() || robot.drivetrain.follower.atParametricEnd()),
+                                new WaitUntil(() -> robot.intake.hasTwo())
                         )
                 )
         );
@@ -127,23 +137,23 @@ public class CloseSideSpikeAuto extends OpModeCommand {
         return robot.autoShoot();
     }
 
-    public ICommand cycle(boolean gateTap) {
+    public ICommand sideSpikeCycle() {
         return new Sequential(
             //Intaking
-            new Deadline(
-                robot.drivetrain.follow(),
-                intake()
+            new Race(
+                  robot.drivetrain.follow(),
+                  intake()
             ),
-            new Conditional(
-                () -> gateTap,
-                new Wait(300),
-                Commands.NOOP
-            ),
-
             //Shooting
             new Parallel(
-                robot.drivetrain.follow(), //shooting path
-                new Instant(() -> robot.intake.stopIntake()),
+                new Deadline(
+                    new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
+                    robot.drivetrain.follow() //shooting path
+                ),
+                new Sequential(
+                        new Wait(200),
+                        new Instant(() -> robot.intake.stopIntake())
+                ),
                 new Sequential(
                     new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
                     robot.gate.open()
@@ -153,40 +163,99 @@ public class CloseSideSpikeAuto extends OpModeCommand {
         );
     }
 
-    public ICommand gateCycle(){
+    public ICommand spikeCycle() {
         return new Sequential(
-            //Intaking
-            new Parallel(
-                robot.drivetrain.follow(),
+                //Intaking
                 new Race(
-                    intake(),
-                    new Sequential(
-                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                        new Wait(GATE_WAIT)
-                    ),
-                    new Sequential(
-                        new WaitUntil(() -> robot.intake.hasTwo()),
-                        new Wait(1400)
-                    )
-                )
-            ),
-
-            //Shooting
-            new Deadline(
-                new Parallel(
-                    new Sequential(
-                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
-                        new Instant(robot.intake::stopIntake),
-                        robot.gate.open()
-                    ),
-                    new Sequential(
-                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.99)),
-                        shoot()
-                    )
+                        robot.drivetrain.follow(),
+                        intake()
                 ),
-                robot.drivetrain.follow()
+                //Shooting
+                new Parallel(
+                        robot.drivetrain.follow(), //shooting path
+                        new Instant(() -> robot.intake.stopIntake()),
+                        new Sequential(
+                                new WaitUntil(() -> robot.drivetrain.follower.getChainIndex() ==
+                                        robot.drivetrain.follower.getCurrentPathChain().size() - 1 &&
+                                        robot.drivetrain.follower.getTotalDistanceRemaining() <
+                                                robot.drivetrain.follower.getCurrentPathChain().length() * 0.5),
+                                robot.gate.open()
+                        )
+                )
+        );
+    }
 
+    public ICommand gateCycle() {
+        return new Conditional(
+                () -> stop.get(),
+                Commands.NOOP,
+                new Sequential(
+                    gateIntakeAndShoot(),
+                    toShootPoint()
+                )
+        );
+    }
+
+    public ICommand shootLast(){
+        return new Sequential(
+            new WaitUntil(() -> !stop.get()),
+            new Instant(() -> SimpleShooterMath.turretCompOffset = 0),
+            shoot()
+        );
+    }
+
+    public ICommand toShootPoint(){
+        return new Parallel(
+            robot.drivetrain.followNext(d -> d.tValueCondition(0.95), 2000),
+            new Instant(() -> SimpleShooterMath.turretCompOffset = 0/255f),
+            new Sequential(
+
+                new WaitUntil(() -> robot.drivetrain.follower.getTotalDistanceRemaining() <
+                        robot.drivetrain.follower.getCurrentPathChain().length() * 0.8),
+                new Instant(robot.intake::stopIntake),
+
+                new WaitUntil(() -> robot.drivetrain.follower.getTotalDistanceRemaining() <
+                                robot.drivetrain.follower.getCurrentPathChain().length() * 0.5),
+                robot.gate.open()
             )
         );
     }
+
+    public ICommand gateIntakeAndShoot(){
+        return new Parallel(
+            robot.drivetrain.follow(),
+            new Sequential(
+                new Instant(() -> {
+                    if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset += 2/255f;
+                    else SimpleShooterMath.turretCompOffset -= 2/255f;
+                }),
+                new Parallel(
+                    new Loop(
+                        new Sequential(
+                            new Wait(30),
+                            new Instant(() -> {
+                                if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset -= 5/255f;
+                                else SimpleShooterMath.turretCompOffset += 5/255f;
+                            })
+                        ),
+                        5
+                    ),
+                    shoot()
+                ),
+                new Race(
+                        intake(),
+                        new Sequential(
+                            new WaitUntil(() -> robot.drivetrain.isDoneFollowing()),
+                            new Wait(GATE_WAIT)
+                        ),
+                        new Sequential(
+                                new WaitUntil(() -> matchTimer.seconds() > 29.5),
+                                new Instant(() -> stop.set(true)),
+                                robot.drivetrain.followLast(Drivetrain.isDone)
+                        )
+                )
+            )
+        );
+    }
+
 }

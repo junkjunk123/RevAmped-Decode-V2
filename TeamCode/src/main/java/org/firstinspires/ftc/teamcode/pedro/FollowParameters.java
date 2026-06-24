@@ -8,7 +8,11 @@ import com.pedropathing.paths.PathChain;
 
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 
-public record FollowParameters(PathChain pathChain, boolean holdEnd, double maxPower, double kP) {
+public record FollowParameters(PathChain pathChain, boolean holdEnd, double maxPower, double kP, double brakingStrength) {
+    public FollowParameters(PathChain pathChain, boolean holdEnd, double maxPower, double kP) {
+        this(pathChain, holdEnd, maxPower, Constants.DEFAULT_PROPORTIONAL, kP);
+    }
+
     public FollowParameters(PathChain pathChain, boolean holdEnd) {
         this(pathChain, holdEnd, 1.0, Constants.DEFAULT_PROPORTIONAL);
     }
@@ -21,12 +25,16 @@ public record FollowParameters(PathChain pathChain, boolean holdEnd, double maxP
         this(pathChain, true, 1.0, kP);
     }
 
+    public FollowParameters(double kP, double brakingStrength, PathChain pathChain) {
+        this(pathChain, true, 1.0, kP, brakingStrength);
+    }
+
     public FollowParameters(PathChain pathChain) {
         this(pathChain,true, 1.0, Constants.DEFAULT_PROPORTIONAL);
     }
 
     public void follow(Follower follower) {
-        follow(follower, 1.0);
+        follow(follower, brakingStrength);
     }
 
     public void follow(Follower follower, double brakingStrength) {

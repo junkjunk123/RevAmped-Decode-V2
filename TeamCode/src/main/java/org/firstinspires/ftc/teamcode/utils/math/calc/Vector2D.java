@@ -50,6 +50,10 @@ public class Vector2D extends Vector {
         return new Vector2D(p.getX(), p.getY());
     }
 
+    public Pose toPose() {
+        return withHeading(0);
+    }
+
     public Pose withHeading(double heading) {
         return new Pose(getX(), getY(), heading);
     }

@@ -3,13 +3,11 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Parallel;
-import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -19,7 +17,6 @@ import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.TeleOpStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeMotor;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FlywheelController;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
@@ -27,12 +24,8 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
-import org.firstinspires.ftc.teamcode.utils.data.BooleanSwitch;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
-import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
-
-import java.util.Arrays;
 
 @Config
 @TeleOp(name = "MTI-TeleOp")
@@ -50,6 +43,8 @@ public class MTITele extends OpModeCommand {
     public static float DRIVER_TURRET_OFFSET;
     public static boolean canShoot; //for if the robot is too close to the goal
     private TrackingThread autoTrack;
+    private boolean record = false;
+    private double maxVel = 0;
 
     @Override
     public void initialize() {

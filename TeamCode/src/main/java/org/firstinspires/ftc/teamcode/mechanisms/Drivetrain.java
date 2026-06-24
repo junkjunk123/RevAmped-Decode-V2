@@ -160,7 +160,7 @@ public class Drivetrain {
                     followNext();
                     isDoneFollowing = false;
                 })
-                .setDone(() -> isDone.apply(this))
+                .setDone(() -> follower.getChainIndex() == follower.getCurrentPathChain().size() - 1 && isDone.apply(this))
                 .setEnd(c -> isDoneFollowing = true);
     }
 

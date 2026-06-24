@@ -5,6 +5,7 @@ import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.groups.Sequential;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 
 @TeleOp
-@Deprecated
+@Disabled
 public class FlywheelMotorTest extends OpModeCommand {
     private Flywheel flywheel;
     @Override

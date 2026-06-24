@@ -51,8 +51,6 @@ public class Close24AutoPathsMTI implements PathSupplier {
     public static ColoredDecodePose GATE_SHOOT = new ColoredDecodePose(56, 80, Math.toRadians(225));
     public static ColoredDecodePose GATE_SHOOT_CONTROL = new ColoredDecodePose(37, 64);
 
-
-
     //PARK
     public static ColoredDecodePose PARK = new ColoredDecodePose(54, 76);
 
@@ -89,6 +87,7 @@ public class Close24AutoPathsMTI implements PathSupplier {
         FollowParameters intakeSpike2 = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(FIRST_SPIKE_SHOOT_2, SECOND_SPIKE_1_CONTROL, SECOND_SPIKE_1))
                 .setLinearHeadingInterpolation(FIRST_SPIKE_SHOOT_2.getHeading(), SECOND_SPIKE_1.getHeading())
+                .setTValueConstraint(0.8)
                 .addPath(ColoredDecodePose.makeBezier(SECOND_SPIKE_1, SECOND_SPIKE_2))
                 .setConstantHeadingInterpolation(SECOND_SPIKE_1.getHeading())
                 .build()

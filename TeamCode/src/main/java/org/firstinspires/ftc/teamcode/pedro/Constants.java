@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadFWv3;
 import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
 
 public class Constants {
+    public static double AGGRESSIVE_PROPORTIONAL = 0.28;
     public static double DEFAULT_PROPORTIONAL = 0.22;
     public static double MEDIUM_PROPORTIONIAL = 0.15;
     public static double CONSERVATIVE_PROPORTIONAL = 0.1;

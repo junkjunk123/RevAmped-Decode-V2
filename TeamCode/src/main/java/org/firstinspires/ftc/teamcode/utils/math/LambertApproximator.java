@@ -10,11 +10,14 @@ public class LambertApproximator {
 
     private double v0actual;
 
+    private final double WX_0;
+
     public LambertApproximator(double a, double b, double v0) {
         this.a = a;
         this.b = b;
         this.v0 = v0;
         v0actual = v0;
+        WX_0 = lambertW(computeX(0));
     }
 
     /**
@@ -86,6 +89,15 @@ public class LambertApproximator {
         double ratio = v0actual / v0 * b / 2 / a;
         double upperEval = (v_next * v_next / 2.0) + v_next;
         double lowerEval = (v_now * v_now / 2.0) + v_now;
+        double integral = b * (lowerEval - upperEval);
+        return new Pair<>(integral * ratio, v_next * ratio);
+    }
+
+    public Pair<Double, Double> compute(double dt) {
+        double v_next = lambertW(computeX(dt));
+        double ratio = v0actual / v0 * b / 2 / a;
+        double upperEval = (v_next * v_next / 2.0) + v_next;
+        double lowerEval = (WX_0 * WX_0 / 2.0) + WX_0;
         double integral = b * (lowerEval - upperEval);
         return new Pair<>(integral * ratio, v_next * ratio);
     }

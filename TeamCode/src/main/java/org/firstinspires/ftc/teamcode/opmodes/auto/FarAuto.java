@@ -65,7 +65,12 @@ public class FarAuto extends OpModeCommand {
                         new Instant(() -> {
                             matchTimer.reset();
                             robot.flywheel.far();
-                            SimpleShooterMath.turretFarOffset -= 2/255f * Math.signum(SimpleShooterMath.turretFarOffset);
+                            if (Globals.allianceColor.equals(AllianceColor.Blue)) {
+                                SimpleShooterMath.turretFarOffset -= 0 / 255f * Math.signum(SimpleShooterMath.turretFarOffset);
+                            }
+                            else {
+                                SimpleShooterMath.turretFarOffset -= 0 / 255f * Math.signum(SimpleShooterMath.turretFarOffset);
+                            }
                         }),
                         shootPreloads(),
 
