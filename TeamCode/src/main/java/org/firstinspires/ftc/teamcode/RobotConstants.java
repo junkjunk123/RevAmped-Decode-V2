@@ -8,8 +8,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
-import org.firstinspires.ftc.teamcode.opmodes.auto.CloseSideSpikeAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.Close24Auto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.Close27Auto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.FarAuto;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
@@ -20,10 +19,7 @@ import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 public class RobotConstants {
     public void build() {
         //==========THILAN CAN CHANGE THESE==============
-        Close24Auto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
-        Close24Auto.GATE_WAIT = 3000; //max time in ms the bot waits at the gate
-        CloseSideSpikeAuto.flywheel_ramp_vel = 2000; //velocity the flywheel ramps in close auto for 30% of the path
-        CloseSideSpikeAuto.GATE_WAIT = 1500; //max time in ms the bot waits at the gate
+        Close27Auto.GATE_WAIT = 1500; //max time in ms the bot waits at the gate
         FarAuto.FLYWHEEL_RAMP_UP_WAIT = 1500;
         FarAuto.SHOOT_DELAY = 150;
         MTITele.outreach = false; //enable for stop program button (gamepad_2 back)

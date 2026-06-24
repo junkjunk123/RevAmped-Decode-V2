@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import java.util.Arrays;
 
 @TeleOp
+@Disabled
 public class DistancePortTest extends OpMode {
     private IntakeDistanceSensors distanceSensors;
     @Override

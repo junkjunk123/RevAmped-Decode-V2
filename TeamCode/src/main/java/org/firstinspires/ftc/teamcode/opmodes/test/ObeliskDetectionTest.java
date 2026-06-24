@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import java.util.Arrays;
 
 @TeleOp
+@Disabled
 public class ObeliskDetectionTest extends OpMode {
     private DecodeLimelight limelight;
     private TelemetryManager manager;

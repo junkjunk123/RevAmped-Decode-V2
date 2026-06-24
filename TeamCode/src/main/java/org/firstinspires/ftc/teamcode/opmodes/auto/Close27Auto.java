@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
-import com.pedropathing.ivy.commands.Lazy;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Deadline;
@@ -18,7 +17,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
-import org.firstinspires.ftc.teamcode.opmodes.paths.CloseSideSpikeAutoPathsMTI;
+import org.firstinspires.ftc.teamcode.opmodes.paths.Close27AutoPathsMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
@@ -27,20 +26,17 @@ import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CloseSideSpikeAuto extends OpModeCommand {
+public class Close27Auto extends OpModeCommand {
     private Robot robot;
     private final ElapsedTime matchTimer = new ElapsedTime();
     private TrackingThread autoTrack;
-
     public static int GATE_WAIT;
-
-    public static int flywheel_ramp_vel;
     private boolean useTrack = true;
     private AtomicBoolean stop = new AtomicBoolean();
 
     @Override
     public void initialize() {
-        robot = new Robot(hardwareMap, new CloseSideSpikeAutoPathsMTI());
+        robot = new Robot(hardwareMap, new Close27AutoPathsMTI());
         autoTrack = new TrackingThread(robot);
         robot.turret.closeSideSpikePreloads();
         robot.hood.setPosition(0.1);

@@ -4,6 +4,8 @@ import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
+import com.pedropathing.ivy.groups.Deadline;
+import com.pedropathing.ivy.groups.Loop;
 import com.pedropathing.ivy.groups.Parallel;
 import com.pedropathing.ivy.groups.Race;
 import com.pedropathing.ivy.groups.Sequential;
@@ -15,8 +17,14 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
-import org.firstinspires.ftc.teamcode.opmodes.paths.Close24AutoPathsMTI;
+import org.firstinspires.ftc.teamcode.opmodes.paths.Close27AutoPathsMTI;
+import org.firstinspires.ftc.teamcode.utils.Globals;
+import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Close24Auto extends OpModeCommand {
     private Robot robot;
@@ -24,16 +32,15 @@ public class Close24Auto extends OpModeCommand {
     private TrackingThread autoTrack;
 
     public static int GATE_WAIT;
-
-    public static int flywheel_ramp_vel;
     private boolean useTrack = true;
+    private AtomicBoolean stop = new AtomicBoolean();
 
     @Override
     public void initialize() {
-        robot = new Robot(hardwareMap, new Close24AutoPathsMTI());
+        robot = new Robot(hardwareMap, new Close27AutoPathsMTI());
         autoTrack = new TrackingThread(robot);
-        robot.turret.close24Preloads();
-        robot.hood.near();
+        robot.turret.closeSideSpikePreloads();
+        robot.hood.setPosition(0.1);
         IntakeDistanceSensors.useSensors = true;
         TrackingThread.velocityCompensation = false;
         TrackingThread.trackHood = false; //for preloads preset
@@ -45,6 +52,7 @@ public class Close24Auto extends OpModeCommand {
                 new Infinite(() -> {
                     robot.update();
                     if (useTrack) autoTrack.update();
+                    telemetry.update();
                 }),
                 new Sequential(
                         new WaitUntil(() -> !opModeInInit()),
@@ -54,10 +62,15 @@ public class Close24Auto extends OpModeCommand {
                         }),
 
                         //Shooting preloads
+                        /*
                         new Parallel(
                                 robot.drivetrain.follow(),
                                 shootPreloads()
                         ),
+                         */
+
+                        robot.drivetrain.follow(),
+                        shoot(),
 
                         //First Spike Mark
                         new Parallel(
@@ -67,25 +80,22 @@ public class Close24Auto extends OpModeCommand {
                                             TrackingThread.trackHood = true;
                                         }
                                 ),
-                                cycle()
+                                sideSpikeCycle()
                         ),
 
-
+                        //Second Spike Mark
+                        spikeCycle(),
 
                         //Gate Cycle 1 & 2
                         gateCycle(),
                         gateCycle(),
 
-                        //Second Spike Mark
-                        cycle(),
-
-                        //Gate Cycle 3 & 4 & 5
+                        //Gate Cycle 3 & 4
                         gateCycle(),
                         gateCycle(),
                         gateCycle(),
-
-                        //Park
-                        robot.drivetrain.follow()
+                        gateCycle(),
+                        shootLast()
                 )
         );
 
@@ -94,7 +104,7 @@ public class Close24Auto extends OpModeCommand {
     public ICommand shootPreloads() {
         return new Sequential(
                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                new Wait(150), //ramp up
+                new Wait(250), //ramp up
                 shoot()
         );
     }
@@ -113,9 +123,8 @@ public class Close24Auto extends OpModeCommand {
                                 new Instant(robot::stopFeeder)
                         ),
                         new Sequential(
-                                //new WaitUntil(() -> robot.intake.hasTwo()),
-                                new WaitUntil(() -> robot.intake.hasThree()),
-                                new Instant(robot::stopIntake)
+                                new WaitUntil(() -> robot.drivetrain.isDoneFollowing() || robot.drivetrain.follower.atParametricEnd()),
+                                new WaitUntil(() -> robot.intake.hasTwo())
                         )
                 )
         );
@@ -125,17 +134,23 @@ public class Close24Auto extends OpModeCommand {
         return robot.autoShoot();
     }
 
-    public ICommand cycle() {
+    public ICommand sideSpikeCycle() {
         return new Sequential(
             //Intaking
             new Race(
-                robot.drivetrain.follow(),
-                intake()
+                  robot.drivetrain.follow(),
+                  intake()
             ),
-
             //Shooting
             new Parallel(
-                robot.drivetrain.follow(), //shooting path
+                new Deadline(
+                    new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
+                    robot.drivetrain.follow() //shooting path
+                ),
+                new Sequential(
+                        new Wait(200),
+                        new Instant(() -> robot.intake.stopIntake())
+                ),
                 new Sequential(
                     new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
                     robot.gate.open()
@@ -145,29 +160,99 @@ public class Close24Auto extends OpModeCommand {
         );
     }
 
-    public ICommand gateCycle(){
+    public ICommand spikeCycle() {
         return new Sequential(
-            //Intaking
-            new Parallel(
-                robot.drivetrain.follow(),
+                //Intaking
                 new Race(
-                    intake(),
-                    new Sequential(
-                        new WaitUntil(() -> robot.drivetrain.tValueCondition(0.9)),
-                        new Wait(GATE_WAIT)
-                    )
+                        robot.drivetrain.follow(),
+                        intake()
+                ),
+                //Shooting
+                new Parallel(
+                        robot.drivetrain.follow(), //shooting path
+                        new Instant(() -> robot.intake.stopIntake()),
+                        new Sequential(
+                                new WaitUntil(() -> robot.drivetrain.follower.getChainIndex() ==
+                                        robot.drivetrain.follower.getCurrentPathChain().size() - 1 &&
+                                        robot.drivetrain.follower.getTotalDistanceRemaining() <
+                                                robot.drivetrain.follower.getCurrentPathChain().length() * 0.5),
+                                robot.gate.open()
+                        )
                 )
-            ),
+        );
+    }
 
-            //Shooting
-            new Parallel(
-                robot.drivetrain.follow(),
+    public ICommand gateCycle() {
+        return new Conditional(
+                () -> stop.get(),
+                Commands.NOOP,
                 new Sequential(
-                    new WaitUntil(() -> robot.drivetrain.tValueCondition(0.5)),
-                    robot.gate.open()
+                    gateIntakeAndShoot(),
+                    toShootPoint()
                 )
-            ),
+        );
+    }
+
+    public ICommand shootLast(){
+        return new Sequential(
+            new WaitUntil(() -> !stop.get()),
+            new Instant(() -> SimpleShooterMath.turretCompOffset = 0),
             shoot()
         );
     }
+
+    public ICommand toShootPoint(){
+        return new Parallel(
+            robot.drivetrain.followNext(d -> d.tValueCondition(0.95), 2000),
+            new Instant(() -> SimpleShooterMath.turretCompOffset = 0/255f),
+            new Sequential(
+
+                new WaitUntil(() -> robot.drivetrain.follower.getTotalDistanceRemaining() <
+                        robot.drivetrain.follower.getCurrentPathChain().length() * 0.8),
+                new Instant(robot.intake::stopIntake),
+
+                new WaitUntil(() -> robot.drivetrain.follower.getTotalDistanceRemaining() <
+                                robot.drivetrain.follower.getCurrentPathChain().length() * 0.5),
+                robot.gate.open()
+            )
+        );
+    }
+
+    public ICommand gateIntakeAndShoot(){
+        return new Parallel(
+            robot.drivetrain.follow(),
+            new Sequential(
+                new Instant(() -> {
+                    if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset += 2/255f;
+                    else SimpleShooterMath.turretCompOffset -= 2/255f;
+                }),
+                new Parallel(
+                    new Loop(
+                        new Sequential(
+                            new Wait(30),
+                            new Instant(() -> {
+                                if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset -= 5/255f;
+                                else SimpleShooterMath.turretCompOffset += 5/255f;
+                            })
+                        ),
+                        5
+                    ),
+                    shoot()
+                ),
+                new Race(
+                        intake(),
+                        new Sequential(
+                            new WaitUntil(() -> robot.drivetrain.isDoneFollowing()),
+                            new Wait(GATE_WAIT)
+                        ),
+                        new Sequential(
+                                new WaitUntil(() -> matchTimer.seconds() > 29.5),
+                                new Instant(() -> stop.set(true)),
+                                robot.drivetrain.followLast(Drivetrain.isDone)
+                        )
+                )
+            )
+        );
+    }
+
 }

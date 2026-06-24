@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
-@Autonomous
-public class BlueCloseSideSpikeAuto extends CloseSideSpikeAuto {
+@Autonomous(name = "Red Solo 24", group = "Auto")
+public class RedClose24Auto extends Close24Auto {
     @Override
     public void preInit() {
-        Globals.setAllianceColor(AllianceColor.Blue);
+        Globals.setAllianceColor(AllianceColor.Red);
     }
 }

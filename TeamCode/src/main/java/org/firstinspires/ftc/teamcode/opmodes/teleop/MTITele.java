@@ -213,12 +213,6 @@ public class MTITele extends OpModeCommand {
             TrackingThread.velocityCompensation = !TrackingThread.velocityCompensation;
         }
 
-        if (gamepad1.left_stick_y > 0.3f && !TrackingThread.velocityCompensation){
-            Robot.sotmTurretComp = true;
-        } else{
-            Robot.sotmTurretComp = false;
-        }
-
         //====================GAMEPAD_2===================
         //Intake
         if (gamepad_2.b.isRisingEdge()){
@@ -255,7 +249,7 @@ public class MTITele extends OpModeCommand {
         }
         //toggle stick sotm
         if (gamepad_2.right_bumper.isRisingEdge()){
-            Robot.enableDriverSOTM = !Robot.enableDriverSOTM;
+            TrackingThread.velocityCompensation = !TrackingThread.velocityCompensation;
 
             updateGP2Color();
             gamepad_2.rumble(rumbleMS);
@@ -292,6 +286,10 @@ public class MTITele extends OpModeCommand {
         }
 
         //Telemetry
+
+        //TELEMETRY FOR MATCHES
+        telemetry.addData("flywheel",Robot.flywheelFineTune);
+
 //        telemetry.addData("flywheel error",robot.flywheel.getError());
 //        telemetry.addData("flywheel velocity",robot.flywheel.getFilteredVelocity());
 //        telemetry.addData("flywheel target",robot.flywheel.getTargetVelocity());
@@ -311,7 +309,7 @@ public class MTITele extends OpModeCommand {
 
     public void updateGP2Color(){
         int green = IntakeDistanceSensors.useSensors ? 1 : 0;
-        int red = Robot.enableDriverSOTM ? 1 : 0;
+        int red = TrackingThread.velocityCompensation ? 1 : 0;
         gamepad2.setLedColor(red,green,0,Gamepad.LED_DURATION_CONTINUOUS);
     }
 }

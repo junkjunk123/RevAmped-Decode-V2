@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 //@Disabled
 @Config
 @TeleOp
+@Disabled
 public class FlywheelTuner extends OpMode {
     private Flywheel flywheel;
     public static float targetVelocity = 1000;

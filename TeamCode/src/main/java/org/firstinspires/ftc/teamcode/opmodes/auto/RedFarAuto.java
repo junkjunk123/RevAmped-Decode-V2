@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
-@Autonomous
+@Autonomous (name = "Red Far", group = "Auto")
 public class RedFarAuto extends FarAuto {
     @Override
     public void preInit() {

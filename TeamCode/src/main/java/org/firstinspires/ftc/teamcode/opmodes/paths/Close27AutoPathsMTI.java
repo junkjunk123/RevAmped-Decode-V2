@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import java.util.List;
 
 @Configurable
-public class CloseSideSpikeAutoPathsMTI implements PathSupplier {
+public class Close27AutoPathsMTI implements PathSupplier {
     /*
     NAMING CONVENTION:
     <NAME>_<SUB-PATH NUMBER IF ANY>_<CONTROL/(NONE IF NOT CONTROL)>

@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 
 @TeleOp
 @Config
+@Disabled
 public class FeederPIDTuner extends OpMode {
     public static double targetVelocity;
     private FeederWheel feederWheel;
