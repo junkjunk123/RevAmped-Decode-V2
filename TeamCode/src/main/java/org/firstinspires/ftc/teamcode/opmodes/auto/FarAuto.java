@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPathsMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
+import org.firstinspires.ftc.teamcode.utils.commands.Commands;
+import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
@@ -26,14 +28,14 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FarAuto extends OpModeCommand {
-    //idt skip works
     private Robot robot;
     private final ElapsedTime matchTimer = new ElapsedTime();
     private TrackingThread autoTrack;
     public static int SHOOT_DELAY;
     public static int FLYWHEEL_RAMP_UP_WAIT;
-    private boolean useTrack = true;
+    private final boolean useTrack = true;
     private final AtomicBoolean skipSweep = new AtomicBoolean(false);
+    private final AtomicBoolean stop = new AtomicBoolean();
 
     @Override
     public void initialize() {
@@ -206,38 +208,49 @@ public class FarAuto extends OpModeCommand {
     }
 
     public ICommand cycleSweep(){
-        return new Sequential(
-            new Instant(() -> {
-                skipSweep.set(false);
-                resetOffset();
-            }),
-            new Race(
+        return new Conditional(
+                stop::get,
+                Commands.NOOP,
                 new Sequential(
-                    robot.drivetrain.follow(), //hp intake path
-                    new Wait(200)
-                ),
-                intakeSweepHP()
-            ),
-            new Lazy(() -> {
-                if (skipSweep.get()) {
-                    return new Sequential(
-                        new Parallel(
-                            robot.drivetrain.follow(),
-                            prematureShoot()
+                        new Instant(() -> {
+                            skipSweep.set(false);
+                            resetOffset();
+                        }),
+                        new Race(
+                                new Sequential(
+                                        robot.drivetrain.follow(), //hp intake path
+                                        new Wait(200)
+                                ),
+                                intakeSweepHP(),
+                                new Sequential(
+                                        new WaitUntil(() -> matchTimer.seconds() > 29.4),
+                                        new Instant(() -> stop.set(true))
+                                )
                         ),
-                        new Instant(robot.drivetrain::skip)
-                    );
-                }
+                        new Lazy(() -> {
+                            if (stop.get()) return Commands.NOOP;
+                            if (skipSweep.get()) {
+                                return new Sequential(
+                                        new Parallel(
+                                                robot.drivetrain.follow(),
+                                                prematureShoot()
+                                        ),
+                                        new Instant(robot.drivetrain::skip)
+                                );
+                            }
 
-                return new Sequential(
-                    new Instant(robot.drivetrain::skip),
-                    new Parallel(
-                        robot.drivetrain.follow(),
-                        fullSweep(),
-                        new Instant(() -> SimpleShooterMath.turretFarOffset -= 1/255f * Math.signum(SimpleShooterMath.turretFarOffset))
-                    )
-                );
-            })
+                            if (matchTimer.seconds() > 29) return new Instant(() -> stop.set(true));
+
+                            return new Sequential(
+                                    new Instant(robot.drivetrain::skip),
+                                    new Parallel(
+                                            robot.drivetrain.follow(),
+                                            fullSweep(),
+                                            new Instant(() -> SimpleShooterMath.turretFarOffset -= 1/255f * Math.signum(SimpleShooterMath.turretFarOffset))
+                                    )
+                            );
+                        })
+                )
         );
     }
 
