@@ -56,6 +56,7 @@ public class Drivetrain {
     public static boolean tipCorrection = false;
     private boolean isDoneFollowing = true;
     public static Function<Drivetrain, Boolean> isDone = d -> d.velocityCondition(4);
+    private Vector2D lastPower;
 
     public Drivetrain(HardwareMap hardwareMap) {
         follower = Constants.createFollowerTeleOp(hardwareMap);
@@ -304,6 +305,8 @@ public class Drivetrain {
                 y = x * Math.sin(-robotHeading) + y * Math.cos(robotHeading);
             }
 
+            lastPower = new Vector2D();
+
             if (tipCorrection) {
                 Localizer octoquad = follower.poseTracker.getLocalizer();
                 double heading = octoquad.getPose().getHeading();
@@ -432,5 +435,10 @@ public class Drivetrain {
 
     public void holdCurrentPose() {
         follower.followPath(hold());
+    }
+
+    public Vector2D getLastPower() {
+        if (!follower.isTeleopDrive()) return Vector2D.zero();
+        return lastPower;
     }
 }

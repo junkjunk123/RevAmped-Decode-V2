@@ -5,6 +5,8 @@ import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector;
 
 public class Vector2D extends Vector {
+    private static Vector2D zero = new Vector2D(0, 0);
+
     public Vector2D(double x, double y) {
         super();
         setOrthogonalComponents(x, y);
@@ -72,5 +74,9 @@ public class Vector2D extends Vector {
 
     public static String print(Vector vector) {
         return "x: " + vector.getXComponent() + " y: " + vector.getYComponent();
+    }
+
+    public static Vector2D zero() {
+        return zero;
     }
 }
