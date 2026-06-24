@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.math;
 
 import org.firstinspires.ftc.teamcode.utils.data.Pair;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.AuraShooterMath;
 
 public class LambertApproximator {
     // Parameters of your system
@@ -100,12 +101,36 @@ public class LambertApproximator {
     }
 
     public Pair<Double, Double> compute(double dt) {
+        if (dt < 0) return computeAccel(Math.abs(dt));
         double v_next = lambertW(computeX(dt));
         double ratio = v0actual / v0 * b / 2 / a;
         double upperEval = (v_next * v_next / 2.0) + v_next;
         double lowerEval = (WX_0 * WX_0 / 2.0) + WX_0;
         double integral = b * (lowerEval - upperEval);
         return new Pair<>(integral * ratio, v_next * ratio);
+    }
+
+    public Pair<Double, Double> computeAccel(double dt) {
+        double velDeficit = AuraShooterMath.STEADY_STATE_VEL_THRESHOLD - v0actual;
+
+        if (velDeficit <= 0) {
+            return new Pair<>(v0actual * dt, v0actual);
+        }
+
+        double v0now = v0actual;
+
+        setV0actual(velDeficit);
+        Pair<Double, Double> deficitResult;
+
+        if (Math.abs(dt - DEFAULT_DT) > 0.001) deficitResult = compute(dt);
+        else deficitResult = compute();
+
+        setV0actual(v0now);
+
+        double futureVelocity = AuraShooterMath.STEADY_STATE_VEL_THRESHOLD - deficitResult.two();
+        double futureDisplacement = (AuraShooterMath.STEADY_STATE_VEL_THRESHOLD * dt) - deficitResult.one();
+
+        return new Pair<>(futureDisplacement, futureVelocity);
     }
 
     public Pair<Double, Double> compute() {

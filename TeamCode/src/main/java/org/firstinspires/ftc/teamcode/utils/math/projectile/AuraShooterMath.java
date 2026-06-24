@@ -224,7 +224,7 @@ public class AuraShooterMath {
 
     private double computeTurretPos(Vector displacement, Pose currentPos, Pose currentVelocity, Pose targetPos,
                                     double velMag, Vector linearVel) {
-        if (!velocityCompensation && velMag > 4)
+        if (!velocityCompensation || velMag < 1.5)
             return getTurretPos(displacement);
 
         if (Robot.INSTANCE == null) {
@@ -241,9 +241,23 @@ public class AuraShooterMath {
             return getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity, targetPos)));
         }
 
-        if (velMag < STEADY_STATE_VEL_THRESHOLD && velMag >= ACCELERATION_VEL_THRESHOLD && powerMag > 0.15) {
+        if (velMag <= STEADY_STATE_VEL_THRESHOLD && velMag >= ACCELERATION_VEL_THRESHOLD && powerMag > 0.15) {
             //TRANSITION FROM ACCELERATION TO STEADY-STATE
-            double slope = (STEADY_STATE_VEL_THRESHOLD - ACCELERATION_VEL_THRESHOLD)
+            double slope = LambertApproximator.DEFAULT_DT / (STEADY_STATE_VEL_THRESHOLD - ACCELERATION_VEL_THRESHOLD);
+            double deltaVel = velMag - ACCELERATION_VEL_THRESHOLD;
+            double calculatedDT = slope * deltaVel - LambertApproximator.DEFAULT_DT;
+            Pair<Pose, Pose> projection = projectKinematics(currentPos, currentVelocity, velMag, linearVel, calculatedDT);
+            return getTurretPos(getDispVector(targetPos, iteratePose(projection.one(), projection.two(), targetPos)));
+        }
+
+        if (velMag < ACCELERATION_VEL_THRESHOLD && powerMag > 0.15) {
+            //ACCELERATION
+            Pair<Pose, Pose> projection = projectKinematics(currentPos, currentVelocity, velMag, linearVel, -LambertApproximator.DEFAULT_DT);
+            return getTurretPos(getDispVector(targetPos, iteratePose(projection.one(), projection.two(), targetPos)));
+        }
+
+        if (powerMag <= 0.15) {
+            //DECELERATION
             Pair<Pose, Pose> projection = projectKinematics(currentPos, currentVelocity, velMag, linearVel);
             return getTurretPos(getDispVector(targetPos, iteratePose(projection.one(), projection.two(), targetPos)));
         }
