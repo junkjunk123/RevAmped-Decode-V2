@@ -305,7 +305,7 @@ public class Drivetrain {
                 y = x * Math.sin(-robotHeading) + y * Math.cos(robotHeading);
             }
 
-            lastPower = new Vector2D();
+            lastPower = new Vector2D(x, y);
 
             if (tipCorrection) {
                 Localizer octoquad = follower.poseTracker.getLocalizer();

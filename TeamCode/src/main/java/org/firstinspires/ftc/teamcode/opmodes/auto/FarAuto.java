@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.opmodes.paths.FarAutoPathsMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.AuraShooterMath;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,7 +55,7 @@ public class FarAuto extends OpModeCommand {
                     telemetry.addData("skip",skipSweep.get());
                     telemetry.addData("states", Arrays.toString(robot.intake.getStates()));
                     telemetry.addData("size", robot.drivetrain.getPaths().size());
-                    telemetry.addData("turret offset",SimpleShooterMath.turretCompOffset);
+                    telemetry.addData("turret offset", AuraShooterMath.turretCompOffset);
                     telemetry.addData("isTeleop",Globals.isTeleOp);
                     telemetry.addData("alliance",Globals.allianceColor);
                     telemetry.update();
@@ -66,10 +66,10 @@ public class FarAuto extends OpModeCommand {
                             matchTimer.reset();
                             robot.flywheel.far();
                             if (Globals.allianceColor.equals(AllianceColor.Blue)) {
-                                SimpleShooterMath.turretFarOffset -= 0 / 255f * Math.signum(SimpleShooterMath.turretFarOffset);
+                                AuraShooterMath.turretFarOffset -= 0 / 255f * Math.signum(AuraShooterMath.turretFarOffset);
                             }
                             else {
-                                SimpleShooterMath.turretFarOffset -= 0 / 255f * Math.signum(SimpleShooterMath.turretFarOffset);
+                                AuraShooterMath.turretFarOffset -= 0 / 255f * Math.signum(AuraShooterMath.turretFarOffset);
                             }
                         }),
                         shootPreloads(),
@@ -234,7 +234,7 @@ public class FarAuto extends OpModeCommand {
                     new Parallel(
                         robot.drivetrain.follow(),
                         fullSweep(),
-                        new Instant(() -> SimpleShooterMath.turretFarOffset -= 1/255f * Math.signum(SimpleShooterMath.turretFarOffset))
+                        new Instant(() -> AuraShooterMath.turretFarOffset -= 1/255f * Math.signum(AuraShooterMath.turretFarOffset))
                     )
                 );
             })
@@ -247,9 +247,9 @@ public class FarAuto extends OpModeCommand {
 
     private void resetOffset() {
         if (Globals.allianceColor.equals(AllianceColor.Red)){
-            SimpleShooterMath.turretFarOffset = 3/255f;
+            AuraShooterMath.turretFarOffset = 3/255f;
         } else {
-            SimpleShooterMath.turretFarOffset = -2/255f;
+            AuraShooterMath.turretFarOffset = -2/255f;
         }
     }
 }

@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils.math.projectile;
 
-import static java.lang.Double.NaN;
-
-import android.sax.StartElementListener;
-
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.utils.Globals;
@@ -49,7 +45,7 @@ public class HoodInverseKinematics {
         A = (gravity*distance*distance)/(2*velocity*velocity);
         angle = Math.atan((distance+(arc*Math.sqrt((distance*distance)-(4*A*(height+A)))))/(2*A));
         Globals.telemetry.addData("calc angle",angle);
-        hoodAngle = Math.PI-SimpleShooterMath.shootingAngleRelativeToHood-angle;
+        hoodAngle = Math.PI- AuraShooterMath.shootingAngleRelativeToHood-angle;
         hoodAngle -= startingAngle;
         Globals.telemetry.addData("hood angle",hoodAngle);
         Globals.telemetry.update();

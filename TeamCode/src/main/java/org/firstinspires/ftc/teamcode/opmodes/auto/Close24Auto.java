@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
 import org.firstinspires.ftc.teamcode.opmodes.paths.Close24AutoPathsMTI;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.AuraShooterMath;
 
 public class Close24Auto extends OpModeCommand {
     private Robot robot;
@@ -101,7 +101,7 @@ public class Close24Auto extends OpModeCommand {
 
     public ICommand intake() {
         return new Sequential(
-                new Instant(() -> SimpleShooterMath.hoodCompOffset = 0),
+                new Instant(() -> AuraShooterMath.hoodCompOffset = 0),
                 robot.resetAfterShooting(),
                 new Instant(robot::intake),
                 //clear the states at 50% of path to remove any false positives from the previous shoot

@@ -11,36 +11,28 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.internal.system.CloseableOnFinalize;
 import org.firstinspires.ftc.teamcode.mechanisms.Drivetrain;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.CycleState;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.DriveMessage;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler.Message;
 import org.firstinspires.ftc.teamcode.mechanisms.intake.Intake;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeArtifactDetector;
-import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
-import org.firstinspires.ftc.teamcode.mechanisms.lift.Lift;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.FeederWheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Hood;
-import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretState;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
-import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeBlobCamera;
-import org.firstinspires.ftc.teamcode.mechanisms.vision.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.AuraShooterMath;
 
 import java.util.List;
-import java.util.concurrent.locks.Condition;
 
 public class Robot {
     public static Robot INSTANCE;
@@ -109,20 +101,20 @@ public class Robot {
         intake.update();
         if (Globals.isTeleOp) {
             if (enableDriverSOTM) {
-                if (sotmTurretComp && SimpleShooterMath.turretCompOffset == 0) {
-                    SimpleShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET;
-                } else if (!sotmTurretComp && SimpleShooterMath.turretCompOffset == MTITele.DRIVER_TURRET_OFFSET) {
+                if (sotmTurretComp && AuraShooterMath.turretCompOffset == 0) {
+                    AuraShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET;
+                } else if (!sotmTurretComp && AuraShooterMath.turretCompOffset == MTITele.DRIVER_TURRET_OFFSET) {
                     Scheduler.getInstance().schedule(
                             new Sequential(
                                     new Wait(150),
-                                    new Instant(() -> SimpleShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET / 2),
+                                    new Instant(() -> AuraShooterMath.turretCompOffset = MTITele.DRIVER_TURRET_OFFSET / 2),
                                     new Wait(50),
-                                    new Instant(() -> SimpleShooterMath.turretCompOffset = 0)
+                                    new Instant(() -> AuraShooterMath.turretCompOffset = 0)
                             )
                     );
                 }
-            } else if (SimpleShooterMath.turretCompOffset != 0) {
-                SimpleShooterMath.turretCompOffset = 0;
+            } else if (AuraShooterMath.turretCompOffset != 0) {
+                AuraShooterMath.turretCompOffset = 0;
             }
         }
     }
@@ -192,7 +184,7 @@ public class Robot {
     public ICommand resetShooter() {
         //hood.rest();
         return new Parallel(
-            new Instant(() -> SimpleShooterMath.hoodCompOffset = 0),
+            new Instant(() -> AuraShooterMath.hoodCompOffset = 0),
             //new Instant(flywheel::unpower),
             gate.close()
         );

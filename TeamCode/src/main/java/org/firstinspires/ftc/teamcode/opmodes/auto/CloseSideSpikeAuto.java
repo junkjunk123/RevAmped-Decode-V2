@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.pedropathing.ivy.ICommand;
 import com.pedropathing.ivy.commands.Infinite;
 import com.pedropathing.ivy.commands.Instant;
-import com.pedropathing.ivy.commands.Lazy;
 import com.pedropathing.ivy.commands.Wait;
 import com.pedropathing.ivy.commands.WaitUntil;
 import com.pedropathing.ivy.groups.Deadline;
@@ -23,7 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.AuraShooterMath;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -114,7 +113,7 @@ public class CloseSideSpikeAuto extends OpModeCommand {
 
     public ICommand intake() {
         return new Sequential(
-                new Instant(() -> SimpleShooterMath.hoodCompOffset = 0),
+                new Instant(() -> AuraShooterMath.hoodCompOffset = 0),
                 robot.resetAfterShooting(),
                 new Instant(robot::intake),
                 //clear the states at 50% of path to remove any false positives from the previous shoot
@@ -199,7 +198,7 @@ public class CloseSideSpikeAuto extends OpModeCommand {
     public ICommand shootLast(){
         return new Sequential(
             new WaitUntil(() -> !stop.get()),
-            new Instant(() -> SimpleShooterMath.turretCompOffset = 0),
+            new Instant(() -> AuraShooterMath.turretCompOffset = 0),
             shoot()
         );
     }
@@ -207,7 +206,7 @@ public class CloseSideSpikeAuto extends OpModeCommand {
     public ICommand toShootPoint(){
         return new Parallel(
             robot.drivetrain.followNext(d -> d.tValueCondition(0.95), 2000),
-            new Instant(() -> SimpleShooterMath.turretCompOffset = 0/255f),
+            new Instant(() -> AuraShooterMath.turretCompOffset = 0/255f),
             new Sequential(
 
                 new WaitUntil(() -> robot.drivetrain.follower.getTotalDistanceRemaining() <
@@ -226,16 +225,16 @@ public class CloseSideSpikeAuto extends OpModeCommand {
             robot.drivetrain.follow(),
             new Sequential(
                 new Instant(() -> {
-                    if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset += 2/255f;
-                    else SimpleShooterMath.turretCompOffset -= 2/255f;
+                    if (Globals.allianceColor == AllianceColor.Blue) AuraShooterMath.turretCompOffset += 2/255f;
+                    else AuraShooterMath.turretCompOffset -= 2/255f;
                 }),
                 new Parallel(
                     new Loop(
                         new Sequential(
                             new Wait(30),
                             new Instant(() -> {
-                                if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset -= 5/255f;
-                                else SimpleShooterMath.turretCompOffset += 5/255f;
+                                if (Globals.allianceColor == AllianceColor.Blue) AuraShooterMath.turretCompOffset -= 5/255f;
+                                else AuraShooterMath.turretCompOffset += 5/255f;
                             })
                         ),
                         5

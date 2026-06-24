@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.GamepadEx;
 import org.firstinspires.ftc.teamcode.utils.data.FloatSupplier;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.AuraShooterMath;
 
 @Config
 @TeleOp(name = "MTI-TeleOp")
@@ -168,7 +168,7 @@ public class MTITele extends OpModeCommand {
                             disableThresholdTrackChange = false;
                             TrackingThread.trackTurret = true;
                             TrackingThread.trackHood = true;
-                            SimpleShooterMath.turretFarOffset = 0;
+                            AuraShooterMath.turretFarOffset = 0;
                         })
                     ),
                     RobotStateHandler.CycleState.INTAKE
@@ -182,9 +182,9 @@ public class MTITele extends OpModeCommand {
         //Far Preset
         if (gamepad_1.dpad_up.isRisingEdge()){
             if (Globals.allianceColor.equals(AllianceColor.Red)){
-                SimpleShooterMath.turretFarOffset = 3/255f;
+                AuraShooterMath.turretFarOffset = 3/255f;
             } else {
-                SimpleShooterMath.turretFarOffset = -2/255f;
+                AuraShooterMath.turretFarOffset = -2/255f;
             }
             disableThresholdTrackChange = true;
             TrackingThread.trackHood = false;

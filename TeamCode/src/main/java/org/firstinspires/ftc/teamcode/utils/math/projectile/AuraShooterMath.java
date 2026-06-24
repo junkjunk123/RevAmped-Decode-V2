@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.utils.math.projectile;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread.TURRET_OFFSET;
 import static org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread.velocityCompensation;
 import static org.firstinspires.ftc.teamcode.utils.Globals.allianceColor;
-import static org.firstinspires.ftc.teamcode.utils.Globals.telemetry;
 import static org.firstinspires.ftc.teamcode.utils.math.calc.Angle.normalizeAnglePi;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -32,8 +31,9 @@ import org.firstinspires.ftc.teamcode.utils.math.calc.Vector2D;
 import java.util.Arrays;
 import smile.interpolation.Interpolation2D;
 
+//Have fun reading ts - Havish
 @Config
-public class SimpleShooterMath {
+public class AuraShooterMath {
     private final OctoQuadLocalizer localizer;
     public static Pose APRIL_TAG_POSE_RED;
     public static Pose APRIL_TAG_POSE_BLUE;
@@ -70,13 +70,15 @@ public class SimpleShooterMath {
     public static ColoredDecodePose offsetPose = new ColoredDecodePose(-6, -6);
     public static double K_flywheelPrediction = 0;
     public static double K_hoodPrediction = 0;
+    public static double STEADY_STATE_VEL_THRESHOLD = 50;
+    public static double ACCELERATION_VEL_THRESHOLD = 30;
     private HoodInverseKinematics inverseKinematics;
 
-    private LambertApproximator timeTravelDevice; //lol
-    public static double TIME_CHANGE = 0.5;
+    private final LambertApproximator timeTravelDevice;
+
     public static int tooCloseThreshold;
 
-    public SimpleShooterMath(Localizer localizer) {
+    public AuraShooterMath(Localizer localizer) {
         inverseKinematics = new HoodInverseKinematics();
         this.localizer = (OctoQuadLocalizer) localizer;
         APRIL_TAG_POSE_BLUE = new Pose(blueX, blueY);
@@ -163,14 +165,14 @@ public class SimpleShooterMath {
             }
 
             if (velocityCompensation) {
-                if (velMag > Hood.HOOD_COMP_SOTM_THRESHOLD && SimpleShooterMath.SOTMOffset == 0) {
+                if (velMag > Hood.HOOD_COMP_SOTM_THRESHOLD && AuraShooterMath.SOTMOffset == 0) {
                     if (linearVel.dot(displacement) > 0)
-                        SimpleShooterMath.SOTMOffset = Hood.HOOD_COMP_SOTM;
+                        AuraShooterMath.SOTMOffset = Hood.HOOD_COMP_SOTM;
                     else
-                        SimpleShooterMath.SOTMOffset = Hood.HOOD_COMP_SOTM + Hood.HOOD_COMP_SOTM_BACKWARDS;
+                        AuraShooterMath.SOTMOffset = Hood.HOOD_COMP_SOTM + Hood.HOOD_COMP_SOTM_BACKWARDS;
                 }
-                if (velMag <= Hood.HOOD_COMP_SOTM_THRESHOLD && SimpleShooterMath.SOTMOffset != 0) {
-                    SimpleShooterMath.SOTMOffset = 0;
+                if (velMag <= Hood.HOOD_COMP_SOTM_THRESHOLD && AuraShooterMath.SOTMOffset != 0) {
+                    AuraShooterMath.SOTMOffset = 0;
                 }
             }
 
@@ -225,6 +227,49 @@ public class SimpleShooterMath {
         if (!velocityCompensation && velMag > 4)
             return getTurretPos(displacement);
 
+        if (Robot.INSTANCE == null) {
+            Pair<Pose, Pose> projection = projectKinematics(currentPos, currentVelocity, velMag, linearVel);
+            return getTurretPos(getDispVector(targetPos, iteratePose(projection.one(), projection.two(), targetPos)));
+        }
+
+        Vector2D lastPower = Robot.INSTANCE.drivetrain.getLastPower();
+        Vector2D direction = Vector2D.fromVector(linearVel.normalize());
+        double powerMag = direction.dot(lastPower);
+
+        if (velMag > STEADY_STATE_VEL_THRESHOLD && powerMag > 0.15) {
+            //STEADY-STATE
+            return getTurretPos(getDispVector(targetPos, iteratePose(currentPos, currentVelocity, targetPos)));
+        }
+
+        if (velMag < STEADY_STATE_VEL_THRESHOLD && velMag >= ACCELERATION_VEL_THRESHOLD && powerMag > 0.15) {
+            //TRANSITION FROM ACCELERATION TO STEADY-STATE
+            double timestep = 0.025 *
+            Pair<Pose, Pose> projection = projectKinematics(currentPos, currentVelocity, velMag, linearVel);
+            return getTurretPos(getDispVector(targetPos, iteratePose(projection.one(), projection.two(), targetPos)));
+        }
+
+        timeTravelDevice.setV0actual(velMag);
+        Pair<Double, Double> kinematicChange = timeTravelDevice.compute();
+        double disp = kinematicChange.one();
+        double vel = kinematicChange.two();
+        Pose newPose = currentPos.plus(direction.times(disp).toPose());
+        Pose newVel = direction.times(vel).withHeading(currentVelocity.getHeading());
+
+        return getTurretPos(getDispVector(targetPos, iteratePose(newPose, newVel, targetPos)));
+    }
+
+    public Pair<Pose, Pose> projectKinematics(Pose currentPos, Pose currentVelocity, double velMag, Vector linearVel, double dt) {
+        timeTravelDevice.setV0actual(velMag);
+        Pair<Double, Double> kinematicChange = timeTravelDevice.compute(dt);
+        double disp = kinematicChange.one();
+        double vel = kinematicChange.two();
+        Vector2D direction = Vector2D.fromVector(linearVel.normalize());
+        Pose newPose = currentPos.plus(direction.times(disp).toPose());
+        Pose newVel = direction.times(vel).withHeading(currentVelocity.getHeading());
+        return new Pair<>(newPose, newVel);
+    }
+
+    public Pair<Pose, Pose> projectKinematics(Pose currentPos, Pose currentVelocity, double velMag, Vector linearVel) {
         timeTravelDevice.setV0actual(velMag);
         Pair<Double, Double> kinematicChange = timeTravelDevice.compute();
         double disp = kinematicChange.one();
@@ -232,8 +277,7 @@ public class SimpleShooterMath {
         Vector2D direction = Vector2D.fromVector(linearVel.normalize());
         Pose newPose = currentPos.plus(direction.times(disp).toPose());
         Pose newVel = direction.times(vel).withHeading(currentVelocity.getHeading());
-
-        return getTurretPos(getDispVector(targetPos, iteratePose(newPose, newVel, targetPos)));
+        return new Pair<>(newPose, newVel);
     }
 
     private double computeNextTurretPos(Pose currentPos, Pose currentVelocity, Pose targetPos, double velMag, Vector linearVel) {

@@ -3,16 +3,15 @@ package org.firstinspires.ftc.teamcode.mechanisms.shooter;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Localizer;
-import com.pedropathing.math.Vector;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.mechanisms.RobotStateHandler;
 import org.firstinspires.ftc.teamcode.utils.Globals;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.AuraShooterMath;
 
 @Config
 public class TrackingThread {
-    public final SimpleShooterMath shooterMath;
+    public final AuraShooterMath shooterMath;
     private final ServoTurretMTI turret;
     private final Hood hood;
     private final Flywheel flywheel;
@@ -30,7 +29,7 @@ public class TrackingThread {
         this.turret = turret;
         this.flywheel = flywheel;
         this.octoquad = octoquad.getPoseTracker().getLocalizer();
-        shooterMath = new SimpleShooterMath(this.octoquad);
+        shooterMath = new AuraShooterMath(this.octoquad);
         INSTANCE = this;
         TURRET_OFFSET = 0;
     }

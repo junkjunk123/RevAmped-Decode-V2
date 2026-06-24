@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.ShooterMath;
-import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
+import org.firstinspires.ftc.teamcode.utils.math.projectile.AuraShooterMath;
 
 public class RobotConstants {
     public void build() {
@@ -34,7 +34,7 @@ public class RobotConstants {
         //Intake sensor delays {between 0&1, between 1&2, 0}
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_AUTO = new int[] {0,100,0};
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_TELE = new int[]{0,100,0};
-        SimpleShooterMath.tooCloseThreshold = 60;
+        AuraShooterMath.tooCloseThreshold = 60;
 
         //Hood comp
         Hood.HOOD_COMP_SOTM_THRESHOLD = 4;
@@ -52,8 +52,8 @@ public class RobotConstants {
 
         //========================================================
 
-        SimpleShooterMath.ticksPerRad = 311f; //hood angle
-        SimpleShooterMath.launchToVel = (double) 900/213; //flywheel velocity
+        AuraShooterMath.ticksPerRad = 311f; //hood angle
+        AuraShooterMath.launchToVel = (double) 900/213; //flywheel velocity
 
         MTITele.rumbleMS = 200;
         ShooterGate.GATE_OPEN = 121/255f;
