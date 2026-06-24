@@ -36,7 +36,6 @@ public class LambertApproximator {
 
     /**
      * Computes the Lambert W function (principal branch W_0) using Halley's Method.
-     * This converges cubically and handles small/large values gracefully.
      */
     public double lambertW(double x) {
         if (x < 0) {
@@ -49,7 +48,6 @@ public class LambertApproximator {
         double w = x > 1.0 ? Math.log(x) - Math.log(Math.log(x)) : x;
         if (w < 0) w = 0.0; // clamp for safety near 0
 
-        // 2-3 iterations of Halley's method usually hit machine precision
         for (int i = 0; i < 3; i++) {
             double ew = Math.exp(w);
             double f = w * ew - x;
