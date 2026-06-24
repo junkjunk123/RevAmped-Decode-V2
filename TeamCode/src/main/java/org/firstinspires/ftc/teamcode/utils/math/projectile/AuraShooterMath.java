@@ -243,7 +243,7 @@ public class AuraShooterMath {
 
         if (velMag < STEADY_STATE_VEL_THRESHOLD && velMag >= ACCELERATION_VEL_THRESHOLD && powerMag > 0.15) {
             //TRANSITION FROM ACCELERATION TO STEADY-STATE
-            double timestep = 0.025 *
+            double slope = (STEADY_STATE_VEL_THRESHOLD - ACCELERATION_VEL_THRESHOLD)
             Pair<Pose, Pose> projection = projectKinematics(currentPos, currentVelocity, velMag, linearVel);
             return getTurretPos(getDispVector(targetPos, iteratePose(projection.one(), projection.two(), targetPos)));
         }
