@@ -226,7 +226,7 @@ public class SimpleShooterMath {
             return getTurretPos(displacement);
 
         timeTravelDevice.setV0actual(velMag);
-        Pair<Double, Double> kinematicChange = timeTravelDevice.compute(0.5);
+        Pair<Double, Double> kinematicChange = timeTravelDevice.compute();
         double disp = kinematicChange.one();
         double vel = kinematicChange.two();
         Vector2D direction = Vector2D.fromVector(linearVel.normalize());

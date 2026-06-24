@@ -11,6 +11,11 @@ public class LambertApproximator {
     private double v0actual;
 
     private final double WX_0;
+    private double WX_new;
+
+    public static double DEFAULT_DT = 0.5;
+    private double defaultV_Factor;
+    private double defaultD_factor;
 
     public LambertApproximator(double a, double b, double v0) {
         this.a = a;
@@ -18,6 +23,7 @@ public class LambertApproximator {
         this.v0 = v0;
         v0actual = v0;
         WX_0 = lambertW(computeX(0));
+        setDefaultDt(DEFAULT_DT);
     }
 
     /**
@@ -100,5 +106,20 @@ public class LambertApproximator {
         double lowerEval = (WX_0 * WX_0 / 2.0) + WX_0;
         double integral = b * (lowerEval - upperEval);
         return new Pair<>(integral * ratio, v_next * ratio);
+    }
+
+    public Pair<Double, Double> compute() {
+        return new Pair<>(defaultD_factor * v0actual, defaultV_Factor * v0actual);
+    }
+
+    public void setDefaultDt(double defaultDt) {
+        DEFAULT_DT = defaultDt;
+        WX_new = lambertW(computeX(DEFAULT_DT));
+        double ratio = 1 / v0 * b / 2 / a;
+        double upperEval = (WX_new * WX_new / 2.0) + WX_new;
+        double lowerEval = (WX_0 * WX_0 / 2.0) + WX_0;
+        double integral = b * (lowerEval - upperEval);
+        defaultV_Factor = WX_new * ratio;
+        defaultD_factor = integral * ratio;
     }
 }
