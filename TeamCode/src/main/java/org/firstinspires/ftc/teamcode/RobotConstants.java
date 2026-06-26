@@ -27,7 +27,7 @@ public class RobotConstants {
         MTITele.outreach = false; //enable for stop program button (gamepad_2 back)
         MTITele.DRIVER_TURRET_OFFSET = -7/255f;
         MTITele.calibration = false;
-        ShooterMath.velocityCompensation = false; //SOTM toggle
+        ShooterMath.velocityCompensation = true; //SOTM toggle
         IntakeDistanceSensors.useSensors = true; //Distance sensors toggle
         //Intake sensor delays {between 0&1, between 1&2, 0}
         IntakeDistanceSensors.INTAKE_SENSOR_DELAY_AUTO = new int[] {0,100,0};
