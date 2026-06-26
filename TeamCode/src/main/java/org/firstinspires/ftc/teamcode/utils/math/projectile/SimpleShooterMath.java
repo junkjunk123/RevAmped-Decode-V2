@@ -222,7 +222,7 @@ public class SimpleShooterMath {
 
     private double computeTurretPos(Vector displacement, Pose currentPos, Pose currentVelocity, Pose targetPos,
                                     double velMag, Vector linearVel) {
-        if (!velocityCompensation && velMag > 4)
+        if (!velocityCompensation)
             return getTurretPos(displacement);
 
         timeTravelDevice.setV0actual(velMag);
