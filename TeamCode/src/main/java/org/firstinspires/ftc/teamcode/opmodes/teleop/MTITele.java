@@ -247,7 +247,7 @@ public class MTITele extends OpModeCommand {
             updateGP2Color();
             gamepad_2.rumble(rumbleMS);
         }
-        //toggle stick sotm
+        //toggle decel sotm
         if (gamepad_2.right_bumper.isRisingEdge()){
             TrackingThread.velocityCompensation = !TrackingThread.velocityCompensation;
 
@@ -271,6 +271,13 @@ public class MTITele extends OpModeCommand {
             Robot.hoodFineTune-=3/255f;
         } else if (gamepad_2.dpad_left.isRisingEdge()){
             Robot.hoodFineTune+=3/255f;
+        }
+
+        if (gamepad_2.right_stick_button.isRisingEdge()){
+            disableThresholdTrackChange = true;
+            TrackingThread.trackHood = false;
+            robot.hood.setPosition(5/255f);
+            gamepad_2.rumble(rumbleMS);
         }
         //====================MISC===================
         //Confirm turret calibration
