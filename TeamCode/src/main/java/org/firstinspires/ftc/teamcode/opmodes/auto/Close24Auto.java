@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
+import org.firstinspires.ftc.teamcode.opmodes.paths.Close24AutoPathsMTI;
 import org.firstinspires.ftc.teamcode.opmodes.paths.Close27AutoPathsMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
@@ -37,7 +38,7 @@ public class Close24Auto extends OpModeCommand {
 
     @Override
     public void initialize() {
-        robot = new Robot(hardwareMap, new Close27AutoPathsMTI());
+        robot = new Robot(hardwareMap, new Close24AutoPathsMTI());
         autoTrack = new TrackingThread(robot);
         robot.turret.closeSideSpikePreloads();
         robot.hood.setPosition(0.1);
@@ -124,10 +125,9 @@ public class Close24Auto extends OpModeCommand {
                         ),
                         new Sequential(
                                 new WaitUntil(() -> robot.drivetrain.isDoneFollowing() || robot.drivetrain.follower.atParametricEnd()),
-                                new WaitUntil(() -> robot.intake.hasTwo())
+                                new WaitUntil(() -> robot.intake.hasThree()))
                         )
-                )
-        );
+                );
     }
 
     public ICommand shoot() {

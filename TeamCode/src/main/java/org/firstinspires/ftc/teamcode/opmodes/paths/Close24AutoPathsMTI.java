@@ -33,7 +33,7 @@ public class Close24AutoPathsMTI implements PathSupplier {
     //GRABBING SECOND SPIKE MARK
     public static ColoredDecodePose SECOND_SPIKE_1 = new ColoredDecodePose(46, 53, Math.toRadians(190));
     public static ColoredDecodePose SECOND_SPIKE_2 = new ColoredDecodePose(40, 58, Math.toRadians(180));
-    public static ColoredDecodePose SECOND_SPIKE_3 = new ColoredDecodePose(18.5, 61, Math.toRadians(180));
+    public static ColoredDecodePose SECOND_SPIKE_3 = new ColoredDecodePose(18.5, 57, Math.toRadians(180));
 
     //SHOOTING SECOND SPIKE MARK
     public static ColoredDecodePose SECOND_SPIKE_SHOOT_CONTROL = new ColoredDecodePose(37, 66);
@@ -51,7 +51,7 @@ public class Close24AutoPathsMTI implements PathSupplier {
 
 
     //PARK
-    public static ColoredDecodePose PARK = new ColoredDecodePose(54, 76);
+    public static ColoredDecodePose PARK = new ColoredDecodePose(49, 71);
 
     @Override
     public Pose startPose() {
