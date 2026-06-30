@@ -68,7 +68,7 @@ public class RobotConstants {
         FeederWheel.TARGET_VEL = 2300; FeederWheel.INTAKE_VELOCITY = 2200; FeederWheel.INTAKE_NO_SENSORS = 480; FeederWheel.SHOOT_FAR = 1200; FeederWheel.SHOOT_VELOCITY = 2300;
 
         //Flywheel Constants
-        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1175;
+        Flywheel.NEAR_VELOCITY = 900; Flywheel.MEDIUM_VELOCITY = 1000; Flywheel.FAR_VELOCITY = 1225;
         Flywheel.CORNER_VELOCITY = 1050;
         Flywheel.OUTTAKE_POWER = 500;
         Flywheel.COUNTS_PER_REVOLUTION = 43; Flywheel.RADIUS = 4.094;

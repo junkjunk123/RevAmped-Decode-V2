@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
 import org.firstinspires.ftc.teamcode.utils.commands.Conditional;
 import org.firstinspires.ftc.teamcode.utils.commands.Lazy;
+import org.firstinspires.ftc.teamcode.utils.commands.Loop;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.SimpleShooterMath;
 
 import java.util.Arrays;
@@ -49,6 +50,7 @@ public class FarAuto extends OpModeCommand {
         Drivetrain.startPose = robot.drivetrain.follower.getPose();
         resetOffset();
         robot.gate.setGateOpen();
+        autoTrack.update();
 
         schedule(
                 new Infinite(() -> {
@@ -67,19 +69,21 @@ public class FarAuto extends OpModeCommand {
                         new Instant(() -> {
                             matchTimer.reset();
                             robot.flywheel.far();
-                            if (Globals.allianceColor.equals(AllianceColor.Blue)) {
-                                SimpleShooterMath.turretFarOffset -= 0 / 255f * Math.signum(SimpleShooterMath.turretFarOffset);
-                            }
-                            else {
-                                SimpleShooterMath.turretFarOffset -= 0 / 255f * Math.signum(SimpleShooterMath.turretFarOffset);
-                            }
                         }),
                         shootPreloads(),
-
+                        new Instant(() -> {
+                                    if (Globals.allianceColor.equals(AllianceColor.Red)){
+                                        SimpleShooterMath.turretFarOffset = 5/255f;
+                                    } else {
+                                        SimpleShooterMath.turretFarOffset = -3/255f;
+                                    }
+                                }
+                        ),
+                        cycleSpike(),
                         new Instant(this::resetOffset),
                         cycleSpike(),
-                        cycleSpike(),
 
+                        cycleSweep(),
                         cycleSweep(),
                         cycleSweep(),
                         cycleSweep(),
@@ -96,9 +100,7 @@ public class FarAuto extends OpModeCommand {
     public ICommand shootPreloads() {
         return new Sequential(
             new Wait(FLYWHEEL_RAMP_UP_WAIT),
-            new Instant(() -> {
-                robot.hood.far();
-            }),
+            new Instant(() -> robot.hood.far()),
             shoot()
         );
     }
@@ -196,7 +198,8 @@ public class FarAuto extends OpModeCommand {
                         new Instant(robot::stopFeeder)
                 ),
                 new Sequential(
-                        new WaitUntil(() -> robot.intake.hasThree()),
+                        new WaitUntil(() -> robot.drivetrain.follower.getChainIndex() ==
+                                robot.drivetrain.follower.getCurrentPathChain().size() - 1),
                         new Instant(() -> {robot.stopIntake();})
                 )
             ),
@@ -260,7 +263,7 @@ public class FarAuto extends OpModeCommand {
 
     private void resetOffset() {
         if (Globals.allianceColor.equals(AllianceColor.Red)){
-            SimpleShooterMath.turretFarOffset = 3/255f;
+            SimpleShooterMath.turretFarOffset = 4/255f;
         } else {
             SimpleShooterMath.turretFarOffset = -2/255f;
         }

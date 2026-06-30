@@ -136,22 +136,18 @@ public class MTITele extends OpModeCommand {
 
         //Hold Shoot
         if (gamepad_1.right_bumper.isRisingEdge()){
-            if (canShoot || calibration) {
-                schedule(
-                    new Sequential(
-                        new WaitUntil(() -> robot.flywheel.getController().getMode().equals(FlywheelController.Mode.HOLD)),
-                        tsh.runTransition(
-                            new Conditional(() -> Robot.shootingFar,
-                                robot.autoShootFar(),
-                                robot.autoShoot()
-                            ),
-                            RobotStateHandler.CycleState.SHOOT
-                        )
+            schedule(
+                new Sequential(
+                    new WaitUntil(() -> robot.flywheel.getController().getMode().equals(FlywheelController.Mode.HOLD)),
+                    tsh.runTransition(
+                        new Conditional(() -> Robot.shootingFar,
+                            robot.autoShootFar(),
+                            robot.autoShoot()
+                        ),
+                        RobotStateHandler.CycleState.SHOOT
                     )
-                );
-            } else{
-                gamepad_1.rumble(rumbleMS);
-            }
+                )
+            );
         }
 
         //Resolve after hold is done rumbles if too close to goal

@@ -17,7 +17,8 @@ import org.firstinspires.ftc.teamcode.mechanisms.intake.IntakeDistanceSensors;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.TrackingThread;
 import org.firstinspires.ftc.teamcode.opmodes.OpModeCommand;
-import org.firstinspires.ftc.teamcode.opmodes.paths.Close27AutoPathsMTI;
+import org.firstinspires.ftc.teamcode.opmodes.paths.BlueClose27AutoPathsMTI;
+import org.firstinspires.ftc.teamcode.opmodes.paths.RedClose27AutoPathsMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.commands.Commands;
@@ -36,7 +37,7 @@ public class Close27Auto extends OpModeCommand {
 
     @Override
     public void initialize() {
-        robot = new Robot(hardwareMap, new Close27AutoPathsMTI());
+        robot = new Robot(hardwareMap, Globals.allianceColor.equals(AllianceColor.Blue) ? new BlueClose27AutoPathsMTI() : new RedClose27AutoPathsMTI());
         autoTrack = new TrackingThread(robot);
         robot.turret.closeSideSpikePreloads();
         robot.hood.setPosition(0.1);
@@ -67,7 +68,7 @@ public class Close27Auto extends OpModeCommand {
                                 shootPreloads()
                         ),
                          */
-
+                        new Wait(200),
                         robot.drivetrain.follow(),
                         shoot(),
 
@@ -162,9 +163,9 @@ public class Close27Auto extends OpModeCommand {
     public ICommand spikeCycle() {
         return new Sequential(
                 //Intaking
-                new Race(
-                        robot.drivetrain.follow(),
-                        intake()
+                new Deadline(
+                    robot.drivetrain.follow(),
+                    intake()
                 ),
                 //Shooting
                 new Parallel(

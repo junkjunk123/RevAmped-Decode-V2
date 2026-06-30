@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.utils.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwMotor;
 import org.firstinspires.ftc.teamcode.utils.hardware.HwVoltageSensor;
@@ -84,7 +85,7 @@ public class Flywheel extends HwMotor {
     }
 
     public void far() {
-        runToVel(FAR_VELOCITY);
+        runToVel(FAR_VELOCITY+ Robot.flywheelFineTune);
         state = FlywheelState.FAR;
     }
 

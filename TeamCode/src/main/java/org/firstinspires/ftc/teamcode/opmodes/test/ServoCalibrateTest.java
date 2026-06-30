@@ -28,7 +28,7 @@ public class ServoCalibrateTest extends OpMode {
     public static int TICK_CHANGE = 1;
     private Telemetry telemetryA;
     private boolean singleTickMode = false;
-    private boolean splitTurret = false;
+    public static boolean splitTurret = true;
     private int selectedPort = 0;
     private List<String> servos;
     private String currentServo;

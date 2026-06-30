@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.pedro.PathSupplier;
 import java.util.List;
 
 @Configurable
-public class Close27AutoPathsMTI implements PathSupplier {
+public class RedClose27AutoPathsMTI implements PathSupplier {
     /*
     NAMING CONVENTION:
     <NAME>_<SUB-PATH NUMBER IF ANY>_<CONTROL/(NONE IF NOT CONTROL)>
@@ -42,8 +42,8 @@ public class Close27AutoPathsMTI implements PathSupplier {
     //===GATE PATHS (SHOULD BE THE SAME FOR CYCLE SPAM)===
     //OPENING GATE
     public static ColoredDecodePose GATE_1 = new ColoredDecodePose(39, 70,Math.toRadians(209));
-    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(29,63,Math.toRadians(151));
-    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(11.5, 57.5, Math.toRadians(151));
+    public static ColoredDecodePose GATE_2 = new ColoredDecodePose(29,63,Math.toRadians(152));
+    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(10.25, 58, Math.toRadians(152));
     //SHOOTING FROM GATE CYCLE
     public static ColoredDecodePose GATE_SHOOT_1 = new ColoredDecodePose(36, 59, Math.toRadians(209));
     public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(56, 79, Math.toRadians(209));
