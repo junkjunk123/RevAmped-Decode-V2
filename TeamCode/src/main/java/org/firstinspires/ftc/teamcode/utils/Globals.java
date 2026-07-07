@@ -38,6 +38,7 @@ public final class Globals {
      * @param telemetry the Telemetry instance to use for logging
      */
     public static void init(Telemetry telemetry) {
+        CommandValidator.scanProject();
         isTeleOp = true;
         constants.build();
         randomizationState = null;
