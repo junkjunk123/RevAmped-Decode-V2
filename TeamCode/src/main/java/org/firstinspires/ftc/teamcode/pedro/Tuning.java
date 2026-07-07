@@ -1023,6 +1023,7 @@ class DriveTuner extends OpMode {
 class HeadingAutoTuner extends OpMode {
     private static final double ALPHA_LARGE = 0.6;
     private static final double ALPHA_SMALL = 0.9;
+    private static final double BETA = 1.0;
     private static final double POWER = 0.6;
     private static final double RUNTIME = 3;
     private static final int SAMPLES = 15;
@@ -1105,12 +1106,15 @@ class HeadingAutoTuner extends OpMode {
         double kDSmall = getkD(lambda_small);
         double kPSmall = getkP(lambda_small);
 
+        double feedforward = BETA / K;
+
         telemetryM.addData("Est tau (s)", String.format("%.4f", tau));
         telemetryM.addData("Est K (rad/s per power)", String.format("%.4f", K));
         telemetryM.addData("Lambda large (s)", String.format("%.4f", lambda_large));
         telemetryM.addData("Lambda small (s)", String.format("%.4f", lambda_small));
         telemetryM.addData("Large Coefficients", "kP=" + String.format("%.4f", kPLarge) + ", kD=" + String.format("%.4f", kDLarge));
         telemetryM.addData("Small Coefficients", "kP=" + String.format("%.4f", kPSmall) + ", kD=" + String.format("%.4f", kDSmall));
+        telemetryM.addData("Heading Feedforward", "k=" + String.format("%.4f", feedforward));
     }
 
     private double getkP(double lambda) {
@@ -1119,6 +1123,160 @@ class HeadingAutoTuner extends OpMode {
 
     private double getkD(double lambda) {
         return 1 / K * (2 * tau / lambda - 1);
+    }
+
+    private void systemIdentification() {
+        int N = times.size();
+        if (N < 4) {
+            throw new IllegalArgumentException("Failed calibration.");
+        }
+
+        int start = Math.max(0, N - SAMPLES);
+        double samples = N - start;
+        double sum = 0;
+        for (int i = start; i < N; i++) sum += angularVelocities.get(i);
+        double A = sum / samples;
+        this.K = A / POWER;
+
+        List<Double> y = new ArrayList<>();
+        List<Double> x = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            double vel = angularVelocities.get(i) / POWER;
+            if (vel > 0.8 * K) continue;
+            if (vel < 0.1 * K) continue;
+            y.add(Math.log(K - vel));
+            x.add(times.get(i));
+        }
+        double[] linReg = linearFit(x.stream().toArray(Double[]::new), y.stream().toArray(Double[]::new));
+        if (linReg[1] == 0) throw new IllegalArgumentException("Failed calibration.");
+        this.tau = -1.0/linReg[1];
+    }
+
+    public double[] linearFit(Double[] x, Double[] y) {
+        int n = x.length;
+        double sumX = 0, sumXY = 0, sumY = 0, sumX2 = 0;
+
+        for (int i = 0; i < n; i++) {
+            sumX += x[i];
+            sumY += y[i];
+            sumXY += x[i] * y[i];
+            sumX2 += x[i] * x[i];
+        }
+
+        double m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        double b = (sumY - m * sumX) / n;
+        return new double[] {b, m};
+    }
+}
+
+class TranslationalAutoTuner extends OpMode {
+    public static double kBrakeQuadratic;
+    public static double kBrakeLinear;
+    public static double BETA_LARGE;
+    public static double BETA_SMALL;
+    public static double vMax;
+
+    private static final double POWER = 0.4;
+    private static final double RUNTIME = 0.8;
+    private static final int SAMPLES = 15;
+
+    private double tau;
+    private double K;
+    private final List<Double> times = new ArrayList<>();
+    private final List<Double> angularVelocities = new ArrayList<>();
+    private final NanoTimer timer = new NanoTimer();
+    private boolean done = false;
+    private double lastTime = 0.0;
+    private double dt = 0.0;
+
+    private Pose lastPose;
+    private double totalDrift;
+
+    @Override
+    public void init() {
+    }
+
+    @Override
+    public void init_loop() {
+        telemetryM.debug("This will turn continuously in place for " + RUNTIME + " seconds.");
+        telemetryM.debug("Make sure you have enough room.");
+        telemetryM.update(telemetry);
+        follower.update();
+        drawOnlyCurrent();
+    }
+
+    @Override
+    public void start() {
+        timer.resetTimer();
+        lastTime = timer.getElapsedTimeSeconds();
+        follower.startTeleOpDrive(true);
+        follower.setTeleOpDrive(POWER, 0, 0, true);
+        drawOnlyCurrent();
+        lastPose = follower.getPose();
+    }
+
+    @Override
+    public void loop() {
+        if (gamepad1.bWasPressed()) {
+            follower.setTeleOpDrive(0, 0, 0, true);
+            requestOpModeStop();
+        }
+
+        double now = timer.getElapsedTimeSeconds();
+        dt = now - lastTime;
+        if (dt <= 0) dt = 1e-6;
+
+
+        lastTime = now;
+
+        follower.update();
+        telemetryM.update(telemetry);
+        draw();
+
+        telemetryM.addData("done", done);
+        telemetryM.addData("dt", String.format("%.6f s", dt));
+
+        if (!done) {
+            times.add(timer.getElapsedTimeSeconds());
+            angularVelocities.add(Math.abs(follower.getAngularVelocity()));
+            telemetryM.addData("angular velocity (rad/s)", String.format("%.4f", angularVelocities.get(angularVelocities.size() - 1)));
+
+            double dy = follower.getPose().getY() - lastPose.getY();
+            double drift = dy / dt / follower.getVelocity().dot(new Vector(1, follower.getHeading()));
+            totalDrift += drift;
+
+            if (timer.getElapsedTimeSeconds() >= RUNTIME) {
+                done = true;
+                systemIdentification();
+
+                follower.setTeleOpDrive(0, 0, 0, true);
+                telemetryM.addData("elapsed time (s)", String.format("%.4f", timer.getElapsedTimeSeconds()));
+            } else {
+                follower.setTeleOpDrive(0, 0, POWER, true);
+                return;
+            }
+        }
+
+        double kP_large = calculatekP(BETA_LARGE);
+        double kP_small = calculatekP(BETA_SMALL);
+        double normalFeedforward = totalDrift / K;
+
+        telemetryM.addData("Est tau (s)", String.format("%.4f", tau));
+        telemetryM.addData("Est K (rad/s per power)", String.format("%.4f", K));
+        telemetryM.addData("Large Coefficients", "kP=" + String.format("%.4f", kP_large));
+        telemetryM.addData("Small Coefficients", "kP=" + String.format("%.4f", kP_small));
+        telemetryM.addData("Normal Feedforward", "k=" + String.format("%.4f", normalFeedforward));
+    }
+
+    private double calculatekP(double beta) {
+        double kV = 1 / K;
+        double kA = tau / K * beta * beta;
+        double denominator = kBrakeLinear + 2.0 * kBrakeQuadratic * vMax;
+        double discriminant = kA - kV * denominator;
+
+        if (discriminant < 0) return kV * kV / (4.0 * kA);
+        double sqrt = (Math.sqrt(kA) - Math.sqrt(discriminant)) / denominator;
+        return sqrt * sqrt;
     }
 
     private void systemIdentification() {
