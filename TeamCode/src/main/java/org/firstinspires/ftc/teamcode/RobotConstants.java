@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.shooter.ShooterGate;
 import org.firstinspires.ftc.teamcode.opmodes.auto.Close24Auto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.Close27Auto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.FarAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.SoloAuto;
 import org.firstinspires.ftc.teamcode.opmodes.teleop.MTITele;
 import org.firstinspires.ftc.teamcode.utils.data.ListMap;
 import org.firstinspires.ftc.teamcode.utils.math.projectile.FarTrackingMath;
@@ -22,6 +23,7 @@ public class RobotConstants {
         //==========THILAN CAN CHANGE THESE==============
         Close27Auto.GATE_WAIT = 1500; //max time in ms the bot waits at the gate
         Close24Auto.GATE_WAIT = 3000;
+        SoloAuto.GATE_WAIT = 3000;
         FarAuto.FLYWHEEL_RAMP_UP_WAIT = 1500;
         FarAuto.SHOOT_DELAY = 150;
         MTITele.outreach = false; //enable for stop program button (gamepad_2 back)

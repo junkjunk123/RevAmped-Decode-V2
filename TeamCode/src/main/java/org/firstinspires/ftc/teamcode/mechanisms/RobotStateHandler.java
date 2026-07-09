@@ -120,9 +120,6 @@ public class RobotStateHandler {
 
     public static TeleOpStateHandler createTeleOpStateHandler(Robot robot) {
         List<CycleState> stateMap = List.of(CycleState.INTAKE, CycleState.DRIVE_TO_SHOOT, CycleState.SHOOT);
-        return new TeleOpStateHandler(CycleState.INTAKE, stateMap, c -> {
-            if (c.equals(CycleState.INTAKE)) robot.setRobotState(CycleState.INTAKE);
-            else robot.setRobotState(c);
-        });
+        return new TeleOpStateHandler(CycleState.INTAKE, stateMap, robot::setRobotState);
     }
 }
