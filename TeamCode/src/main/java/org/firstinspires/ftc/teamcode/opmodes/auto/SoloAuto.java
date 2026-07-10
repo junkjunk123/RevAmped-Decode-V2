@@ -97,8 +97,8 @@ public class SoloAuto extends OpModeCommand {
                         gateCycle(),
                         gateCycle(),
                         gateCycle(),
-                        gateCycle(),
-                        shootLast()
+                        shootLast(),
+                        partnerIntake()
                 )
         );
 
@@ -306,4 +306,25 @@ public class SoloAuto extends OpModeCommand {
         );
     }
 
+    public ICommand partnerIntake() {
+        return new Sequential(
+                new Instant(() -> {
+                    robot.intake.intake();
+                    TrackingThread.velocityCompensation = false;
+                }),
+                new Race(
+                        robot.drivetrain.follow(),
+                        new Parallel(
+                                new Sequential(
+                                        new WaitUntil(() -> robot.intake.ballInTransfer()),
+                                        new Instant(robot::stopFeeder)
+                                ),
+                                new WaitUntil(() -> robot.intake.hasThree())
+                        )
+                ),
+                robot.autoShootFar(),
+                new Instant(() -> robot.stopIntake()),
+                robot.resetShooter()
+        );
+    }
 }

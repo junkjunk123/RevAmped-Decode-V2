@@ -57,7 +57,8 @@ public class SoloAutoPathsWCI implements PathSupplier {
     public static ColoredDecodePose GATE_SHOOT_1 = new ColoredDecodePose(36, 59, Math.toRadians(209));
     public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(56, 79, Math.toRadians(209));
 
-
+    public static ColoredDecodePose PARTNER_INTAKE = new ColoredDecodePose(64, 27);
+    public static ColoredDecodePose PARTNER_CONTROL = new ColoredDecodePose(64, 40);
 
     //PARK
     public static ColoredDecodePose PARK = new ColoredDecodePose(49, 71);
@@ -203,6 +204,12 @@ public class SoloAutoPathsWCI implements PathSupplier {
                 .build()
         );
 
+        FollowParameters partnerIntake = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT_2, PARTNER_CONTROL, PARTNER_INTAKE))
+                .setTangentHeadingInterpolation()
+                .build()
+        );
+
 
         FollowParameters park = new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
                 .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT_2, PARK))
@@ -226,10 +233,7 @@ public class SoloAutoPathsWCI implements PathSupplier {
             gateShoot3,
             gateIntake4,
             gateShoot4,
-            gateIntake5,
-            gateShoot5,
-            park
-
+            partnerIntake
         );
     }
 }

@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.pedro.octoquad.OctoQuadLocalizer;
 public class Constants {
     public static double AGGRESSIVE_PROPORTIONAL = 0.28;
     public static double DEFAULT_PROPORTIONAL = 0.22;
-    public static double MEDIUM_PROPORTIONIAL = 0.15;
+    public static double MEDIUM_PROPORTIONAL = 0.15;
     public static double CONSERVATIVE_PROPORTIONAL = 0.1;
     public static double K_LINEAR_BRAKE = 0.0633;
     public static double K_QUADRATIC_BRAKE = 0.00146;

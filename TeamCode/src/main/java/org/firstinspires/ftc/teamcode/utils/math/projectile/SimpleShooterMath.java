@@ -199,7 +199,7 @@ public class SimpleShooterMath {
                 double yDist = Math.abs(displacement.getYComponent());
                 Vector dispDeriv = dispDeriv(linearVel);
                 flywheelVelocity = velocityInterpolation.interpolate(xDist, yDist) + Robot.flywheelFineTune
-                        + K_flywheelPrediction * velocityInterpolation.gradient(xDist, yDist).dot(dispDeriv);
+                        + K_flywheelPrediction * velocityInterpolation.gradient(xDist, yDist).dot(dispDeriv) + velOffset;
 //                flywheelVelocity = launch*launchToVel;
                 flywheelVelocity = Range.clip(flywheelVelocity,0, Math.min(maxFlywheelVel, Flywheel.MAX_VELOCITY));
 //

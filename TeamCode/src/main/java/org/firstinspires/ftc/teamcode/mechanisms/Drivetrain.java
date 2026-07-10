@@ -164,6 +164,14 @@ public class Drivetrain {
                 .setEnd(c -> isDoneFollowing = true);
     }
 
+    public boolean chainIndex(int index) {
+        return follower.getChainIndex() == index;
+    }
+
+    public boolean lastPathInChain() {
+        return follower.getChainIndex() == follower.getCurrentPathChain().size() - 1;
+    }
+
     public Command followLast(Function<Drivetrain, Boolean> isDone) {
         return new Command()
                 .setStart(() -> {

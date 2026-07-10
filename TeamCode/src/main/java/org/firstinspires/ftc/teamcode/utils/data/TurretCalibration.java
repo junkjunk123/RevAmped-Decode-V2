@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils.data;
 
 import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurret;
+import org.firstinspires.ftc.teamcode.mechanisms.shooter.ServoTurretMTI;
 import org.firstinspires.ftc.teamcode.utils.Globals;
 import org.firstinspires.ftc.teamcode.utils.commands.AllianceColor;
 
@@ -14,11 +15,11 @@ public class TurretCalibration {
     }
 
     public static TurretCalibration fromRed(double posRed) {
-        return new TurretCalibration(posRed, ServoTurret.turretPosInv.apply(posRed));
+        return new TurretCalibration(posRed, ServoTurretMTI.turretPosInv.apply(posRed));
     }
 
     public static TurretCalibration fromBlue(double posBlue) {
-        return new TurretCalibration(ServoTurret.turretPos.apply(posBlue), posBlue);
+        return new TurretCalibration(ServoTurretMTI.turretPos.apply(posBlue), posBlue);
     }
 
     public double getPos() {
