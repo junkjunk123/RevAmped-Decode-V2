@@ -40,9 +40,9 @@ public class SoloAutoPathsWCI implements PathSupplier {
     public static ColoredDecodePose SECOND_SPIKE_SHOOT = new ColoredDecodePose(56, 80, Math.toRadians(209));
 
     //GRABBING THIRD SPIKE MARK
-    public static ColoredDecodePose THIRD_SPIKE = new ColoredDecodePose(24, 39, Math.toRadians(270));
-    public static ColoredDecodePose THIRD_SPIKE_CONTROL_1 = new ColoredDecodePose(24, 63, Math.toRadians(270));
-    public static ColoredDecodePose THIRD_SPIKE_CONTROL_2 = new ColoredDecodePose(24, 68, Math.toRadians(270));
+    public static ColoredDecodePose THIRD_SPIKE = new ColoredDecodePose(20, 36, Math.toRadians(270));
+    public static ColoredDecodePose THIRD_SPIKE_CONTROL_1 = new ColoredDecodePose(53, 38);
+    public static ColoredDecodePose THIRD_SPIKE_CONTROL_2 = new ColoredDecodePose(41, 36);
 
     //SHOOTING THIRD SPIKE MARK (SAME AS GATE SHOOT)
     public static ColoredDecodePose THIRD_SPIKE_SHOOT = new ColoredDecodePose(56, 79, Math.toRadians(270));
@@ -111,7 +111,7 @@ public class SoloAutoPathsWCI implements PathSupplier {
         );
 
         FollowParameters shootSpike3 = new FollowParameters(Constants.AGGRESSIVE_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(THIRD_SPIKE, THIRD_SPIKE_CONTROL_2, THIRD_SPIKE_CONTROL_1,GATE_SHOOT_2))
+                .addPath(ColoredDecodePose.makeBezier(THIRD_SPIKE, GATE_SHOOT_2))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build()
@@ -233,7 +233,7 @@ public class SoloAutoPathsWCI implements PathSupplier {
             gateShoot3,
             gateIntake4,
             gateShoot4,
-            partnerIntake
+            park
         );
     }
 }
