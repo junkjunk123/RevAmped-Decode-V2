@@ -46,7 +46,7 @@ public class RedClose27AutoPathsMTI implements PathSupplier {
     public static ColoredDecodePose GATE_3 = new ColoredDecodePose(10.25, 58, Math.toRadians(152));
     //SHOOTING FROM GATE CYCLE
     public static ColoredDecodePose GATE_SHOOT_1 = new ColoredDecodePose(36, 59, Math.toRadians(209));
-    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(56, 79, Math.toRadians(209));
+    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(58, 79, Math.toRadians(209));
 
 
 

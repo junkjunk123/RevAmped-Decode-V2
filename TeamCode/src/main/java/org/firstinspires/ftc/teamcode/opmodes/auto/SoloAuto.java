@@ -170,9 +170,12 @@ public class SoloAuto extends OpModeCommand {
                         new Sequential(
                             new Instant(() -> SimpleShooterMath.turretCompOffset = 0/255f),
                             new Race(
-                                intake(),
+                                new Sequential(
+                                    intake()
+                                ),
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.95))
-                            )
+                            ),
+                            new Instant(() -> robot.stopIntake())
                         )
                 ),
                 //Shooting

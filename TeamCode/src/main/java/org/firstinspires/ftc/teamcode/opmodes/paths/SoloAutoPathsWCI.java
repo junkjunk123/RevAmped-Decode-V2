@@ -55,7 +55,7 @@ public class SoloAutoPathsWCI implements PathSupplier {
     public static ColoredDecodePose GATE_3 = new ColoredDecodePose(11.5, 57.5, Math.toRadians(151));
     //SHOOTING FROM GATE CYCLE
     public static ColoredDecodePose GATE_SHOOT_1 = new ColoredDecodePose(36, 59, Math.toRadians(209));
-    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(56, 79, Math.toRadians(209));
+    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(58, 79, Math.toRadians(209));
 
     public static ColoredDecodePose PARTNER_INTAKE = new ColoredDecodePose(64, 27);
     public static ColoredDecodePose PARTNER_CONTROL = new ColoredDecodePose(64, 40);

@@ -37,7 +37,7 @@ public class WCISoloPaths implements PathSupplier {
     public static ColoredDecodePose GATE_3 = new ColoredDecodePose(11.5, 57.5, Math.toRadians(151));
 
     public static ColoredDecodePose GATE_SHOOT_1 = new ColoredDecodePose(36, 59, Math.toRadians(209));
-    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(56, 79, Math.toRadians(209));
+    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(58, 79, Math.toRadians(209));
 
     public static ColoredDecodePose THIRD_SPIKE_CONTROL = new ColoredDecodePose(24,61);
     public static ColoredDecodePose THIRD_SPIKE = new ColoredDecodePose(24, 40, Math.toRadians(270));
