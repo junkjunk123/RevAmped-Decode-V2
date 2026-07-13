@@ -151,6 +151,8 @@ public class Tuning extends SelectableOpMode {
  * @version 1.0, 5/6/2024
  */
 class LocalizationTest extends OpMode {
+    private double loops = 0, lastLoop = 0, loopTime = 0;
+
     @Override
     public void init() {
         follower.setStartingPose(new Pose(72,72));
@@ -178,9 +180,19 @@ class LocalizationTest extends OpMode {
      */
     @Override
     public void loop() {
+        loops++;
+
+        if (loops > 10) {
+            double now = System.nanoTime();
+            loopTime = (now - lastLoop) / loops;
+            lastLoop = now;
+            loops = 0;
+        }
+
         follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
         follower.update();
 
+        telemetryM.debug("Loop Rate (Hz)" + 1e9/loopTime);
         telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
         telemetryM.debug("heading:" + follower.getPose().getHeading());

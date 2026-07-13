@@ -74,8 +74,10 @@ public class Constants {
             .deadwheelXDir(OctoQuadFWv3.EncoderDirection.REVERSE)
             .deadwheelYDir(OctoQuadFWv3.EncoderDirection.FORWARD)
             .i2cRecoveryMode(OctoQuadFWv3.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR)
-            .tcpOffsetXMM(132.987f)
-            .tcpOffsetYMM(91.483f);
+            .tcpOffsetYMM(103.4f)
+            .tcpOffsetXMM(129.8f);
+            //.tcpOffsetXMM(132.987f)
+            //.tcpOffsetYMM(91.483f);
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
