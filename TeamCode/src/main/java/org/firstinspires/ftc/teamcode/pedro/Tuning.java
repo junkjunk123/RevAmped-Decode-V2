@@ -10,6 +10,8 @@ import static org.firstinspires.ftc.teamcode.pedro.Tuning.telemetryM;
 
 import android.annotation.SuppressLint;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.PanelsConfigurables;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
@@ -82,6 +84,7 @@ public class Tuning extends SelectableOpMode {
                 a.add("Forward Zero Power Acceleration Tuner", ForwardZeroPowerAccelerationTuner::new);
                 a.add("Lateral Zero Power Acceleration Tuner", LateralZeroPowerAccelerationTuner::new);
                 a.add("Heading Auto Tuner", HeadingAutoTuner::new);
+                a.add("Translational Auto Tuner", TranslationalAutoTuner::new);
                 a.add("Quadratic Damping Tuner", PredictiveBrakingTuner::new);
                 a.add("TeleOp Braking Tuner", TeleOpBrakingTuner::new);
             });
@@ -1169,21 +1172,24 @@ class HeadingAutoTuner extends OpMode {
     }
 }
 
+@Config
 class TranslationalAutoTuner extends OpMode {
-    public static double kBrakeQuadratic;
-    public static double kBrakeLinear;
-    public static double BETA_LARGE;
-    public static double BETA_SMALL;
-    public static double vMax;
+    public static double kBrakeQuadratic = Constants.K_QUADRATIC_BRAKE;
+    public static double kBrakeLinear = Constants.K_LINEAR_BRAKE;
+    public static double BETA_LARGE = 0.6;
+    public static double BETA_SMALL = 0.9;
 
     private static final double POWER = 0.4;
-    private static final double RUNTIME = 0.8;
+    private static final double RUNTIME = 1.2;
     private static final int SAMPLES = 15;
 
     private double tau;
     private double K;
+    private double kV;
+    private double kA;
+    private double vMax = 0;
     private final List<Double> times = new ArrayList<>();
-    private final List<Double> angularVelocities = new ArrayList<>();
+    private final List<Double> velocities = new ArrayList<>();
     private final NanoTimer timer = new NanoTimer();
     private boolean done = false;
     private double lastTime = 0.0;
@@ -1198,7 +1204,7 @@ class TranslationalAutoTuner extends OpMode {
 
     @Override
     public void init_loop() {
-        telemetryM.debug("This will turn continuously in place for " + RUNTIME + " seconds.");
+        telemetryM.debug("This will run continuously in place for " + RUNTIME + " seconds.");
         telemetryM.debug("Make sure you have enough room.");
         telemetryM.update(telemetry);
         follower.update();
@@ -1238,12 +1244,15 @@ class TranslationalAutoTuner extends OpMode {
 
         if (!done) {
             times.add(timer.getElapsedTimeSeconds());
-            angularVelocities.add(Math.abs(follower.getAngularVelocity()));
-            telemetryM.addData("angular velocity (rad/s)", String.format("%.4f", angularVelocities.get(angularVelocities.size() - 1)));
 
             double dy = follower.getPose().getY() - lastPose.getY();
-            double drift = dy / dt / follower.getVelocity().dot(new Vector(1, follower.getHeading()));
+            double forwardVelocity = Math.abs(follower.getVelocity().dot(new Vector(1, follower.getHeading())));
+            double drift = dy / (forwardVelocity + 1e-6);
             totalDrift += drift;
+            vMax = Math.max(vMax, forwardVelocity / POWER);
+
+            velocities.add(forwardVelocity);
+            telemetryM.addData("velocity (in/s)", String.format("%.4f", velocities.get(velocities.size() - 1)));
 
             if (timer.getElapsedTimeSeconds() >= RUNTIME) {
                 done = true;
@@ -1252,7 +1261,7 @@ class TranslationalAutoTuner extends OpMode {
                 follower.setTeleOpDrive(0, 0, 0, true);
                 telemetryM.addData("elapsed time (s)", String.format("%.4f", timer.getElapsedTimeSeconds()));
             } else {
-                follower.setTeleOpDrive(0, 0, POWER, true);
+                follower.setTeleOpDrive(POWER, 0, 0, true);
                 return;
             }
         }
@@ -1262,15 +1271,17 @@ class TranslationalAutoTuner extends OpMode {
         double normalFeedforward = totalDrift / K;
 
         telemetryM.addData("Est tau (s)", String.format("%.4f", tau));
-        telemetryM.addData("Est K (rad/s per power)", String.format("%.4f", K));
+        telemetryM.addData("Est K (in/s per power)", String.format("%.4f", K));
+        telemetryM.addData("Est kV", kV);
+        telemetryM.addData("Est kA", kA);
         telemetryM.addData("Large Coefficients", "kP=" + String.format("%.4f", kP_large));
         telemetryM.addData("Small Coefficients", "kP=" + String.format("%.4f", kP_small));
         telemetryM.addData("Normal Feedforward", "k=" + String.format("%.4f", normalFeedforward));
     }
 
     private double calculatekP(double beta) {
-        double kV = 1 / K;
-        double kA = tau / K * beta * beta;
+        kV = 1 / K;
+        kA = tau / K * beta;
         double denominator = kBrakeLinear + 2.0 * kBrakeQuadratic * vMax;
         double discriminant = kA - kV * denominator;
 
@@ -1288,14 +1299,14 @@ class TranslationalAutoTuner extends OpMode {
         int start = Math.max(0, N - SAMPLES);
         double samples = N - start;
         double sum = 0;
-        for (int i = start; i < N; i++) sum += angularVelocities.get(i);
+        for (int i = start; i < N; i++) sum += velocities.get(i);
         double A = sum / samples;
         this.K = A / POWER;
 
         List<Double> y = new ArrayList<>();
         List<Double> x = new ArrayList<>();
         for (int i = 0; i < N; i++) {
-            double vel = angularVelocities.get(i) / POWER;
+            double vel = velocities.get(i) / POWER;
             if (vel > 0.8 * K) continue;
             if (vel < 0.1 * K) continue;
             y.add(Math.log(K - vel));
@@ -1334,7 +1345,7 @@ class TranslationalAutoTuner extends OpMode {
  * @version 1.0, 3/12/2024
  */
 class Line extends OpMode {
-    public static double DISTANCE = 40;
+    public static double DISTANCE = 48;
     private boolean forward = true;
 
     private Path forwards;
@@ -1351,6 +1362,7 @@ class Line extends OpMode {
     /** This initializes the Follower and creates the forward and backward Paths. */
     @Override
     public void init_loop() {
+
         telemetryM.debug("This will activate all the PIDF(s)");
         telemetryM.debug("The robot will go forward and backward continuously along the path while correcting.");
         telemetryM.debug("You can adjust the PIDF values to tune the robot's drive PIDF(s).");
@@ -1414,6 +1426,9 @@ class Line extends OpMode {
                 follower.followPath(forwards);
             }
         }
+
+        FtcDashboard.getInstance().getTelemetry().addData("velocity", follower.getVelocity().getXComponent());
+        FtcDashboard.getInstance().getTelemetry().update();
 
         telemetryM.debug("Driving Forward?: " + forward);
         telemetryM.debug("forward_P", FORWARD_P);
