@@ -37,14 +37,15 @@ public class WCISoloPaths implements PathSupplier {
     public static ColoredDecodePose GATE_3 = new ColoredDecodePose(11.5, 57.5, Math.toRadians(151));
 
     public static ColoredDecodePose GATE_SHOOT_1 = new ColoredDecodePose(36, 59, Math.toRadians(209));
-    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(56, 79, Math.toRadians(209));
+    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(58, 79, Math.toRadians(209));
 
     public static ColoredDecodePose THIRD_SPIKE_CONTROL = new ColoredDecodePose(24,61);
     public static ColoredDecodePose THIRD_SPIKE = new ColoredDecodePose(24, 40, Math.toRadians(270));
     public static ColoredDecodePose THIRD_SPIKE_VIRTUAL = new ColoredDecodePose(24, 40, Math.toRadians(270));
 
-    public static ColoredDecodePose HUMAN_PLAYER_PHYSICAL = new ColoredDecodePose(12, 13, Math.toRadians(238));
-    public static ColoredDecodePose HUMAN_PLAYER = new ColoredDecodePose(17, 22, Math.toRadians(238));
+    public static ColoredDecodePose HUMAN_PLAYER_PHYSICAL = new ColoredDecodePose(30, 13, Math.toRadians(250));
+    public static ColoredDecodePose HUMAN_PLAYER_1 = new ColoredDecodePose(33, 22, Math.toRadians(250));
+    public static ColoredDecodePose HUMAN_PLAYER_2 = new ColoredDecodePose(12,13,Math.toRadians(230));
 
     public static ColoredDecodePose HUMAN_PLAYER_FINAL_SHOOT_CONTROL = new ColoredDecodePose(30, 16);
     public static ColoredDecodePose HUMAN_PLAYER_FINAL_SHOOT = new ColoredDecodePose(41, 9, 0);
@@ -122,38 +123,13 @@ public class WCISoloPaths implements PathSupplier {
                 .build()
         );
 
-        Supplier<FollowParameters> corner = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT_2, HUMAN_PLAYER))
-                .setConstantHeadingInterpolation(HUMAN_PLAYER.getHeading())
-                .addPath(ColoredDecodePose.makeBezier(HUMAN_PLAYER_PHYSICAL, GATE_SHOOT_2))
-                .setHeadingInterpolation(HeadingInterpolator.piecewise(
-                        new HeadingInterpolator.PiecewiseNode(0, 0.6, HeadingInterpolator.constant(HUMAN_PLAYER.getHeading())),
-                        HeadingInterpolator.PiecewiseNode.linear(0.6, 1.0, HUMAN_PLAYER.getHeading(), GATE_SHOOT_2.getHeading())
-                ))
-                .build()
-        );
-
         Supplier<FollowParameters> cornerFinal = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT_2, HUMAN_PLAYER))
-                .setConstantHeadingInterpolation(HUMAN_PLAYER.getHeading())
+                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT_2, HUMAN_PLAYER_1))
+                .setConstantHeadingInterpolation(HUMAN_PLAYER_1.getHeading())
+                .addPath(ColoredDecodePose.makeBezier(HUMAN_PLAYER_1,HUMAN_PLAYER_2))
+                .setLinearHeadingInterpolation(HUMAN_PLAYER_1.getHeading(),HUMAN_PLAYER_2.getHeading())
                 .addPath(ColoredDecodePose.makeBezier(HUMAN_PLAYER_PHYSICAL, HUMAN_PLAYER_FINAL_SHOOT_CONTROL, HUMAN_PLAYER_FINAL_SHOOT))
                 .setLinearHeadingInterpolation(HUMAN_PLAYER_PHYSICAL.getHeading(), HUMAN_PLAYER_FINAL_SHOOT.getHeading())
-                .build()
-        );
-
-        Supplier<FollowParameters> cornerIntake = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(GATE_SHOOT_2, HUMAN_PLAYER_PHYSICAL))
-                .setConstantHeadingInterpolation(HUMAN_PLAYER.getHeading())
-                .setNoDeceleration()
-                .build()
-        );
-
-        Supplier<FollowParameters> cornerShoot = () -> new FollowParameters(Constants.DEFAULT_PROPORTIONAL, follower.pathBuilder()
-                .addPath(ColoredDecodePose.makeBezier(HUMAN_PLAYER_PHYSICAL, GATE_SHOOT_2))
-                .setHeadingInterpolation(HeadingInterpolator.piecewise(
-                        new HeadingInterpolator.PiecewiseNode(0, 0.6, HeadingInterpolator.constant(HUMAN_PLAYER.getHeading())),
-                        HeadingInterpolator.PiecewiseNode.linear(0.6, 1.0, HUMAN_PLAYER.getHeading(), GATE_SHOOT_2.getHeading())
-                ))
                 .build()
         );
 
@@ -167,11 +143,8 @@ public class WCISoloPaths implements PathSupplier {
                         )
                 )
                 .addPath(thirdSpikeReturn)
-                .setHeadingInterpolation(HeadingInterpolator.piecewise(
-                                new HeadingInterpolator.PiecewiseNode(0, 0.6, HeadingInterpolator.tangent.reverse()),
-                                HeadingInterpolator.PiecewiseNode.linear(0.6, 1.0, thirdSpikeReturn.getDerivative(0.6).getTheta(), GATE_SHOOT_2.getHeading())
-                        )
-                )
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build()
         );
 

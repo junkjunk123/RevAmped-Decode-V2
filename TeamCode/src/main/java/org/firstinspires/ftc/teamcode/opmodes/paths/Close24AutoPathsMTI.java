@@ -20,7 +20,7 @@ public class Close24AutoPathsMTI implements PathSupplier {
     public static ColoredDecodePose START_POSE = new ColoredDecodePose(32, 134, Math.toRadians(270));
 
     //SHOOTING PRELOADS
-    public static ColoredDecodePose PRELOADS_SHOOT = new ColoredDecodePose(32, 98, Math.toRadians(270));
+    public static ColoredDecodePose PRELOADS_SHOOT = new ColoredDecodePose(34, 98, Math.toRadians(270));
 
     //GRABBING FIRST SPIKE MARK
     public static ColoredDecodePose FIRST_SPIKE_1_CONTROL = new ColoredDecodePose(24, 98);
@@ -43,10 +43,10 @@ public class Close24AutoPathsMTI implements PathSupplier {
     //OPENING GATE
     public static ColoredDecodePose GATE_1 = new ColoredDecodePose(39, 70,Math.toRadians(209));
     public static ColoredDecodePose GATE_2 = new ColoredDecodePose(29,63,Math.toRadians(151));
-    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(11.5, 57.5, Math.toRadians(151));
+    public static ColoredDecodePose GATE_3 = new ColoredDecodePose(10.5, 57.5, Math.toRadians(151));
     //SHOOTING FROM GATE CYCLE
     public static ColoredDecodePose GATE_SHOOT_1 = new ColoredDecodePose(36, 59, Math.toRadians(209));
-    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(56, 79, Math.toRadians(209));
+    public static ColoredDecodePose GATE_SHOOT_2 = new ColoredDecodePose(58, 79, Math.toRadians(209));
 
 
 

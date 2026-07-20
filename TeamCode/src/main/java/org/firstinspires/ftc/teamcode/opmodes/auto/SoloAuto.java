@@ -96,9 +96,8 @@ public class SoloAuto extends OpModeCommand {
                         //Gate Cycle 3 & 4
                         gateCycle(),
                         gateCycle(),
-                        gateCycle(),
-                        shootLast(),
-                        partnerIntake()
+                        park(),
+                        shootLast()
                 )
         );
 
@@ -164,32 +163,19 @@ public class SoloAuto extends OpModeCommand {
 
     public ICommand sideSpikeCycleMid() {
         return new Sequential(
+                shoot(),
                 //Intaking
                 new Parallel(
                         robot.drivetrain.follow(),
                         new Sequential(
-                            new Instant(() -> {
-                                if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset += 2/255f;
-                                else SimpleShooterMath.turretCompOffset -= 2/255f;
-                            }),
-                            new Parallel(
-                                    new Loop(
-                                            new Sequential(
-                                                    new Wait(30),
-                                                    new Instant(() -> {
-                                                        if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset -= 5/255f;
-                                                        else SimpleShooterMath.turretCompOffset += 5/255f;
-                                                    })
-                                            ),
-                                            5
-                                    ),
-                                    shoot()
-                            ),
                             new Instant(() -> SimpleShooterMath.turretCompOffset = 0/255f),
                             new Race(
-                                intake(),
+                                new Sequential(
+                                    intake()
+                                ),
                                 new WaitUntil(() -> robot.drivetrain.tValueCondition(0.95))
-                            )
+                            ),
+                            new Instant(() -> robot.stopIntake())
                         )
                 ),
                 //Shooting
@@ -207,6 +193,7 @@ public class SoloAuto extends OpModeCommand {
                                 robot.gate.open()
                         )
                 ),
+                new Wait(50),
                 shoot()
         );
     }
@@ -303,6 +290,13 @@ public class SoloAuto extends OpModeCommand {
                         )
                 )
             )
+        );
+    }
+
+    public ICommand park() {
+        return new Sequential(
+                shoot(),
+                robot.drivetrain.follow()
         );
     }
 

@@ -77,6 +77,10 @@ public class MTITele extends OpModeCommand {
                         new Instant(() -> robot.intake(true))
                 ),
                 new Instant(robot.flywheel::near),
+                new Instant(() -> {
+                    IntakeDistanceSensors.useSensors = false;
+                    TrackingThread.velocityCompensation = true;
+                }),
                 new Wait(500)
             )
         );

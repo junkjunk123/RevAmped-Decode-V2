@@ -187,7 +187,11 @@ public class SoloCloseAuto extends OpModeCommand {
                 robot.drivetrain.follow(),
                 new Sequential(
                         new Instant(() -> {
-                            SimpleShooterMath.velOffset = 0;
+                            if (isInitial){
+                                SimpleShooterMath.velOffset = -20;
+                            } else{
+                                SimpleShooterMath.velOffset = 0;
+                            }
                             if (Globals.allianceColor == AllianceColor.Blue) SimpleShooterMath.turretCompOffset += 2/255f;
                             else SimpleShooterMath.turretCompOffset -= 2/255f;
                         }),
