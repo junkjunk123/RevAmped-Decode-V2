@@ -1982,13 +1982,20 @@ class AutomatedOffsetsTuner extends OpMode {
     private final Stack<Vector> poses = new Stack<>();
     private Vector offsets;
 
-    private record Circle(Vector center, double radius) {}
+    private static class Circle {
+        Vector center;
+        double radius;
+
+        Circle(Vector center, double radius) {
+            this.center = center;
+            this.radius = radius;
+        }
+    }
 
     @Override
     public void init() {
         follower.setStartingPose(new Pose());
         follower.update();
-        drawOnlyCurrent();
     }
 
     @Override
@@ -1998,7 +2005,9 @@ class AutomatedOffsetsTuner extends OpMode {
         follower.setTeleOpDrive(0, 0, POWER, true);
     }
 
-    /** This initializes the PoseUpdater as well as the Panels telemetry. */
+    /**
+     * This initializes the PoseUpdater as well as the Panels telemetry.
+     */
     @Override
     public void init_loop() {
         telemetryM.debug("This will turn continuously in place for " + RUNTIME + " seconds.");
@@ -2038,8 +2047,6 @@ class AutomatedOffsetsTuner extends OpMode {
         telemetryM.debug("strafeX: " + offsets.getXComponent());
         telemetryM.debug("forwardY: " + offsets.getYComponent());
         telemetryM.update(telemetry);
-
-        draw();
     }
 
     private Vector fitCircle(Vector[] points) {
@@ -2052,155 +2059,64 @@ class AutomatedOffsetsTuner extends OpMode {
     private static Circle taubin(Vector[] pts) {
         int n = pts.length;
 
-        // Mean-center for numerical stability
         double mx = 0, my = 0;
-        for (Vector p : pts) { mx += p.getXComponent(); my += p.getYComponent(); }
-        mx /= n; my /= n;
-
-        // Accumulate moments in centered coordinates (u,v) = (x-mx, y-my)
-        double Muu=0, Mvv=0, Muv=0, Muz=0, Mvz=0, Mzz=0;
         for (Vector p : pts) {
-            double u = p.getXComponent()-mx, v = p.getYComponent()-my;
-            double z = u*u + v*v;
-            Muu += u*u; Mvv += v*v; Muv += u*v;
-            Muz += u*z; Mvz += v*z; Mzz += z*z;
+            mx += p.getXComponent();
+            my += p.getYComponent();
         }
-        Muu/=n; Mvv/=n; Muv/=n; Muz/=n; Mvz/=n; Mzz/=n;
-        double Mz = Muu + Mvv;
+        mx /= n;
+        my /= n;
 
-        // Data scatter matrix (symmetric by construction)
-        Matrix Cov = new Matrix(new double[][]{
-                { Mzz, Muz, Mvz },
-                { Muz, Muu, Muv },
-                { Mvz, Muv, Mvv }
-        });
-
-        // Taubin constraint matrix:
-        //   Con = [[4Mz, 0, 2],
-        //          [0,   1, 0],
-        //          [2,   0, 0]]
-        //
-        // Analytic Cholesky factor L (lower triangular, Con = L L^T):
-        //   L    = [[2*sqMz,  0,      0     ],
-        //           [0,       1,      0     ],
-        //           [1/sqMz,  0,      1/sqMz]]
-        //
-        // Analytic L^{-1} (Linv, lower triangular):
-        //   Linv = [[1/(2sqMz),  0,   0    ],
-        //           [0,          1,   0    ],
-        //           [-1/(2Mz),   0,   sqMz ]]
-        double sqMz = Math.sqrt(Mz);
-        double li00 =  1.0/(2*sqMz);   // Linv[0][0]
-        double li11 =  1.0;            // Linv[1][1]
-        double li20 = -1.0/(2*Mz);    // Linv[2][0]
-        double li22 =  sqMz;          // Linv[2][2]
-
-        // S = Linv * Cov * Linv^T  via two sparse matrix multiplies.
-        // Linv is lower-triangular with only 4 nonzeros, so we expand manually
-        // rather than paying for a general Matrix.multiply — but we use Matrix
-        // to store the result so the rest of the code can use Matrix operations.
-        Matrix tmp = new Matrix(3, 3);  // tmp = Linv * Cov
-        for (int j = 0; j < 3; j++) {
-            tmp.set(0, j, li00 * Cov.get(0, j));
-            tmp.set(1, j, li11 * Cov.get(1, j));
-            tmp.set(2, j, li20 * Cov.get(0, j) + li22 * Cov.get(2, j));
+        double Mxx = 0, Myy = 0, Mxy = 0, Mxz = 0, Myz = 0, Mzz = 0;
+        for (Vector p : pts) {
+            double x = p.getXComponent() - mx, y = p.getYComponent() - my;
+            double z = x * x + y * y;
+            Mxx += x * x;
+            Myy += y * y;
+            Mxy += x * y;
+            Mxz += x * z;
+            Myz += y * z;
+            Mzz += z * z;
         }
-        Matrix S = new Matrix(3, 3);    // S = tmp * Linv^T
-        for (int i = 0; i < 3; i++) {
-            // Linv^T columns: col0=(li00,0,li20), col1=(0,li11,0), col2=(0,0,li22)
-            S.set(i, 0, tmp.get(i,0)*li00 + tmp.get(i,2)*li20);
-            S.set(i, 1, tmp.get(i,1)*li11);
-            S.set(i, 2, tmp.get(i,2)*li22);
-        }
-        // Force exact symmetry to kill floating-point residual asymmetry
-        for (int i = 0; i < 3; i++)
-            for (int j = i+1; j < 3; j++) {
-                double avg = (S.get(i,j) + S.get(j,i)) * 0.5;
-                S.set(i,j,avg); S.set(j,i,avg);
-            }
+        Mxx /= n;
+        Myy /= n;
+        Mxy /= n;
+        Mxz /= n;
+        Myz /= n;
+        Mzz /= n;
 
-        // Analytic symmetric eigensolver — valid because S is symmetric by construction
-        double[]   eigval = new double[3];
-        double[][] eigvec = new double[3][3];
-        eigenSymm3x3(S, eigval, eigvec);
+        double Mz = Mxx + Myy;
+        double CovXy = Mxx * Myy - Mxy * Mxy;
+        double VarZ = Mzz - Mz * Mz;
 
-        // Map eigenvectors back to original space: p = Linv^T * q
-        // Linv^T is upper triangular:  [[li00, 0, li20], [0, li11, 0], [0, 0, li22]]
-        for (int k = 0; k < 3; k++) {
-            double q0 = eigvec[0][k], q1 = eigvec[1][k], q2 = eigvec[2][k];
-            eigvec[0][k] = li00*q0 + li20*q2;
-            eigvec[1][k] = li11*q1;
-            eigvec[2][k] = li22*q2;
+        double A3 = 4 * Mz;
+        double A2 = -3 * Mz * Mz - Mzz;
+        double A1 = VarZ * Mz + 4 * CovXy * Mz - Mxz * Mxz - Myz * Myz;
+        double A0 = Mxz * (Mxz * Myy - Myz * Mxy) + Myz * (Myz * Mxx - Mxz * Mxy) - VarZ * CovXy;
+        double A22 = A2 + A2;
+        double A33 = A3 + A3 + A3;
+
+        double x = 0, y = A0;
+        for (int iter = 0; iter < 99; iter++) {
+            double dy = A1 + x * (A22 + A33 * x);
+            double xnew = x - y / dy;
+            if (xnew == x || !Double.isFinite(xnew)) break;
+            double ynew = A0 + xnew * (A1 + xnew * (A2 + xnew * A3));
+            if (Math.abs(ynew) >= Math.abs(y)) break;
+            x = xnew;
+            y = ynew;
         }
 
-        // Pick eigenvector with smallest positive eigenvalue
-        int best = -1;
-        double bestVal = Double.MAX_VALUE;
-        for (int i = 0; i < 3; i++)
-            if (eigval[i] > 1e-10 && eigval[i] < bestVal) { bestVal = eigval[i]; best = i; }
-        if (best < 0) best = 0;
-
-        double A0 = eigvec[0][best], B0 = eigvec[1][best], C0 = eigvec[2][best];
-        double cx = -B0/(2*A0) + mx;
-        double cy = -C0/(2*A0) + my;
-        double r  = Math.sqrt(cx*cx + cy*cy - C0/A0);
+        double det = x * x - x * Mz + CovXy;
+        double cxc = (Mxz * (Myy - x) - Myz * Mxy) / det / 2.0;
+        double cyc = (Myz * (Mxx - x) - Mxz * Mxy) / det / 2.0;
+        double r = Math.sqrt(cxc * cxc + cyc * cyc + Mz);
 
         Vector center = new Vector();
-        center.setOrthogonalComponents(cx, cy);
+        center.setOrthogonalComponents(cxc + mx, cyc + my);
         return new Circle(center, r);
     }
 
-    private static void eigenSymm3x3(Matrix S, double[] eigval, double[][] eigvec) {
-        double s00=S.get(0,0), s11=S.get(1,1), s22=S.get(2,2);
-        double s01=S.get(0,1), s02=S.get(0,2), s12=S.get(1,2);
-
-        double tr = s00 + s11 + s22;
-        double q  = tr / 3.0;
-
-        // p = sqrt( ||S - q*I||_F^2 / 6 )
-        double p2 = (s00-q)*(s00-q) + (s11-q)*(s11-q) + (s22-q)*(s22-q)
-                + 2*(s01*s01 + s02*s02 + s12*s12);
-        double p  = Math.sqrt(p2 / 6.0);
-
-        if (p < 1e-14) {
-            // S is a scalar multiple of I — all eigenvalues equal q
-            eigval[0] = eigval[1] = eigval[2] = q;
-            eigvec[0][0]=eigvec[1][1]=eigvec[2][2]=1;
-            return;
-        }
-
-        // B = (S - q*I) / p,  r = det(B) / 2
-        double b00=(s00-q)/p, b11=(s11-q)/p, b22=(s22-q)/p;
-        double b01=s01/p,     b02=s02/p,     b12=s12/p;
-        double r = ( b00*(b11*b22 - b12*b12)
-                - b01*(b01*b22 - b12*b02)
-                + b02*(b01*b12 - b11*b02) ) / 2.0;
-
-        // Clamp to [-1,1] for numerical safety in acos
-        double phi = r <= -1.0 ? Math.PI/3.0
-                : r >=  1.0 ? 0.0
-                : Math.acos(r) / 3.0;
-
-        eigval[0] = q + 2*p*Math.cos(phi);
-        eigval[2] = q + 2*p*Math.cos(phi + 2*Math.PI/3.0);
-        eigval[1] = tr - eigval[0] - eigval[2];  // trace identity
-
-        // Eigenvectors via cross products of rows of (S - lambda*I)
-        for (int k = 0; k < 3; k++) {
-            double lam = eigval[k];
-            double[] r0 = { s00-lam, s01,     s02     };
-            double[] r1 = { s01,     s11-lam, s12     };
-            double[] r2 = { s02,     s12,     s22-lam };
-
-            double[] v = maxNorm3(cross3(r0, r1), cross3(r0, r2), cross3(r1, r2));
-            double norm = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-            eigvec[0][k] = v[0]/norm;
-            eigvec[1][k] = v[1]/norm;
-            eigvec[2][k] = v[2]/norm;
-        }
-    }
-
-    // Gauss-Newton minimizing sum of (dist_i - r)^2
     private static Circle gaussNewton(Vector[] pts, Circle init) {
         double a = init.center.getXComponent();
         double b = init.center.getYComponent();
@@ -2208,26 +2124,23 @@ class AutomatedOffsetsTuner extends OpMode {
         int n = pts.length;
 
         for (int iter = 0; iter < 200; iter++) {
-            // Residuals f_i = dist_i - r  and Jacobian rows [df/da, df/db, df/dr]
             double[] res = new double[n];
-            double[] da  = new double[n];
-            double[] db  = new double[n];
-            double[] dr  = new double[n];
+            double[] da = new double[n];
+            double[] db = new double[n];
+            double[] dr = new double[n];
 
             for (int i = 0; i < n; i++) {
-                double dx   = pts[i].getXComponent() - a;
-                double dy   = pts[i].getYComponent() - b;
-                double dist = Math.sqrt(dx*dx + dy*dy);
+                double dx = pts[i].getXComponent() - a;
+                double dy = pts[i].getYComponent() - b;
+                double dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < 1e-4) continue;
                 res[i] = dist - r;
-                da[i]  = -dx/dist;
-                db[i]  = -dy/dist;
-                dr[i]  = -1.0;
+                da[i] = -dx / dist;
+                db[i] = -dy / dist;
+                dr[i] = -1.0;
             }
 
-            // Build J^T J (3x3) and J^T f (3x1) using Matrix
-            // J columns are [da, db, dr] treated as column vectors
-            double[][] jCols = { da, db, dr };
+            double[][] jCols = {da, db, dr};
 
             Matrix JtJ = new Matrix(3, 3);
             Matrix Jtf = new Matrix(3, 1);
@@ -2244,14 +2157,12 @@ class AutomatedOffsetsTuner extends OpMode {
                 }
             }
 
-            // Convergence check: gradient of cost = 2 * J^T f
             double gradNorm = 0;
-            for (int i = 0; i < 3; i++) gradNorm += Jtf.get(i,0) * Jtf.get(i,0);
+            for (int i = 0; i < 3; i++) gradNorm += Jtf.get(i, 0) * Jtf.get(i, 0);
             if (Math.sqrt(gradNorm) * 2 < 1e-12) break;
 
-            // Solve JtJ * delta = Jtf using Matrix.rref
-            Matrix[] rref = Matrix.rref(JtJ, Jtf);
-            Matrix delta = rref[1];  // solution after back-substitution
+            Matrix invJtJ = Matrix.inverse3x3(JtJ);
+            Matrix delta = invJtJ.times(Jtf);
 
             a -= delta.get(0, 0);
             b -= delta.get(1, 0);
@@ -2261,23 +2172,6 @@ class AutomatedOffsetsTuner extends OpMode {
         Vector center = new Vector();
         center.setOrthogonalComponents(a, b);
         return new Circle(center, r);
-    }
-
-    private static double[] cross3(double[] a, double[] b) {
-        return new double[]{
-                a[1]*b[2] - a[2]*b[1],
-                a[2]*b[0] - a[0]*b[2],
-                a[0]*b[1] - a[1]*b[0]
-        };
-    }
-
-    private static double[] maxNorm3(double[]... vecs) {
-        double[] best = vecs[0]; double bestN = 0;
-        for (double[] v : vecs) {
-            double n = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-            if (n > bestN) { bestN = n; best = v; }
-        }
-        return best;
     }
 }
 
